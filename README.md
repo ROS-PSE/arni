@@ -1,5 +1,6 @@
 arni-base
 =========
+Why another folder for code? We already have one...
 
 this is the codebase of the Advanced ROS Network Introspection.
 
