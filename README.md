@@ -1,13 +1,12 @@
 arni-base
 =========
-Why another folder for code? We already have one...
-
 this is the codebase of the Advanced ROS Network Introspection.
 
 ===
 
 guidelines for developers:
-- every commit should be commented in english
+- everything in this repository should be in english.
+- every commit should be commented in english.
 - python code has to follow the  [ROS](http://wiki.ros.org/PyStyleGuide) and the [pep8](http://legacy.python.org/dev/peps/pep-0008/)
 style guide
 - directories begin with a lower case character
