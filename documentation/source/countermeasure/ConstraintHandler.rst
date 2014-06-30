@@ -1,5 +1,5 @@
 ConstraintHandler
-=======
+=================
 
 .. automodule:: ConstraintHandler
 

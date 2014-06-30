@@ -1,5 +1,5 @@
 RatedStatisticStorage
-=========
+=====================
 
 .. automodule:: RatedStatisticStorage
 
