@@ -13,11 +13,13 @@
 # file has the same name as the class + .py
 # each class has its own file.
 
-####### 
+#######
 # NOTE:
 # THIS CLASS IS COMPLETELY MISSING THE DOCUMENTATION
 # GUIDLINE, TO BE ADDED SOON
 #######
+
+
 class SomeClass(object):
 
     def __init__(self):
