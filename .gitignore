@@ -50,5 +50,11 @@ coverage.xml
 *.pot
 
 # Sphinx documentation
-docs/_build/
+documentation/build/
 
+# sublimetext
+*.sublime-project
+*.sublime-workspace
+
+# ??
+.idea/
