@@ -3,6 +3,7 @@ class StorageContainer:
     def __init__(self, timestamp, identifier, data_raw, data_rated):
         """
         Creates a storage container for raw and rated metadata.
+        
         :param timestamp: The timestamp of capture of the raw data.
         :type timestamp: rospy.Time.
         :param identifier: The seuid identifying the source of the data.

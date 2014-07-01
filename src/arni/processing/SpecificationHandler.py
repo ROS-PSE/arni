@@ -15,6 +15,7 @@ class SpecificationHandler:
     def get(self, identifier):
         """
         Returns the Specification object from the internal storage.
+
         :param identifier: The seuid describing the desired Specification object.
         :return: The Specification object with the given identifier, None if it was not found.
         """
@@ -25,6 +26,7 @@ class SpecificationHandler:
     def compare(self, metadata, specification = None):
         """
         Compares a Metadata object with a Specification object regarding all available matching fields.
+
         :param metadata: The Metadata object
         :type metadata: Metadata.
         :param specification: The Specification object, alternatively a string identifying it.

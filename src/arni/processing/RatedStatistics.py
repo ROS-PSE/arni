@@ -9,7 +9,8 @@ class RatedStatistics:
 
     def __init__(self, seuid):
         """
-        Creates a new RatedStatistics object for the given connection identifier..
+        Creates a new RatedStatistics object for the given connection identifier.
+
         :param seuid: Identifies a host/node/connection.
         :type seuid: str.
         """
@@ -18,6 +19,7 @@ class RatedStatistics:
     def add_value(self, metatype, actual, expected, state):
         """
         Adds a group of values for a metatype.
+
         :param metatype: The measured field.
         :type metatype: str.
         :param actual: The actual value.
@@ -32,6 +34,7 @@ class RatedStatistics:
     def get_value(self, metatype):
         """
         Returns values of the given metatype.
+
         :param metatype: The metatype to return the values for.
         :type metatype: str.
         :returns: A dictionary with the keys *metatype*, *actual*, *expected* and *state*, each field containing it's respective values.

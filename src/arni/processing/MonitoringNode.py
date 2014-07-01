@@ -17,6 +17,7 @@ class MonitoringNode:
         Topic callback method.
         Receives data from the topic, sends them to the storage,
         lets them process and finally publishes the comparison result.
+
         :param data: The data received from the topic.
         """
         # switch type
@@ -25,6 +26,7 @@ class MonitoringNode:
     def __process_data(self, data):
         """
         Kicks off the processing of the received data.
+
         :param data: Host or Node Statistics from the HostStatistics, TopicStatistics or NodeStatistics topics.
         :return: RatedStatistics.
         """
@@ -34,7 +36,8 @@ class MonitoringNode:
 
     def __publish_data(self, data):
         """
-        Publishes data to the RatedStatistics topic
+        Publishes data to the RatedStatistics topic.
+
         :param data: The data to be published
         :type data: RatedStatistics
         """
@@ -43,6 +46,7 @@ class MonitoringNode:
     def storage_server(self, request):
         """
         Returns StorageContainer objects on request.
+
         :param request: The request containing a timestamp and an identifier.
         :type request: MetadataStorageRequest.
         :returns: MetadataStorageResponse

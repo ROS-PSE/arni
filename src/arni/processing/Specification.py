@@ -12,6 +12,7 @@ class Specification:
     def add_tuple(self, tuple):
         """
         Adds a MetadataTuple to the bundle.
+
         :param tuple: The Tuple to be added.
         :type tuple: MetadataTuple
         """
@@ -20,6 +21,7 @@ class Specification:
     def get(self, key):
         """
         Returns the value of the MetadataTuple with the given key.
+
         :param key: The identifier for the stored measurement.
         :type key: str
         :return: A list containing limit values for the measured fields. False, if the key does not exist.
@@ -30,6 +32,8 @@ class Specification:
 
     def __init__(self, tuples = {}):
         """
+        A new Specification object to bundle multiple specifications.
+
         :param tuples: Optionally give tuples on creation. Use add_tuple(MetadataTuple) afterwards.
         :type tuples: dict(str, MetadataTuple)
         """

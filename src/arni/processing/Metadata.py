@@ -10,6 +10,7 @@ class Metadata:
     def add_tuple(self, tuple):
         """
         Adds a MetadataTuple to the bundle.
+
         :param tuple: The Tuple to be added.
         :type tuple: MetadataTuple
         """
@@ -18,6 +19,7 @@ class Metadata:
     def get(self, key):
         """
         Returns the value of the MetadataTuple with the given key.
+
         :param key: The identifier for the stored measurement.
         :type key: str
         :return: A value of any type for the measured field. False, if the key does not exist.
@@ -28,6 +30,8 @@ class Metadata:
 
     def __init__(self, tuples = {}):
         """
+        A new Metadata object to bundle multiple measurements.
+
         :param tuples: Optionally give tuples on creation. Use add_tuple(MetadataTuple) afterwards.
         :type tuples: dict(str, MetadataTuple)
         """

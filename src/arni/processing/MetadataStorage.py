@@ -15,6 +15,7 @@ class MetadataStorage:
     def store(self, container):
         """
         Stores a given StorageContainer object.
+
         :param container: The data to store.
         :type container StorageContainer
         """
@@ -25,6 +26,7 @@ class MetadataStorage:
     def get(self, identifier = "*", timestamp = rospy.Time(0)):
         """
         Returns all StorageContainers for a given identifier since a given timestamp.
+
         :param identifier: The identifier to return StorageContainer objects for. Use ``*`` to get all.
         :type identifier: str.
         :param timestamp: A timestamp marking the point of the oldest data you want. 0 returns all.
@@ -41,6 +43,7 @@ class MetadataStorage:
     def __init__(self, duration = 300000):
         """
         Saves received metadata packages for a given period of time and can provide them on request.
+
         :param duration: Optional the duration to keep objects in storage. Set to 5 minutes by default.
         :type duration: int.
         """
