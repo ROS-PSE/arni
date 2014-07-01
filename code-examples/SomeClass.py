@@ -21,8 +21,16 @@
 
 
 class SomeClass(object):
+"""
+This is the description for the class
 
+Attributes: #only public attributes
+    * size(int): the size
+"""
     def __init__(self):
+        """
+        init method
+        """
         super(SomeClass, self).__init__()
 
         # a public attribute
@@ -52,6 +60,14 @@ class SomeClass(object):
 
     @another_attribute.setter
     def another_attribute(self, value):
+        """
+        example method with random text :)
+
+        :param value: The data to be published
+        :type value: RatedStatistics
+        :returns: MetadataStorageResponse
+        :raise ValueError: If the key is null or empty.
+        """
         if value > 40:
             value = 40
         self._another_attribute = value

@@ -9,7 +9,7 @@ class BufferThread:threading.Thread:
 """
 This thread should buffer the incoming data and regulary update the model and hence also the model.
 """
-	def __init__(model):
+	def __init__(self, model):
 		"""
 		Starts the thread and also the timer for regulary updates of the model. It is ensured via the running attribute that this function cannot be called multiple times.
 		"""
