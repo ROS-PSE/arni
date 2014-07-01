@@ -8,7 +8,7 @@ class RatedStatisticStorage(object):
         super(RatedStatisticStorage, self).__init__()
 
         #: A dictionary containing all rated statistic
-        #: information with their outcome and an timestamp 
+        #: information with their outcome and an timestamp
         #: when they got added / updated to the dictionary.
         self.__statistic_storage
 
@@ -18,7 +18,7 @@ class RatedStatisticStorage(object):
         self.__timeout
 
     def clean_old_statistic(self):
-        """Check the complete dictionary for statistics 
+        """Check the complete dictionary for statistics
         older than timeout seconds and remove them.
         """
         pass
@@ -26,7 +26,7 @@ class RatedStatisticStorage(object):
     def callback_rated_statistic(self, msg):
         """Callback for incoming rated statistics.
         Add them to the dictionary or remove items from
-        the dictionary if the rated statistic 
+        the dictionary if the rated statistic
         says that its within bounds again.
         """
         pass
