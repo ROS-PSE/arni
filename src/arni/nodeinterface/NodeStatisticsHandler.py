@@ -2,7 +2,9 @@ import StatisticsHandler from StatisticsHandler
 
 class NodeStatisticsHandler(StatisticsHandler):
 
-	"""Holds the statistics of an individual Node."""
+	"""
+	Holds the statistics of an individual Node.
+	"""
 	
 	def __init__(self, host_id, node_id):
 	
@@ -19,13 +21,16 @@ class NodeStatisticsHandler(StatisticsHandler):
 		
 	
 	def measure_status(self):
-		"""Collects information about the node's current status 
+		"""
+		Collects information about the node's current status 
 		using psutils and rospy.statistics
-		Triggered periodically. """
+		Triggered periodically.
+		"""
 		pass
 		
 	def publish_status(self, topic):
-		"""Publishes the current status to a topic using ROS's publisher-subscriber mechanism.
+		"""
+		Publishes the current status to a topic using ROS's publisher-subscriber mechanism.
 		Triggered periodically.
 		
 		:topic: Topic to which the data should be published. 
@@ -33,7 +38,8 @@ class NodeStatisticsHandler(StatisticsHandler):
 		pass
 		
 	def __calc_statistics(self):
-		"""Calculates statistics like mean, standard deviation and max from the status.
+		"""
+		Calculates statistics like mean, standard deviation and max from the status.
 		Returns an instance of HostStatistics which can be published.
 		
 		:returns: NodeStatistics 
@@ -41,6 +47,8 @@ class NodeStatisticsHandler(StatisticsHandler):
 		pass
 		
 	def __receive_statistics(self):
-		"""Receives the statistics published by ROS Topic statistics."""
+		"""
+		Receives the statistics published by ROS Topic statistics.
+		"""
 		
 		pass
