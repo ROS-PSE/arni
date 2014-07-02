@@ -4,9 +4,11 @@ import NodeManager from NodeManager
 
 class HostStatisticsHandler( StatisticsHandler):
 
-	"""Represents a host , limited to one instance per host. 
+	"""
+	Represents a host , limited to one instance per host. 
 	Collects statistics about the current state of the host and s
-	ends them using the publisher-subscriber mechanism. """
+	ends them using the publisher-subscriber mechanism. 
+	"""
 	
 	def __init(self, hostid):
 		
@@ -26,12 +28,15 @@ class HostStatisticsHandler( StatisticsHandler):
 		
 	
 	def measure_status(self):
-		"""Collects information about the host's current status using psutils.
-		Triggered periodically."""
+		"""
+		Collects information about the host's current status using psutils.
+		Triggered periodically.
+		"""
 		pass
 		
 	def publish_status(self, topic):
-		"""Publishes the current status to a topic using ROS's publisher-subscriber mechanism.
+		"""
+		Publishes the current status to a topic using ROS's publisher-subscriber mechanism.
 		Triggered periodically.
 		
 		:topic: Topic to which the data should be published. 
@@ -39,7 +44,8 @@ class HostStatisticsHandler( StatisticsHandler):
 		pass
 		
 	def __calc_statistics(self):
-		"""Calculates statistics like mean, standard deviation and max from the status.
+		"""
+		Calculates statistics like mean, standard deviation and max from the status.
 		Returns an instance of HostStatistics which can be published.
 		
 		:returns: HostStatistics 
@@ -47,7 +53,8 @@ class HostStatisticsHandler( StatisticsHandler):
 		pass
 		
 	def execute_reaction(self, reaction):
-		"""Parses through the reaction and 
+		"""
+		Parses through the reaction and 
 		calls the appropriate method from the NodeManager. Uses ROS Services.
 		Returns a message about operation's success.
 		
@@ -58,7 +65,8 @@ class HostStatisticsHandler( StatisticsHandler):
 		pass
 		
 	def add_node(self, node_id):
-		"""Adds a Node with the given id to the host.
+		"""
+		Adds a Node with the given id to the host.
 		
 		:param node_id: id of the node to be added.
 		:type node_id: String
@@ -66,7 +74,8 @@ class HostStatisticsHandler( StatisticsHandler):
 		pass
 		
 	def remove_node(self, node_id):
-		"""Removes the Node with the given id from the host.
+		"""
+		Removes the Node with the given id from the host.
 		
 		:param node_id: id of the node to be removed.
 		:type node_id: String

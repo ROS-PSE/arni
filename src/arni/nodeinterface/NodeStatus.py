@@ -3,7 +3,9 @@ import Status from Status
 
 class NodeStatus(Status):
 
-	"""Extension of Status , to store additional information used by nodes."""
+	"""
+	Extension of Status , to store additional information used by nodes.
+	"""
 	
 	def __init__(self):
 	
@@ -24,7 +26,8 @@ class NodeStatus(Status):
 		
 		
 	def add_node_bandwidth(self, bytes):
-		"""Adds another measured value in bytes, taken
+		"""
+		Adds another measured value in bytes, taken
 		from ROS topics statistics, to node_bandwidth. 
 		
 		:param bytes: Bytes measured.
@@ -33,7 +36,8 @@ class NodeStatus(Status):
 		pass
 		
 	def add_node_io(self, read, write):
-		"""Adds another pair of measured disk I/O values 
+		"""
+		Adds another pair of measured disk I/O values 
 		to node_read and node_write. 
 		
 		:param read: Bytes read.
@@ -44,7 +48,8 @@ class NodeStatus(Status):
 		pass
 		
 	def add_node_msg_freq(self, freq):
-		"""Adds another measured value to node_msg_frequency,
+		"""
+		Adds another measured value to node_msg_frequency,
 		taken from ROS topics statistics. 
 		
 		:param freq: frequency of network calls.
@@ -52,4 +57,6 @@ class NodeStatus(Status):
 		"""
 		
 	def reset(self):
-		"""Resets the current status. """
+		"""
+		Resets the current status. 
+		"""

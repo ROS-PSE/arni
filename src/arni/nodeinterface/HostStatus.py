@@ -2,8 +2,10 @@ from Status import Status
 
 class HostStatus(Status):
 
-	"""Extension of Status , to store 
-	additional information used by hosts. """
+	"""
+	Extension of Status , to store 
+	additional information used by hosts. 
+	"""
 	
 	def __init__(self):
 		
@@ -36,7 +38,8 @@ class HostStatus(Status):
 		
 	
 	def add_cpu_temp(self, temp):
-		"""Adds another measured value to cpu_temp. 
+		"""
+		Adds another measured value to cpu_temp. 
 		
 		:param temp: measured temperature in celsius
 		:type temp: int
@@ -44,7 +47,8 @@ class HostStatus(Status):
 		pass
 		
 	def add_cpu_temp_core(self, temps):
-		"""Adds another set of measured values to cpu_temp_core.
+		"""
+		Adds another set of measured values to cpu_temp_core.
 		
 		:param temps: measured temperatures in celsius
 		:type temp: int[]
@@ -52,7 +56,8 @@ class HostStatus(Status):
 		pass
 		
 	def add_gpu_temp(self, temps):
-		"""Adds another set of measured values to gpu_temp.
+		"""
+		Adds another set of measured values to gpu_temp.
 		
 		:param temp: measured temperatures in celsius
 		:type temp: int[]
@@ -60,7 +65,8 @@ class HostStatus(Status):
 		pass
 		
 	def add_bandwidth(self, interface, bytes):
-		"""Adds another  measured value, in bytes, to bandwidth belonging 
+		"""
+		Adds another  measured value, in bytes, to bandwidth belonging 
 		to the given network interface.
 		
 		:param interface: name of the network interface
@@ -71,7 +77,8 @@ class HostStatus(Status):
 		pass
 		
 	def add_msg_frequency(self, interface, freq):
-		"""Adds another  measured value, in hertz, to msg_frequency belonging 
+		"""
+		Adds another  measured value, in hertz, to msg_frequency belonging 
 		to the given network interface.
 		
 		:param interface: name of the network interface
@@ -82,7 +89,8 @@ class HostStatus(Status):
 		pass
 		
 	def add_drive_write(self, disk, byte):
-		"""Adds another  measured value, in bytes, to drive_write belonging 
+		"""
+		Adds another  measured value, in bytes, to drive_write belonging 
 		to the given disk.
 		
 		:param disk: name of the disk
@@ -93,7 +101,8 @@ class HostStatus(Status):
 		pass
 		
 	def add_drive_read(self, disk, byte):
-		"""Adds another  measured value, in bytes, to drive_read belonging 
+		"""
+		Adds another  measured value, in bytes, to drive_read belonging 
 		to the given disk.
 		
 		:param disk: name of the disk
@@ -104,5 +113,7 @@ class HostStatus(Status):
 		pass
 		
 	def reset(self):
-		""" Resets the status """
+		""" 
+		Resets the status .
+		"""
 		pass
