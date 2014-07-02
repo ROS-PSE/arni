@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<library path="src">
+	<class name ="OverviewPlugin" type="rqt_overview.ros_overview.OverviewPlugin" base_class_type="rqt_gui_py::Plugin">
+		<description>
+			TODO
+		</description>
+		<qtgui>
+			<group>
+				<label>Introspection</label>
+				<statustip>Plugin related to introspection</statustip>
+			</group>
+			<label>Overview</label>
+			<icon type="theme">system-help</icon>
+			<statustip>TODO</statustip>
+		</qtgui>
+	</class>
+</library>
