@@ -11,14 +11,14 @@ Welcome to Arni's documentation!
 lets make a nice documentation here.
 
 
-Classlist:
+
+Classlist
+==========
 
 .. toctree::
-    :maxdepth: 2
+    :glob:
 
-    countermeasure/CountermeasureNode
-    countermeasure/ConstraintHandler
-    countermeasure/RatedStatisticStorage
+    classes_plain/*
 
 Indices and tables
 ==================
