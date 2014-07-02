@@ -10,7 +10,7 @@
 				<statustip>Plugins related to introspection</statustip>
 			</group>
 			<label>Overview</label>
-			
+			<icon type="theme">system-help</icon>
 			<statustip>TODO</statustip>
 		</qtgui>
 	</class>

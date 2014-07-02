@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>tree_widget</class>
+ <widget class="QWidget" name="tree_widget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>713</width>
+    <height>259</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QWidget" name="">
+      <layout class="QVBoxLayout" name="widget_vertical_layout">
+       <item>
+        <layout class="QHBoxLayout" name="filter_horizontal_layout">
+         <item>
+          <widget class="QLabel" name="filter_label">
+           <property name="text">
+            <string>Filter:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="filter_line_Edit"/>
+         </item>
+         <item>
+          <widget class="QPushButton" name="apply_push_button">
+           <property name="text">
+            <string>Apply</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontal_layout">
+         <item>
+          <widget class="QCheckBox" name="show_hosts_check_box">
+           <property name="text">
+            <string>Show Hosts</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="show_nodes_check_box">
+           <property name="text">
+            <string>Show Nodes</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBox">
+           <property name="text">
+            <string>Show Topics</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBox_2">
+           <property name="text">
+            <string>Show Connections</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="erroneous_check_box">
+           <property name="text">
+            <string>Only erroneous</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="plus_push_button">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>../../Documents/Minus-32.png</normaloff>../../Documents/Minus-32.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="minus_push_button">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>../../Documents/Plus-32.png</normaloff>../../Documents/Plus-32.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QTreeWidget" name="tree_widget_tree_widget">
+         <column>
+          <property name="text">
+           <string>Type</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Status</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Data</string>
+          </property>
+         </column>
+         <item>
+          <property name="text">
+           <string>Host</string>
+          </property>
+          <property name="text">
+           <string>host1</string>
+          </property>
+          <property name="text">
+           <string>ok</string>
+          </property>
+          <property name="text">
+           <string>cpu: 55%; ram: 50%; network: 55 Mb/s; latency: 10 ms</string>
+          </property>
+          <item>
+           <property name="text">
+            <string>Node</string>
+           </property>
+           <property name="text">
+            <string>node1</string>
+           </property>
+           <property name="text">
+            <string>ok</string>
+           </property>
+           <property name="text">
+            <string>number of topics: 2; name of topics: topic1, topic2; </string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Node</string>
+           </property>
+           <property name="text">
+            <string>node2</string>
+           </property>
+           <property name="text">
+            <string>warning</string>
+           </property>
+           <property name="background">
+            <brush brushstyle="SolidPattern">
+             <color alpha="130">
+              <red>236</red>
+              <green>255</green>
+              <blue>106</blue>
+             </color>
+            </brush>
+           </property>
+           <property name="text">
+            <string>number of topics: 1; name of topics: topic1;</string>
+           </property>
+          </item>
+         </item>
+         <item>
+          <property name="text">
+           <string>Host</string>
+          </property>
+          <property name="text">
+           <string>host2</string>
+          </property>
+          <property name="text">
+           <string>ok</string>
+          </property>
+          <property name="text">
+           <string>cpu: 5%; ram: 10%; network: 5 Mb/s; latency: 100 ms</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Host</string>
+          </property>
+          <property name="text">
+           <string>host3</string>
+          </property>
+          <property name="text">
+           <string>ok</string>
+          </property>
+          <property name="text">
+           <string>cpu: 100%; ram: 80%; network: 15 Mb/s; latency: 1000 ms</string>
+          </property>
+          <item>
+           <property name="text">
+            <string>Node</string>
+           </property>
+           <property name="text">
+            <string>node3</string>
+           </property>
+           <property name="text">
+            <string>error</string>
+           </property>
+           <property name="background">
+            <brush brushstyle="SolidPattern">
+             <color alpha="130">
+              <red>255</red>
+              <green>0</green>
+              <blue>0</blue>
+             </color>
+            </brush>
+           </property>
+           <property name="foreground">
+            <brush brushstyle="NoBrush">
+             <color alpha="255">
+              <red>0</red>
+              <green>0</green>
+              <blue>0</blue>
+             </color>
+            </brush>
+           </property>
+           <property name="text">
+            <string>No data avaiable!</string>
+           </property>
+          </item>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="verticalLayoutWidget">
+      <layout class="QVBoxLayout" name="selection_layout"/>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

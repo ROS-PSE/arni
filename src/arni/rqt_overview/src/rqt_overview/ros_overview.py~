@@ -11,7 +11,7 @@ from rqt_gui_py.plugin import Plugin
 class OverviewPlugin(Plugin):
 
     def __init__(self, context):
-        super(OverviewPlugin, self).__init__(context)
+        super(Overview, self).__init__(context)
         # Give QObjects reasonable names
         self.setObjectName('OverviewPlugin')
 
