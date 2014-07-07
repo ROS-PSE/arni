@@ -10,12 +10,12 @@ class RatedStatisticStorage(object):
         #: A dictionary containing all rated statistic
         #: information with their outcome and an timestamp
         #: when they got added / updated to the dictionary.
-        self.__statistic_storage
+        self.__statistic_storage = dict()
 
         #: The timeout after which an item in ratedstatistic
         #: is declared too old and should be removed
         #: from the dict.
-        self.__timeout
+        self.__timeout = 10
 
     def clean_old_statistic(self):
         """Check the complete dictionary for statistics
@@ -35,4 +35,12 @@ class RatedStatisticStorage(object):
         """Returns the outcome of the specific seuid
         and statistic_type.
         """
-        pass
+        type_dict = self.__statistic_storage[seuid]
+        outTuple = type_dict[statistic_type]
+        outcome = outTuple[0]
+        timestamp = outTuple[1]
+
+
+if __name__ == '__main__':
+    rss = RatedStatisticStorage()
+    rss.get_outcome("blabla", "cpu")
