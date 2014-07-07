@@ -1,6 +1,5 @@
-from ConstraintHandler import ConstraintHandler
-from RatedStatisticStorage import RatedStatisticStorage
-
+from constraint_handler import *
+from rated_statistic_storage import *
 
 class CountermeasureNode(object):
 
@@ -10,7 +9,8 @@ class CountermeasureNode(object):
     """
 
     def __init__(self):
-        """Periodically (threading) evaluate the constraints and clean old statistics."""
+        """Periodically (threading) 
+        evaluate the constraints and clean old statistics."""
         super(CountermeasureNode, self).__init__()
 
         #: The handler for all constraints.

@@ -1,4 +1,4 @@
-from ConstraintItem import ConstraintItem
+from constraint_item import *
 
 
 class ConstraintLeaf(ConstraintItem):

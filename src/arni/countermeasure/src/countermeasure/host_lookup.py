@@ -1,4 +1,4 @@
-class HostLookUp(object):
+class HostLookup(object):
 
     """Contains a dictionary of all nodes and the hosts they run on.
     Singleton.
@@ -7,4 +7,4 @@ class HostLookUp(object):
     """
 
     def __init__(self):
-        super(HostLookUp, self).__init__()
+        super(HostLookup, self).__init__()

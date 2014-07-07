@@ -1,4 +1,4 @@
-from Reaction import Reaction
+from reaction import *
 
 
 class ReactionRun(Reaction):
