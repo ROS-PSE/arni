@@ -1,7 +1,7 @@
 ConstraintHandler
 =================
 
-.. automodule:: ConstraintHandler
+.. automodule:: constraint_handler
 
 .. autoclass:: ConstraintHandler
     :members:

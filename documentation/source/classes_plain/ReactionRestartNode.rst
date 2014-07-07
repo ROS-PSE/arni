@@ -1,7 +1,7 @@
 ReactionRestartNode
 =================
 
-.. automodule:: ReactionRestartNode
+.. automodule:: reaction_restart_node
 
 .. autoclass:: ReactionRestartNode
     :members:

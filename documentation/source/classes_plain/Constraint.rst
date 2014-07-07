@@ -1,7 +1,7 @@
 Constraint
 =================
 
-.. automodule:: Constraint
+.. automodule:: constraint
 
 .. autoclass:: Constraint
     :members:

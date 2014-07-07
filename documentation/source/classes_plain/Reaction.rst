@@ -1,7 +1,7 @@
 Reaction
 =================
 
-.. automodule:: Reaction
+.. automodule:: reaction
 
 .. autoclass:: Reaction
     :members:
