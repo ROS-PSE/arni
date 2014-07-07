@@ -1,0 +1,14 @@
+# ip of the affected host
+string host
+
+# identifier of the affected node
+string node
+
+# action  [restart, stop, command]
+string action
+
+# command (for action command)
+string command
+---
+# message returned upon completion
+string returnmessage
