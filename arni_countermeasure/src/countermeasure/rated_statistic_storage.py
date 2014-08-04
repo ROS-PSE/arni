@@ -4,6 +4,7 @@ from arni_msgs.msg import RatedStatistics, RatedStatisticsEntity
 
 
 class RatedStatisticStorage(object):
+
     """A database which contains the current state
     of all rated statistics.
     """

@@ -15,6 +15,6 @@ class ConstraintItem(object):
     @abstractmethod
     def evaluate_constraint(self, storage):
         """Evaluates if this constraint,
-        given the available RatedStatisticStorage. 
+        given the available RatedStatisticStorage.
         Returns wheter the constraint is true or not."""
         pass
