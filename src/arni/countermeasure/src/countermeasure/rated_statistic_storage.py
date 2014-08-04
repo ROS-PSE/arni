@@ -1,5 +1,6 @@
 import rospy
 from outcome import *
+from arni_msgs.msg import RatedStatistics, RatedStatisticsEntity
 
 
 class RatedStatisticStorage(object):
@@ -11,7 +12,7 @@ class RatedStatisticStorage(object):
     def __init__(self):
         super(RatedStatisticStorage, self).__init__()
 
-        #: A dictionary containing all rated statistic
+        #: A dictionary containing all rated statis tic
         #: information with their outcome and an timestamp
         #: when they got added / updated to the dictionary.
         self.__statistic_storage = dict()
@@ -37,6 +38,49 @@ class RatedStatisticStorage(object):
         :type msg:  RatedStatistics
         """
         rospy.loginfo("countermeasure: got a rated statistic for " + msg.seuid)
+
+        seuid = msg.seuid
+
+        # todo: removeme, im just here for autocompletion
+        msg = RatedStatistics()
+
+        for entity in msg.rated_statistics_entity:
+            stat_type = entity.statistic_type
+
+            # its not an array, so treat it differently
+            if len(entity.actual_value) == 1:
+                self.__add_single_outcome(
+                    seuid, stat_type, entity.state[0], msg.window_stop)
+            else:
+                # split the array in a lot of entries
+                for i in range(len(entity.actual_value)):
+                    self.__add_single_outcome(
+                        seuid, stat_type + "_" + i, entity.state[i],
+                        msg.window_stop)
+
+        # try:
+
+        #     # init second dict if needed
+        #     if msg.seuid not in store:
+        #         store[msg.seuid] = dict()
+
+        #     else:
+        #         type_dict = store[msg.seuid]
+
+        #         # special handling if this is just a single value wrapped
+        #         # in an array
+                
+        # except Exception:
+        #     pass
+
+    def __add_single_outcome(
+            self, seuid, statistic_type, outcome, timestamp):
+        # thats just too long..
+        store = self.__statistic_storage
+        if seuid not in store:
+            store[msg.seuid] = dict()
+
+
         pass
 
     def get_outcome(self, seuid, statistic_type):
