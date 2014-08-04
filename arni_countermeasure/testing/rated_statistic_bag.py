@@ -26,7 +26,7 @@ def create_statistic_entity():
     msg.statistic_type = "cpu_usage_mean"
     msg.actual_value = ["56.6"]
     msg.expected_value = ["0 - 50"]
-    msg.state = [3]
+    msg.state = [1]
     return msg
 
 

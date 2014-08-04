@@ -21,12 +21,12 @@
 
 
 class SomeClass(object):
-"""
-This is the description for the class
+    """
+    This is the description for the class
 
-Attributes: #only public attributes
-    * size(int): the size
-"""
+    Attributes: #only public attributes
+        * size(int): the size
+    """
     def __init__(self):
         """
         init method
@@ -85,5 +85,6 @@ Attributes: #only public attributes
     def __im_a_private_method(self, arg1, arg2):
         pass
 
+    @staticmethod
     def i_am_a_function():
         pass

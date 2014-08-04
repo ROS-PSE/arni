@@ -7,6 +7,7 @@ class Outcome(object):
     OK = 3
     OUT_OF_BOUNDS = 4
 
+    @staticmethod
     def is_valid(out):
         """Check if a outcome (numeric representation) is valid.
 

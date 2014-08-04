@@ -4,7 +4,6 @@ from arni_msgs.msg import RatedStatistics, RatedStatisticsEntity
 
 
 class RatedStatisticStorage(object):
-
     """A database which contains the current state
     of all rated statistics.
     """
@@ -20,13 +19,30 @@ class RatedStatisticStorage(object):
         #: The timeout after which an item in ratedstatistic
         #: is declared too old and should be removed
         #: from the dict.
-        self.__timeout = 10
+        #: type: Duration
+        self.__timeout = rospy.Duration(10)
 
     def clean_old_statistic(self):
         """Check the complete dictionary for statistics
         older than timeout seconds and remove them.
         """
-        pass
+        store = self.__statistic_storage
+
+        # get the time once
+        curtime = rospy.get_rostime()
+
+        todelete = list()
+
+        # grab all old statistics
+        for seuid in store:
+            for statistic_type in store[seuid]:
+                timestamp = store[seuid][statistic_type][1]
+                if curtime - timestamp > self.__timeout:
+                    todelete.append((seuid, statistic_type))
+
+        # remove them
+        for seuid, statistic_type in todelete:
+            self.__remove_item(seuid, statistic_type)
 
     def callback_rated_statistic(self, msg):
         """Callback for incoming rated statistics.
@@ -37,12 +53,14 @@ class RatedStatisticStorage(object):
         :param msg: The rated statistic to be added to the storage.
         :type msg:  RatedStatistics
         """
-        rospy.loginfo("countermeasure: got a rated statistic for " + msg.seuid)
+
+        #TODO: removeme
+        rospy.loginfo("cm: got a rated statistic for " + msg.seuid)
 
         seuid = msg.seuid
 
-        # todo: removeme, im just here for autocompletion
-        msg = RatedStatistics()
+        # # todo: removeme, im just here for autocompletion
+        # msg = RatedStatistics()
 
         for entity in msg.rated_statistics_entity:
             stat_type = entity.statistic_type
@@ -50,38 +68,40 @@ class RatedStatisticStorage(object):
             # its not an array, so treat it differently
             if len(entity.actual_value) == 1:
                 self.__add_single_outcome(
-                    seuid, stat_type, entity.state[0], msg.window_stop)
+                    seuid, stat_type, ord(entity.state[0]), msg.window_stop)
             else:
                 # split the array in a lot of entries
                 for i in range(len(entity.actual_value)):
                     self.__add_single_outcome(
-                        seuid, stat_type + "_" + i, entity.state[i],
+                        seuid, stat_type + "_" + i, ord(entity.state[i]),
                         msg.window_stop)
-
-        # try:
-
-        #     # init second dict if needed
-        #     if msg.seuid not in store:
-        #         store[msg.seuid] = dict()
-
-        #     else:
-        #         type_dict = store[msg.seuid]
-
-        #         # special handling if this is just a single value wrapped
-        #         # in an array
-                
-        # except Exception:
-        #     pass
 
     def __add_single_outcome(
             self, seuid, statistic_type, outcome, timestamp):
+        """Add a single outcome to the storage.
+
+        :param seuid:   The seuid from the entity.
+        :type seuid:    string
+
+        :param statistic_type:  The type of statistic to add.
+        :type statistic_type:   string
+
+        :param outcome: The outcome the type had.
+        :type outcome:  Outcome
+
+        :param timestamp:   The time when this outcome was send.
+        :type timestamp:    rospy.Time
+
+        """
         # thats just too long..
         store = self.__statistic_storage
         if seuid not in store:
-            store[msg.seuid] = dict()
+            store[seuid] = dict()
 
-
-        pass
+        # the dictionary for a specific entity having the specified entity
+        entity_dict = store[seuid]
+        entity_dict[statistic_type] = outcome, timestamp
+        self.clean_old_statistic()
 
     def get_outcome(self, seuid, statistic_type):
         """Return the outcome of the specific seuid
@@ -98,36 +118,43 @@ class RatedStatisticStorage(object):
                     Returns Outcome.UNKNOWN if there is no saved outcome.
         :rtype: Outcome (int)
 
-        :raises AttributeError: If the outcome in the storage 
+        :raises AttributeError: If the outcome in the storage
                                 is not a valid outcome. Should not occur
-                                because there is a validation check upon 
+                                because there is a validation check upon
                                 entering the outcome into the storage.
 
         """
-        try:
-            type_dict = self.__statistic_storage[seuid]
-            outTuple = type_dict[statistic_type]
+        type_dict = self.__statistic_storage[seuid]
+        outTuple = type_dict[statistic_type]
 
-            outcome = outTuple[0]
-            timestamp = outTuple[1]
+        outcome = outTuple[0]
+        timestamp = outTuple[1]
 
-            if rospy.get_rostime() - timestamp > self.__timeout:
-                self.__remove_item(seuid, statistic_type)
-                return Outcome.UNKNOWN
-
-            elif Outcome.is_valid(outcome):
-                return outcome
-            else:
-                raise AttributeError
-
-        except KeyError:
+        # check if the item is too old
+        if rospy.get_rostime() - timestamp > self.__timeout:
+            self.__remove_item(seuid, statistic_type)
             return Outcome.UNKNOWN
 
+        elif Outcome.is_valid(outcome):
+            return outcome
+        else:
+            raise AttributeError
+
     def __remove_item(self, seuid, statistic_type):
-        pass
+        """ Remove an statistic_type from an entity from the storage.
 
+        :param seuid:   The seuid of the entity.
+        :type seuid:    string
 
+        :param statistic_type:  The type to be removed.
+        :type statistic_type:   string
 
-if __name__ == '__main__':
-    rss = RatedStatisticStorage()
-    rss.get_outcome("blabla", "cpu")
+        :raises KeyError:   If the seuid/statistic_type does not exist
+                            in the storage.
+        """
+        try:
+            del self.__statistic_storage[seuid][statistic_type]
+        except KeyError:
+            rospy.logdebug(
+                "arni_countermeasure: Tried to delete"
+                + " an unexisting entry in the storage.")
