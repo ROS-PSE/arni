@@ -5,6 +5,8 @@ class Reaction(object):
     on the corresponding host of the given node.
     """
 
-    def __init__(self, arg):
+    def __init__(self, node):
         super(Reaction, self).__init__()
-        self.arg = arg
+
+        #: the node to run this reaction on.
+        self.node = node

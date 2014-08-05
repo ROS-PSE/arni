@@ -19,12 +19,19 @@ class HostLookup(object):
         self.__node_dict = dict()
 
     def get_host(self, node):
+        """Return the host the node runs on."""
         return self.__node_dict.get(node)
 
     def add_node(self, node, host):
+        """Add a node - host tuple to the dictionary.
+
+        Overwrites already existing node - host tuple if they have
+        the same node name.
+        """
         self.__node_dict[node] = host
 
     def get_node_list(self, host):
+        """Return all nodes of a specific host."""
         node_list = list()
         for node, host_in_dict in self.__node_dict.items():
             if host_in_dict == host:
@@ -33,6 +40,7 @@ class HostLookup(object):
         return node_list
 
     def remove_node(self, node):
+        """Remove a node - host tuple."""
         del self.__node_dict[node]
 
     @staticmethod
