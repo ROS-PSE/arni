@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>arni_countermeasure</name>
+  <name>arni_core</name>
   <version>0.0.0</version>
-  <description>The arni_countermeasure package</description>
+  <description>The arni_core package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
@@ -33,10 +33,12 @@
   <!-- Examples: -->
   <!-- Use build_depend for packages you need at compile time: -->
   <!--   <build_depend>message_generation</build_depend> -->
+  <run_depend>arni_msgs</run_depend>
   <!-- Use buildtool_depend for build tool packages: -->
   <!--   <buildtool_depend>catkin</buildtool_depend> -->
   <!-- Use run_depend for packages you need at runtime: -->
   <!--   <run_depend>message_runtime</run_depend> -->
+  <run_depend>arni_msgs</run_depend>
   <!-- Use test_depend for packages you need only for testing: -->
   <!--   <test_depend>gtest</test_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
