@@ -33,7 +33,7 @@
   <!-- Examples: -->
   <!-- Use build_depend for packages you need at compile time: -->
   <!--   <build_depend>message_generation</build_depend> -->
-  <run_depend>arni_msgs</run_depend>
+  <build_depend>arni_msgs</build_depend>
   <!-- Use buildtool_depend for build tool packages: -->
   <!--   <buildtool_depend>catkin</buildtool_depend> -->
   <!-- Use run_depend for packages you need at runtime: -->
