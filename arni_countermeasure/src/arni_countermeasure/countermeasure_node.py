@@ -2,6 +2,7 @@ from constraint_handler import *
 from rated_statistic_storage import *
 import rospy
 from arni_msgs.msg import RatedStatistics
+from arni_core.host_lookup import *
 
 
 class CountermeasureNode(object):
@@ -16,11 +17,12 @@ class CountermeasureNode(object):
         evaluate the constraints and clean old statistics."""
         super(CountermeasureNode, self).__init__()
 
-        #: The handler for all constraints.
-        # self.__constraint_handler = ConstraintHandler()
-
         #: The storage of all incoming rated statistic.
         self.__rated_statistic_storage = RatedStatisticStorage()
+
+        #: The handler for all constraints.
+        self.__constraint_handler = ConstraintHandler(
+            self.__rated_statistic_storage)
 
         rospy.init_node("countermeasure_node")
         self.__register_subscriber()
