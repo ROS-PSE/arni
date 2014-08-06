@@ -19,7 +19,7 @@
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="widget_vertical_layout">
        <item>
         <layout class="QHBoxLayout" name="filter_horizontal_layout">
@@ -65,21 +65,21 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox">
+          <widget class="QCheckBox" name="show_topics_check_box">
            <property name="text">
             <string>Show Topics</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="checkBox_2">
+          <widget class="QCheckBox" name="show_connections_check_box">
            <property name="text">
             <string>Show Connections</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="erroneous_check_box">
+          <widget class="QCheckBox" name="show_erroneous_check_box">
            <property name="text">
             <string>Only erroneous</string>
            </property>
@@ -123,139 +123,7 @@
         </layout>
        </item>
        <item>
-        <widget class="QTreeWidget" name="tree_widget_tree_widget">
-         <column>
-          <property name="text">
-           <string>Type</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Name</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Status</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Data</string>
-          </property>
-         </column>
-         <item>
-          <property name="text">
-           <string>Host</string>
-          </property>
-          <property name="text">
-           <string>host1</string>
-          </property>
-          <property name="text">
-           <string>ok</string>
-          </property>
-          <property name="text">
-           <string>cpu: 55%; ram: 50%; network: 55 Mb/s; latency: 10 ms</string>
-          </property>
-          <item>
-           <property name="text">
-            <string>Node</string>
-           </property>
-           <property name="text">
-            <string>node1</string>
-           </property>
-           <property name="text">
-            <string>ok</string>
-           </property>
-           <property name="text">
-            <string>number of topics: 2; name of topics: topic1, topic2; </string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Node</string>
-           </property>
-           <property name="text">
-            <string>node2</string>
-           </property>
-           <property name="text">
-            <string>warning</string>
-           </property>
-           <property name="background">
-            <brush brushstyle="SolidPattern">
-             <color alpha="130">
-              <red>236</red>
-              <green>255</green>
-              <blue>106</blue>
-             </color>
-            </brush>
-           </property>
-           <property name="text">
-            <string>number of topics: 1; name of topics: topic1;</string>
-           </property>
-          </item>
-         </item>
-         <item>
-          <property name="text">
-           <string>Host</string>
-          </property>
-          <property name="text">
-           <string>host2</string>
-          </property>
-          <property name="text">
-           <string>ok</string>
-          </property>
-          <property name="text">
-           <string>cpu: 5%; ram: 10%; network: 5 Mb/s; latency: 100 ms</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Host</string>
-          </property>
-          <property name="text">
-           <string>host3</string>
-          </property>
-          <property name="text">
-           <string>ok</string>
-          </property>
-          <property name="text">
-           <string>cpu: 100%; ram: 80%; network: 15 Mb/s; latency: 1000 ms</string>
-          </property>
-          <item>
-           <property name="text">
-            <string>Node</string>
-           </property>
-           <property name="text">
-            <string>node3</string>
-           </property>
-           <property name="text">
-            <string>error</string>
-           </property>
-           <property name="background">
-            <brush brushstyle="SolidPattern">
-             <color alpha="130">
-              <red>255</red>
-              <green>0</green>
-              <blue>0</blue>
-             </color>
-            </brush>
-           </property>
-           <property name="foreground">
-            <brush brushstyle="NoBrush">
-             <color alpha="255">
-              <red>0</red>
-              <green>0</green>
-              <blue>0</blue>
-             </color>
-            </brush>
-           </property>
-           <property name="text">
-            <string>No data avaiable!</string>
-           </property>
-          </item>
-         </item>
-        </widget>
+        <widget class="QTreeView" name="item_tree_view"/>
        </item>
       </layout>
      </widget>
