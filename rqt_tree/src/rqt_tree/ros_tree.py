@@ -4,7 +4,8 @@ import rospkg
 
 
 from python_qt_binding import loadUi
-from python_qt_binding.QtGui import QWidget
+from python_qt_binding.QtCore import *#Slot
+from python_qt_binding.QtGui import *#QWidget
 
 from rqt_gui_py.plugin import Plugin
 
@@ -46,6 +47,59 @@ class TreePlugin(Plugin):
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         # Add widget to the user interface
         context.add_widget(self._widget)
+
+	
+	##only for testing
+	model = QStandardItemModel()
+	for k in range(0, 4):
+	    parentItem = model.invisibleRootItem()
+	    for i in range(0, 4):
+		item = QStandardItem(("row %d, column %d") % (k, i))
+		parentItem.appendRow(item)
+		parentItem = item
+	self._widget.item_tree_view.setModel(model)
+	##
+	
+	self._connect_slots()
+
+#TODO: Comments !!!!
+    def _connect_slots(self):
+	self._widget.show_nodes_check_box.stateChanged.connect(self._on_show_nodes_check_box_state_changed)
+	self._widget.show_hosts_check_box.stateChanged.connect(self._on_show_hosts_check_box_state_changed)
+	self._widget.show_topics_check_box.stateChanged.connect(self._on_show_topics_check_box_state_changed)
+	self._widget.show_connections_check_box.stateChanged.connect(self._on_show_connections_check_box_state_changed)
+	self._widget.show_erroneous_check_box.stateChanged.connect(self._on_show_erroneous_check_box_state_changed)
+	self._widget.apply_push_button.clicked.connect(self._on_apply_push_button_clicked)
+	self._widget.minus_push_button.clicked.connect(self._on_minus_push_button_clicked)
+	self._widget.plus_push_button.clicked.connect(self._on_plus_push_button_clicked)
+	self._widget.item_tree_view.doubleClicked.connect(self._on_item_in_item_tree_view_double_clicked)
+
+    def _on_show_nodes_check_box_state_changed(self):
+	self._widget.filter_line_Edit.setText("Nodes")
+
+    def _on_show_hosts_check_box_state_changed(self):
+	self._widget.filter_line_Edit.setText("Hosts")
+
+    def _on_show_topics_check_box_state_changed(self):
+	self._widget.filter_line_Edit.setText("Topics")
+
+    def _on_show_connections_check_box_state_changed(self):
+	self._widget.filter_line_Edit.setText("Connections")
+
+    def _on_show_erroneous_check_box_state_changed(self):
+	self._widget.filter_line_Edit.setText("Erroneous")
+
+    def _on_apply_push_button_clicked(self):
+	self._widget.filter_line_Edit.setText("Applay-Push-Button")
+
+    def _on_minus_push_button_clicked(self):
+	self._widget.filter_line_Edit.setText("Minus-Push-Button")
+
+    def _on_plus_push_button_clicked(self):
+	self._widget.filter_line_Edit.setText("Plus-Push-Button")
+
+    def _on_item_in_item_tree_view_double_clicked(self):
+	self._widget.filter_line_Edit.setText("Double-Click")
 
     def shutdown_plugin(self):
         # TODO unregister all publishers here
