@@ -48,7 +48,6 @@ class TreePlugin(Plugin):
         # Add widget to the user interface
         context.add_widget(self._widget)
 
-	
 	##only for testing
 	model = QStandardItemModel()
 	for k in range(0, 4):
@@ -62,43 +61,89 @@ class TreePlugin(Plugin):
 	
 	self._connect_slots()
 
-#TODO: Comments !!!!
+
     def _connect_slots(self):
+	"""Initializes the slots from the widget."""
+
+	#: show_nodes_check_box
 	self._widget.show_nodes_check_box.stateChanged.connect(self._on_show_nodes_check_box_state_changed)
+	#: show_hosts_check_box
 	self._widget.show_hosts_check_box.stateChanged.connect(self._on_show_hosts_check_box_state_changed)
+	#: show_topics_check_box
 	self._widget.show_topics_check_box.stateChanged.connect(self._on_show_topics_check_box_state_changed)
+	#: show_connections_check_box
 	self._widget.show_connections_check_box.stateChanged.connect(self._on_show_connections_check_box_state_changed)
+	#: show_erroneous_check_box
 	self._widget.show_erroneous_check_box.stateChanged.connect(self._on_show_erroneous_check_box_state_changed)
+	#: apply_push_button
 	self._widget.apply_push_button.clicked.connect(self._on_apply_push_button_clicked)
+	#: minus_push_button
 	self._widget.minus_push_button.clicked.connect(self._on_minus_push_button_clicked)
+	#: plus_push_button
 	self._widget.plus_push_button.clicked.connect(self._on_plus_push_button_clicked)
+	#: item_tree_view
 	self._widget.item_tree_view.doubleClicked.connect(self._on_item_in_item_tree_view_double_clicked)
 
-    def _on_show_nodes_check_box_state_changed(self):
+    def _on_show_nodes_check_box_state_changed(self, activated):
+	"""Displays or delete the nodes in the box wether the check box is set or unset.
+
+	:param activated: 2 if checkBox is set, 0 if checkBox is unset
+	:type activated: Integer
+	"""
+	print activated
 	self._widget.filter_line_Edit.setText("Nodes")
 
-    def _on_show_hosts_check_box_state_changed(self):
+    def _on_show_hosts_check_box_state_changed(self, activated):
+	"""Displays or delete the hosts in the box wether the checkBox is set or unset.
+
+	:param activated: 2 if checkBox is set, 0 if check is unset
+	:type activated: Integer
+	"""
 	self._widget.filter_line_Edit.setText("Hosts")
 
-    def _on_show_topics_check_box_state_changed(self):
+    def _on_show_topics_check_box_state_changed(self, activated):
+	"""Displays or delete the topics in the box wether the checkBox is set or unset.
+
+	:param activated: 2 if checkBox is set, 0 if check is unset
+	:type activated: Integer
+	"""
 	self._widget.filter_line_Edit.setText("Topics")
 
-    def _on_show_connections_check_box_state_changed(self):
+    def _on_show_connections_check_box_state_changed(self, activated):
+	"""Displays or delete the connections in the box wether the checkBox is set or unset.
+
+	:param activated: 2 if checkBox is set, 0 if check is unset
+	:type activated: Integer
+	"""
 	self._widget.filter_line_Edit.setText("Connections")
 
-    def _on_show_erroneous_check_box_state_changed(self):
+    def _on_show_erroneous_check_box_state_changed(self, activated):
+	"""If this checkBox is set, only erroneous hosts and nodes will be displayed.
+
+	:param activated: 2 if checkBox is set, 0 if check is unset
+	:type activated: Integer
+	"""
 	self._widget.filter_line_Edit.setText("Erroneous")
 
     def _on_apply_push_button_clicked(self):
+	"""Filters the content in the box according to the content of the filter_line_edit"""
 	self._widget.filter_line_Edit.setText("Applay-Push-Button")
 
     def _on_minus_push_button_clicked(self):
+	"""Checks if the minus_push_button is clicked and zoomes out (decrease the size of the font)"""
 	self._widget.filter_line_Edit.setText("Minus-Push-Button")
 
     def _on_plus_push_button_clicked(self):
+	"""Checks if the plus_push_button is clicked and oomes in (increase the size of the font)"""
 	self._widget.filter_line_Edit.setText("Plus-Push-Button")
 
-    def _on_item_in_item_tree_view_double_clicked(self):
+    def _on_item_in_item_tree_view_double_clicked(self, item):
+	"""Handels the double-click action and opens the clicked item in the SelectionWidget
+
+	:param item: the double-clicked item
+	:type item: QModelIndex
+	"""
+	print item
 	self._widget.filter_line_Edit.setText("Double-Click")
 
     def shutdown_plugin(self):
