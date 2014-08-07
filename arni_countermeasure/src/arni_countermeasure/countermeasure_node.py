@@ -32,6 +32,9 @@ class CountermeasureNode(object):
         rospy.Subscriber(
             "/statistics_rated", RatedStatistics,
             self.__rated_statistic_storage.callback_rated_statistic)
+        rospy.Subscriber(
+            "/statistics_rated", RatedStatistics,
+            HostLookup().callback_rated)
 
 
 def main():

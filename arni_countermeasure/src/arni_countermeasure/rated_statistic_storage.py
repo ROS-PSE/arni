@@ -74,9 +74,8 @@ class RatedStatisticStorage(object):
                 # split the array in a lot of entries
                 for i in range(len(entity.actual_value)):
                     self.__add_single_outcome(
-                        seuid, stat_type + "_" + i, ord(entity.state[i]),
+                        seuid, "%s_%d" % (stat_type, i), ord(entity.state[i]),
                         msg.window_stop)
-
     def __add_single_outcome(
             self, seuid, statistic_type, outcome, timestamp):
         """Add a single outcome to the storage.

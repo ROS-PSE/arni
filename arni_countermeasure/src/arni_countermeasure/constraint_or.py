@@ -7,12 +7,10 @@ class ConstraintOr(ConstraintItem):
     other constraints logically or colligated.
     """
 
-    def __init__(self, constraint_a, constraint_b):
+    def __init__(self, constraints):
         super(ConstraintOr, self).__init__()
 
-        self.__constraint_a = constraint_a
-
-        self.__constraint_b = constraint_b
+        self.__constraint_list = constraints
 
     def evaluate_constraint(self, storage):
         """Evaluate if at least one of the constraints inside is true.
@@ -22,6 +20,9 @@ class ConstraintOr(ConstraintItem):
 
         :return:    True if one of the constraints is true.
         """
-        return (
-            self.__constraint_a.evaluate_constraint(storage) or
-            self.__constraint_b.evaluate_constraint(storage))
+
+        for constraint in self.__constraint_list:
+            if constraint.evaluate_constraint(storage):
+                return True
+
+        return False
