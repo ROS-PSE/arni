@@ -21,7 +21,8 @@ class RatedStatisticStorage(object):
         #: is declared too old and should be removed
         #: from the dict.
         #: type: Duration
-        self.__timeout = rospy.Duration(10)
+        # TODO: set timeout by parameter
+        self.__timeout = rospy.Duration(10000)
 
     def clean_old_statistic(self):
         """Check the complete dictionary for statistics
@@ -125,21 +126,24 @@ class RatedStatisticStorage(object):
                                 entering the outcome into the storage.
 
         """
-        type_dict = self.__statistic_storage[seuid]
-        outTuple = type_dict[statistic_type]
+        try:
+            type_dict = self.__statistic_storage[seuid]
+            outTuple = type_dict[statistic_type]
 
-        outcome = outTuple[0]
-        timestamp = outTuple[1]
+            outcome = outTuple[0]
+            timestamp = outTuple[1]
 
-        # check if the item is too old
-        if rospy.get_rostime() - timestamp > self.__timeout:
-            self.__remove_item(seuid, statistic_type)
+            # check if the item is too old
+            if rospy.get_rostime() - timestamp > self.__timeout:
+                self.__remove_item(seuid, statistic_type)
+                return Outcome.UNKNOWN
+
+            elif Outcome.is_valid(outcome):
+                return outcome
+            else:
+                raise AttributeError
+        except KeyError:
             return Outcome.UNKNOWN
-
-        elif Outcome.is_valid(outcome):
-            return outcome
-        else:
-            raise AttributeError
 
     def __remove_item(self, seuid, statistic_type):
         """ Remove an statistic_type from an entity from the storage.

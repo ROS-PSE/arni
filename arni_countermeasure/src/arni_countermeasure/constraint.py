@@ -66,10 +66,10 @@ class Constraint(object):
                 self.true_since = rospy.Time.now()
 
             if (
-                (rospy.Time.now - self.true_since
+                (rospy.Time.now() - self.true_since
                     >= self.__min_reaction_interval)
                 and
-                (rospy.Time.now - self.__last_reaction
+                (rospy.Time.now() - self.__last_reaction
                     >= self.__reaction_timeout)):
                 self.evaluation_result = True
         return

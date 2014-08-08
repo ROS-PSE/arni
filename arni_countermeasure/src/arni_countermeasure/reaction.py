@@ -25,14 +25,7 @@ class Reaction(object):
 
     @property
     def _host(self):
-        if self.__host is None:
-            self.__host = HostLookup().get_host(self._node)
-
-        return self.__host
-
-    @_host.setter
-    def _host(self, value):
-        self._host = value
+        return HostLookup().get_host(self._node)
 
     @abstractmethod
     def execute_reaction(self):

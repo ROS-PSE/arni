@@ -36,5 +36,4 @@ class ReactionPublishRosOutNode(Reaction):
 
     def execute_reaction(self):
         """Log the reaction message at a specific loglevel."""
-        switch(loglevel)
         self.__log(self.message)

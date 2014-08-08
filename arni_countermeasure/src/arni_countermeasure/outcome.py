@@ -20,3 +20,16 @@ class Outcome(object):
         if (out >= 0 & out <= 4):
             return True
         return False
+
+    @staticmethod
+    def from_str(txt):
+        """Returns the int value for an textual representation of the outcome.
+        """
+        a = {
+            "high": 0,
+            "low": 1,
+            "unknown": 2,
+            "ok": 3,
+            "out_of_bounds": 4
+        }
+        return a.get(txt.lower(), 2)

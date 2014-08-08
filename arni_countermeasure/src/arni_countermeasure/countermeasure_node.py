@@ -36,11 +36,20 @@ class CountermeasureNode(object):
             "/statistics_rated", RatedStatistics,
             HostLookup().callback_rated)
 
+    def loop(self):
+        while not rospy.is_shutdown():
+            self.__constraint_handler.evaluate_constraints()
+            self.__constraint_handler.execute_reactions()
+
+            #: Todo: get check rate from param server
+            rospy.sleep(rospy.Duration(3))
+
 
 def main():
     cn = CountermeasureNode()
     rospy.loginfo(rospy.get_caller_id() + ": im on ")
-    rospy.spin()
+
+    cn.loop()
 
 
 if __name__ == '__main__':

@@ -14,6 +14,8 @@ from reaction_restart_node import *
 from reaction_run import *
 from reaction_stop_node import *
 
+from outcome import *
+
 import rospy
 
 
@@ -38,6 +40,10 @@ class ConstraintHandler(object):
         #: an autonomy_level <= reaction_autonomy_level get executed.
         self.__reaction_autonomy_level = None
 
+        self._read_param_reaction_autonomy_level()
+
+        self._read_param_constraints()
+
     def add_constraint(self, constraint):
         """Add an constraint to the list of constraints.
 
@@ -60,7 +66,8 @@ class ConstraintHandler(object):
 
         # should be parallelisable
         for constraint in self.__constraint_list:
-            constraint.evaluate_constraint()
+            constraint.evaluate_constraint(
+                self.__rated_statistic_storage)
 
     def execute_reactions(self):
         """Check if there are any new reactions to do
@@ -262,7 +269,7 @@ class ConstraintHandler(object):
             seuid = item_type
 
             for statistic_type in c_dict[item_type]:
-                outcome = c_dict[item_type][statistic_type]
+                outcome = Outcome.from_str(c_dict[item_type][statistic_type])
                 leaf_list.append(
                     ConstraintLeaf(seuid, statistic_type, outcome))
 
