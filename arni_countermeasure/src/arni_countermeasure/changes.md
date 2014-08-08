@@ -1,6 +1,6 @@
 ##changes in arni_countermeasure:
 
-###constraint:
+###Constraint:
  + added attribute name
 
 
@@ -18,13 +18,14 @@ changed to:
         min_reaction_interval: 20
         reactions:
           one: {action: stop, autonomy_level: 13, node: nodeid}
-          two: {action: restart, autonomy_level: 50, node: nodeid}
+          two: {action: publish, autonomy_level: 13, message: some odd message, node: nodeid, loglevel: warn}
     reaction_autonomy_level: 50
+
 
 advantage now: can be written in the parameter server as it is.
 No need to load as text file or something like that.
 
-###ReactionPuhlishRosoutNode
+###ReactionPublishRosoutNode
 
  + added attribute for loglevel
 
