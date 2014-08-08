@@ -51,7 +51,7 @@ class TestConstraint(unittest.TestCase):
         msgEntity.actual_value = value
         msgEntity.state = outcome
 
-        msg.rated_statistics_entity = [msgEntity,]
+        msg.rated_statistics_entity = [msgEntity, ]
         return msg
 
 

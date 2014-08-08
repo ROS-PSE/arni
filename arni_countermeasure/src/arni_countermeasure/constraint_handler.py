@@ -8,6 +8,12 @@ from constraint_or import *
 from constraint_not import *
 from constraint_leaf import *
 
+from reaction import *
+from reaction_publish_rosout_node import *
+from reaction_restart_node import *
+from reaction_run import *
+from reaction_stop_node import *
+
 import rospy
 
 
@@ -60,66 +66,134 @@ class ConstraintHandler(object):
         """Check if there are any new reactions to do
         and execute them.
         """
-
+        glob_level = self.__reaction_autonomy_level
         # should be parallelisable
         for constraint in self.__constraint_list:
 
             if constraint.evaluation_result is True:
                 # reactions need to be done
                 for reaction in constraint.planned_reaction:
-                    reaction.execute_reaction()
+                    if reaction.autonomy_level <= glob_level:
+                        reaction.execute_reaction()
 
                 # tell constraint to reset timers
                 constraint.notify_of_execution()
 
     def _read_param_constraints(self):
-        """Read and save all constraints from the parameter server.
+        """Read all constraints from the parameter server and save them.
         """
-        constraint = rospy.get_param("/arni_countermeasure/constraints")
+        p_constraint = rospy.get_param("/arni_countermeasure/constraints")
         #print constraints
-        for name in constraint:
-            const_dict = constraint[name]
+        for name in p_constraint:
+            const_dict = p_constraint[name]
 
             root = self.__create_constraint_tree(
                 const_dict['constraint'], name)
 
-            # default values
-            # TODO: create variables for default
-            min_reaction_interval = rospy.Duration(10)
-            reaction_timeout = rospy.Duration(10)
+            min_reaction_interval, reaction_timeout = (
+                self.__parse_interval_and_timeout(const_dict))
 
-            # check if interval and timeout have interger values
-            try:
-                if hasattr(const_dict, 'min_reaction_interval'):
-                    min_reaction_interval = rospy.Duration(
-                        const_dict[min_reaction_interval])
-            except ValueError:
-                rospy.logdebug(
-                    "arni_countermeasure: "
-                    + "constraint %s - min_reaction_interval '%s'"
-                    % (name, const_dict[min_reaction_interval])
-                    + " is an invalid value. (Only integers allowed.)")
-
-            try:
-                if hasattr(const_dict, 'reaction_timeout'):
-                    reaction_timeout = rospy.Duration(
-                        const_dict[reaction_timeout])
-            except ValueError:
-                rospy.logdebug(
-                    "arni_countermeasure: "
-                    + "constraint %s - reaction_timeout '%s'"
-                    % (name, const_dict[reaction_timeout])
-                    + " is an invalid value. (Only integers allowed.)")
-
-            #TODO: get reaction!
-            reaction = None
+            reaction_list = self.__parse_reaction_list(const_dict)
 
             # is it a valid root?
             if root is not None:
                 constraint = Constraint(
-                    name, root, reaction,
+                    name, root, reaction_list,
                     min_reaction_interval, reaction_timeout)
                 self.__constraint_list.append(constraint)
+
+    def __parse_reaction_list(self, const_dict):
+        """Parse the dict to a list of reactions.
+
+        :param const_dict:  The dict from the parameter server holding
+                            the reactions of a constraint.
+        :type:  dict
+
+        :return:    The parsed list of reactions.
+        :type:  list of Reactions
+        """
+
+        # TODO: handling missing keys
+        p_reaction_list = const_dict['reactions']
+        reaction_list = list()
+
+        for r_name in p_reaction_list:
+            p_reaction = p_reaction_list[r_name]
+
+            action = p_reaction['action']
+            node = p_reaction['node']
+            autonomy_level = p_reaction['autonomy_level']
+
+            # find out what kind of reaction it is
+            if action == 'publish':
+                message = p_reaction['message']
+                loglevel = p_reaction['loglevel']
+
+                react_publish = ReactionPublishRosOutNode(
+                    node, autonomy_level, message, loglevel)
+
+                reaction_list.append(react_publish)
+            elif action == 'stop':
+                react_stop = ReactionStopNode(node, autonomy_level)
+                reaction_list.append(react_stop)
+            elif action == 'restart':
+                react_restart = ReactionRestartNode(node, autonomy_level)
+                reaction_list.append(react_restart)
+            elif action == 'run':
+                command = p_reaction['command']
+                react_run = ReactionRun(node, autonomy_level, command)
+                reaction_list.append(react_run)
+            else:
+                rospy.logdebug(
+                    "arni_countermeasure: The action '%s' " % action
+                    + "found on the parameter server is not recognised.")
+
+        return reaction_list
+
+    def __parse_interval_and_timeout(self, const_dict):
+        """Parse min_reaction_interval
+        and reaction_timeout out of the dictionary.
+
+        If the interval and timeout is not specified in the dict
+        default values are assigned.
+
+        :param const_dict:  The dict from the parameter server
+                            holding the interval and timeout.
+        :type:  dict
+
+        :return:    the min_reaction_interval and reaction_timeout
+        :rtype: tuple (rospy.Duration, rospy.Duration)
+        """
+
+        # default values
+        # TODO: create variables for default
+        min_reaction_interval = rospy.Duration(10)
+        reaction_timeout = rospy.Duration(10)
+
+        # check if interval and timeout have interger values
+        try:
+            if hasattr(const_dict, 'min_reaction_interval'):
+                min_reaction_interval = rospy.Duration(
+                    const_dict[min_reaction_interval])
+        except ValueError:
+            rospy.logdebug(
+                "arni_countermeasure: "
+                + "constraint %s - min_reaction_interval '%s'"
+                % (name, const_dict[min_reaction_interval])
+                + " is an invalid value. (Only integers allowed.)")
+
+        try:
+            if hasattr(const_dict, 'reaction_timeout'):
+                reaction_timeout = rospy.Duration(
+                    const_dict[reaction_timeout])
+        except ValueError:
+            rospy.logdebug(
+                "arni_countermeasure: "
+                + "constraint %s - reaction_timeout '%s'"
+                % (name, const_dict[reaction_timeout])
+                + " is an invalid value. (Only integers allowed.)")
+
+        return (min_reaction_interval, reaction_timeout)
 
     def __create_constraint_tree(self, constraint_dict, name):
         """Create a constraint tree from a dictionary.
@@ -189,11 +263,12 @@ class ConstraintHandler(object):
 
             for statistic_type in c_dict[item_type]:
                 outcome = c_dict[item_type][statistic_type]
-                leaf_list.append(ConstraintLeaf(seuid, statistic_type, outcome))
+                leaf_list.append(
+                    ConstraintLeaf(seuid, statistic_type, outcome))
 
             return leaf_list
 
-    def __creat_constraint_item(self, item_type, constraint_list):
+    def __create_constraint_item(self, item_type, constraint_list):
         """Creates a constraint item / a list of constraint items.
 
         Creates a new constraint of type item_type and puts the constraints
@@ -226,6 +301,3 @@ class ConstraintHandler(object):
         level = rospy.get_param(
             "/arni_countermeasure/reaction_autonomy_level", 100)
         self.__reaction_autonomy_level = level
-
-
-ConstraintHandler(None)._read_param_constraints()

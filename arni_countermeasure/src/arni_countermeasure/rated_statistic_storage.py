@@ -76,6 +76,7 @@ class RatedStatisticStorage(object):
                     self.__add_single_outcome(
                         seuid, "%s_%d" % (stat_type, i), ord(entity.state[i]),
                         msg.window_stop)
+
     def __add_single_outcome(
             self, seuid, statistic_type, outcome, timestamp):
         """Add a single outcome to the storage.
