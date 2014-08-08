@@ -105,7 +105,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>../../Documents/Minus-32.png</normaloff>../../Documents/Minus-32.png</iconset>
+             <normaloff>Grafiken/Plus-32.png</normaloff>Grafiken/Plus-32.png</iconset>
            </property>
           </widget>
          </item>
@@ -116,7 +116,7 @@
            </property>
            <property name="icon">
             <iconset>
-             <normaloff>../../Documents/Plus-32.png</normaloff>../../Documents/Plus-32.png</iconset>
+             <normaloff>Grafiken/Minus-32.png</normaloff>Grafiken/Minus-32.png</iconset>
            </property>
           </widget>
          </item>
