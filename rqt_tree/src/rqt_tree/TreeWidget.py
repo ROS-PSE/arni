@@ -34,67 +34,65 @@ class TreeWidget(QWidget):
 	##
 
    
-    def _on_show_nodes_check_box_state_changed(self, activated):
+    def on_show_nodes_check_box_state_changed(self, activated):
 	"""Displays or delete the nodes in the box wether the check box is set or unset.
 
 	:param activated: 2 if checkBox is set, 0 if checkBox is unset
 	:type activated: Integer
 	"""
-	print activated
-	self.filter_line_Edit.setText("Nodes")
+	pass
 
-    def _on_show_hosts_check_box_state_changed(self, activated):
+    def on_show_hosts_check_box_state_changed(self, activated):
 	"""Displays or delete the hosts in the box wether the checkBox is set or unset.
 
 	:param activated: 2 if checkBox is set, 0 if check is unset
 	:type activated: Integer
 	"""
-	self.filter_line_Edit.setText("Hosts")
+	pass
 
-    def _on_show_topics_check_box_state_changed(self, activated):
+    def on_show_topics_check_box_state_changed(self, activated):
 	"""Displays or delete the topics in the box wether the checkBox is set or unset.
 
 	:param activated: 2 if checkBox is set, 0 if check is unset
 	:type activated: Integer
 	"""
-	self.filter_line_Edit.setText("Topics")
+	pass
 
-    def _on_show_connections_check_box_state_changed(self, activated):
+    def on_show_connections_check_box_state_changed(self, activated):
 	"""Displays or delete the connections in the box wether the checkBox is set or unset.
 
 	:param activated: 2 if checkBox is set, 0 if check is unset
 	:type activated: Integer
 	"""
-	self.filter_line_Edit.setText("Connections")
+	pass
 
-    def _on_show_erroneous_check_box_state_changed(self, activated):
+    def on_show_erroneous_check_box_state_changed(self, activated):
 	"""If this checkBox is set, only erroneous hosts and nodes will be displayed.
 
 	:param activated: 2 if checkBox is set, 0 if check is unset
 	:type activated: Integer
 	"""
-	self.filter_line_Edit.setText("Erroneous")
+	pass
 
-    def _on_apply_push_button_clicked(self):
+    def on_apply_push_button_clicked(self):
 	"""Filters the content in the box according to the content of the filter_line_edit"""
-	self.filter_line_Edit.setText("Applay-Push-Button")
+	pass
 
-    def _on_minus_push_button_clicked(self):
+    def on_minus_push_button_clicked(self):
 	"""Checks if the minus_push_button is clicked and zoomes out (decrease the size of the font)"""
-	self.filter_line_Edit.setText("Minus-Push-Button")
+	pass
 
-    def _on_plus_push_button_clicked(self):
-	"""Checks if the plus_push_button is clicked and oomes in (increase the size of the font)"""
-	self.filter_line_Edit.setText("Plus-Push-Button")
+    def on_plus_push_button_clicked(self):
+	"""Checks if the plus_push_button is clicked and zoomes in (increase the size of the font)"""
+	pass
 
-    def _on_item_in_item_tree_view_double_clicked(self, item):
+    def on_item_in_item_tree_view_double_clicked(self, item):
 	"""Handels the double-click action and opens the clicked item in the SelectionWidget
 
 	:param item: the double-clicked item
 	:type item: QModelIndex
 	"""
-	print item
-	self.filter_line_Edit.setText("Double-Click")
+	pass
 
     def shutdown_plugin(self):
         # TODO unregister all publishers here

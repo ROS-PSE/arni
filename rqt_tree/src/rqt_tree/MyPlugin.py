@@ -39,28 +39,39 @@ class MyPlugin(Plugin):
 
 	self._connect_slots()
 
-#TODO: connect slots from the selectionWidget, this are only treeWidget slots
+#TODO: check wether all slots were connected
     def _connect_slots(self):
 	"""Initializes the slots from the TreeWidget and the SelectionWidget."""
 
 	#: show_nodes_check_box
-	self._tree_widget.show_nodes_check_box.stateChanged.connect(self._tree_widget._on_show_nodes_check_box_state_changed)
+	self._tree_widget.show_nodes_check_box.stateChanged.connect(self._tree_widget.on_show_nodes_check_box_state_changed)
 	#: show_hosts_check_box
-	self._tree_widget.show_hosts_check_box.stateChanged.connect(self._tree_widget._on_show_hosts_check_box_state_changed)
+	self._tree_widget.show_hosts_check_box.stateChanged.connect(self._tree_widget.on_show_hosts_check_box_state_changed)
 	#: show_topics_check_box
-	self._tree_widget.show_topics_check_box.stateChanged.connect(self._tree_widget._on_show_topics_check_box_state_changed)
+	self._tree_widget.show_topics_check_box.stateChanged.connect(self._tree_widget.on_show_topics_check_box_state_changed)
 	#: show_connections_check_box
-	self._tree_widget.show_connections_check_box.stateChanged.connect(self._tree_widget._on_show_connections_check_box_state_changed)
+	self._tree_widget.show_connections_check_box.stateChanged.connect(self._tree_widget.on_show_connections_check_box_state_changed)
 	#: show_erroneous_check_box
-	self._tree_widget.show_erroneous_check_box.stateChanged.connect(self._tree_widget._on_show_erroneous_check_box_state_changed)
+	self._tree_widget.show_erroneous_check_box.stateChanged.connect(self._tree_widget.on_show_erroneous_check_box_state_changed)
 	#: apply_push_button
-	self._tree_widget.apply_push_button.clicked.connect(self._tree_widget._on_apply_push_button_clicked)
+	self._tree_widget.apply_push_button.clicked.connect(self._tree_widget.on_apply_push_button_clicked)
 	#: minus_push_button
-	self._tree_widget.minus_push_button.clicked.connect(self._tree_widget._on_minus_push_button_clicked)
+	self._tree_widget.minus_push_button.clicked.connect(self._tree_widget.on_minus_push_button_clicked)
 	#: plus_push_button
-	self._tree_widget.plus_push_button.clicked.connect(self._tree_widget._on_plus_push_button_clicked)
+	self._tree_widget.plus_push_button.clicked.connect(self._tree_widget.on_plus_push_button_clicked)
 	#: item_tree_view
-	self._tree_widget.item_tree_view.doubleClicked.connect(self._tree_widget._on_item_in_item_tree_view_double_clicked)
+	self._tree_widget.item_tree_view.doubleClicked.connect(self._tree_widget.on_item_in_item_tree_view_double_clicked)
+
+	#: tab_widget
+	self._selection_widget.tab_widget.currentChanged.connect(self._selection_widget.on_current_tab_changed)
+	#: restart_push_button
+	self._selection_widget.restart_push_button.clicked.connect(self._selection_widget.on_restart_push_button_clicked)
+	#: stop_push_button
+	self._selection_widget.stop_push_button.clicked.connect(self._selection_widget.on_stop_push_button_clicked)
+	#: start_push_button
+	self._selection_widget.start_push_button.clicked.connect(self._selection_widget.on_start_push_button_clicked)
+	#: range_combo_box
+	self._selection_widget.range_combo_box.currentIndexChanged.connect(self._selection_widget.on_range_combo_box_index_changed)
 
     def shutdown_plugin(self):
         # TODO unregister all publishers here
