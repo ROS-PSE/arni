@@ -2,13 +2,8 @@ import os
 import rospy
 import rospkg
 
-
 from python_qt_binding import loadUi
-from python_qt_binding.QtCore import *#Slot
-from python_qt_binding.QtGui import *#QWidget
-#imoprt only when slots will be connected in this class: from python_qt_binding.QtCore import *
-
-#from python_qt_binding.QtGui import QWidget
+from python_qt_binding.QtGui import QWidget
 
 class SelectionWidget(QWidget):
 
