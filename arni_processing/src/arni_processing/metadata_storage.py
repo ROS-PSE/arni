@@ -1,4 +1,4 @@
-from StorageContainer import StorageContainer
+from storage_container import StorageContainer
 
 class MetadataStorage:
 

@@ -1,6 +1,8 @@
-from MetadataStorage import MetadataStorage
-from SpecificationHandler import SpecificationHandler
-from RatedStatistics import RatedStatistics
+from metadata_storage import MetadataStorage
+import rospy
+from specification_handler import SpecificationHandler
+from rated_statistics import RatedStatistics
+
 
 class MonitoringNode:
     """
@@ -53,8 +55,10 @@ class MonitoringNode:
         """
         pass
 
+
 def main():
     mn = MonitoringNode()
 
 if __name__ == '__main__':
+    rospy.init_node('monitoring_node', log_level=rospy.Debug)
     main()
