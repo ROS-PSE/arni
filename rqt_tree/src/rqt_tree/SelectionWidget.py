@@ -2,11 +2,7 @@ import os
 import rospy
 import rospkg
 
-
 from python_qt_binding import loadUi
-
-#imoprt only when slots will be connected in this class: from python_qt_binding.QtCore import *
-
 from python_qt_binding.QtGui import QWidget
 
 class SelectionWidget(QWidget):
@@ -22,22 +18,57 @@ class SelectionWidget(QWidget):
         loadUi(ui_file, self)
         self.setObjectName('SelectionWidgetUi')
 
-    def shutdown_plugin(self):
-        # TODO unregister all publishers here
-        pass
+    def set_selected_item(self, selected_item):
+	"""Set the selected item.
+	
+	:param selected_item: the selected item
+	:type selected_item: item
+	"""
+	pass
 
-    def save_settings(self, plugin_settings, instance_settings):
-        # TODO save intrinsic configuration, usually using:
-        # instance_settings.set_value(k, v)
-        pass
+    def on_current_tab_changed(self, tab):
+	"""Will be called when you switch betwee tabs.
 
-    def restore_settings(self, plugin_settings, instance_settings):
-        # TODO restore intrinsic configuration, usually using:
-        # v = instance_settings.value(k)
-        pass
+	:param tab: index of the current tab
+	:type tab: int
+	"""
+	pass
+		
+    def on_restart_push_button_clicked(self):
+	"""Handels the restart button and restarts a host or node.
+	"""
+	pass
 
-    #def trigger_configuration(self):
-        # Comment in to signal that the plugin has a way to configure
-        # This will enable a setting button (gear icon) in each dock widget title bar
-        # Usually used to open a modal configuration dialog
+    def on_stop_push_button_clicked(self):
+	"""Handels the stop button and stops a host or node.
+	"""
+	pass
+
+    def on_start_push_button_clicked(self):
+	"""Handels the start button and starts a host or node.
+	"""
+	pass
+
+    def on_range_combo_box_index_changed(self, index):
+	"""Handels the change of the graph range.
+	
+	:param index: the index of the selected range
+	:type index: int
+	"""
+	pass	
+
+    def on_changed_selected_item(self, index):
+	"""Handels the change of the selected item.
+
+	:param index: the index of the selected item
+	:type index: QModelIndex
+	"""	
+	pass
+
+    def update_graphs(self):
+	"""Updates the graph plot.
+	"""
+	pass
+
+ 
 
