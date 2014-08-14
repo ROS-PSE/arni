@@ -30,8 +30,8 @@ class StatisticsHandler(object):
 		
 		
 	@abstractmethod
-	def publish_status(self, topic)
-		""" 
+	def publish_status(self, topic):
+		"""
 		Publishes the current stats to the given topic
 		using ROS's publisher-subscriber mechanism. 
 		

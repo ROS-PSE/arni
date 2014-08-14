@@ -1,4 +1,4 @@
-import Status from Status
+from status import Status
 
 
 class NodeStatus(Status):
@@ -12,17 +12,18 @@ class NodeStatus(Status):
 		super(NodeStatus, self).__init__()
 		
 		#: Network bandwidth used by the node in bytes.
-		self.__node_bandwidth
+		self.__node_bandwidth = []
 		
 		#: Bytes read from disk by node.
-		self.__node_read
+		self.__node_read = []
 		
 		#: Bytes written to disk by node.
-		self.__node_write
+		self.__node_write = []
 		
 		#: Frequency of network calls by node.
-		self.__node_msg_frequency
+		self.__node_msg_frequency = []
 		
+
 		
 		
 	def add_node_bandwidth(self, bytes):
@@ -33,7 +34,7 @@ class NodeStatus(Status):
 		:param bytes: Bytes measured.
 		:type bytes: int
 		"""
-		pass
+		self.__node_bandwidth.append(bytes)
 		
 	def add_node_io(self, read, write):
 		"""
@@ -45,7 +46,8 @@ class NodeStatus(Status):
 		:param write: Bytes written.
 		:type write: int
 		"""
-		pass
+		self.__node_read.append(read)
+		self.__node_write.append(write)
 		
 	def add_node_msg_freq(self, freq):
 		"""
@@ -55,8 +57,49 @@ class NodeStatus(Status):
 		:param freq: frequency of network calls.
 		:type bytes: int
 		"""
-		
-	def reset(self):
+		self.__node_msg_frequency.append(freq)
+
+
+	def reset_specific(self):
 		"""
-		Resets the current status. 
+		Resets the values specific to Host or Nodes
 		"""
+
+		del self.__node_bandwidth[:]
+		del self.__node_read[:]
+		del self.__node_write[:]
+		del self.__node_msg_frequency[:]
+
+
+	@property 
+	def node_bandwidth(self):
+		return self.__node_bandwidth
+
+	@property 
+	def node_read(self):
+		return self.__node_read
+
+	@property 
+	def node_write(self):
+		return self.__node_write
+
+	@property
+	def node_msg_frequency(self):
+		return self.__node_msg_frequency
+
+
+	@node_bandwidth.setter
+	def node_bandwidth(self, value):
+		self.__node_bandwidth = value
+
+	@node_read.setter
+	def node_read(self, value):
+		self.__node_read = value
+
+	@node_write
+	def node_write(self, value):
+		self.__node_write = value
+
+	@node_msg_frequency
+	def node_msg_frequency(self,value):
+		self.__node_msg_frequency = value
