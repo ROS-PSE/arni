@@ -1,4 +1,5 @@
-import StatisticsHandler from StatisticsHandler
+from statistics_handler import StatisticsHandler
+from node_status import NodeStatus
 
 class NodeStatisticsHandler(StatisticsHandler):
 
@@ -19,6 +20,7 @@ class NodeStatisticsHandler(StatisticsHandler):
 		#: Status of the node
 		self._status = NodeStatus()
 		
+		self.__node_process
 	
 	def measure_status(self):
 		"""

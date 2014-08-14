@@ -12,7 +12,6 @@ class OverviewPlugin(Plugin):
 
     def __init__(self, context):
         super(OverviewPlugin, self).__init__(context)
-        # Give QObjects reasonable names
         self.setObjectName('OverviewPlugin')
 
         # Process standalone plugin command-line arguments
@@ -35,7 +34,6 @@ class OverviewPlugin(Plugin):
         ui_file = os.path.join(rp.get_path('rqt_overview'), 'resources', 'OverviewWidget.ui')
         # Extend the widget with all attributes and children from UI file
         loadUi(ui_file, self._widget)
-        # Give QObjects reasonable names
         self._widget.setObjectName('OverviewPluginUi')
         # Show _widget.windowTitle on left-top of each plugin (when 
         # it's set in _widget). This is useful when you open multiple 
@@ -46,6 +44,37 @@ class OverviewPlugin(Plugin):
             self._widget.setWindowTitle(self._widget.windowTitle() + (' (%d)' % context.serial_number()))
         # Add widget to the user interface
         context.add_widget(self._widget)
+
+	self._connect_slots()
+
+    def _connect_slots(self):
+	"""Initializes the slots of the OverviewPlugin."""
+	self._widget.tab_widget.currentChanged.connect(self._on_current_tab_changed)
+	self._widget.range_combo_box.currentIndexChanged.connect(self.on_range_combo_box_index_changed)
+
+    def _on_current_tab_changed(self, tab):
+	"""The Plugin wants to get notified when the tab changed so it can e.g. draw the graphs.
+
+	:param tab: the index of the selected tab
+	:type tab: int
+	"""
+	pass
+
+    def on_range_combo_box_index_changed(self, index):
+	"""Handels the change of the graph range.
+	
+	:param index: the index of the selected range
+	:type index: int
+	"""
+	pass	
+
+    def update(self):
+	"""Updates the Plugin and draws the graphs if draw_graphs is true."""
+	pass
+
+    def update_graphs(sef):
+	"""Updates and redraws the graphs"""
+	pass
 
     def shutdown_plugin(self):
         # TODO unregister all publishers here

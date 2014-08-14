@@ -1,4 +1,4 @@
-from MetadataTuple import MetadataTuple
+from metadata_tuple import MetadataTuple
 
 class Specification:
     """

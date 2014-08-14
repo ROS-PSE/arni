@@ -1,5 +1,5 @@
 from rated_statistic_storage import *
-from ConstraintItem import *
+from constraint_item import *
 
 
 class Constraint(object):
@@ -8,9 +8,13 @@ class Constraint(object):
     """
 
     def __init__(
-            self, constraint_root, planned_reaction,
+            self, name, constraint_root, planned_reaction,
             min_reaction_interval, reaction_timeout):
         super(Constraint, self).__init__()
+
+        #: The name of the constraint. Useful for debugging.
+        #: :type:   string
+        self.__name = name
 
         #: The root of the constraint tree.
         #: :type:   ConstraintItem
@@ -62,10 +66,10 @@ class Constraint(object):
                 self.true_since = rospy.Time.now()
 
             if (
-                (rospy.Time.now - self.true_since
+                (rospy.Time.now() - self.true_since
                     >= self.__min_reaction_interval)
                 and
-                (rospy.Time.now - self.__last_reaction
+                (rospy.Time.now() - self.__last_reaction
                     >= self.__reaction_timeout)):
                 self.evaluation_result = True
         return

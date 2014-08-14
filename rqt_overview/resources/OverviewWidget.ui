@@ -60,7 +60,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>Grafiken/Ampel Zeichen green.png</pixmap>
+          <pixmap>graphics/Ampel Zeichen green.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>

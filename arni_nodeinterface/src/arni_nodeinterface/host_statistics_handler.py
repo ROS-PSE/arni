@@ -1,6 +1,7 @@
-import StatisticsHandler from StatisticsHandler
-import HostStatus from HostStatus
-import NodeManager from NodeManager
+from statistcs_handler import StatisticsHandler
+from host_status import HostStatus
+from node_manager import NodeManager
+import psutil
 
 class HostStatisticsHandler( StatisticsHandler):
 
@@ -24,7 +25,7 @@ class HostStatisticsHandler( StatisticsHandler):
 		self.__node_manager
 		
 		#: Dictionary holding all nodes currently running on the host.
-		self.__node_list
+		self.__node_list = {}
 		
 	
 	def measure_status(self):
@@ -32,7 +33,47 @@ class HostStatisticsHandler( StatisticsHandler):
 		Collects information about the host's current status using psutils.
 		Triggered periodically.
 		"""
-		pass
+		
+		#CPU 
+		self._status.add_cpu_usage(psutil.cpu_percent())
+
+		self._status.add_cpu_usage_core(psutil.cpu_percent(None , True))
+
+		#RAM
+		self._status.add_ram_usage(psutil.virtual_memory().percent)
+
+		#todo: temp
+
+		
+		#Bandwidth and message frequency
+		network_interfaces = psutil.net_io_counters(True)
+
+		for key in network_interfaces:
+			
+			total_bytes = network_interfaces[key] + network_interfaces[key] #todo proper intervalls
+			total_packages = network_interfaces[key].packets_sent + network_interfaces[key].packets.recv
+
+			self._status.add_bandwidth(key, total_bytes)
+			self._status.add_msg_frequency(key, total_packages)
+
+		
+		# Free Space on disks
+		disks = psutil.disk_partitions(True)
+
+		for x in disks:
+			if 'cdrom' not in disks:
+				free_space = psutil.disk_usage(disks[x].mountpoint).free
+
+				self._status.add_drive_space(disks.device , free_space)
+
+		#Drive I/O
+		drive_io = psutil.disk_io_counters(True)
+
+		for key in drive_io:
+			self._status.add_drive_read(key, drive_io[key].read_bytes) #eventually intervalls
+			self._status.add_drive_write(key, drive_io[key].write_bytes)
+
+
 		
 	def publish_status(self, topic):
 		"""

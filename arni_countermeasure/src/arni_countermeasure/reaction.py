@@ -20,16 +20,12 @@ class Reaction(object):
         #: the host on which the node runs on.
         self.__host = None
 
+        #: the autonomy level
+        self.autonomy_level = autonomy_level
+
     @property
     def _host(self):
-        if self.__host is None:
-            self.__host = HostLookup().get_host(self._node)
-
-        return self.__host
-
-    @_host.setter
-    def _host(self, value):
-        self._host = value
+        return HostLookup().get_host(self._node)
 
     @abstractmethod
     def execute_reaction(self):

@@ -6,8 +6,8 @@ class ReactionPublishRosOutNode(Reaction):
 
     """A reaction that is able to publish a message on rosout."""
 
-    def __init__(self, message, loglevel):
-        super(ReactionPublishRosOutNode, self).__init__()
+    def __init__(self, node, autonomy_level, message, loglevel):
+        super(ReactionPublishRosOutNode, self).__init__(node, autonomy_level)
 
         #: The message to publish.
         #: :type: string
@@ -36,5 +36,4 @@ class ReactionPublishRosOutNode(Reaction):
 
     def execute_reaction(self):
         """Log the reaction message at a specific loglevel."""
-        switch(loglevel)
         self.__log(self.message)
