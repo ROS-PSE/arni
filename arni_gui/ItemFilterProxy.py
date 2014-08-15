@@ -38,19 +38,25 @@ def filterAcceptsRow(self, source_row, source_parent):
 
     correct_type = False
 
-    #todo:might this be solved faster/more intelligent?
-    if self.__show_hosts is True:
-        if entries[0] == "Host":
-            correct_type = True
-    if correct_type is False & self.__show_nodes is True:
-        if not entries[0] == "Node":
-            correct_type = True
-    if correct_type is False & self.__show_connections is True:
-        if not entries[0] == "Connection":
-            correct_type = True
-    if correct_type is False & self.__show_topics is True:
-        if not entries[0] == "Topic":
-            correct_type = True
+    #todo:is this correct?
+    data = self.sourceModel.data(entries[0])
+    for i in range (0,1):
+        if self.__show_hosts is True:
+            if data == "Host":
+                correct_type = True
+                break
+        if correct_type is False & self.__show_nodes is True:
+            if data == "Node":
+                correct_type = True
+                break
+        if correct_type is False & self.__show_connections is True:
+            if data == "Connection":
+                correct_type = True
+                break
+        if correct_type is False & self.__show_topics is True:
+            if data == "Topic":
+                correct_type = True
+                break
 
     if correct_type is False:
         return False
