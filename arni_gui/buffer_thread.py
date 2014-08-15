@@ -1,10 +1,10 @@
-from threading import Thread
+from threading import Thread, Lock
 
 """TODO: ROSModel richtig verlinken"""
-import ROSModel
-import rospy.Timer
-import rospy.ServiceProxy
-
+from ros_model import ROSModel
+from rospy.timer import Timer
+from rospy.impl.tcpros_service import ServiceProxy
+from rospy.rostime import Duration
 
 class BufferThread(Thread):
     """
@@ -19,14 +19,17 @@ def __init__(self, model):
     :param model: the object of the ROSModel
     :type model: ROSModel
     """
-    threading.Thread.__init__(self)
-    self.__buffer_lock = threading.Lock()
+    Thread.__init__(self)
+    self.__buffer_lock = Lock()
     self.__model = model
-    self.__timer = rospy.Timer
+    self.__timer = Timer(Duration(nsecs=100000000), start)
     self.__buffer = list()
     self.__rated_buffer = list()
     self.__running = bool
-    self.__monitoring_proxy = rospy.ServiceProxy
+    self.__monitoring_proxy = ServiceProxy
+
+    #setting up the timer
+
 
 
 def start(self):
