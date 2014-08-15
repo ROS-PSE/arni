@@ -38,3 +38,7 @@ class Specification:
         :type tuples: dict(str, MetadataTuple)
         """
         self.__values = tuples
+
+    def __str__(self):
+        for tuple in self.__values:
+            print("- " + str(tuple))

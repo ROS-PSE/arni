@@ -15,7 +15,10 @@ class MetadataTuple:
         :type value: object
         :raise ValueError: If the key is null or empty.
         """
-        if key == None or key.trim() == "":
+        if key == None or key.strip() == "":
             raise ValueError("Key cannot be empty!")
-        self.key = key.trim()
+        self.key = key.strip()
         self.value = value
+
+    def __str__(self):
+        print(self.key + " => " + self.value)

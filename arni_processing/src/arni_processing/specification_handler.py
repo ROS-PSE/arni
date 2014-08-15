@@ -1,7 +1,16 @@
+import rosparam
+from specification import Specification
+from metadata_tuple import MetadataTuple
+from rated_statistics import RatedStatistics
+from arni_core.helper import is_seuid
+
+
 class SpecificationHandler:
     """
     Loads the specifications from the parameter server, stores and compares them to the actual metadata.
     """
+
+    __namespace = '/arni/specifications'
 
     __specifications = {}
 
@@ -10,7 +19,32 @@ class SpecificationHandler:
         Loads Specifications from the configurations and stores them in the
         internal storage.
         """
-        pass
+
+        '''
+        params = rosparam.list_params(self.__namespace)
+        nslen = len(self.__namespace.split('/'))
+        last_seuid = None
+        current = None
+        for p in params:
+            path = p.split('/')
+            seuid = path[nslen]
+            if seuid != last_seuid:
+                if last_seuid != None:
+                    self.__specifications[seuid] = current
+                last_seuid = seuid
+                current = Specification()
+            current.add_tuple(MetadataTuple(path[nslen + 1], rosparam.get_param(p)))
+        '''
+        params = rosparam.get_param(self.__namespace)
+        for seuid in params.keys():
+            if is_seuid(seuid):
+                spec = Specification()
+                for k in params[seuid].keys():
+                    spec.add_tuple(MetadataTuple(k, params[seuid][k]))
+                self.__specifications[seuid] = spec
+
+        print("[SpecificationHandler] Loaded parameters")
+        print(self.__specifications)
 
     def get(self, identifier):
         """
@@ -19,7 +53,7 @@ class SpecificationHandler:
         :param identifier: The seuid describing the desired Specification object.
         :return: The Specification object with the given identifier, None if it was not found.
         """
-        if identifier in self.__specifications:
+        if identifier in self.__specifications.keys():
             return self.__specifications[identifier]
         return None
 
@@ -34,6 +68,12 @@ class SpecificationHandler:
         :returns: A RatedStatistics object representing the result.
         """
         pass
+
+    def reload_specifications(self):
+        """
+        Reloads all specifications loaded into the namespace /arni/specifications
+        """
+        self.__load_specifications()
 
     def __init__(self):
         """

@@ -1,3 +1,4 @@
+import rospy
 from storage_container import StorageContainer
 
 class MetadataStorage:

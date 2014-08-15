@@ -1,5 +1,4 @@
 from metadata_storage import MetadataStorage
-import rospy
 from specification_handler import SpecificationHandler
 from rated_statistics import RatedStatistics
 
@@ -54,11 +53,3 @@ class MonitoringNode:
         :returns: MetadataStorageResponse
         """
         pass
-
-
-def main():
-    mn = MonitoringNode()
-
-if __name__ == '__main__':
-    rospy.init_node('monitoring_node', log_level=rospy.Debug)
-    main()
