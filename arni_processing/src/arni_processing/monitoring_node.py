@@ -1,3 +1,7 @@
+import rospy
+import rosgraph_msgs
+from arni_msgs.msg import HostStatistics, NodeStatistics
+from rosgraph_msgs.msg import TopicStatistics
 from metadata_storage import MetadataStorage
 from specification_handler import SpecificationHandler
 from rated_statistics import RatedStatistics
@@ -10,8 +14,8 @@ class MonitoringNode:
     """
 
     def __init__(self):
-        self.__storage = MetadataStorage()
-        self.__spec_handler = SpecificationHandler()
+        self.__metadata_storage = MetadataStorage()
+        self.__specification_handler = SpecificationHandler()
 
     def receive_data(self, data):
         """
@@ -31,8 +35,7 @@ class MonitoringNode:
         :param data: Host or Node Statistics from the HostStatistics, TopicStatistics or NodeStatistics topics.
         :return: RatedStatistics.
         """
-        result = RatedStatistics()
-        pass
+        result = self.__specification_handler.compare(data)
         return result
 
     def __publish_data(self, data):
@@ -53,3 +56,9 @@ class MonitoringNode:
         :returns: MetadataStorageResponse
         """
         pass
+
+    def listener(self):
+        rospy.Subscriber('/statistics', TopicStatistics, self.receive_data)
+        rospy.Subscriber('/statistics_hosts', HostStatistics, self.receive_data)
+        rospy.Subscriber('/statistics_nodes', NodeStatistics, self.receive_data)
+        rospy.spin()
