@@ -1,7 +1,7 @@
 import rospy
 from outcome import *
 from arni_msgs.msg import RatedStatistics, RatedStatisticsEntity
-
+from helper import *
 
 class RatedStatisticStorage(object):
 
@@ -22,7 +22,10 @@ class RatedStatisticStorage(object):
         #: from the dict.
         #: type: Duration
         # TODO: set timeout by parameter
-        self.__timeout = rospy.Duration(10000)
+        param = "/arni_countermeasure/config/storage_timeout"
+
+        # only a default value in case the param gets fuzzed.
+        self.__timeout = get_param_duration(param)
 
     def clean_old_statistic(self):
         """Check the complete dictionary for statistics

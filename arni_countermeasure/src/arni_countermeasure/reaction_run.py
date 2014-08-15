@@ -10,5 +10,7 @@ class ReactionRun(Reaction):
     def __init__(self, node, autonomy_level, command):
         super(ReactionRun, self).__init__(node, autonomy_level)
 
+        self.__command = command
+
     def execute_reaction(self):
         pass

@@ -17,6 +17,10 @@ class CountermeasureNode(object):
         evaluate the constraints and clean old statistics."""
         super(CountermeasureNode, self).__init__()
 
+        self.__init_params__()
+
+        rospy.init_node("countermeasure_node", log_level=rospy.DEBUG)
+
         #: The storage of all incoming rated statistic.
         self.__rated_statistic_storage = RatedStatisticStorage()
 
@@ -24,7 +28,6 @@ class CountermeasureNode(object):
         self.__constraint_handler = ConstraintHandler(
             self.__rated_statistic_storage)
 
-        rospy.init_node("countermeasure_node")
         self.__register_subscriber()
 
     def __register_subscriber(self):
@@ -44,10 +47,21 @@ class CountermeasureNode(object):
             #: Todo: get check rate from param server
             rospy.sleep(rospy.Duration(3))
 
+    def __init_params__(self):
+        namespace = "/arni_countermeasure/config/"
+
+        default = {
+            "reaction_autonomy_level": 100,
+            "storage_timeout": 10,
+        }
+        for param in default:
+            if not rospy.has_param(namespace + param):
+                rospy.set_param(namespace + param, default[param])
+
 
 def main():
     cn = CountermeasureNode()
-    rospy.loginfo(rospy.get_caller_id() + ": im on ")
+#    rospy.loginfo(rospy.get_caller_id() + ": im on ")
 
     cn.loop()
 

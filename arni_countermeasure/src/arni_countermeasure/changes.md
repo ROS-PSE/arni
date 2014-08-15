@@ -1,3 +1,4 @@
+
 ##changes in arni_countermeasure:
 
 ###Constraint:
@@ -32,3 +33,6 @@ No need to load as text file or something like that.
 ###Reaction
 
  + changed autonomy_level to public
+
+ ###helper
+ added a helper class to provide 
