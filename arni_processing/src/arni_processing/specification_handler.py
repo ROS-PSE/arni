@@ -1,3 +1,4 @@
+import rospy
 import rosparam
 from specification import Specification
 from metadata_tuple import MetadataTuple
@@ -19,22 +20,6 @@ class SpecificationHandler:
         Loads Specifications from the configurations and stores them in the
         internal storage.
         """
-
-        '''
-        params = rosparam.list_params(self.__namespace)
-        nslen = len(self.__namespace.split('/'))
-        last_seuid = None
-        current = None
-        for p in params:
-            path = p.split('/')
-            seuid = path[nslen]
-            if seuid != last_seuid:
-                if last_seuid != None:
-                    self.__specifications[seuid] = current
-                last_seuid = seuid
-                current = Specification()
-            current.add_tuple(MetadataTuple(path[nslen + 1], rosparam.get_param(p)))
-        '''
         params = rosparam.get_param(self.__namespace)
         for seuid in params.keys():
             if is_seuid(seuid):
@@ -43,8 +28,7 @@ class SpecificationHandler:
                     spec.add_tuple(MetadataTuple(k, params[seuid][k]))
                 self.__specifications[seuid] = spec
 
-        print("[SpecificationHandler] Loaded parameters")
-        print(self.__specifications)
+        rospy.loginfo("[SpecificationHandler] Loaded parameters")
 
     def get(self, identifier):
         """
@@ -67,7 +51,8 @@ class SpecificationHandler:
         :type specification: Specification or str.
         :returns: A RatedStatistics object representing the result.
         """
-        pass
+        result = RatedStatistics()
+
 
     def reload_specifications(self):
         """
