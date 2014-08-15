@@ -3,6 +3,7 @@ from rated_statistic_storage import *
 import rospy
 from arni_msgs.msg import RatedStatistics
 from arni_core.host_lookup import *
+import helper
 
 
 class CountermeasureNode(object):
@@ -48,15 +49,17 @@ class CountermeasureNode(object):
             rospy.sleep(rospy.Duration(3))
 
     def __init_params__(self):
-        namespace = "/arni_countermeasure/config/"
+        """Initializes params on the parameter server,
+        if they are not already set.
+        """
 
         default = {
             "reaction_autonomy_level": 100,
             "storage_timeout": 10,
         }
         for param in default:
-            if not rospy.has_param(namespace + param):
-                rospy.set_param(namespace + param, default[param])
+            if not rospy.has_param(helper.ARNI_CTM_CFG_NS + param):
+                rospy.set_param(helper.ARNI_CTM_CFG_NS + param, default[param])
 
 
 def main():

@@ -1,7 +1,8 @@
 import rospy
 from outcome import *
 from arni_msgs.msg import RatedStatistics, RatedStatisticsEntity
-from helper import *
+import helper
+
 
 class RatedStatisticStorage(object):
 
@@ -21,11 +22,8 @@ class RatedStatisticStorage(object):
         #: is declared too old and should be removed
         #: from the dict.
         #: type: Duration
-        # TODO: set timeout by parameter
-        param = "/arni_countermeasure/config/storage_timeout"
-
-        # only a default value in case the param gets fuzzed.
-        self.__timeout = get_param_duration(param)
+        self.__timeout = helper.get_param_duration(
+            helper.ARNI_CTM_CFG_NS + "storage_timeout")
 
     def clean_old_statistic(self):
         """Check the complete dictionary for statistics
@@ -149,7 +147,7 @@ class RatedStatisticStorage(object):
             return Outcome.UNKNOWN
 
     def __remove_item(self, seuid, statistic_type):
-        """ Remove an statistic_type from an entity from the storage.
+        """Remove an statistic_type from an entity from the storage.
 
         :param seuid:   The seuid of the entity.
         :type seuid:    string
@@ -164,5 +162,5 @@ class RatedStatisticStorage(object):
             del self.__statistic_storage[seuid][statistic_type]
         except KeyError:
             rospy.logdebug(
-                "arni_countermeasure: Tried to delete"
+                "Tried to delete"
                 + " an unexisting entry in the storage.")

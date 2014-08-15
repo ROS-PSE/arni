@@ -26,7 +26,7 @@ class ReactionPublishRosOutNode(Reaction):
         else:
             # loglevel does not make sense
             rospy.logwarn(
-                "arni_countermeasure: a reaction wants to log on loglevel"
+                "A reaction wants to log on loglevel"
                 + " '%s', but that loglevel does not exist." % loglevel
                 + " Setting loglevel to info.")
             log = rospy.info

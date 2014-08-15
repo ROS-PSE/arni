@@ -17,6 +17,7 @@ from reaction_stop_node import *
 from outcome import *
 
 import rospy
+import helper
 
 
 class ConstraintHandler(object):
@@ -89,7 +90,7 @@ class ConstraintHandler(object):
     def _read_param_constraints(self):
         """Read all constraints from the parameter server and save them.
         """
-        p_constraint = rospy.get_param("/arni_countermeasure/constraints")
+        p_constraint = rospy.get_param(helper.ARNI_CTM_NS + "constraints")
         #print constraints
         for name in p_constraint:
             const_dict = p_constraint[name]
@@ -152,7 +153,7 @@ class ConstraintHandler(object):
                 reaction_list.append(react_run)
             else:
                 rospy.logdebug(
-                    "arni_countermeasure: The action '%s' " % action
+                    "The action '%s' " % action
                     + "found on the parameter server is not recognised.")
 
         return reaction_list
@@ -184,8 +185,7 @@ class ConstraintHandler(object):
                     const_dict[min_reaction_interval])
         except ValueError:
             rospy.logdebug(
-                "arni_countermeasure: "
-                + "constraint %s - min_reaction_interval '%s'"
+                + "Constraint %s - min_reaction_interval '%s'"
                 % (name, const_dict[min_reaction_interval])
                 + " is an invalid value. (Only integers allowed.)")
 
@@ -195,8 +195,7 @@ class ConstraintHandler(object):
                     const_dict[reaction_timeout])
         except ValueError:
             rospy.logdebug(
-                "arni_countermeasure: "
-                + "constraint %s - reaction_timeout '%s'"
+                + "Constraint %s - reaction_timeout '%s'"
                 % (name, const_dict[reaction_timeout])
                 + " is an invalid value. (Only integers allowed.)")
 
@@ -219,11 +218,11 @@ class ConstraintHandler(object):
                 constraint_dict, constraint_dict.keys()[0])
         elif len(constraint_dict) == 0:
             rospy.logdebug(
-                "arni_countermeasure: Constraint '%s'" % name
+                "Constraint '%s'" % name
                 + " has no constraint items. ")
         else:
             rospy.logdebug(
-                "arni_countermeasure: Constraint '%s' is starting" % name
+                "Constraint '%s' is starting" % name
                 + "with more than one constraint item."
                 + " Use 'and'/'or' as first item to add multiple items.")
 
@@ -302,9 +301,6 @@ class ConstraintHandler(object):
 
     def _read_param_reaction_autonomy_level(self):
         """Read and save the reaction_autonomy_level from the parameter server.
-
-        Default value is 100.
         """
-        level = rospy.get_param(
-            "/arni_countermeasure/reaction_autonomy_level", 100)
-        self.__reaction_autonomy_level = level
+        self.__reaction_autonomy_level = helper.get_param_duration(
+            helper.ARNI_CTM_CFG_NS + "reaction_autonomy_level")
