@@ -1,84 +1,96 @@
 class AbstractItem:
-""" Provides a unified interface to access the items of the model"""
 
-    def __init__(self, list, parent=None):
-	"""Initializes theAbstractItem
 
-	:param list: item list
-	:type list: list
-	:param parent: the parent-object
-	:type parent: object
-	"""
-	pass
+    """ Provides a unified interface to access the items of the model"""
 
-    def append_child(self, child):
-	"""Append a child to the list of childs
 
-	:param child: the child item
-	:type child: AbstractItem
-	"""
-	pass
+def __init__(self, list, parent=None):
+    """Initializes theAbstractItem
 
-    def append_data(self, data):
-	"""Append data to the data_list of the AbstractItem
+    :param list: item list
+    :type list: list
+    :param parent: the parent-object
+    :type parent: object
+    """
+    pass
 
-	:param data: the data to appen
-	:type data: object
-	"""
-	pass
 
-    def get_child(self, row):
-	"""Returns the child at the position row
+def append_child(self, child):
+    """Append a child to the list of childs
 
-	:param row: the index of the row
-	:type row: int
-	
-	:returns: AbstractItem
-	"""
-	pass
+    :param child: the child item
+    :type child: AbstractItem
+    """
+    pass
 
-    def get_latest_data(self):
-	"""Returns the latest dict of the data_list
 
-	:returns: dict
-	"""
-	pass
+def append_data(self, data):
+    """Append data to the data_list of the AbstractItem
 
-    def parent(self):
-	"""Returns the parent of this or None if there is no parent
+    :param data: the data to appen
+    :type data: object
+    """
+    pass
 
-	:returns: AbstractItem
-	"""
-	pass
 
-    def get_items_older_than(self, time):
-	"""Returns all items which are older than time
+def get_child(self, row):
+    """Returns the child at the position row
 
-	:param time: the upper bound
-	:type time: rospy.Time
+    :param row: the index of the row
+    :type row: int
 
-	:returns: AbstractItem
-	"""
-	pass
+    :returns: AbstractItem
+    """
+    pass
 
-    def delete_items_older_than(self, time):
-	"""Deletes all items which are older than time
 
-	:param time: the upper bound
-	:type time: rospy.Time
-	"""
-	pass
+def get_latest_data(self):
+    """Returns the latest dict of the data_list
 
-    def get_items_younger_than(self, time):
-	"""Returns all items which are younger than time
+    :returns: dict
+    """
+    pass
 
-	:param time: the lower bound
-	:type time: rospy.Time
 
-	:returns: AbstractItem
-	"""
-	pass
+def parent(self):
+    """Returns the parent of this or None if there is no parent
 
-    @abstractmethod
-    def execute_action(self, action):
-	"""Executes a action on the current item like stop or restart. Calls to this method should be redirected to the remote host on executed there."""
+    :returns: AbstractItem
+    """
+    pass
+
+
+def get_items_older_than(self, time):
+    """Returns all items which are older than time
+
+    :param time: the upper bound
+    :type time: rospy.Time
+
+    :returns: AbstractItem
+    """
+    pass
+
+
+def delete_items_older_than(self, time):
+    """Deletes all items which are older than time
+
+    :param time: the upper bound
+    :type time: rospy.Time
+    """
+    pass
+
+
+def get_items_younger_than(self, time):
+    """Returns all items which are younger than time
+
+    :param time: the lower bound
+    :type time: rospy.Time
+
+    :returns: AbstractItem
+    """
+    pass
+
+
+@abstractmethod
+def execute_action(self, action):
+    """Executes a action on the current item like stop or restart. Calls to this method should be redirected to the remote host on executed there."""

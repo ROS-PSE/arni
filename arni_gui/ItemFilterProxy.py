@@ -1,12 +1,12 @@
 from python_qt_binding import QSortFilterProxyModel
 
 
-
 class ItemFilterProxy(QSortFilterProxyModel):
     """The ItemFilterProxy which is a QSortFilterProxyModel helps to filter the data going to the view so the user only
      sees what he wants to see (which he can modified by telling the view)."""
 
-#todo: will call to setFilterRegEx be redirected to the parent automatically?
+
+# todo: will call to setFilterRegEx be redirected to the parent automatically?
 
 def __init__(self, parent):
     """Initializes the ItemFilterProxy
