@@ -5,10 +5,12 @@ from arni_countermeasure.constraint_handler import *
 from arni_countermeasure import constraint_handler
 from arni_countermeasure.rated_statistic_storage import *
 from arni_countermeasure import helper
+from arni_countermeasure.constraint_and import *
+from arni_countermeasure.constraint_or import *
+from arni_countermeasure.constraint_not import *
 
 import traceback
 import rospy
-import sys
 
 PKG = "arni_countermeasure"
 
@@ -119,6 +121,7 @@ class TestParsingOfConstraints(unittest.TestCase):
         rospy.set_param("/arni", params)
 
 # A couple of tests regarding the parsing of reactions.
+# tests the method constraint_handler._parse_reaction_list
 
     def test_reaction_autonomy_level_not_set(self):
         params = {
@@ -192,6 +195,7 @@ class TestParsingOfConstraints(unittest.TestCase):
             "Parsing an empty reaction is not resulting in an empty reaction")
 
 # test the parsing of intervals and timeouts.
+# tests the method constraint_handler._parse_interval_and_timeout
 
     def test_interval_valid_values(self):
         """Test if setting interval and timeout works."""
@@ -231,6 +235,85 @@ class TestParsingOfConstraints(unittest.TestCase):
         self.assertEqual(
             interval, rospy.Duration(5),
             "Interval should have been set to the default value.")
+
+# test constraint_handler._traverse_dict
+
+    def test_traverse_simple_and(self):
+        """Tests the traversing through a simple and."""
+        c_dict = {
+            'and': {
+                'n!node2': {'ram_usage_mean': 'high'},
+                'n!node1': {'ram_usage_mean': 'high'},
+            }
+        }
+        const_item = constraint_handler._traverse_dict(c_dict, 'and')
+        self.assertEqual(type(const_item), ConstraintAnd)
+        # not so nice way of getting leafes, but will do for testing.
+        leafs = const_item._ConstraintAnd__constraint_list
+        self.assertEqual(len(leafs), 2)
+        self.assertEqual(leafs[0]._ConstraintLeaf__seuid, 'n!node2')
+        self.assertEqual(leafs[1]._ConstraintLeaf__seuid, 'n!node1')
+
+    def test_traverse_simple_and_or(self):
+        """Tests if a simple or exists in an and."""
+        c_dict = {
+            'and': {
+                'n!node2': {'ram_usage_mean': 'high'},
+                'n!node1': {'ram_usage_mean': 'high'},
+                'or': {
+                    'n!node3': {'ram_usage_mean': 'high'},
+                    'n!node4': {'ram_usage_mean': 'high'},
+                }
+            }
+        }
+        const_item = constraint_handler._traverse_dict(c_dict, 'and')
+        leafs = const_item._ConstraintAnd__constraint_list
+        self.assertEqual(len(leafs), 3)
+        self.assertIn(ConstraintOr, (map(type, leafs)))
+
+    def test_traverse_simple_not(self):
+        """Test if a simple not can be traversed."""
+        c_dict = {
+            'not': {
+                'n!node2': {'ram_usage_mean': 'high'},
+                'n!node1': {'ram_usage_mean': 'high'},
+            }
+        }
+        const_item = constraint_handler._traverse_dict(c_dict, 'not')
+        self.assertEqual(len(const_item), 2)
+        for not_item in const_item:
+            self.assertEqual(type(not_item), ConstraintNot)
+
+    def test_traverse_empty_and(self):
+        """Tests if an empty and can be traversed."""
+        c_dict = {
+            'and': {}
+        }
+        const_item = constraint_handler._traverse_dict(c_dict, 'and')
+        leafs = const_item._ConstraintAnd__constraint_list
+        self.assertEqual(len(leafs), 0)
+
+    def test_traverse_wrong_format(self):
+        """Test for an leaf to be ignored if its not a seuid."""
+        c_dict = {
+            'ant': {
+                'n!node2': {'ram_usage_mean': 'high'},
+                'n!node1': {'ram_usage_mean': 'high'},
+            }
+        }
+        const_item = constraint_handler._traverse_dict(c_dict, 'ant')
+        self.assertEqual(const_item, None)
+
+    def test_traverse_wrong_outcome(self):
+        """Test for an outcome thats not a string."""
+        c_dict = {
+            'n!node2': {
+                'ram_usage_mean': {
+                    'n!node1': {'ram_usage_mean': 'high'}}},
+        }
+        const_item = constraint_handler._traverse_dict(c_dict, 'n!node2')
+        self.assertEqual(const_item, [])
+
 
 if __name__ == '__main__':
     import rosunit

@@ -15,6 +15,7 @@ from reaction_run import *
 from reaction_stop_node import *
 
 from outcome import *
+import arni_core
 
 import rospy
 import helper
@@ -131,7 +132,7 @@ class ConstraintHandler(object):
         root = None
         # there can be only one root ;-)
         if len(constraint_dict) == 1:
-            root = self.__traverse_dict(
+            root = _traverse_dict(
                 constraint_dict, constraint_dict.keys()[0])
         elif len(constraint_dict) == 0:
             rospy.logdebug(
@@ -144,77 +145,6 @@ class ConstraintHandler(object):
                 + " Use 'and'/'or' as first item to add multiple items.")
 
         return root
-
-    def __traverse_dict(self, c_dict, item_type):
-        """Traverse down the dictionary recursively.
-
-        Creates a constraint item tree from the dictionary.
-
-
-        :param c_dict:  The dictionary to traverse.
-        :type:  dict
-
-        :param item_type:   The kind of item to create.
-                            if the type is not 'not','and','or' the
-                            item_type stands for the seuid of the leaf.
-        :type:  string
-
-        """
-        if item_type in ('not', 'and', 'or'):
-            constraint_item_list = list()
-
-            # go through all items in the dict
-            for sub_item in c_dict[item_type]:
-                constraint_item = self.__traverse_dict(
-                    c_dict[item_type], sub_item)
-
-                # is this item a list? ('not' returns a list)
-                if hasattr(constraint_item, "__iter__"):
-                    constraint_item_list.extend(constraint_item)
-                else:
-                    constraint_item_list.append(constraint_item)
-
-            # create and return constraint items
-            return self.__create_constraint_item(
-                item_type, constraint_item_list)
-
-        else:
-            # lets create a leaf (or a list of leafes)
-            leaf_list = list()
-            # itemtype is not and,or..? must be a leaf
-            seuid = item_type
-
-            for statistic_type in c_dict[item_type]:
-                outcome = Outcome.from_str(c_dict[item_type][statistic_type])
-                leaf_list.append(
-                    ConstraintLeaf(seuid, statistic_type, outcome))
-
-            return leaf_list
-
-    def __create_constraint_item(self, item_type, constraint_list):
-        """Creates a constraint item / a list of constraint items.
-
-        Creates a new constraint of type item_type and puts the constraints
-        of constraint_list in it.
-
-        If the item_type is 'not' there is a not-constraint createt for every
-        constraint in the list.
-
-        :param item_type:   The type of the new constraint item(s).
-        :type:  string ('or', 'and', 'not' allowed. no validation)
-
-        :param constraint_list:   Constraints to put inside the new constraint.
-        :type:  list of ConstraintItems
-        """
-        if item_type == 'or':
-            return ConstraintOr(constraint_list)
-        elif item_type == 'and':
-            return ConstraintAnd(constraint_list)
-        elif item_type == 'not':
-            ret_list = list()
-            for constraint_item in constraint_list:
-                ret_list.append(ConstraintNot(constraint_item))
-            return ret_list
 
     def _read_param_reaction_autonomy_level(self):
         """Read and save the reaction_autonomy_level from the parameter server.
@@ -349,3 +279,92 @@ def _parse_interval_and_timeout(const_dict):
                 + " is of invalid value. (Only numbers allowed.)")
 
         return (min_reaction_interval, reaction_timeout)
+
+
+def _create_constraint_item(item_type, constraint_list):
+    """Creates a constraint item / a list of constraint items.
+
+    Creates a new constraint of type item_type and puts the constraints
+    of constraint_list in it.
+
+    If the item_type is 'not' there is a not-constraint createt for every
+    constraint in the list.
+
+    :param item_type:   The type of the new constraint item(s).
+    :type:  string ('or', 'and', 'not' allowed. no validation)
+
+    :param constraint_list:   Constraints to put inside the new constraint.
+    :type:  list of ConstraintItems
+    """
+    if item_type == 'or':
+        return ConstraintOr(constraint_list)
+    elif item_type == 'and':
+        return ConstraintAnd(constraint_list)
+    elif item_type == 'not':
+        ret_list = list()
+        for constraint_item in constraint_list:
+            ret_list.append(ConstraintNot(constraint_item))
+        return ret_list
+
+
+def _traverse_dict(c_dict, item_type):
+    """Traverse down the dictionary recursively.
+
+    Creates a constraint item tree from the dictionary.
+
+
+    :param c_dict:  The dictionary to traverse.
+    :type:  dict
+
+    :param item_type:   The kind of item to create.
+                        if the type is not 'not','and','or' the
+                        item_type stands for the seuid of the leaf.
+    :type:  string
+
+    """
+    if item_type in ('not', 'and', 'or'):
+        constraint_item_list = list()
+
+        # go through all items in the dict
+        for sub_item in c_dict[item_type]:
+            constraint_item = _traverse_dict(
+                c_dict[item_type], sub_item)
+
+            # is this item a list? ('not' returns a list)
+            if hasattr(constraint_item, "__iter__"):
+                constraint_item_list.extend(constraint_item)
+            else:
+                constraint_item_list.append(constraint_item)
+
+        # create and return constraint items
+        return _create_constraint_item(
+            item_type, constraint_item_list)
+
+    else:
+        # lets create a leaf (or a list of leafes)
+        leaf_list = list()
+        # itemtype is not and,or..? must be a leaf
+        seuid = item_type
+
+        # better check if its a seuid
+        if not arni_core.helper.is_seuid(seuid):
+            rospy.logwarn(
+                "There is a wrongly formatted seuid '%s'."
+                % seuid
+                + " Found while parsing a constraint.")
+            return None
+
+        for statistic_type in c_dict[item_type]:
+            outcome_unformatted = c_dict[item_type][statistic_type]
+
+            if isinstance(outcome_unformatted, basestring):
+                outcome = Outcome.from_str(outcome_unformatted)
+                leaf_list.append(
+                    ConstraintLeaf(seuid, statistic_type, outcome))
+            else:
+                rospy.logwarn(
+                    "The outcome '%s' in an constraint is not a"
+                    % outcome_unformatted
+                    + " valid type.")
+
+        return leaf_list

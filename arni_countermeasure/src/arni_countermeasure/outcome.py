@@ -24,6 +24,8 @@ class Outcome(object):
     @staticmethod
     def from_str(txt):
         """Returns the int value for an textual representation of the outcome.
+
+        Returns UNKNOWN if the textual representation is no valid outcome.
         """
         a = {
             "high": 0,
