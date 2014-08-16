@@ -59,7 +59,9 @@ class CountermeasureNode(object):
         default = {
             "reaction_autonomy_level": 100,
             "storage_timeout": 10,
-            "evaluation_period": 2
+            "evaluation_period": 2,
+            "default/min_reaction_interval": 10,
+            "default/reaction_timeout": 30
         }
         for param in default:
             if not rospy.has_param(helper.ARNI_CTM_CFG_NS + param):

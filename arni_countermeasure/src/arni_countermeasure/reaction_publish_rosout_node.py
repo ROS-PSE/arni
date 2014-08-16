@@ -7,11 +7,11 @@ class ReactionPublishRosOutNode(Reaction):
     """A reaction that is able to publish a message on rosout."""
 
     def __init__(self, autonomy_level, message, loglevel):
-        super(ReactionPublishRosOutNode, self).__init__("", autonomy_level)
+        super(ReactionPublishRosOutNode, self).__init__(None, autonomy_level)
 
         #: The message to publish.
         #: :type: string
-        self.message = message
+        self._message = message
 
         if loglevel == "info":
             log = rospy.loginfo
@@ -36,4 +36,4 @@ class ReactionPublishRosOutNode(Reaction):
 
     def execute_reaction(self):
         """Log the reaction message at a specific loglevel."""
-        self.__log(self.message)
+        self.__log(self._message)

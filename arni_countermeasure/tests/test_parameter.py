@@ -2,7 +2,9 @@
 import unittest
 from arni_countermeasure.countermeasure_node import *
 from arni_countermeasure.constraint_handler import *
+from arni_countermeasure import constraint_handler
 from arni_countermeasure.rated_statistic_storage import *
+from arni_countermeasure import helper
 
 import traceback
 import rospy
@@ -58,14 +60,15 @@ class TestParsingOfConstraints(unittest.TestCase):
             'countermeasure': {
                 'constraints': {
                     'john': {
-#                        'reactions': { },
                         'constraint': {}}}}}
 
         rospy.set_param("/arni", params)
         try:
-            con_handler = ConstraintHandler(None)
+            ConstraintHandler(None)
         except Exception:
-            self.fail("missing the param reactions caused the exception: %s" % traceback.format_exc())
+            self.fail(
+                "missing the param reactions caused the exception: %s"
+                % traceback.format_exc())
 
     def test_empty_reaction(self):
         """Tests for no error if an reaction is empty."""
@@ -75,17 +78,16 @@ class TestParsingOfConstraints(unittest.TestCase):
                     'john': {
                         'reactions': {
                             'name': {
-                                'node': ''
                             }},
                         'constraint': {}}}}}
 
         rospy.set_param("/arni", params)
         try:
-            con_handler = ConstraintHandler(None)
-            output = sys.stdout.getvalue().strip()
-            print output
+            ConstraintHandler(None)
         except Exception:
-            self.fail("missing the param reactions caused the exception: %s" % traceback.format_exc())
+            self.fail(
+                "an empty reaction caused the exception: %s"
+                % traceback.format_exc())
 
     def _set_param_and(self):
         params = {
@@ -115,6 +117,120 @@ class TestParsingOfConstraints(unittest.TestCase):
         if rospy.has_param("/arni"):
             rospy.delete_param("/arni")
         rospy.set_param("/arni", params)
+
+# A couple of tests regarding the parsing of reactions.
+
+    def test_reaction_autonomy_level_not_set(self):
+        params = {
+            'reactions': {
+                'reac_one': {
+                    'action': 'publish',
+                    'message': 'bla',
+                    'loglevel': 'debug'}}}
+        reactions = constraint_handler._parse_reaction_list(params, "const")
+        self.assertEqual(len(reactions), 1)
+        self.assertEqual(
+            reactions[0].autonomy_level, 0,
+            "Unset autonomy level should lead to level 0.")
+
+    def test_reaction_parse_wrong_action(self):
+        """Test parsing an action that is not defined"""
+        params = {
+            'reactions': {
+                'reac_one': {
+                    'action': 'multiply',
+                    }}}
+        reactions = constraint_handler._parse_reaction_list(params, "const")
+        self.assertEquals(
+            len(reactions), 0, "Wrong action should lead to no reaction")
+
+    def test_reaction_multiple_reactions(self):
+        """Test parsing two reactions in one constraint."""
+        params = {
+            'reactions': {
+                'reac_one': {
+                    'action': 'publish',
+                    'node': 'node1',
+                    'message': 'node1 has a problem',
+                    'loglevel': 'info',
+                    'autonomy_level': 13},
+                'reac_two': {
+                    'action': 'publish',
+                    'node': 'node2',
+                    'message': 'node2 has a problem',
+                    'loglevel': 'info',
+                    'autonomy_level': 13}}}
+        reactions = constraint_handler._parse_reaction_list(params, "const")
+        self.assertEqual(len(reactions), 2, "There should be two reactions.")
+
+    def test_reaction_parse_publish_reaction(self):
+        """Test if parsing a single publish reaction works."""
+        params = {
+            'reactions': {
+                'reac_one': {
+                    'action': 'publish',
+                    'message': 'node1 has a problem',
+                    'loglevel': 'info',
+                    'autonomy_level': 13}}}
+        reactions = constraint_handler._parse_reaction_list(params, "const")
+        self.assertEqual(
+            len(reactions), 1,
+            "Parsing one reaction should end up with one reaction.")
+        reaction = reactions[0]
+
+        self.assertEqual(reaction._message, "node1 has a problem")
+        self.assertEqual(reaction._node, None, "node should be None")
+        self.assertEqual(reaction.autonomy_level, 13)
+
+    def test_reaction_parse_empty_reaction(self):
+        """Set an empty reaction and check if its empty after parsing"""
+
+        reactions = constraint_handler._parse_reaction_list(
+            dict(), "const")
+        self.assertEqual(
+            len(reactions), 0,
+            "Parsing an empty reaction is not resulting in an empty reaction")
+
+# test the parsing of intervals and timeouts.
+
+    def test_interval_valid_values(self):
+        """Test if setting interval and timeout works."""
+        c_dict = {
+            'min_reaction_interval': 30,
+            'reaction_timeout': 50
+        }
+        interval, timeout = constraint_handler._parse_interval_and_timeout(
+            c_dict)
+        self.assertEqual(interval, rospy.Duration(30))
+        self.assertEqual(timeout, rospy.Duration(50))
+
+    def test_interval_timeout_not_existing(self):
+        """Test if the default values are used if there is no interval and
+        timeout set."""
+        rospy.set_param(
+            helper.ARNI_CTM_CFG_NS + "default/min_reaction_interval", 100)
+        rospy.set_param(
+            helper.ARNI_CTM_CFG_NS + "default/reaction_timeout", 300)
+        interval, timeout = constraint_handler._parse_interval_and_timeout({})
+        self.assertEqual(
+            interval, rospy.Duration(100),
+            "Interval should have been set to default value.")
+        self.assertEqual(
+            timeout, rospy.Duration(300),
+            "Timeout should have been set to default value")
+
+    def test_interval_wrong_value(self):
+        rospy.set_param(
+            helper.ARNI_CTM_CFG_NS + "default/min_reaction_interval", 5)
+        rospy.set_param(
+            helper.ARNI_CTM_CFG_NS + "default/reaction_timeout", 20)
+        interval, timeout = constraint_handler._parse_interval_and_timeout(
+            {
+                'min_reaction_interval': "abc"
+            })
+        self.assertEqual(
+            interval, rospy.Duration(5),
+            "Interval should have been set to the default value.")
 
 if __name__ == '__main__':
     import rosunit

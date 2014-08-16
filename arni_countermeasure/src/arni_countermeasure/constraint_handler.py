@@ -107,9 +107,9 @@ class ConstraintHandler(object):
                 const_dict['constraint'], name)
 
             min_reaction_interval, reaction_timeout = (
-                self.__parse_interval_and_timeout(const_dict))
+                _parse_interval_and_timeout(const_dict))
 
-            reaction_list = self.__parse_reaction_list(const_dict, name)
+            reaction_list = _parse_reaction_list(const_dict, name)
 
             # is it a valid root?
             if root is not None:
@@ -117,129 +117,6 @@ class ConstraintHandler(object):
                     name, root, reaction_list,
                     min_reaction_interval, reaction_timeout)
                 self.__constraint_list.append(constraint)
-
-    def __parse_reaction_list(self, const_dict, name):
-        """Parse the dict to a list of reactions.
-
-        :param const_dict:  The dict from the parameter server holding
-                            the reactions of a constraint.
-        :type:  dict
-
-        :param name:    The name of the constraint. Can be None.
-                        Usefull for debugging.
-        :type:  string
-
-        :return:    The parsed list of reactions.
-        :type:  list of Reactions
-        """
-
-        p_reaction_list = const_dict.get('reactions', {})
-
-        reaction_list = list()
-
-        for r_name in p_reaction_list:
-            p_reaction = p_reaction_list[r_name]
-
-            action = p_reaction.get('action', 'no action set')
-
-            if 'autonomy_level' in p_reaction:
-                autonomy_level = p_reaction['autonomy_level']
-            else:
-                # set to 0 so it always gets executed
-                autonomy_level = 0
-
-            # find out what kind of reaction it is
-            if action == 'publish':
-                message = p_reaction['message']
-                loglevel = p_reaction.get('loglevel', 'loginfo')
-
-                react_publish = ReactionPublishRosOutNode(
-                    node, autonomy_level, message, loglevel)
-
-                reaction_list.append(react_publish)
-            else:
-                # not publishing a message? we need a node to execute on!
-                if 'node' in p_reaction:
-                    node = p_reaction['node']
-                else:
-                    rospy.logwarn(
-                        "There is no Node defined in reaction"
-                        + " %s of constraint %s. Skipping Reaction."
-                        % (r_name, name))
-                    break
-
-                if action == 'stop':
-                    react_stop = ReactionStopNode(node, autonomy_level)
-                    reaction_list.append(react_stop)
-                elif action == 'restart':
-                    react_restart = ReactionRestartNode(node, autonomy_level)
-                    reaction_list.append(react_restart)
-                elif action == 'run':
-                    if not 'command' in p_reaction:
-                        rospy.logwarn(
-                            "There is no Command defined in run-reaction"
-                            + " %s of constraint %s. Skipping reaction."
-                            % (r_name, name))
-                        break
-
-                    command = p_reaction['command']
-                    react_run = ReactionRun(node, autonomy_level, command)
-                    reaction_list.append(react_run)
-                elif action == 'no action set':
-                    rospy.logwarn(
-                        "There is no action for reaction %s in constraint %s."
-                        % (r_name, name)
-                        + " Ignoring this reaction.")
-                else:
-                    rospy.logwarn(
-                        "The action '%s' in the reaction %s of constraint %s"
-                        % (action, r_name, name)
-                        + " is not recognised. Ignoring this reaction.")
-
-        return reaction_list
-
-    def __parse_interval_and_timeout(self, const_dict):
-        """Parse min_reaction_interval
-        and reaction_timeout out of the dictionary.
-
-        If the interval and timeout is not specified in the dict
-        default values are assigned.
-
-        :param const_dict:  The dict from the parameter server
-                            holding the interval and timeout.
-        :type:  dict
-
-        :return:    the min_reaction_interval and reaction_timeout
-        :rtype: tuple (rospy.Duration, rospy.Duration)
-        """
-
-        # default values
-        # TODO: create variables for default
-        min_reaction_interval = rospy.Duration(10)
-        reaction_timeout = rospy.Duration(10)
-
-        # check if interval and timeout have interger values
-        try:
-            if hasattr(const_dict, 'min_reaction_interval'):
-                min_reaction_interval = rospy.Duration(
-                    const_dict[min_reaction_interval])
-        except ValueError:
-            rospy.logdebug(
-                + "Constraint %s - min_reaction_interval '%s'"
-                % (name, const_dict[min_reaction_interval])
-                + " is an invalid value. (Only integers allowed.)")
-
-        try:
-            if hasattr(const_dict, 'reaction_timeout'):
-                reaction_timeout = rospy.Duration(
-                    const_dict[reaction_timeout])
-        except ValueError:
-            rospy.logdebug(
-                + "Constraint %s - reaction_timeout '%s'"
-                % (name, const_dict[reaction_timeout])
-                + " is an invalid value. (Only integers allowed.)")
-
-        return (min_reaction_interval, reaction_timeout)
 
     def __create_constraint_tree(self, constraint_dict, name):
         """Create a constraint tree from a dictionary.
@@ -344,3 +221,131 @@ class ConstraintHandler(object):
         """
         self.__reaction_autonomy_level = helper.get_param_duration(
             helper.ARNI_CTM_CFG_NS + "reaction_autonomy_level")
+
+
+def _parse_reaction_list(const_dict, name):
+    """Parse the dict to a list of reactions.
+
+    :param const_dict:  The dict from the parameter server holding
+                        the reactions of a constraint.
+    :type:  dict
+
+    :param name:    The name of the constraint. Can be None.
+                    Usefull for debugging.
+    :type:  string
+
+    :return:    The parsed list of reactions.
+    :type:  list of Reactions
+    """
+
+    p_reaction_list = const_dict.get('reactions', {})
+
+    reaction_list = list()
+
+    for r_name in p_reaction_list:
+        p_reaction = p_reaction_list[r_name]
+
+        action = p_reaction.get('action', 'no action set')
+
+        if 'autonomy_level' in p_reaction:
+            autonomy_level = p_reaction['autonomy_level']
+        else:
+            # set to 0 so it always gets executed
+            autonomy_level = 0
+
+        # find out what kind of reaction it is
+        if action == 'publish':
+            message = p_reaction['message']
+            loglevel = p_reaction.get('loglevel', 'loginfo')
+
+            react_publish = ReactionPublishRosOutNode(
+                autonomy_level, message, loglevel)
+
+            reaction_list.append(react_publish)
+        else:
+            # not publishing a message? we need a node to execute on!
+            if 'node' in p_reaction:
+                node = p_reaction['node']
+            else:
+                rospy.logwarn(
+                    "There is no Node defined in reaction"
+                    + " %s of constraint %s. Skipping Reaction."
+                    % (r_name, name))
+                break
+
+            if action == 'stop':
+                react_stop = ReactionStopNode(node, autonomy_level)
+                reaction_list.append(react_stop)
+            elif action == 'restart':
+                react_restart = ReactionRestartNode(node, autonomy_level)
+                reaction_list.append(react_restart)
+            elif action == 'run':
+                if not 'command' in p_reaction:
+                    rospy.logwarn(
+                        "There is no Command defined in run-reaction"
+                        + " %s of constraint %s. Skipping reaction."
+                        % (r_name, name))
+                    break
+
+                command = p_reaction['command']
+                react_run = ReactionRun(node, autonomy_level, command)
+                reaction_list.append(react_run)
+            elif action == 'no action set':
+                rospy.logwarn(
+                    "There is no action for reaction %s in constraint %s."
+                    % (r_name, name)
+                    + " Ignoring this reaction.")
+            else:
+                rospy.logwarn(
+                    "The action '%s' in the reaction %s of constraint %s"
+                    % (action, r_name, name)
+                    + " is not recognised. Ignoring this reaction.")
+
+    return reaction_list
+
+
+def _parse_interval_and_timeout(const_dict):
+        """Parse min_reaction_interval
+        and reaction_timeout out of the dictionary.
+
+        Both are attributes of a constraint.
+
+        If the interval and timeout is not specified in the dict
+        default values are assigned.
+
+        :param const_dict:  The dict from the parameter server
+                            holding the interval and timeout.
+        :type:  dict
+
+        :return:    the min_reaction_interval and reaction_timeout
+        :rtype: tuple (rospy.Duration, rospy.Duration)
+        """
+
+        # default values
+        min_reaction_interval = helper.get_param_duration(
+            helper.ARNI_CTM_CFG_NS + "default/min_reaction_interval")
+        reaction_timeout = helper.get_param_duration(
+            helper.ARNI_CTM_CFG_NS + "default/reaction_timeout")
+
+        # check if interval and timeout have interger values
+        try:
+            if 'min_reaction_interval' in const_dict:
+                min_reaction_interval = rospy.Duration(
+                    const_dict['min_reaction_interval'])
+        except ValueError:
+            rospy.logwarn(
+                "min_reaction_interval '%s'"
+                % (const_dict['min_reaction_interval'])
+                + " is of invalid value. (Only numbers allowed.)")
+
+        try:
+            if 'reaction_timeout' in const_dict:
+                reaction_timeout = rospy.Duration(
+                    const_dict['reaction_timeout'])
+        except ValueError:
+            rospy.logwarn(
+                "reaction_timeout '%s'"
+                % (const_dict['reaction_timeout'])
+                + " is of invalid value. (Only numbers allowed.)")
+
+        return (min_reaction_interval, reaction_timeout)

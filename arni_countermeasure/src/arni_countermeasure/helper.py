@@ -3,8 +3,10 @@ import rospy
 #: the parameter namespace for the arni_countermeasure node
 ARNI_CTM_NS = "/arni/countermeasure/"
 
-#: the parameter namespace for configuration files of the arni_countermeasure node
+#: the parameter namespace for configuration files
+#: of the arni_countermeasure node
 ARNI_CTM_CFG_NS = ARNI_CTM_NS + "config/"
+
 
 def get_param_duration(param):
     """Calls rospy.get_param and logs errors.
