@@ -18,7 +18,7 @@ class CountermeasureNode(object):
         evaluate the constraints and clean old statistics."""
         super(CountermeasureNode, self).__init__()
 
-        self.__init_params__()
+        self.__init_params()
 
         rospy.init_node("countermeasure_node", log_level=rospy.DEBUG)
 
@@ -28,6 +28,10 @@ class CountermeasureNode(object):
         #: The handler for all constraints.
         self.__constraint_handler = ConstraintHandler(
             self.__rated_statistic_storage)
+
+        #: The time to wait between two evaluations.
+        self.__evaluation_period = helper.get_param_duration(
+            helper.ARNI_CTM_CFG_NS + "evaluation_period")
 
         self.__register_subscriber()
 
@@ -45,10 +49,9 @@ class CountermeasureNode(object):
             self.__constraint_handler.evaluate_constraints()
             self.__constraint_handler.execute_reactions()
 
-            #: Todo: get check rate from param server
-            rospy.sleep(rospy.Duration(3))
+            rospy.sleep(self.__evaluation_period)
 
-    def __init_params__(self):
+    def __init_params(self):
         """Initializes params on the parameter server,
         if they are not already set.
         """
@@ -56,6 +59,7 @@ class CountermeasureNode(object):
         default = {
             "reaction_autonomy_level": 100,
             "storage_timeout": 10,
+            "evaluation_period": 2
         }
         for param in default:
             if not rospy.has_param(helper.ARNI_CTM_CFG_NS + param):

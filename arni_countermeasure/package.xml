@@ -35,6 +35,8 @@
   <!--   <build_depend>message_generation</build_depend> -->
   <!-- Use buildtool_depend for build tool packages: -->
   <!--   <buildtool_depend>catkin</buildtool_depend> -->
+  <build_depend>rostest</build_depend>
+  
   <build_depend>arni_msgs</build_depend>
   <build_depend>arni_core</build_depend>
   

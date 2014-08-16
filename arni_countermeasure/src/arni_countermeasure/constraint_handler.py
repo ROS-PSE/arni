@@ -90,10 +90,18 @@ class ConstraintHandler(object):
     def _read_param_constraints(self):
         """Read all constraints from the parameter server and save them.
         """
-        p_constraint = rospy.get_param(helper.ARNI_CTM_NS + "constraints")
+        p_constraint = rospy.get_param(
+            helper.ARNI_CTM_NS + "constraints", dict())
         #print constraints
         for name in p_constraint:
             const_dict = p_constraint[name]
+
+            # no constraint inside?
+            if not 'constraint' in const_dict:
+                rospy.logwarn(
+                    "Constraint %s is missing a constraint. Skipping."
+                    % name)
+                break
 
             root = self.__create_constraint_tree(
                 const_dict['constraint'], name)
@@ -101,7 +109,7 @@ class ConstraintHandler(object):
             min_reaction_interval, reaction_timeout = (
                 self.__parse_interval_and_timeout(const_dict))
 
-            reaction_list = self.__parse_reaction_list(const_dict)
+            reaction_list = self.__parse_reaction_list(const_dict, name)
 
             # is it a valid root?
             if root is not None:
@@ -110,51 +118,83 @@ class ConstraintHandler(object):
                     min_reaction_interval, reaction_timeout)
                 self.__constraint_list.append(constraint)
 
-    def __parse_reaction_list(self, const_dict):
+    def __parse_reaction_list(self, const_dict, name):
         """Parse the dict to a list of reactions.
 
         :param const_dict:  The dict from the parameter server holding
                             the reactions of a constraint.
         :type:  dict
 
+        :param name:    The name of the constraint. Can be None.
+                        Usefull for debugging.
+        :type:  string
+
         :return:    The parsed list of reactions.
         :type:  list of Reactions
         """
 
-        # TODO: handling missing keys
-        p_reaction_list = const_dict['reactions']
+        p_reaction_list = const_dict.get('reactions', {})
+
         reaction_list = list()
 
         for r_name in p_reaction_list:
             p_reaction = p_reaction_list[r_name]
 
-            action = p_reaction['action']
-            node = p_reaction['node']
-            autonomy_level = p_reaction['autonomy_level']
+            action = p_reaction.get('action', 'no action set')
+
+            if 'autonomy_level' in p_reaction:
+                autonomy_level = p_reaction['autonomy_level']
+            else:
+                # set to 0 so it always gets executed
+                autonomy_level = 0
 
             # find out what kind of reaction it is
             if action == 'publish':
                 message = p_reaction['message']
-                loglevel = p_reaction['loglevel']
+                loglevel = p_reaction.get('loglevel', 'loginfo')
 
                 react_publish = ReactionPublishRosOutNode(
                     node, autonomy_level, message, loglevel)
 
                 reaction_list.append(react_publish)
-            elif action == 'stop':
-                react_stop = ReactionStopNode(node, autonomy_level)
-                reaction_list.append(react_stop)
-            elif action == 'restart':
-                react_restart = ReactionRestartNode(node, autonomy_level)
-                reaction_list.append(react_restart)
-            elif action == 'run':
-                command = p_reaction['command']
-                react_run = ReactionRun(node, autonomy_level, command)
-                reaction_list.append(react_run)
             else:
-                rospy.logdebug(
-                    "The action '%s' " % action
-                    + "found on the parameter server is not recognised.")
+                # not publishing a message? we need a node to execute on!
+                if 'node' in p_reaction:
+                    node = p_reaction['node']
+                else:
+                    rospy.logwarn(
+                        "There is no Node defined in reaction"
+                        + " %s of constraint %s. Skipping Reaction."
+                        % (r_name, name))
+                    break
+
+                if action == 'stop':
+                    react_stop = ReactionStopNode(node, autonomy_level)
+                    reaction_list.append(react_stop)
+                elif action == 'restart':
+                    react_restart = ReactionRestartNode(node, autonomy_level)
+                    reaction_list.append(react_restart)
+                elif action == 'run':
+                    if not 'command' in p_reaction:
+                        rospy.logwarn(
+                            "There is no Command defined in run-reaction"
+                            + " %s of constraint %s. Skipping reaction."
+                            % (r_name, name))
+                        break
+
+                    command = p_reaction['command']
+                    react_run = ReactionRun(node, autonomy_level, command)
+                    reaction_list.append(react_run)
+                elif action == 'no action set':
+                    rospy.logwarn(
+                        "There is no action for reaction %s in constraint %s."
+                        % (r_name, name)
+                        + " Ignoring this reaction.")
+                else:
+                    rospy.logwarn(
+                        "The action '%s' in the reaction %s of constraint %s"
+                        % (action, r_name, name)
+                        + " is not recognised. Ignoring this reaction.")
 
         return reaction_list
 
