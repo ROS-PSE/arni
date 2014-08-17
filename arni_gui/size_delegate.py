@@ -24,8 +24,8 @@ def paint(self, painter, option, index):
     :param index: The QModelIndex that will be painted
     :type index: QModelIndex
     """
+    #todo:#Iignoretheoptionsparameter
     painter.save()
-    # todo:does this has to be a self.font?
     font = QFont()
     #setting the size of the font
     #todo:does this have to be set in the option param?

@@ -27,6 +27,7 @@ def __init__(self, model):
     :param model: the object of the ROSModel
     :type model: ROSModel
     """
+    Thread.__init__(self)
     rospy.init_node('arni_gui', log_level=rospy.DEBUG)
 
     self.__rated_statistics_buffer_lock = Lock()
@@ -46,7 +47,6 @@ def __init__(self, model):
         if not self.__running:
             self.__get_history()
             self.__register_subscribers()
-            Thread.start(self)
 
     def __get_history(self):
         """
@@ -88,13 +88,10 @@ def __init__(self, model):
 #     """
 
 
-
-# TODO: shouldn't this be private?
 def __update_model(self):
     """
     Starts the update of the model. Will be called regulary by the timer. Will first read the data from the *buffer* and add the according data items to the items of the model and afterwards use the *rated_buffer* to add a rating to these entries.
     """
-    #todo:adapt the model interface to match the new architecture :)
     self.model.update_model(self.__rated_statistics_buffer_lock, self.__topic_statistics_buffer,
                             self.__host_statistics_buffer, self.__node_statistics_buffer)
 
