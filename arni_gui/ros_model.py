@@ -1,9 +1,10 @@
 from python_qt_binding.QtGui import QStandardItemModel, QAbstractItemModel
-from python_qt_binding.QtCore import QModelIndex
+from python_qt_binding.QtCore import *
 from threading import Lock
 # todo: adapt these imports!!!
 import SizeDelegate
 import AbstractItem
+
 
 # todo: import Statistics,HostStatistics,RatedStatistics,StatisticHistory from where????
 
@@ -24,12 +25,12 @@ class ROSModel(QAbstractItemModel):
         :param data:
         :type data:list
         """
-        self.__model_lock = Lock
-        self.__root_item = AbstractItem
-        self.__item_delegate = SizeDelegate
-        #todo: necessary?
-        self.__instance = ROSModel
-        self.__log_model = QStandardItemModel
+        QAbstractItemModel.__init__(self)
+        self.__model_lock = Lock()
+        self.__root_item = AbstractItem()
+        self.__item_delegate = SizeDelegate()
+        self.__log_model = QStandardItemModel()
+
 
 
     def data(self, index, role):
@@ -52,7 +53,7 @@ class ROSModel(QAbstractItemModel):
         :type index: QModelIndex
         :returns: ItemFlags
         """
-        pass
+        return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
     def header_data(self, section, orientation, role):
         """

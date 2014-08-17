@@ -13,3 +13,12 @@ Change
 * getInstance no longer needed in ROSModel (add additional classes), the singleton effect is implemented with metaclasses
 * convert some functions from CamelCase to lower_case --> ROSModel.headerData (header_data), ROSModel.columnCount (column_count)
 * the transform_data(...) method in ROSModel have to be reduced to a single method cause python doesn't support function overloading :(
+* same problem with __add_buffer_item() --> todo:find a good solution
+* todo: network diagram is still missing in the design, also in the final versions --> add!
+* found solution to method overloading in one case --> 4 new methods __add_rated_statistics_item(..), the old will be removed, are changed to *private* cause only needed internally --> 4 locks are needed, names adapated
+* in ROSModel: Thread not longer needed --> Timer replaced its functionality, therefore also start() can deleted, only update_model is stillt needed as callback for the timer
+* update_model in ROSModel no longer public
+* AbstractItem needed some more methods to match the qt interfaces --> child_count, column_count, row, 
+* execute_action no longer abstract!
+
+* the names of the services now are /get_statistic_history and /execute_node_reaction. Network diagram etc have to be adapted.
