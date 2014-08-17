@@ -17,7 +17,7 @@ arni:
       test_two:
         constraint:
           n!node2: {cpu_usage_max: high}
-        min_reaction_interval: 130
+        min_reaction_interval: 10
         reactions: 
           one: {
               action: publish,
@@ -27,4 +27,4 @@ arni:
               loglevel: info}
     config:
       reaction_autonomy_level: 50
-      storage_timeout: 50
+      storage_timeout: 5
