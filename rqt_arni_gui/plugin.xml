@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <library path="src">
-	<class name ="OverviewPlugin" type="rqt_overview.ros_overview.OverviewPlugin" base_class_type="rqt_gui_py::Plugin">
+	<class name ="TreePlugin" type="rqt_arni_gui.arni_gui.arni_gui" base_class_type="rqt_gui_py::Plugin">
 		<description>
 			TODO
 		</description>
@@ -9,8 +9,8 @@
 				<label>Introspection</label>
 				<statustip>Plugins related to introspection</statustip>
 			</group>
-			<label>Overview</label>
-			
+			<label>arni_gui</label>
+			<icon type="theme">system-help</icon>
 			<statustip>TODO</statustip>
 		</qtgui>
 	</class>

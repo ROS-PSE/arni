@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <library path="src">
-	<class name ="TreePlugin" type="rqt_tree.MyPlugin.MyPlugin" base_class_type="rqt_gui_py::Plugin">
+	<class name ="overview_plugin" type="rqt_arni_gui_overview.arni_gui_overview.arni_gui_overview" base_class_type="rqt_gui_py::Plugin">
 		<description>
 			TODO
 		</description>
@@ -9,8 +9,8 @@
 				<label>Introspection</label>
 				<statustip>Plugins related to introspection</statustip>
 			</group>
-			<label>Tree</label>
-			<icon type="theme">system-help</icon>
+			<label>arni_gui_overview</label>
+			
 			<statustip>TODO</statustip>
 		</qtgui>
 	</class>

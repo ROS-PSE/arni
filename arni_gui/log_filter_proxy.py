@@ -1,4 +1,4 @@
-import AbstractItem
+from abstract_item import AbstractItem
 from python_qt_binding import QSortFilterProxyModel
 
 class LogFilterProxy(QSortFilterProxyModel):

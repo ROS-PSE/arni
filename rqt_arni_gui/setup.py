@@ -2,9 +2,9 @@ from distutils.core import setup
 from catkin_pkg.python_setup import generate_distutils_setup
 
 setup_args = generate_distutils_setup(
-	packages=['rqt_tree'],
+	packages=['rqt_arni_gui'],
 	package_dir={'': 'src'},
-	scripts=['scripts/rqt_tree']
+	scripts=['scripts/rqt_arni_gui']
 )
 
 setup(**setup_args)

@@ -8,4 +8,4 @@ sys.path.append(os.path.join(p, 'src'))
 
 from rqt_gui.main import Main
 main = Main()
-sys.exit(main.main(sys.argv, standalone='rqt_overview'))
+sys.exit(main.main(sys.argv, standalone='rqt_arni_gui_overview'))

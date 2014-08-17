@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>rqt_overview</name>
+  <name>rqt_arni_gui</name>
   <version>0.0.0</version>
-  <description>The rqt_overview package</description>
+  <description>The rqt_arni_gui package</description>
 
   <maintainer email="virtubuntu@todo.todo">virtubuntu</maintainer>
 
