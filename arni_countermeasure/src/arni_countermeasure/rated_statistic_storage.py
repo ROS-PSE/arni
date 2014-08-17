@@ -57,9 +57,6 @@ class RatedStatisticStorage(object):
         :type msg:  RatedStatistics
         """
 
-        #TODO: removeme
-        rospy.loginfo("cm: got a rated statistic for " + msg.seuid)
-
         seuid = msg.seuid
 
         # # todo: removeme, im just here for autocompletion
@@ -103,7 +100,14 @@ class RatedStatisticStorage(object):
 
         # the dictionary for a specific entity having the specified entity
         entity_dict = store[seuid]
-        entity_dict[statistic_type] = outcome, timestamp
+
+        # check if there is an entry thats newer:
+        if (
+            (not statistic_type in entity_dict) or (
+                entity_dict[statistic_type][1] < timestamp)):
+
+            entity_dict[statistic_type] = outcome, timestamp
+
         self.clean_old_statistic()
 
     def get_outcome(self, seuid, statistic_type):

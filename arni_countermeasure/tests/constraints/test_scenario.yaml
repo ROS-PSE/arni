@@ -1,0 +1,30 @@
+arni:
+  countermeasure:
+    constraints:
+      test_one:
+        constraint:
+          or:
+            n!node1: {cpu_usage_max: high}
+            n!nodex: {ram_usage_mean: high}
+        min_reaction_interval: 10
+        reactions:
+          one: {
+            action: publish,
+            autonomy_level: 0,
+            message: cpu high test1,
+            node: node1,
+            loglevel: info}
+      test_two:
+        constraint:
+          n!node2: {cpu_usage_max: high}
+        min_reaction_interval: 130
+        reactions: 
+          one: {
+              action: publish,
+              autonomy_level: 0,
+              message: cpu high test2,
+              node: node2,
+              loglevel: info}
+    config:
+      reaction_autonomy_level: 50
+      storage_timeout: 50

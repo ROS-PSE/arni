@@ -8,6 +8,7 @@ are needed throughout the whole arni package.
 #: the delimiter the seuid uses
 SEUID_DELIMITER = "!"
 
+
 def is_seuid(seuid):
     """
     Determines whether the given parameter is a valid seuid.
@@ -16,7 +17,7 @@ def is_seuid(seuid):
     """
     p = re.compile('^([nhtc])' + SEUID_DELIMITER + '([_a-z].*)')
     m = p.match(seuid)
-    if m == None:
+    if m is None:
         return False
     arglen = len(m.group(2).strip().split(SEUID_DELIMITER))
     if m.group(1) == "c":

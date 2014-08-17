@@ -1,15 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from arni_countermeasure.countermeasure_node import *
-
-
-def main():
-    cn = CountermeasureNode()
-#    rospy.loginfo(rospy.get_caller_id() + ": im on ")
-
-    cn.loop()
-
+import arni_countermeasure.countermeasure_node as ctm_node
 
 if __name__ == '__main__':
-    main()
+    ctm_node.main()

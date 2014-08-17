@@ -4,7 +4,7 @@ import rospy
 from arni_msgs.msg import RatedStatistics
 from arni_core.host_lookup import *
 import helper
-
+import time
 
 class CountermeasureNode(object):
 
@@ -45,6 +45,9 @@ class CountermeasureNode(object):
             HostLookup().callback_rated)
 
     def loop(self):
+        # simulation? wait for begin
+        while rospy.Time.now() == rospy.Time(0):
+            time.sleep(0.01)
         while not rospy.is_shutdown():
             self.__constraint_handler.evaluate_constraints()
             self.__constraint_handler.execute_reactions()
@@ -59,7 +62,7 @@ class CountermeasureNode(object):
         default = {
             "reaction_autonomy_level": 100,
             "storage_timeout": 10,
-            "evaluation_period": 2,
+            "evaluation_period": 0.2,
             "default/min_reaction_interval": 10,
             "default/reaction_timeout": 30
         }
@@ -69,10 +72,13 @@ class CountermeasureNode(object):
 
 
 def main():
-    cn = CountermeasureNode()
-#    rospy.loginfo(rospy.get_caller_id() + ": im on ")
+    try:
+        cn = CountermeasureNode()
+    #    rospy.loginfo(rospy.get_caller_id() + ": im on ")
 
-    cn.loop()
+        cn.loop()
+    except rospy.ROSInterruptException:
+        pass
 
 
 if __name__ == '__main__':

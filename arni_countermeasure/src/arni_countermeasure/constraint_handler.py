@@ -104,7 +104,7 @@ class ConstraintHandler(object):
                     % name)
                 break
 
-            root = self.__create_constraint_tree(
+            root = _create_constraint_tree(
                 const_dict['constraint'], name)
 
             min_reaction_interval, reaction_timeout = (
@@ -119,37 +119,10 @@ class ConstraintHandler(object):
                     min_reaction_interval, reaction_timeout)
                 self.__constraint_list.append(constraint)
 
-    def __create_constraint_tree(self, constraint_dict, name):
-        """Create a constraint tree from a dictionary.
-        (the dict is usually from the parameter server.)
-
-        Returns None if the tree is not valid.
-
-        :return:   The constraint item containing the complete tree.
-        :rtype: ConstraintItem
-        """
-
-        root = None
-        # there can be only one root ;-)
-        if len(constraint_dict) == 1:
-            root = _traverse_dict(
-                constraint_dict, constraint_dict.keys()[0])
-        elif len(constraint_dict) == 0:
-            rospy.logdebug(
-                "Constraint '%s'" % name
-                + " has no constraint items. ")
-        else:
-            rospy.logdebug(
-                "Constraint '%s' is starting" % name
-                + "with more than one constraint item."
-                + " Use 'and'/'or' as first item to add multiple items.")
-
-        return root
-
     def _read_param_reaction_autonomy_level(self):
         """Read and save the reaction_autonomy_level from the parameter server.
         """
-        self.__reaction_autonomy_level = helper.get_param_duration(
+        self.__reaction_autonomy_level = helper.get_param_num(
             helper.ARNI_CTM_CFG_NS + "reaction_autonomy_level")
 
 
@@ -367,4 +340,36 @@ def _traverse_dict(c_dict, item_type):
                     % outcome_unformatted
                     + " valid type.")
 
+        # only one item? strip!
+        if(len(leaf_list) == 1):
+            leaf_list = leaf_list[0]
+
         return leaf_list
+
+
+def _create_constraint_tree(constraint_dict, name):
+    """Create a constraint tree from a dictionary.
+    (the dict is usually from the parameter server.)
+
+    Returns None if the tree is not valid.
+
+    :return:   The constraint item containing the complete tree.
+    :rtype: ConstraintItem
+    """
+
+    root = None
+    # there can be only one root ;-)
+    if len(constraint_dict) == 1:
+        root = _traverse_dict(
+            constraint_dict, constraint_dict.keys()[0])
+    elif len(constraint_dict) == 0:
+        rospy.logdebug(
+            "Constraint '%s'" % name
+            + " has no constraint items. ")
+    else:
+        rospy.logdebug(
+            "Constraint '%s' is starting" % name
+            + "with more than one constraint item."
+            + " Use 'and'/'or' as first item to add multiple items.")
+
+    return root

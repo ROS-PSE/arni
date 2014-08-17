@@ -1,0 +1,9 @@
+<launch>
+  <rosparam command="load" file="$(find arni_countermeasure)/tests/constraints/test_scenario.yaml" />
+  <param name="/use_sim_time" value="true"/>
+  <param name="/ctm/clock_mult" value="100"/>
+  <node name="clock_server" pkg="arni_countermeasure"
+  type="increased_clock.py" />
+  <node name="countermeasure_node" pkg="arni_countermeasure" type="ctm.py" />
+  <test test-name="test_scenario" pkg="arni_countermeasure" type="test_scenario.py" />
+</launch>

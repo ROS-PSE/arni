@@ -15,7 +15,6 @@ import rospy
 PKG = "arni_countermeasure"
 
 
-## A sample python unit test
 class TestParsingOfConstraints(unittest.TestCase):
 
     def test_one_equals_one(self):
@@ -317,4 +316,4 @@ class TestParsingOfConstraints(unittest.TestCase):
 
 if __name__ == '__main__':
     import rosunit
-    rosunit.unitrun(PKG, 'test_parameter', TestParsingOfConstraints)
+    rosunit.unitrun(PKG, 'test_parsing_constraint', TestParsingOfConstraints)

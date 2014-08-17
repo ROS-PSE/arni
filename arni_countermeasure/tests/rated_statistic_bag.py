@@ -4,7 +4,6 @@ from arni_msgs.msg import RatedStatistics, RatedStatisticsEntity
 from arni_core.helper import SEUID_DELIMITER
 
 
-
 def create_simple_bag():
     bag = rosbag.Bag('bags/john.bag', 'w')
     msg = RatedStatistics()
