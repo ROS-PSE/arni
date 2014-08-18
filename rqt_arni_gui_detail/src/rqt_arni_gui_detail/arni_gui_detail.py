@@ -12,11 +12,11 @@ from python_qt_binding.QtGui import *#QWidget
 
 from rqt_gui_py.plugin import Plugin
 
-class arni_gui(Plugin):
+class arni_gui_detail(Plugin):
 
     def __init__(self, context):
-        super(arni_gui, self).__init__(context)
-        self.setObjectName('arni_gui')
+        super(arni_gui_detail, self).__init__(context)
+        self.setObjectName('arni_gui_detail')
 
         # Process standalone plugin command-line arguments
         from argparse import ArgumentParser

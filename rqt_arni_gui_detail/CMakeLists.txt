@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rqt_arni_gui)
+project(rqt_arni_gui_detail)
 
 
 find_package(catkin REQUIRED COMPONENTS qt_gui)
@@ -16,7 +16,7 @@ install(FILES plugin.xml
 	DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 install(DIRECTORY resource
 	DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
-install(PROGRAMS script/rqt_arni_gui
+install(PROGRAMS script/rqt_arni_gui_detail
 	DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 
