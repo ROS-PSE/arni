@@ -2,7 +2,6 @@
 import unittest
 from arni_countermeasure.countermeasure_node import *
 from arni_countermeasure.constraint_handler import *
-from arni_countermeasure import constraint_handler
 from arni_countermeasure.rated_statistic_storage import *
 from arni_countermeasure import helper
 from arni_countermeasure.constraint_and import *
@@ -16,44 +15,6 @@ PKG = "arni_countermeasure"
 
 
 class TestParsingOfConstraints(unittest.TestCase):
-
-    def test_one_equals_one(self):
-        self.assertEquals(1, 1, "1!=1")
-
-    # def test_working_constraint(self):
-
-    #     params = {
-    #         'countermeasure': {
-    #             'config': {
-    #                 'storage_timeout': 10,
-    #                 'reaction_autonomy_level': 50},
-    #             'constraints': {
-    #                 'john': {
-    #                     'reactions': {
-    #                         'two': {
-    #                             'action': 'publish',
-    #                             'node': 'node1',
-    #                             'message': 'node1 has a problem',
-    #                             'loglevel': 'info',
-    #                             'autonomy_level': 13},
-    #                         'one': {
-    #                             'action': 'stop',
-    #                             'node': 'node1',
-    #                             'autonomy_level': 100}},
-    #                     'min_reaction_interval': 5,
-    #                     'constraint': {
-    #                         'or': {
-    #                             'n!node2': {'ram_usage_mean': 'high'},
-    #                             'n!node1': {'cpu_usage_mean': 'high'}}}}}}}
-
-    #     if rospy.has_param("/arni"):
-    #         rospy.delete_param("/arni")
-    #     rospy.set_param("/arni", params)
-    #     try:
-    #         cn = CountermeasureNode()
-    #         cn._CountermeasureNode__constraint_handler.evaluate_constraints()
-    #     except Exception:
-    #         self.fail()
 
     def test_missing_reactions(self):
         """Tests for no error if the field reactions is missing."""
@@ -120,7 +81,7 @@ class TestParsingOfConstraints(unittest.TestCase):
         rospy.set_param("/arni", params)
 
 # A couple of tests regarding the parsing of reactions.
-# tests the method constraint_handler._parse_reaction_list
+# tests the method ConstraintHandler._parse_reaction_list
 
     def test_reaction_autonomy_level_not_set(self):
         params = {
@@ -129,7 +90,7 @@ class TestParsingOfConstraints(unittest.TestCase):
                     'action': 'publish',
                     'message': 'bla',
                     'loglevel': 'debug'}}}
-        reactions = constraint_handler._parse_reaction_list(params, "const")
+        reactions = ConstraintHandler._parse_reaction_list(params, "const")
         self.assertEqual(len(reactions), 1)
         self.assertEqual(
             reactions[0].autonomy_level, 0,
@@ -142,7 +103,7 @@ class TestParsingOfConstraints(unittest.TestCase):
                 'reac_one': {
                     'action': 'multiply',
                     }}}
-        reactions = constraint_handler._parse_reaction_list(params, "const")
+        reactions = ConstraintHandler._parse_reaction_list(params, "const")
         self.assertEquals(
             len(reactions), 0, "Wrong action should lead to no reaction")
 
@@ -162,7 +123,7 @@ class TestParsingOfConstraints(unittest.TestCase):
                     'message': 'node2 has a problem',
                     'loglevel': 'info',
                     'autonomy_level': 13}}}
-        reactions = constraint_handler._parse_reaction_list(params, "const")
+        reactions = ConstraintHandler._parse_reaction_list(params, "const")
         self.assertEqual(len(reactions), 2, "There should be two reactions.")
 
     def test_reaction_parse_publish_reaction(self):
@@ -174,7 +135,7 @@ class TestParsingOfConstraints(unittest.TestCase):
                     'message': 'node1 has a problem',
                     'loglevel': 'info',
                     'autonomy_level': 13}}}
-        reactions = constraint_handler._parse_reaction_list(params, "const")
+        reactions = ConstraintHandler._parse_reaction_list(params, "const")
         self.assertEqual(
             len(reactions), 1,
             "Parsing one reaction should end up with one reaction.")
@@ -187,14 +148,14 @@ class TestParsingOfConstraints(unittest.TestCase):
     def test_reaction_parse_empty_reaction(self):
         """Set an empty reaction and check if its empty after parsing"""
 
-        reactions = constraint_handler._parse_reaction_list(
+        reactions = ConstraintHandler._parse_reaction_list(
             dict(), "const")
         self.assertEqual(
             len(reactions), 0,
             "Parsing an empty reaction is not resulting in an empty reaction")
 
 # test the parsing of intervals and timeouts.
-# tests the method constraint_handler._parse_interval_and_timeout
+# tests the method ConstraintHandler._parse_interval_and_timeout
 
     def test_interval_valid_values(self):
         """Test if setting interval and timeout works."""
@@ -202,7 +163,7 @@ class TestParsingOfConstraints(unittest.TestCase):
             'min_reaction_interval': 30,
             'reaction_timeout': 50
         }
-        interval, timeout = constraint_handler._parse_interval_and_timeout(
+        interval, timeout = ConstraintHandler._parse_interval_and_timeout(
             c_dict)
         self.assertEqual(interval, rospy.Duration(30))
         self.assertEqual(timeout, rospy.Duration(50))
@@ -214,7 +175,7 @@ class TestParsingOfConstraints(unittest.TestCase):
             helper.ARNI_CTM_CFG_NS + "default/min_reaction_interval", 100)
         rospy.set_param(
             helper.ARNI_CTM_CFG_NS + "default/reaction_timeout", 300)
-        interval, timeout = constraint_handler._parse_interval_and_timeout({})
+        interval, timeout = ConstraintHandler._parse_interval_and_timeout({})
         self.assertEqual(
             interval, rospy.Duration(100),
             "Interval should have been set to default value.")
@@ -227,7 +188,7 @@ class TestParsingOfConstraints(unittest.TestCase):
             helper.ARNI_CTM_CFG_NS + "default/min_reaction_interval", 5)
         rospy.set_param(
             helper.ARNI_CTM_CFG_NS + "default/reaction_timeout", 20)
-        interval, timeout = constraint_handler._parse_interval_and_timeout(
+        interval, timeout = ConstraintHandler._parse_interval_and_timeout(
             {
                 'min_reaction_interval': "abc"
             })
@@ -235,7 +196,7 @@ class TestParsingOfConstraints(unittest.TestCase):
             interval, rospy.Duration(5),
             "Interval should have been set to the default value.")
 
-# test constraint_handler._traverse_dict
+# test ConstraintHandler._traverse_dict
 
     def test_traverse_simple_and(self):
         """Tests the traversing through a simple and."""
@@ -245,7 +206,7 @@ class TestParsingOfConstraints(unittest.TestCase):
                 'n!node1': {'ram_usage_mean': 'high'},
             }
         }
-        const_item = constraint_handler._traverse_dict(c_dict, 'and')
+        const_item = ConstraintHandler._traverse_dict(c_dict, 'and')
         self.assertEqual(type(const_item), ConstraintAnd)
         # not so nice way of getting leafes, but will do for testing.
         leafs = const_item._ConstraintAnd__constraint_list
@@ -265,7 +226,7 @@ class TestParsingOfConstraints(unittest.TestCase):
                 }
             }
         }
-        const_item = constraint_handler._traverse_dict(c_dict, 'and')
+        const_item = ConstraintHandler._traverse_dict(c_dict, 'and')
         leafs = const_item._ConstraintAnd__constraint_list
         self.assertEqual(len(leafs), 3)
         self.assertIn(ConstraintOr, (map(type, leafs)))
@@ -278,7 +239,7 @@ class TestParsingOfConstraints(unittest.TestCase):
                 'n!node1': {'ram_usage_mean': 'high'},
             }
         }
-        const_item = constraint_handler._traverse_dict(c_dict, 'not')
+        const_item = ConstraintHandler._traverse_dict(c_dict, 'not')
         self.assertEqual(len(const_item), 2)
         for not_item in const_item:
             self.assertEqual(type(not_item), ConstraintNot)
@@ -288,7 +249,7 @@ class TestParsingOfConstraints(unittest.TestCase):
         c_dict = {
             'and': {}
         }
-        const_item = constraint_handler._traverse_dict(c_dict, 'and')
+        const_item = ConstraintHandler._traverse_dict(c_dict, 'and')
         leafs = const_item._ConstraintAnd__constraint_list
         self.assertEqual(len(leafs), 0)
 
@@ -300,7 +261,7 @@ class TestParsingOfConstraints(unittest.TestCase):
                 'n!node1': {'ram_usage_mean': 'high'},
             }
         }
-        const_item = constraint_handler._traverse_dict(c_dict, 'ant')
+        const_item = ConstraintHandler._traverse_dict(c_dict, 'ant')
         self.assertEqual(const_item, None)
 
     def test_traverse_wrong_outcome(self):
@@ -310,7 +271,7 @@ class TestParsingOfConstraints(unittest.TestCase):
                 'ram_usage_mean': {
                     'n!node1': {'ram_usage_mean': 'high'}}},
         }
-        const_item = constraint_handler._traverse_dict(c_dict, 'n!node2')
+        const_item = ConstraintHandler._traverse_dict(c_dict, 'n!node2')
         self.assertEqual(const_item, [])
 
 
