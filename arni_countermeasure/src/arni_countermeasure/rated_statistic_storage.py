@@ -40,7 +40,7 @@ class RatedStatisticStorage(object):
         for seuid in store:
             for statistic_type in store[seuid]:
                 timestamp = store[seuid][statistic_type][1]
-                if curtime - timestamp > self.__timeout:
+                if curtime - timestamp >= self.__timeout:
                     todelete.append((seuid, statistic_type))
 
         # remove them
@@ -103,11 +103,13 @@ class RatedStatisticStorage(object):
 
         # check if there is an entry thats newer:
         if (
-            (not statistic_type in entity_dict) or (
-                entity_dict[statistic_type][1] < timestamp)):
+            ((not statistic_type in entity_dict) or (
+                entity_dict[statistic_type][1] < timestamp)) and (
+                rospy.Time.now() - timestamp < self.__timeout)):
 
             entity_dict[statistic_type] = outcome, timestamp
 
+        # do some cleaning up, to keep memory small.
         self.clean_old_statistic()
 
     def get_outcome(self, seuid, statistic_type):
@@ -139,7 +141,7 @@ class RatedStatisticStorage(object):
             timestamp = outTuple[1]
 
             # check if the item is too old
-            if rospy.get_rostime() - timestamp > self.__timeout:
+            if rospy.get_rostime() - timestamp >= self.__timeout:
                 self.__remove_item(seuid, statistic_type)
                 return Outcome.UNKNOWN
 
