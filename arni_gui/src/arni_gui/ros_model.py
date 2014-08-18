@@ -1,13 +1,12 @@
-from python_qt_binding.QtGui import QStandardItemModel, QAbstractItemModel
+from python_qt_binding.QtGui import QStandardItemModel
+#from python_qt_binding.QtCore import QAbstractItemModel
 from python_qt_binding.QtCore import *
 from threading import Lock
 from size_delegate import SizeDelegate
 from abstract_item import AbstractItem
 import rospy
 
-from arni_core import Singleton
-
-
+from arni_core.singleton import Singleton
 
 from rosgraph_msgs.msg import TopicStatistics
 from arni_msgs.msg import RatedStatistics

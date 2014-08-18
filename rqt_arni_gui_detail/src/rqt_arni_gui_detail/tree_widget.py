@@ -7,6 +7,8 @@ from python_qt_binding import loadUi
 from python_qt_binding.QtCore import *
 from python_qt_binding.QtGui import *
 
+from arni_gui.size_delegate import SizeDelegate
+
 class tree_widget(QWidget):
 
     def __init__(self):
@@ -31,6 +33,8 @@ class tree_widget(QWidget):
 	self.item_tree_view.setModel(model)
 	##
 
+	self.__size_delegate = SizeDelegate()
+	
 	self.__connect_slots()
 
 
