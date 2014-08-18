@@ -104,13 +104,14 @@ class ConstraintHandler(object):
                     % name)
                 break
 
-            root = _create_constraint_tree(
+            root = ConstraintHandler._create_constraint_tree(
                 const_dict['constraint'], name)
 
             min_reaction_interval, reaction_timeout = (
-                _parse_interval_and_timeout(const_dict))
+                ConstraintHandler._parse_interval_and_timeout(const_dict))
 
-            reaction_list = _parse_reaction_list(const_dict, name)
+            reaction_list = ConstraintHandler._parse_reaction_list(
+                const_dict, name)
 
             # is it a valid root?
             if root is not None:
@@ -125,251 +126,251 @@ class ConstraintHandler(object):
         self.__reaction_autonomy_level = helper.get_param_num(
             helper.ARNI_CTM_CFG_NS + "reaction_autonomy_level")
 
+    @classmethod
+    def _parse_reaction_list(ConstraintHandler, const_dict, name):
+        """Parse the dict to a list of reactions.
 
-def _parse_reaction_list(const_dict, name):
-    """Parse the dict to a list of reactions.
+        :param const_dict:  The dict from the parameter server holding
+                            the reactions of a constraint.
+        :type:  dict
 
-    :param const_dict:  The dict from the parameter server holding
-                        the reactions of a constraint.
-    :type:  dict
+        :param name:    The name of the constraint. Can be None.
+                        Usefull for debugging.
+        :type:  string
 
-    :param name:    The name of the constraint. Can be None.
-                    Usefull for debugging.
-    :type:  string
+        :return:    The parsed list of reactions.
+        :type:  list of Reactions
+        """
 
-    :return:    The parsed list of reactions.
-    :type:  list of Reactions
-    """
+        p_reaction_list = const_dict.get('reactions', {})
 
-    p_reaction_list = const_dict.get('reactions', {})
+        reaction_list = list()
 
-    reaction_list = list()
+        for r_name in p_reaction_list:
+            p_reaction = p_reaction_list[r_name]
 
-    for r_name in p_reaction_list:
-        p_reaction = p_reaction_list[r_name]
+            action = p_reaction.get('action', 'no action set')
 
-        action = p_reaction.get('action', 'no action set')
-
-        if 'autonomy_level' in p_reaction:
-            autonomy_level = p_reaction['autonomy_level']
-        else:
-            # set to 0 so it always gets executed
-            autonomy_level = 0
-
-        # find out what kind of reaction it is
-        if action == 'publish':
-            message = p_reaction['message']
-            loglevel = p_reaction.get('loglevel', 'loginfo')
-
-            react_publish = ReactionPublishRosOutNode(
-                autonomy_level, message, loglevel)
-
-            reaction_list.append(react_publish)
-        else:
-            # not publishing a message? we need a node to execute on!
-            if 'node' in p_reaction:
-                node = p_reaction['node']
+            if 'autonomy_level' in p_reaction:
+                autonomy_level = p_reaction['autonomy_level']
             else:
-                rospy.logwarn(
-                    "There is no Node defined in reaction"
-                    + " %s of constraint %s. Skipping Reaction."
-                    % (r_name, name))
-                break
+                # set to 0 so it always gets executed
+                autonomy_level = 0
 
-            if action == 'stop':
-                react_stop = ReactionStopNode(node, autonomy_level)
-                reaction_list.append(react_stop)
-            elif action == 'restart':
-                react_restart = ReactionRestartNode(node, autonomy_level)
-                reaction_list.append(react_restart)
-            elif action == 'run':
-                if not 'command' in p_reaction:
+            # find out what kind of reaction it is
+            if action == 'publish':
+                message = p_reaction['message']
+                loglevel = p_reaction.get('loglevel', 'loginfo')
+
+                react_publish = ReactionPublishRosOutNode(
+                    autonomy_level, message, loglevel)
+
+                reaction_list.append(react_publish)
+            else:
+                # not publishing a message? we need a node to execute on!
+                if 'node' in p_reaction:
+                    node = p_reaction['node']
+                else:
                     rospy.logwarn(
-                        "There is no Command defined in run-reaction"
-                        + " %s of constraint %s. Skipping reaction."
+                        "There is no Node defined in reaction"
+                        + " %s of constraint %s. Skipping Reaction."
                         % (r_name, name))
                     break
 
-                command = p_reaction['command']
-                react_run = ReactionRun(node, autonomy_level, command)
-                reaction_list.append(react_run)
-            elif action == 'no action set':
+                if action == 'stop':
+                    react_stop = ReactionStopNode(node, autonomy_level)
+                    reaction_list.append(react_stop)
+                elif action == 'restart':
+                    react_restart = ReactionRestartNode(node, autonomy_level)
+                    reaction_list.append(react_restart)
+                elif action == 'run':
+                    if not 'command' in p_reaction:
+                        rospy.logwarn(
+                            "There is no Command defined in run-reaction"
+                            + " %s of constraint %s. Skipping reaction."
+                            % (r_name, name))
+                        break
+
+                    command = p_reaction['command']
+                    react_run = ReactionRun(node, autonomy_level, command)
+                    reaction_list.append(react_run)
+                elif action == 'no action set':
+                    rospy.logwarn(
+                        "There is no action for reaction %s in constraint %s."
+                        % (r_name, name)
+                        + " Ignoring this reaction.")
+                else:
+                    rospy.logwarn(
+                        "The action '%s' in the reaction %s of constraint %s"
+                        % (action, r_name, name)
+                        + " is not recognised. Ignoring this reaction.")
+
+        return reaction_list
+
+    @classmethod
+    def _parse_interval_and_timeout(ConstraintHandler, const_dict):
+            """Parse min_reaction_interval
+            and reaction_timeout out of the dictionary.
+
+            Both are attributes of a constraint.
+
+            If the interval and timeout is not specified in the dict
+            default values are assigned.
+
+            :param const_dict:  The dict from the parameter server
+                                holding the interval and timeout.
+            :type:  dict
+
+            :return:    the min_reaction_interval and reaction_timeout
+            :rtype: tuple (rospy.Duration, rospy.Duration)
+            """
+
+            # default values
+            min_reaction_interval = helper.get_param_duration(
+                helper.ARNI_CTM_CFG_NS + "default/min_reaction_interval")
+            reaction_timeout = helper.get_param_duration(
+                helper.ARNI_CTM_CFG_NS + "default/reaction_timeout")
+
+            # check if interval and timeout have interger values
+            try:
+                if 'min_reaction_interval' in const_dict:
+                    min_reaction_interval = rospy.Duration(
+                        const_dict['min_reaction_interval'])
+            except ValueError:
                 rospy.logwarn(
-                    "There is no action for reaction %s in constraint %s."
-                    % (r_name, name)
-                    + " Ignoring this reaction.")
-            else:
+                    "min_reaction_interval '%s'"
+                    % (const_dict['min_reaction_interval'])
+                    + " is of invalid value. (Only numbers allowed.)")
+
+            try:
+                if 'reaction_timeout' in const_dict:
+                    reaction_timeout = rospy.Duration(
+                        const_dict['reaction_timeout'])
+            except ValueError:
                 rospy.logwarn(
-                    "The action '%s' in the reaction %s of constraint %s"
-                    % (action, r_name, name)
-                    + " is not recognised. Ignoring this reaction.")
+                    "reaction_timeout '%s'"
+                    % (const_dict['reaction_timeout'])
+                    + " is of invalid value. (Only numbers allowed.)")
 
-    return reaction_list
+            return (min_reaction_interval, reaction_timeout)
+
+    @classmethod
+    def _create_constraint_item(ConstraintHandler, item_type, constraint_list):
+        """Creates a constraint item / a list of constraint items.
+
+        Creates a new constraint of type item_type and puts the constraints
+        of constraint_list in it.
+
+        If the item_type is 'not' there is a not-constraint createt for every
+        constraint in the list.
+
+        :param item_type:   The type of the new constraint item(s).
+        :type:  string ('or', 'and', 'not' allowed. no validation)
+
+        :param constraint_list:   Constraints to put inside the new constraint.
+        :type:  list of ConstraintItems
+        """
+        if item_type == 'or':
+            return ConstraintOr(constraint_list)
+        elif item_type == 'and':
+            return ConstraintAnd(constraint_list)
+        elif item_type == 'not':
+            ret_list = list()
+            for constraint_item in constraint_list:
+                ret_list.append(ConstraintNot(constraint_item))
+            return ret_list
+
+    @classmethod
+    def _traverse_dict(ConstraintHandler, c_dict, item_type):
+        """Traverse down the dictionary recursively.
+
+        Creates a constraint item tree from the dictionary.
 
 
-def _parse_interval_and_timeout(const_dict):
-        """Parse min_reaction_interval
-        and reaction_timeout out of the dictionary.
-
-        Both are attributes of a constraint.
-
-        If the interval and timeout is not specified in the dict
-        default values are assigned.
-
-        :param const_dict:  The dict from the parameter server
-                            holding the interval and timeout.
+        :param c_dict:  The dictionary to traverse.
         :type:  dict
 
-        :return:    the min_reaction_interval and reaction_timeout
-        :rtype: tuple (rospy.Duration, rospy.Duration)
+        :param item_type:   The kind of item to create.
+                            if the type is not 'not','and','or' the
+                            item_type stands for the seuid of the leaf.
+        :type:  string
+
+        """
+        if item_type in ('not', 'and', 'or'):
+            constraint_item_list = list()
+
+            # go through all items in the dict
+            for sub_item in c_dict[item_type]:
+                constraint_item = ConstraintHandler._traverse_dict(
+                    c_dict[item_type], sub_item)
+
+                # is this item a list? ('not' returns a list)
+                if hasattr(constraint_item, "__iter__"):
+                    constraint_item_list.extend(constraint_item)
+                else:
+                    constraint_item_list.append(constraint_item)
+
+            # create and return constraint items
+            return ConstraintHandler._create_constraint_item(
+                item_type, constraint_item_list)
+
+        else:
+            # lets create a leaf (or a list of leafes)
+            leaf_list = list()
+            # itemtype is not and,or..? must be a leaf
+            seuid = item_type
+
+            # better check if its a seuid
+            if not arni_core.helper.is_seuid(seuid):
+                rospy.logwarn(
+                    "There is a wrongly formatted seuid '%s'."
+                    % seuid
+                    + " Found while parsing a constraint.")
+                return None
+
+            for statistic_type in c_dict[item_type]:
+                outcome_unformatted = c_dict[item_type][statistic_type]
+
+                if isinstance(outcome_unformatted, basestring):
+                    outcome = Outcome.from_str(outcome_unformatted)
+                    leaf_list.append(
+                        ConstraintLeaf(seuid, statistic_type, outcome))
+                else:
+                    rospy.logwarn(
+                        "The outcome '%s' in an constraint is not a"
+                        % outcome_unformatted
+                        + " valid type.")
+
+            # only one item? strip!
+            if(len(leaf_list) == 1):
+                leaf_list = leaf_list[0]
+
+            return leaf_list
+
+    @classmethod
+    def _create_constraint_tree(ConstraintHandler, constraint_dict, name):
+        """Create a constraint tree from a dictionary.
+        (the dict is usually from the parameter server.)
+
+        Returns None if the tree is not valid.
+
+        :return:   The constraint item containing the complete tree.
+        :rtype: ConstraintItem
         """
 
-        # default values
-        min_reaction_interval = helper.get_param_duration(
-            helper.ARNI_CTM_CFG_NS + "default/min_reaction_interval")
-        reaction_timeout = helper.get_param_duration(
-            helper.ARNI_CTM_CFG_NS + "default/reaction_timeout")
+        root = None
+        # there can be only one root ;-)
+        if len(constraint_dict) == 1:
+            root = ConstraintHandler._traverse_dict(
+                constraint_dict, constraint_dict.keys()[0])
+        elif len(constraint_dict) == 0:
+            rospy.logdebug(
+                "Constraint '%s'" % name
+                + " has no constraint items. ")
+        else:
+            rospy.logdebug(
+                "Constraint '%s' is starting" % name
+                + "with more than one constraint item."
+                + " Use 'and'/'or' as first item to add multiple items.")
 
-        # check if interval and timeout have interger values
-        try:
-            if 'min_reaction_interval' in const_dict:
-                min_reaction_interval = rospy.Duration(
-                    const_dict['min_reaction_interval'])
-        except ValueError:
-            rospy.logwarn(
-                "min_reaction_interval '%s'"
-                % (const_dict['min_reaction_interval'])
-                + " is of invalid value. (Only numbers allowed.)")
-
-        try:
-            if 'reaction_timeout' in const_dict:
-                reaction_timeout = rospy.Duration(
-                    const_dict['reaction_timeout'])
-        except ValueError:
-            rospy.logwarn(
-                "reaction_timeout '%s'"
-                % (const_dict['reaction_timeout'])
-                + " is of invalid value. (Only numbers allowed.)")
-
-        return (min_reaction_interval, reaction_timeout)
-
-
-def _create_constraint_item(item_type, constraint_list):
-    """Creates a constraint item / a list of constraint items.
-
-    Creates a new constraint of type item_type and puts the constraints
-    of constraint_list in it.
-
-    If the item_type is 'not' there is a not-constraint createt for every
-    constraint in the list.
-
-    :param item_type:   The type of the new constraint item(s).
-    :type:  string ('or', 'and', 'not' allowed. no validation)
-
-    :param constraint_list:   Constraints to put inside the new constraint.
-    :type:  list of ConstraintItems
-    """
-    if item_type == 'or':
-        return ConstraintOr(constraint_list)
-    elif item_type == 'and':
-        return ConstraintAnd(constraint_list)
-    elif item_type == 'not':
-        ret_list = list()
-        for constraint_item in constraint_list:
-            ret_list.append(ConstraintNot(constraint_item))
-        return ret_list
-
-
-def _traverse_dict(c_dict, item_type):
-    """Traverse down the dictionary recursively.
-
-    Creates a constraint item tree from the dictionary.
-
-
-    :param c_dict:  The dictionary to traverse.
-    :type:  dict
-
-    :param item_type:   The kind of item to create.
-                        if the type is not 'not','and','or' the
-                        item_type stands for the seuid of the leaf.
-    :type:  string
-
-    """
-    if item_type in ('not', 'and', 'or'):
-        constraint_item_list = list()
-
-        # go through all items in the dict
-        for sub_item in c_dict[item_type]:
-            constraint_item = _traverse_dict(
-                c_dict[item_type], sub_item)
-
-            # is this item a list? ('not' returns a list)
-            if hasattr(constraint_item, "__iter__"):
-                constraint_item_list.extend(constraint_item)
-            else:
-                constraint_item_list.append(constraint_item)
-
-        # create and return constraint items
-        return _create_constraint_item(
-            item_type, constraint_item_list)
-
-    else:
-        # lets create a leaf (or a list of leafes)
-        leaf_list = list()
-        # itemtype is not and,or..? must be a leaf
-        seuid = item_type
-
-        # better check if its a seuid
-        if not arni_core.helper.is_seuid(seuid):
-            rospy.logwarn(
-                "There is a wrongly formatted seuid '%s'."
-                % seuid
-                + " Found while parsing a constraint.")
-            return None
-
-        for statistic_type in c_dict[item_type]:
-            outcome_unformatted = c_dict[item_type][statistic_type]
-
-            if isinstance(outcome_unformatted, basestring):
-                outcome = Outcome.from_str(outcome_unformatted)
-                leaf_list.append(
-                    ConstraintLeaf(seuid, statistic_type, outcome))
-            else:
-                rospy.logwarn(
-                    "The outcome '%s' in an constraint is not a"
-                    % outcome_unformatted
-                    + " valid type.")
-
-        # only one item? strip!
-        if(len(leaf_list) == 1):
-            leaf_list = leaf_list[0]
-
-        return leaf_list
-
-
-def _create_constraint_tree(constraint_dict, name):
-    """Create a constraint tree from a dictionary.
-    (the dict is usually from the parameter server.)
-
-    Returns None if the tree is not valid.
-
-    :return:   The constraint item containing the complete tree.
-    :rtype: ConstraintItem
-    """
-
-    root = None
-    # there can be only one root ;-)
-    if len(constraint_dict) == 1:
-        root = _traverse_dict(
-            constraint_dict, constraint_dict.keys()[0])
-    elif len(constraint_dict) == 0:
-        rospy.logdebug(
-            "Constraint '%s'" % name
-            + " has no constraint items. ")
-    else:
-        rospy.logdebug(
-            "Constraint '%s' is starting" % name
-            + "with more than one constraint item."
-            + " Use 'and'/'or' as first item to add multiple items.")
-
-    return root
+        return root

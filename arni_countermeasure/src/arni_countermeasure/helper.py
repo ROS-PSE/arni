@@ -7,6 +7,7 @@ ARNI_CTM_NS = "/arni/countermeasure/"
 #: of the arni_countermeasure node
 ARNI_CTM_CFG_NS = ARNI_CTM_NS + "config/"
 
+
 def get_param_num(param):
 
     #dummy val
@@ -17,14 +18,15 @@ def get_param_num(param):
             err_msg = (
                 "Param %s is not an number" % param)
             rospy.logerr(err_msg)
-            rospy.signal_shutdown(err_msg)            
+            rospy.signal_shutdown(err_msg)
     except KeyError:
         err_msg = (
             "Param %s is not set" % param
             + " and its default value has been forcefully removed")
         rospy.logerr(err_msg)
         rospy.signal_shutdown(err_msg)
-    return value       
+    return value
+
 
 def get_param_duration(param):
     """Calls rospy.get_param and logs errors.

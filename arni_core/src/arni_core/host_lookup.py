@@ -1,6 +1,7 @@
 from singleton import *
 from arni_msgs.msg import RatedStatistics, RatedStatisticsEntity
 from helper import SEUID_DELIMITER
+import helper
 
 
 class HostLookup(object):
@@ -63,7 +64,7 @@ class HostLookup(object):
         """
 
         # is it about a node?
-        if message.seuid.startswith("n"):
+        if message.seuid.startswith("n") and helper.is_seuid(message.seuid):
             host = message.host
             node = message.seuid.split(SEUID_DELIMITER)[1]
             self.add_node(node, host)
