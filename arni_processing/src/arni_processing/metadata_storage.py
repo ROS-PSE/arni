@@ -1,17 +1,35 @@
+from bzrlib.tests.per_branch import test_iter_merge_sorted_revisions
 import rospy
+import threading
+from threading import Timer
 from storage_container import StorageContainer
 
-class MetadataStorage:
 
+class MetadataStorage:
     storage = {}
 
     duration = 0
+
+    auto_cleanup = True
+    cleanup_timer = 60
+    timer_running = True
+
+    def __clean_up_timer(self):
+        if self.auto_cleanup and self.timer_running:
+            threading.Timer(self.cleanup_timer, self.__clean_up).start()
 
     def __clean_up(self):
         """
         Automatically removes all objects in the storage older than *duration*.
         """
-        pass
+        counter = 0
+        for ident in self.storage.keys():
+            for stamp in self.storage[ident].keys():
+                if rospy.Time.now() - stamp > self.duration:
+                    del self.storage[ident][stamp]
+                    counter += 1
+        rospy.logdebug("[MetadataStorage] Cleared storage, removed %s packages." % counter)
+        self.__clean_up_timer()
 
     def store(self, container):
         """
@@ -24,7 +42,7 @@ class MetadataStorage:
             self.storage[container.identifier] = {}
         self.storage[container.identifier][container.timestamp] = container
 
-    def get(self, identifier = "*", timestamp = rospy.Time(0)):
+    def get(self, identifier="*", timestamp=rospy.Time(0)):
         """
         Returns all StorageContainers for a given identifier since a given timestamp.
 
@@ -33,7 +51,14 @@ class MetadataStorage:
         :param timestamp: A timestamp marking the point of the oldest data you want. 0 returns all.
         :type timestamp: rospy.Time.
         """
-        pass
+        results = []
+        for ident in self.storage.keys():
+            if ident == identifier or identifier == "*":
+                for stamp in self.storage[ident].keys():
+                    if stamp >= timestamp:
+                        results.append(self.storage[ident][stamp])
+        return results
+
 
     def clear(self):
         """
@@ -41,7 +66,7 @@ class MetadataStorage:
         """
         self.storage.clear()
 
-    def __init__(self, duration = 300000):
+    def __init__(self, duration=300000):
         """
         Saves received metadata packages for a given period of time and can provide them on request.
 
@@ -49,3 +74,9 @@ class MetadataStorage:
         :type duration: int.
         """
         self.duration = duration
+        self.auto_cleanup = rospy.get_param('/arni/storage/auto_cleanup', True)
+        self.cleanup_timer = rospy.get_param('/arni/storage/cleanup_timer', 30)
+        self.__clean_up_timer()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.timer_running = False

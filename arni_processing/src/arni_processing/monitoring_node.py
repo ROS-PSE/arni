@@ -1,10 +1,12 @@
 import rospy
 import rosgraph_msgs
 from arni_msgs.msg import HostStatistics, NodeStatistics
+from arni_core.helper import *
 from rosgraph_msgs.msg import TopicStatistics
 from metadata_storage import MetadataStorage
 from specification_handler import SpecificationHandler
 from rated_statistics import RatedStatistics
+from storage_container import StorageContainer
 
 
 class MonitoringNode:
@@ -25,17 +27,34 @@ class MonitoringNode:
 
         :param data: The data received from the topic.
         """
-        # switch type
-        self.__process_data(data)
+        seuid = ""
+        if hasattr(data, "cpu_temp_mean"):
+            seuid = "h" + SEUID_DELIMITER + data.host
+        elif hasattr(data, "node_cpu_usage_mean"):
+            seuid = "n" + SEUID_DELIMITER + data.node
+        elif hasattr(data, "topic"):
+            seuid = "c" + SEUID_DELIMITER + data.node_sub\
+                    + SEUID_DELIMITER + data.topic\
+                    + SEUID_DELIMITER + data.node_pub
+        self.__process_data(data, seuid)
 
-    def __process_data(self, data):
+    def __process_data(self, data, identifier):
         """
         Kicks off the processing of the received data.
 
         :param data: Host or Node Statistics from the HostStatistics, TopicStatistics or NodeStatistics topics.
+        :type data: object
+        :param identifier: The seuid identifying the received data.
+        :type identifier: str
         :return: RatedStatistics.
         """
-        result = self.__specification_handler.compare(data)
+        result = self.__specification_handler.compare(data, identifier)
+        container = StorageContainer()
+        container.data_raw = data
+        container.data_rated = result
+        container.timestamp = rospy.Time.now()
+        container.identifier = identifier
+        self.__metadata_storage.store(container)
         return result
 
     def __publish_data(self, data):

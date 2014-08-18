@@ -1,4 +1,6 @@
 from metadata_tuple import MetadataTuple
+from arni_msgs.msgs import HostStatistics, NodeStatistics
+
 
 class Metadata:
     """
@@ -28,7 +30,7 @@ class Metadata:
             return self.__values[key]
         return False
 
-    def __init__(self, tuples = {}):
+    def __init__(self, tuples={}):
         """
         A new Metadata object to bundle multiple measurements.
 
