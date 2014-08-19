@@ -1,0 +1,55 @@
+host: "127.0.0.1"
+
+cpu_temp_mean: 45.0
+cpu_temp_stddev: 2.3
+cpu_temp_max: 52.1
+
+cpu_usage_mean: 1.2
+cpu_usage_stddev: 0.3
+cpu_usage_max: 1.7
+
+cpu_usage_core_mean: [0.0, 1.2]
+cpu_usage_core_stddev: [0.0, 0.3]
+cpu_usage_core_max: [0.1, 1.7]
+
+cpu_temp_core: [43.0, 47.0]
+cpu_temp_core_mean: [42.1, 47.8]
+cpu_temp_core_stddev: [2.1, 2.4]
+cpu_temp_core_max: [49.3, 52.1]
+
+
+# gpu
+# float32[] gpu_temp_mean
+# float32[] gpu_temp_stddev
+# float32[] gpu_temp_max
+
+# float32[] gpu_usage_mean
+# float32[] gpu_usage_stddev
+# float32[] gpu_usage_max
+
+
+# ram
+# float32 ram_usage_mean
+# float32 ram_usage_stddev
+# float32 ram_usage_max
+
+# network
+
+# string[] interface_name
+# int32[] message_frequency_mean
+# int32[] message_frequency_stddev
+# int32[] message_frequency_max
+
+# bandwith of each network interface
+
+# int32[] bandwith_mean
+# int32[] bandwith_stddev
+# int32[] bandwith_max
+
+# drive
+# string[] drive_name
+# int32[] drive_free_space
+
+# input output operations on a specific drive
+# int32[] drive_read
+# int32[] drive_write

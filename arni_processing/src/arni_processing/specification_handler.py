@@ -63,7 +63,16 @@ class SpecificationHandler:
         :type specification: Specification or str.
         :returns: A RatedStatistics object representing the result.
         """
-        result = RatedStatistics()
+        if identifier is None:
+            rospy.logdebug("[SpecificationHandler][compare] No identifier given.")
+            return None
+        if not is_seuid(identifier):
+            rospy.logdebug("[SpecificationHandler][compare] Given identifier is invalid.")
+            return None
+        if data is None:
+            rospy.logdebug("[SpecificationHandler][compare] No data given.")
+            return None
+        result = RatedStatistics(identifier)
         if specification is None:
             if identifier in self.__specifications.keys():
                 specification = self.__specifications[identifier]
@@ -71,16 +80,15 @@ class SpecificationHandler:
                 if identifier[0] == "t":
                     pass
                 else:
-                    errmsg = "[SpecificationHandler] No Specification available for " + identifier
-                    rospy.loginfo(errmsg)
-                return None
-                status = 2
+                    rospy.logdebug("[SpecificationHandler][compare] No Specification available for %s" % identifier)
         for field in dir(data):
+            if field[0] == "_" or "serialize" in field:
+                continue
             current_obj = {}
             value = getattr(data, field)
-            if specification.has_field(field):
+            try:
                 specs = specification.get(field).value
-                limits = specs[0:1]
+                limits = specs[0:2]
                 if len(specs) > 2 and specs[2][0].lower() == "r":
                     if limits[1] > 1:
                         limits[1] -= 1
@@ -88,28 +96,28 @@ class SpecificationHandler:
                     r = limits[1]
                     limits[0] = m - m * r
                     limits[1] = m + m * r
-                if isinstance(value, list):
-                    current_obj["state"] = []
-                    current_obj["actual"] = []
-                    current_obj["expected"] = []
-                    for v in value:
-                        current_obj["actual"].append(v)
-                        current_obj["state"].append(self.__compare(v, limits))
-                        current_obj["expected"].append(limits)
-                else:
-                    status = self.__compare(value, limits)
-                    current_obj["state"] = status
-                    current_obj["actual"] = value
-                    current_obj["expected"] = limits
+            except Exception:
+                limits = None
+            if isinstance(value, list):
+                current_obj["state"] = []
+                current_obj["actual"] = []
+                current_obj["expected"] = []
+                for v in value:
+                    current_obj["actual"].append(v)
+                    current_obj["state"].append(self.__compare(v, limits))
+                    current_obj["expected"].append(limits)
             else:
-                current_obj["state"] = 2
+                status = self.__compare(value, limits)
+                current_obj["state"] = status
+                current_obj["actual"] = value
+                current_obj["expected"] = limits
             result.add_value(field, current_obj["actual"], current_obj["expected"], current_obj["state"])
         return result
 
     def __compare(self, value, reference):
-        if not isinstance(reference, list) or len(reference) < 2 or\
-            not isinstance(reference[0], (int, long, float, complex)) or\
-            not isinstance(reference[1], (int, long, float, complex)):
+        if not isinstance(reference, list) or len(reference) < 2 or \
+                not isinstance(reference[0], (int, long, float, complex)) or \
+                not isinstance(reference[1], (int, long, float, complex)):
             return 2
         reference.sort()
         r = (reference[0] - reference[1]) / 2

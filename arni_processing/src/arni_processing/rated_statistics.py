@@ -2,10 +2,6 @@ class RatedStatistics:
     """
     Wraps the result of the comparison between the actual metadata and the specification.
     """
-    metatype = []
-    actual = []
-    expected = []
-    state = []
 
     def __init__(self, seuid):
         """
@@ -15,6 +11,10 @@ class RatedStatistics:
         :type seuid: str.
         """
         self.seuid = seuid
+        self.metatype = []
+        self.actual = []
+        self.expected = []
+        self.state = []
 
     def add_value(self, metatype, actual, expected, state):
         """
@@ -31,6 +31,9 @@ class RatedStatistics:
         self.expected.append(expected)
         self.state.append(state)
 
+    def keys(self):
+        return self.metatype
+
     def get_value(self, metatype):
         """
         Returns values of the given metatype.
@@ -41,6 +44,6 @@ class RatedStatistics:
         """
         if metatype in self.metatype:
             index = self.metatype.index(metatype)
-            return {"metatype": metatype, "actual": self.metatype[index], "expected": self.expected[index], "state": self.state[index] }
+            return {"metatype": metatype, "actual": self.actual[index], "expected": self.expected[index], "state": self.state[index] }
         else:
             return False
