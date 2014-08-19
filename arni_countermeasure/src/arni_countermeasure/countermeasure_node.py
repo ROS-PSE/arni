@@ -3,8 +3,10 @@ from rated_statistic_storage import *
 import rospy
 from arni_msgs.msg import RatedStatistics
 from arni_core.host_lookup import *
+from std_srvs.srv import Empty
 import helper
 import time
+
 
 class CountermeasureNode(object):
 
@@ -18,9 +20,9 @@ class CountermeasureNode(object):
         evaluate the constraints and clean old statistics."""
         super(CountermeasureNode, self).__init__()
 
-        self.__init_params()
-
         rospy.init_node("countermeasure", log_level=rospy.DEBUG)
+
+        self.__init_params()
 
         #: The storage of all incoming rated statistic.
         self.__rated_statistic_storage = RatedStatisticStorage()
@@ -34,6 +36,7 @@ class CountermeasureNode(object):
             helper.ARNI_CTM_CFG_NS + "evaluation_period")
 
         self.__register_subscriber()
+        self.__register_services()
 
     def __register_subscriber(self):
         """Register to the rated statistics."""
@@ -43,6 +46,17 @@ class CountermeasureNode(object):
         rospy.Subscriber(
             "/statistics_rated", RatedStatistics,
             HostLookup().callback_rated)
+
+    def __register_services(self):
+        """Register all services"""
+        rospy.Service(
+            "~reload_constraints", Empty, self.__handle_reload_constraints)
+
+    def __handle_reload_constraints(self, req):
+        """Reload all constraints from param server."""
+        self.__constraint_handler = ConstraintHandler(
+            self.__rated_statistic_storage)
+        return []
 
     def loop(self):
         # simulation? wait for begin

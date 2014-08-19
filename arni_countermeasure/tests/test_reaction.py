@@ -61,5 +61,5 @@ class TestReaction(unittest.TestCase):
 
 if __name__ == '__main__':
     import rosunit
-    # rosunit.unitrun(PKG, 'test_reaction', TestReaction)
-    unittest.main()
+    rosunit.unitrun(PKG, 'test_reaction', TestReaction)
+    #munittest.main()

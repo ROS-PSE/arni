@@ -19,6 +19,7 @@ import arni_core
 
 import rospy
 import helper
+import thread
 
 
 class ConstraintHandler(object):
@@ -83,7 +84,10 @@ class ConstraintHandler(object):
                 # reactions need to be done
                 for reaction in constraint.planned_reaction:
                     if reaction.autonomy_level <= glob_level:
-                        reaction.execute_reaction()
+                        # run reactions parallel since 
+                        # they could take some time
+                        thread.start_new_thread(reaction.execute_reaction, ())
+                        #reaction.execute_reaction()
 
                 # tell constraint to reset timers
                 constraint.notify_of_execution()
