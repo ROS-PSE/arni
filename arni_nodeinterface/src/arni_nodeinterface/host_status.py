@@ -1,143 +1,155 @@
-from Status import Status
+from status import Status
 import psutil
+from collections import namedtuple
+
+statistic_tuple = namedtuple('statistic', ['mean', 'stddev','max'])
 
 
 class HostStatus(Status):
-
     """
     Extension of Status , to store 
     additional information used by hosts. 
     """
-
+    
     def __init__(self):
-
+        
         super(HostStatus, self).__init__()
-
+        
         #: CPU temp in celsius.
-        self.__cpu_temp = []
+        self.__cpu_temp =  []
+        
 
         #: CPU temp by core in celsius.
         self.__cpu_temp_core = [[] for x in range(self._cpu_count)]
-
+        
         #: GPU temp by card in celsius.
         self.__gpu_temp = []
+        
+        self.__network_interfaces = psutil.net_io_counters(pernic = True)       
 
-        self.__network_interfaces = psutil.net_io_counters(pernic=True)
 
         #: Dictionary holding sets of Network interface - bandwidth in bytes
         self.__bandwidth = {}
-
-        #: Dictionary holding sets of
+        
+        #: Dictionary holding sets of 
         #: Network interface - frequency of network calls in hertz.
         self.__msg_frequency = {}
 
         #: Dictionary holding sets of drive name - free space.
         self.__drive_space = {}
-
+        
         #: Dictionary holding sets of drive name - bytes/s written.
         self.__drive_write = {}
-
+        
         #: Dictionary holding sets of drive name - bytes/s read.
         self.__drive_read = {}
-
+        
+    
     def add_cpu_temp(self, temp):
         """
         Adds another measured value to cpu_temp. 
-
+        
         :param temp: measured temperature in celsius
         :type temp: int
         """
         self.__cpu_temp.append(temp)
-
+        
     def add_cpu_temp_core(self, temps):
         """
         Adds another set of measured values to cpu_temp_core.
-
+        
         :param temps: measured temperatures in celsius
         :type temp: int[]
         """
         for x in range(self._cpu_count):
             self.__cpu_temp_core[x].append(temps[x])
-
+        
     def add_gpu_temp(self, temps):
         """
         Adds another set of measured values to gpu_temp.
-
+        
         :param temp: measured temperatures in celsius
         :type temp: int[]
         """
         pass
-
+        
     def add_bandwidth(self, interface, bytes):
         """
         Adds another  measured value, in bytes, to bandwidth belonging 
         to the given network interface.
-
+        
         :param interface: name of the network interface
         :type interface: string
         :param bytes: measured bytes
-        :type bytes: int		
+        :type bytes: int        
         """
         if interface not in self.__bandwidth:
             self.__bandwidth[interface] = []
 
         self.__bandwidth[interface].append(bytes)
 
+
+        
     def add_msg_frequency(self, interface, freq):
         """
         Adds another  measured value, in hertz, to msg_frequency belonging 
         to the given network interface.
-
+        
         :param interface: name of the network interface
         :type interface: string
         :param freq: measured frequency
-        :type freq: int	
+        :type freq: int 
         """
         if interface not in self.__msg_frequency:
             self.__msg_frequency[interface] = []
 
         self.__msg_frequency[interface].append(freq)
 
+        
     def add_drive_write(self, disk, byte):
         """
         Adds another  measured value, in bytes, to drive_write belonging 
         to the given disk.
-
+        
         :param disk: name of the disk
         :type disk: string
         :param byte: bytes written
-        :type byte: int	
+        :type byte: int 
         """
         if disk not in self.__drive_write:
             self.__drive_write[disk] = []
 
         self.__drive_write[disk].append(byte)
-
+        
     def add_drive_read(self, disk, byte):
         """
         Adds another  measured value, in bytes, to drive_read belonging 
         to the given disk.
-
+        
         :param disk: name of the disk
         :type disk: string
         :param byte: bytes read
-        :type byte: int	
+        :type byte: int 
         """
         if disk not in self.__drive_read:
             self.__drive_read[disk] = []
 
         self.__drive_read[disk].append(byte)
+        
+
 
     def add_drive_space(self, disk, space):
         """
         Adds the free space of a drive to the Dictionary
-
+        
         :param disk: name of the disk
         :type disk: string
         :param space: free space
-        :type byte: int	
+        :type byte: int 
         """
         self.__drive_space[disk] = space
+
+
 
     def reset_specific(self):
         """ 
@@ -152,11 +164,36 @@ class HostStatus(Status):
         self.__drive_write.clear()
         self.__msg_frequency.clear()
 
-    @property
+    def calc_stats_specific(self, stats_dict):
+        
+        cpu_temp = self.calc_stat_tuple(self.__cpu_temp)
+
+        cpu_temp_core = self.calc_stat_tuple(self.__cpu_temp_core)
+
+        bandwidth = [ self.calc_stat_tuple(self.__bandwidth[key]) for key in self.__bandwidth]
+        msg_frequency = [ self.calc_stat_tuple(self.__msg_frequency[key]) for key in self.__msg_frequency]
+
+        drive_write = [self.calc_stat_tuple(self.__drive_write[key]) for key in self.__drive_write]
+        drive_read = [self.calc_stat_tuple(self.__drive_read[key]) for key in self.__drive_read]
+
+        stats_dict['cpu_temp_mean'] = cpu_temp
+
+        stats_dict['cpu_temp_core'] = cpu_temp_core
+        
+        stats_dict['bandwidth'] = bandwidth
+        
+        stats_dict['msg_frequency'] = msg_frequency
+        
+        stats_dict['drive_write'] = drive_write
+        
+        stats_dict['drive_read'] = drive_read
+
+
+    @property 
     def cpu_temp(self):
         return self.__cpu_temp
 
-    @property
+    @property 
     def cpu_temp_core(self):
         return self.__cpu_temp_core
 
@@ -168,19 +205,23 @@ class HostStatus(Status):
     def bandwidth(self):
         return self.__bandwidth
 
-    @property
+    @property 
     def msg_frequency(self):
         return self.__msg_frequency
 
-    @property
-    def drive_space(self):
-        return self.__drive_space
+    @property 
+    def drive_space(self, key):
+        if key is None :
+            return self.__drive_space
+        else:
+            return self.__drive_space[key] 
 
-    @property
+
+    @property 
     def drive_write(self):
         return self.__drive_write
 
-    @property
+    @property 
     def drive_read(self):
         return self.__drive_read
 
@@ -196,9 +237,10 @@ class HostStatus(Status):
     def gpu_temp(self, value):
         self.__gpu_temp = value
 
+
     @bandwidth.setter
     def bandwidth(self, value):
-        self.__bandwidth = value
+        self.__bandwidth = value 
 
     @msg_frequency.setter
     def msg_frequency(self, value):
@@ -211,7 +253,3 @@ class HostStatus(Status):
     @drive_read.setter
     def drive_read(self, value):
         self.__drive_read = value
-
-    @drive_write.setter
-    def drive_write(self, value):
-        self.__drive_write = value
