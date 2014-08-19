@@ -8,13 +8,15 @@ from arni_countermeasure.outcome import *
 from arni_core.helper import *
 from rosgraph_msgs.msg import Log
 import time
-import sys
 
 PKG = "arni_countermeasure"
 
 
 class TestScenario(unittest.TestCase):
+    """Test a couple of simple scenarios.
 
+    Usually the countermeasure node gets some rated statistics and
+    acts upon some constraints."""
     @classmethod
     def setUpClass(TestScenario):
         pass
@@ -41,52 +43,65 @@ class TestScenario(unittest.TestCase):
 
     def test_high_cpu(self):
         """ Test reacting to high cpu."""
-        r = rospy.Rate(10)  # hz
-        begin_time = rospy.Time.now()
 
-        while (
-                (not rospy.is_shutdown())
-                and rospy.Time.now() - begin_time <= rospy.Duration(10)):
-            entity = self.create_statistic_entity(
-                "cpu_usage_max", ["90"], ["0-50"], [Outcome.HIGH])
-
-            msg = self.create_msg(
-                "n%snode1" % SEUID_DELIMITER, "127.0.0.1", [entity])
-            self.pub.publish(msg)
-            r.sleep()
-
+        self.create_default_msg("node1", Outcome.HIGH, 10)
         rospy.Rate(0.1).sleep()
 
         # check if the constrain has been fulfilled
-        print "test1 %s" % self.log
         self.assertIn(
             "cpu high test1", self.log,
             "reaction after high cpu did not get executed.")
 
     def test_high_cpu_too_short(self):
         """ Test for no reaction after having high cpu to short."""
+        self.create_default_msg("node2", Outcome.HIGH, 3)
+
+        # sleep for 10 simulated seconds.
+        rospy.Rate(0.1).sleep()
+        # check if the constrain has been fulfilled
+        self.assertNotIn(
+            "cpu high test2", self.log,
+            "storage_timeout should have been to small for"
+            + " the constraint to be true long enough.")
+
+    def test_constraint_timeout(self):
+        """Test the timeout after having executed a reaction."""
+
+        self.create_default_msg("node3", Outcome.LOW, 15)
+        rospy.Rate(0.1).sleep()
+
+        self.assertIn("test3", self.log, "first execution didn't work.")
+
+        self.log = list()
+        self.create_default_msg("node3", Outcome.LOW, 35)
+        rospy.Rate(0.1).sleep()
+
+        self.assertNotIn(
+            "test3", self.log,
+            "got a second execution that shouldn't happen.")
+
+    def test_reaction_autonomy_level_too_high(self):
+        """ Test for no reaction because of a too high autonomy_level."""
+        self.create_default_msg("node4", Outcome.LOW, 20)
+        self.assertNotIn("test4", self.log)
+
+    def create_default_msg(self, node, outcome, durotation):
+        """ Create an default message.
+        """
         r = rospy.Rate(10)  # hz
         begin_time = rospy.Time.now()
 
         while (
                 (not rospy.is_shutdown())
-                and rospy.Time.now() - begin_time <= rospy.Duration(3)):
+                and rospy.Time.now() - begin_time <= rospy.Duration(
+                    durotation)):
             entity = self.create_statistic_entity(
-                "cpu_usage_max", ["90"], ["0-50"], [Outcome.HIGH])
+                "cpu_usage_max", ["90"], ["0-50"], [outcome])
 
             msg = self.create_msg(
-                "n%snode2" % SEUID_DELIMITER, "127.0.0.1", [entity])
+                "n%s%s" % (SEUID_DELIMITER, node), "127.0.0.1", [entity])
             self.pub.publish(msg)
             r.sleep()
-
-        # sleep for 10 simulated seconds.
-        rospy.Rate(0.1).sleep()
-        # check if the constrain has been fulfilled
-        print "test2, %s" % self.log
-        self.assertNotIn(
-            "cpu high test2", self.log,
-            "storage_timeout should have been to small for"
-            + " the constraint to be true long enough.")
 
     def create_msg(self, seuid, host, entity):
         msg = RatedStatistics()

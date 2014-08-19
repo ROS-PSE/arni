@@ -7,6 +7,7 @@ arni:
             n!node1: {cpu_usage_mean: high}
             n!node2: {ram_usage_mean: high}
         min_reaction_interval: 5
+        reaction_timeout: 20
         reactions:
           one: {action: stop, autonomy_level: 100, node: node1}
           # autonomy level is optional
