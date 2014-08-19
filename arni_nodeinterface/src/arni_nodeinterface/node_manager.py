@@ -51,5 +51,6 @@ class NodeManager(object):
         :type args: String
         :returns: String
         """
-        proc = subprocess.Popen(args, shell = True, stdout = subprocess.PIPE)
-        proc.wait()
+        proc = subprocess.Popen(args, stdout = subprocess.PIPE)
+        
+        print proc.communicate()
