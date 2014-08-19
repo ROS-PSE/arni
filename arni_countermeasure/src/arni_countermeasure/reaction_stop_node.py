@@ -1,4 +1,7 @@
 from reaction import *
+import rospy
+from arni_msgs.srv import NodeReaction
+from rospy import ServiceException
 
 
 class ReactionStopNode(Reaction):
@@ -9,16 +12,22 @@ class ReactionStopNode(Reaction):
         super(ReactionStopNode, self).__init__(node, autonomy_level)
 
     def execute_reaction(self):
-        if self._host is not None:
-            execute = rospy.ServiceProxy(
-                "execute_node_reaction", NodeReaction)
-            resp = execute(self._host, self._node, "stop", '')
+        service_name = "/execute_node_reaction/%s" % self._host
+        try:
+            if self._host is not None:
+                execute = rospy.ServiceProxy(
+                    service_name, NodeReaction)
+                resp = execute(self._node, "stop", '')
+                rospy.logdebug(
+                    "stopping node %s returned: %s"
+                    % (self._node, resp.returnmessage))
+            else:
+                rospy.logdebug(
+                    "could not stop node %s, " % self._node
+                    + "because there is no information about where the node"
+                    + " is run from. (possibly because"
+                    + " the node never sent any statistics.)")
+        except ServiceException:
             rospy.logdebug(
-                "Stopping node %s returned: %s"
-                % (self._node, resp.returnmessage))
-        else:
-            rospy.logdebug(
-                "Could not stop node %s, " % self._node
-                + "because there is no information about where the node"
-                + " is run from."
-                + " (possibly because the node never sent any statistics.)")
+                "could not stop node %s, service %s not found"
+                % (self._node, service_name))

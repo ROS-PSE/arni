@@ -1,6 +1,3 @@
-# ip of the affected host
-string host
-
 # identifier of the affected node
 string node
 
