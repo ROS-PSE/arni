@@ -1,11 +1,14 @@
 import rospy
 import rosgraph_msgs
+import std_srvs.srv
+from std_srvs.srv import Empty
 from arni_msgs.msg import HostStatistics, NodeStatistics
+from arni_msgs.srv import StatisticHistory
 from arni_core.helper import *
 from rosgraph_msgs.msg import TopicStatistics
 from metadata_storage import MetadataStorage
 from specification_handler import SpecificationHandler
-from rated_statistics import RatedStatistics
+from rated_statistics import RatedStatisticsContainer
 from storage_container import StorageContainer
 
 
@@ -46,7 +49,7 @@ class MonitoringNode:
         :type data: object
         :param identifier: The seuid identifying the received data.
         :type identifier: str
-        :return: RatedStatistics.
+        :return: RatedStatisticsContainer.
         """
         result = self.__specification_handler.compare(data, identifier)
         container = StorageContainer()
@@ -55,6 +58,7 @@ class MonitoringNode:
         container.timestamp = rospy.Time.now()
         container.identifier = identifier
         self.__metadata_storage.store(container)
+        self.__publish_data(result)
         return result
 
     def __publish_data(self, data):
@@ -62,7 +66,7 @@ class MonitoringNode:
         Publishes data to the RatedStatistics topic.
 
         :param data: The data to be published
-        :type data: RatedStatistics
+        :type data: RatedStatisticsContainer
         """
         pass
 
@@ -74,10 +78,23 @@ class MonitoringNode:
         :type request: MetadataStorageRequest.
         :returns: MetadataStorageResponse
         """
-        pass
+        data = self.__metadata_storage.get("*", request.timestamp)
+        response = StatisticHistory()
+        for container in data:
+            if container.identifier[0] == "h":
+                response.host_statistics.append(container.data_raw)
+                response.rated_host_statistics.append(container.data_rated.to_msg_type())
+            if container.identifier[0] == "n":
+                response.node_statistics.append(container.data_raw)
+                response.rated_node_statistics.append(container.data_rated.to_msg_type())
+            if container.identifier[0] == "c":
+                response.topic_statistics.append(container.data_raw)
+                response.rated_topic_statistics.append(container.data_rated.to_msg_type())
+        return response
 
     def listener(self):
         rospy.Subscriber('/statistics', TopicStatistics, self.receive_data)
-        rospy.Subscriber('/statistics_hosts', HostStatistics, self.receive_data)
-        rospy.Subscriber('/statistics_nodes', NodeStatistics, self.receive_data)
+        rospy.Subscriber('/statistics_host', HostStatistics, self.receive_data)
+        rospy.Subscriber('/statistics_node', NodeStatistics, self.receive_data)
+        rospy.Service('~reload_specifications', std_srvs.srv.Empty, self.__specification_handler.reload_specifications)
         rospy.spin()

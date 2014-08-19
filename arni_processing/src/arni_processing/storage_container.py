@@ -10,7 +10,7 @@ class StorageContainer:
         :type identifier: str.
         :param data_raw: The raw data as the source sent it.
         :param data_rated: The rated data.
-        :type data_rated: RatedStatistics.
+        :type data_rated: RatedStatisticsContainer.
         """
         self.timestamp = timestamp
         self.identifier = identifier

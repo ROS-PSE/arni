@@ -1,7 +1,7 @@
 import rospy
 from specification import Specification
 from metadata_tuple import MetadataTuple
-from rated_statistics import RatedStatistics
+from rated_statistics import RatedStatisticsContainer
 from arni_core.helper import is_seuid
 
 
@@ -61,7 +61,7 @@ class SpecificationHandler:
         :type identifier: str
         :param specification: The Specification object, alternatively a string identifying it.
         :type specification: Specification or str.
-        :returns: A RatedStatistics object representing the result.
+        :returns: A RatedStatisticsContainer object representing the result.
         """
         if identifier is None:
             rospy.logdebug("[SpecificationHandler][compare] No identifier given.")
@@ -72,7 +72,7 @@ class SpecificationHandler:
         if data is None:
             rospy.logdebug("[SpecificationHandler][compare] No data given.")
             return None
-        result = RatedStatistics(identifier)
+        result = RatedStatisticsContainer(identifier)
         if specification is None:
             if identifier in self.__specifications.keys():
                 specification = self.__specifications[identifier]
