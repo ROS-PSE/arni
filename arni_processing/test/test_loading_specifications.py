@@ -1,0 +1,87 @@
+#!/usr/bin/env python
+
+import unittest
+from arni_processing.specification_handler import *
+from arni_processing.specification import *
+
+import traceback
+import rospy
+
+PKG = "arni_processing"
+
+test_spec = {
+    'n!test_node': {
+        'node_cpu_usage_mean': [0.03, 0.09],
+        'node_ramusage_mean': [3000, 500, 'relative']
+    },
+    'h!127.0.0.1': {
+        'cpu_temp_mean': [30, 60]
+    },
+    'invalid': {
+        'cpu_temp_mean': [30, 60]
+    }
+}
+
+
+class TestLoadingSpecifications(unittest.TestCase):
+
+    __namespace = '/arni/specifications'
+
+    def setUp(self):
+        try:
+            rospy.delete_param(self.__namespace)
+        except KeyError:
+            pass
+
+    def test_no_specifications(self):
+        """
+        Checks if the list of specifications is empty if no specifications are
+        on the parameter server.
+        """
+        sh = SpecificationHandler()
+        self.assertEqual(sh.loaded_specifications(), [])
+
+    def test_load_spec(self):
+        """
+        Checks if a specification is properly loaded.
+        """
+        seuid = 'n!test_node'
+        rospy.set_param(self.__namespace + '/' + seuid, test_spec[seuid])
+        sh = SpecificationHandler()
+        self.assertEqual(sh.loaded_specifications(), [seuid])
+
+    def test_reload_spec(self):
+        """
+        Checks if the list of specifications has been expanded according to new
+        parameters after reloading them.
+        """
+        seuid1 = 'n!test_node'
+        seuid2 = 'h!127.0.0.1'
+        rospy.set_param(self.__namespace + '/' + seuid1, test_spec[seuid1])
+        sh = SpecificationHandler()
+        rospy.set_param(self.__namespace + '/' + seuid2, test_spec[seuid2])
+        sh.reload_specifications()
+        self.assertItemsEqual(sh.loaded_specifications(), [seuid1, seuid2])
+
+    def test_invalid_seuid(self):
+        """
+        Checks if invalid identifiers aren't added to the list.
+        """
+        seuid = 'invalid'
+        rospy.set_param(self.__namespace + '/' + seuid, test_spec[seuid])
+        sh = SpecificationHandler()
+        self.assertEqual(sh.loaded_specifications(), [])
+
+    def test_existing_fields(self):
+        seuid = 'n!test_node'
+        rospy.set_param(self.__namespace + '/' + seuid, test_spec[seuid])
+        sh = SpecificationHandler()
+        sp = sh.get(seuid)
+        self.assertItemsEqual(sp.keys(), test_spec[seuid].keys())
+        for k in test_spec[seuid].keys():
+            self.assertEqual(test_spec[seuid][k], sp.get(k).value)
+
+
+if __name__ == '__main__':
+    import rosunit
+    rosunit.unitrun(PKG, 'test_loading_specifications', TestLoadingSpecifications)
