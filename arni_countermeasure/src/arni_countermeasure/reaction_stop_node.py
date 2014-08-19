@@ -9,4 +9,16 @@ class ReactionStopNode(Reaction):
         super(ReactionStopNode, self).__init__(node, autonomy_level)
 
     def execute_reaction(self):
-        pass
+        if self._host is not None:
+            execute = rospy.ServiceProxy(
+                "execute_node_reaction", NodeReaction)
+            resp = execute(self._host, self._node, "stop", '')
+            rospy.logdebug(
+                "Stopping node %s returned: %s"
+                % (self._node, resp.returnmessage))
+        else:
+            rospy.logdebug(
+                "Could not stop node %s, " % self._node
+                + "because there is no information about where the node"
+                + " is run from."
+                + " (possibly because the node never sent any statistics.)")

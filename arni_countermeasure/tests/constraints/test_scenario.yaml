@@ -21,9 +21,7 @@ arni:
         reactions: 
           one: {
               action: publish,
-              autonomy_level: 0,
               message: cpu high test2,
-              node: node2,
               loglevel: info}
     config:
       reaction_autonomy_level: 50
