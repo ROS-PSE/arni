@@ -43,7 +43,7 @@ class Specification:
 
         :param key: The identifier for the stored measurement.
         :type key: str
-        :return: A list containing limit values for the measured fields. False, if the key does not exist.
+        :return: A MetadataTuple containing the limits in its value field.
         """
         if key in self.__values:
             return self.__values[key]

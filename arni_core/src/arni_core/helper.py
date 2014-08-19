@@ -12,10 +12,11 @@ SEUID_DELIMITER = "!"
 def is_seuid(seuid):
     """
     Determines whether the given parameter is a valid seuid.
+
     :param seuid: A string presenting a seuid to validate.
     :return: True, if the given parameter is a valid seuid, false if not.
     """
-    p = re.compile('^([nhtc])' + SEUID_DELIMITER + '([_a-z].*)')
+    p = re.compile('^([nhtc])' + SEUID_DELIMITER + '([_a-z1-9].*)')
     m = p.match(seuid)
     if m is None:
         return False

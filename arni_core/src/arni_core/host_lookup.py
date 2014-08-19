@@ -40,6 +40,10 @@ class HostLookup(object):
 
         return node_list
 
+    def clear(self):
+        """Remove all elements from the dict."""
+        self.__node_dict = dict()
+
     def remove_node(self, node):
         """Remove a node - host tuple."""
         del self.__node_dict[node]

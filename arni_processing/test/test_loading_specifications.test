@@ -1,0 +1,3 @@
+<launch>
+  <test test-name="test_loading_specifications" pkg="arni_processing" type="test_loading_specifications.py" />
+</launch>

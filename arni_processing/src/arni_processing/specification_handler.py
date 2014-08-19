@@ -12,8 +12,6 @@ class SpecificationHandler:
 
     __namespace = '/arni/specifications'
 
-    __specifications = {}
-
     def __load_specifications(self):
         """
         Loads Specifications from the configurations and stores them in the
@@ -27,9 +25,19 @@ class SpecificationHandler:
                     for k in params[seuid].keys():
                         spec.add_tuple(MetadataTuple(k, params[seuid][k]))
                     self.__specifications[seuid] = spec
+                else:
+                    rospy.logdebug("[SpecificationHandler][__load_specifications] %s is not a valid seuid." % seuid)
         except KeyError as err:
             pass
-        rospy.loginfo("[SpecificationHandler] Loaded %s parameters" % str(len(self.__specifications.keys())))
+        rospy.loginfo("[SpecificationHandler] Loaded %s parameters." % str(len(self.__specifications.keys())))
+
+    def loaded_specifications(self):
+        """
+        Returns a list containing all seuids of loaded specifications.
+
+        :return: A list of strings.
+        """
+        return self.__specifications.keys()
 
     def get(self, identifier):
         """
@@ -71,9 +79,9 @@ class SpecificationHandler:
             current_obj = {}
             value = getattr(data, field)
             if specification.has_field(field):
-                specs = specification.get(field)
+                specs = specification.get(field).value
                 limits = specs[0:1]
-                if len(specs) > 2 and specs[2].lower() == "r":
+                if len(specs) > 2 and specs[2][0].lower() == "r":
                     if limits[1] > 1:
                         limits[1] -= 1
                     m = limits[0]
@@ -118,10 +126,12 @@ class SpecificationHandler:
         """
         Reloads all specifications loaded into the namespace /arni/specifications
         """
+        self.__specifications = {}
         self.__load_specifications()
 
     def __init__(self):
         """
         Initiates the SpecificationHandler kicking off the loading of available specifications.
         """
+        self.__specifications = {}
         self.__load_specifications()

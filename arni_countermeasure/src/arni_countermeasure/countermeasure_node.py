@@ -20,7 +20,7 @@ class CountermeasureNode(object):
 
         self.__init_params()
 
-        rospy.init_node("countermeasure_node", log_level=rospy.DEBUG)
+        rospy.init_node("countermeasure", log_level=rospy.DEBUG)
 
         #: The storage of all incoming rated statistic.
         self.__rated_statistic_storage = RatedStatisticStorage()
