@@ -9,7 +9,7 @@ class NodeStatus(Status):
     Extension of Status , to store additional information used by nodes.
     """
     
-    def __init__(self):
+    def __init__(self, start):
     
         super(NodeStatus, self).__init__()
         
@@ -73,6 +73,9 @@ class NodeStatus(Status):
         del self.__node_msg_frequency[:]
 
     def calc_stats_specific(self , dict):
+        """
+        calculates statistics specific to nodes.
+        """
 
         node_bandwidth = self.calc_stat_tuple(self.__node_bandwidth)
         node_msg_frequency = self.calc_stat_tuple(self.__node_msg_frequency)
