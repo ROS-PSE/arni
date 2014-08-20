@@ -12,9 +12,8 @@ class MetadataStorage:
     """
     storage = {}
 
-
     def __clean_up_timer(self):
-        if self.auto_cleanup and self.timer_running:
+        if self.auto_cleanup and self.timer_running and not rospy.is_shutdown():
             threading.Timer(self.cleanup_timer, self.__clean_up).start()
 
     def __clean_up(self):

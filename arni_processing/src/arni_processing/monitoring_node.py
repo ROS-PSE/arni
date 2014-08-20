@@ -32,16 +32,11 @@ class MonitoringNode:
 
         :param data: The data received from the topic.
         """
-        seuid = ""
-        if hasattr(data, "cpu_temp_mean"):
-            seuid = "h" + SEUID_DELIMITER + data.host
-        elif hasattr(data, "node_cpu_usage_mean"):
-            seuid = "n" + SEUID_DELIMITER + data.node
-        elif hasattr(data, "topic"):
-            seuid = "c" + SEUID_DELIMITER + data.node_sub \
-                    + SEUID_DELIMITER + data.topic \
-                    + SEUID_DELIMITER + data.node_pub
-        self.__process_data(data, seuid)
+        try:
+            seuid = SEUID(data)
+            self.__process_data(data, str(seuid))
+        except TypeError:
+            pass
 
     def __process_data(self, data, identifier):
         """

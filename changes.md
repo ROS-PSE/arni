@@ -8,6 +8,7 @@ Change
 ## Configuration files
 * Now uses seuid where possible
 => specifications now take **seuid**: {} instead of **type: name**: {} (see arni_processing/resources/testconfig.yaml)
+* Now uses list of dictionaries against UserErrors from invalid parameter names
 
 ## MetadataStorage
 * automatic cleanup now depends on the rosparameters /arni/storage/auto_cleanup (True) and /arni/storage/cleanup_timer (30)[seconds]
