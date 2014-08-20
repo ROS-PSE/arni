@@ -1,6 +1,0 @@
-node_cpu_usage_max_constantly_high.bag:
-    entity = create_statistic_entity(
-        "cpu_usage_max", ["90"], ["0-50"], [Outcome.HIGH])
-
-    msg = create_msg(
-        "n%snode" % SEUID_DELIMITER, "127.0.0.1", [entity])    
