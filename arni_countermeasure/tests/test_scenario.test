@@ -4,6 +4,6 @@
   <param name="/ctm/clock_mult" value="100"/>
   <node name="clock_server" pkg="arni_countermeasure"
   type="increased_clock.py" />
-  <node name="countermeasure_node" pkg="arni_countermeasure" type="countermeasure" />
+  <node name="countermeasure_node" pkg="arni_countermeasure" type="arni_countermeasure" />
   <test test-name="test_scenario" pkg="arni_countermeasure" type="test_scenario.py" />
 </launch>
