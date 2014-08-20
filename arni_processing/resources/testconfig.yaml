@@ -1,0 +1,12 @@
+n!node_name:
+    bandwidth:
+        - 50
+        - 80
+    other:
+        - 90
+        - 0.6
+        - "relative"
+t!topic_name:
+    field1:
+        - 6
+        - 9

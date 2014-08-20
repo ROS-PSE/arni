@@ -1,6 +1,7 @@
 import rospy
 from outcome import *
 from arni_msgs.msg import RatedStatistics, RatedStatisticsEntity
+import helper
 
 
 class RatedStatisticStorage(object):
@@ -21,8 +22,8 @@ class RatedStatisticStorage(object):
         #: is declared too old and should be removed
         #: from the dict.
         #: type: Duration
-        # TODO: set timeout by parameter
-        self.__timeout = rospy.Duration(10000)
+        self.__timeout = helper.get_param_duration(
+            helper.ARNI_CTM_CFG_NS + "storage_timeout")
 
     def clean_old_statistic(self):
         """Check the complete dictionary for statistics
@@ -39,7 +40,7 @@ class RatedStatisticStorage(object):
         for seuid in store:
             for statistic_type in store[seuid]:
                 timestamp = store[seuid][statistic_type][1]
-                if curtime - timestamp > self.__timeout:
+                if curtime - timestamp >= self.__timeout:
                     todelete.append((seuid, statistic_type))
 
         # remove them
@@ -55,9 +56,6 @@ class RatedStatisticStorage(object):
         :param msg: The rated statistic to be added to the storage.
         :type msg:  RatedStatistics
         """
-
-        #TODO: removeme
-        rospy.loginfo("cm: got a rated statistic for " + msg.seuid)
 
         seuid = msg.seuid
 
@@ -102,7 +100,16 @@ class RatedStatisticStorage(object):
 
         # the dictionary for a specific entity having the specified entity
         entity_dict = store[seuid]
-        entity_dict[statistic_type] = outcome, timestamp
+
+        # check if there is an entry thats newer:
+        if (
+            ((not statistic_type in entity_dict) or (
+                entity_dict[statistic_type][1] < timestamp)) and (
+                rospy.Time.now() - timestamp < self.__timeout)):
+
+            entity_dict[statistic_type] = outcome, timestamp
+
+        # do some cleaning up, to keep memory small.
         self.clean_old_statistic()
 
     def get_outcome(self, seuid, statistic_type):
@@ -134,7 +141,7 @@ class RatedStatisticStorage(object):
             timestamp = outTuple[1]
 
             # check if the item is too old
-            if rospy.get_rostime() - timestamp > self.__timeout:
+            if rospy.get_rostime() - timestamp >= self.__timeout:
                 self.__remove_item(seuid, statistic_type)
                 return Outcome.UNKNOWN
 
@@ -146,7 +153,7 @@ class RatedStatisticStorage(object):
             return Outcome.UNKNOWN
 
     def __remove_item(self, seuid, statistic_type):
-        """ Remove an statistic_type from an entity from the storage.
+        """Remove an statistic_type from an entity from the storage.
 
         :param seuid:   The seuid of the entity.
         :type seuid:    string
@@ -161,5 +168,5 @@ class RatedStatisticStorage(object):
             del self.__statistic_storage[seuid][statistic_type]
         except KeyError:
             rospy.logdebug(
-                "arni_countermeasure: Tried to delete"
+                "Tried to delete"
                 + " an unexisting entry in the storage.")

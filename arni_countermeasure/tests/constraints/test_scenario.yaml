@@ -1,0 +1,52 @@
+arni:
+  countermeasure:
+    constraints:
+      test_high_cpu:
+        constraint:
+          or:
+            n!node1: {cpu_usage_max: high}
+            n!nodex: {ram_usage_mean: high}
+        min_reaction_interval: 10
+        reactions:
+          one: {
+            action: publish,
+            autonomy_level: 0,
+            message: cpu high test1,
+            node: node1,
+            loglevel: info}
+      test_high_cpu_too_short:
+        constraint:
+          n!node2: {cpu_usage_max: high}
+        min_reaction_interval: 10
+        reactions: 
+          one: {
+              action: publish,
+              message: cpu high test2,
+              loglevel: info}
+      test_constraint_timeout:
+        constraint:
+          n!node3: {cpu_usage_max: low}
+        min_reaction_interval: 10
+        reaction_timeout: 80
+        reactions:
+          one: {
+            action: publish,
+            message: test3,
+            loglevel: info,
+            node: node3}
+      test_constraint_autonomy_level_too_high:
+        constraint:
+          n!node3: {cpu_usage_max: low}
+        min_reaction_interval: 10
+        reaction_timeout: 80
+        reactions:
+          one: {
+            action: publish,
+            autonomy_level: 100,
+            message: test4,
+            loglevel: info,
+            node: node4}
+
+    config:
+      reaction_autonomy_level: 50
+      storage_timeout: 5

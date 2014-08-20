@@ -55,14 +55,15 @@ class Constraint(object):
         :param storage: The storage where the incoming statistics are saved.
         :type storage:  RatedStatisticStorage
         """
+
         evaluation = self.__constraint_root.evaluate_constraint(storage)
 
-        #If the constraint is false only true since has to be reset.
+        #If the constraint is false only true_since has to be reset.
         if not evaluation:
             self.true_since = rospy.Time(0)
             self.evaluation_result = False
         else:
-            if self.true_since == 0:
+            if self.true_since == rospy.Time(0):
                 self.true_since = rospy.Time.now()
 
             if (

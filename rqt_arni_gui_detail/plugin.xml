@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<library path="src">
+	<class name ="arni_gui_detail" type="rqt_arni_gui_detail.arni_gui_detail.ArniGuiDetail" base_class_type="rqt_gui_py::Plugin">
+		<description>
+			TODO
+		</description>
+		<qtgui>
+			<group>
+				<label>Introspection</label>
+				<statustip>Plugins related to introspection</statustip>
+			</group>
+			<label>arni_gui_detail</label>
+			<icon type="theme">system-help</icon>
+			<statustip>TODO</statustip>
+		</qtgui>
+	</class>
+</library>

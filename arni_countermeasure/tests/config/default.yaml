@@ -1,0 +1,18 @@
+arni:
+  countermeasure:
+    constraints:
+      john:
+        constraint:
+          or:
+            n!node1: {cpu_usage_mean: high}
+            n!node2: {ram_usage_mean: high}
+        min_reaction_interval: 5
+        reaction_timeout: 20
+        reactions:
+          one: {action: stop, autonomy_level: 100, node: node1}
+          # autonomy level is optional
+          # 
+          two: {action: publish, autonomy_level: 13, message: node1 has a problem, node: node1, loglevel: info}
+    config:
+      reaction_autonomy_level: 50
+      storage_timeout: 10

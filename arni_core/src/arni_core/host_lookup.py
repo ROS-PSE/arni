@@ -1,6 +1,7 @@
 from singleton import *
 from arni_msgs.msg import RatedStatistics, RatedStatisticsEntity
 from helper import SEUID_DELIMITER
+import helper
 
 
 class HostLookup(object):
@@ -19,7 +20,14 @@ class HostLookup(object):
         self.__node_dict = dict()
 
     def get_host(self, node):
-        """Return the host the node runs on."""
+        """Return the host the node runs on.
+
+        :param node:    name of the node
+        :type:  string
+
+        :return:    the host the node runs on. None if the host is unknown.
+        :rtype: string
+        """
         return self.__node_dict.get(node)
 
     def add_node(self, node, host):
@@ -27,11 +35,24 @@ class HostLookup(object):
 
         Overwrites already existing node - host tuple if they have
         the same node name.
+
+        :param node:    name of the node
+        :type:  string
+
+        :param host:    ip of the host
+        :type:  string
         """
         self.__node_dict[node] = host
 
     def get_node_list(self, host):
-        """Return all nodes of a specific host."""
+        """Return all nodes of a specific host.
+
+        :param host:    ip of the host
+        :type:  string
+
+        :return:    all nodes that are on the specified host.
+        :rtype: list
+        """
         node_list = list()
         for node, host_in_dict in self.__node_dict.items():
             if host_in_dict == host:
@@ -39,8 +60,16 @@ class HostLookup(object):
 
         return node_list
 
+    def clear(self):
+        """Remove all elements from the dict."""
+        self.__node_dict = dict()
+
     def remove_node(self, node):
-        """Remove a node - host tuple."""
+        """Remove a node - host tuple.
+
+        :param node:    name of the node
+        :type:  string
+        """
         del self.__node_dict[node]
 
     @staticmethod
@@ -63,7 +92,7 @@ class HostLookup(object):
         """
 
         # is it about a node?
-        if message.seuid.startswith("n"):
+        if message.seuid.startswith("n") and helper.is_seuid(message.seuid):
             host = message.host
             node = message.seuid.split(SEUID_DELIMITER)[1]
             self.add_node(node, host)

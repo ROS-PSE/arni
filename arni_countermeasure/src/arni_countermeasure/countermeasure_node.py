@@ -3,6 +3,9 @@ from rated_statistic_storage import *
 import rospy
 from arni_msgs.msg import RatedStatistics
 from arni_core.host_lookup import *
+from std_srvs.srv import Empty
+import helper
+import time
 
 
 class CountermeasureNode(object):
@@ -17,6 +20,10 @@ class CountermeasureNode(object):
         evaluate the constraints and clean old statistics."""
         super(CountermeasureNode, self).__init__()
 
+        rospy.init_node("countermeasure", log_level=rospy.DEBUG)
+
+        self.__init_params()
+
         #: The storage of all incoming rated statistic.
         self.__rated_statistic_storage = RatedStatisticStorage()
 
@@ -24,8 +31,12 @@ class CountermeasureNode(object):
         self.__constraint_handler = ConstraintHandler(
             self.__rated_statistic_storage)
 
-        rospy.init_node("countermeasure_node")
+        #: The time to wait between two evaluations.
+        self.__evaluation_period = helper.get_param_duration(
+            helper.ARNI_CTM_CFG_NS + "evaluation_period")
+
         self.__register_subscriber()
+        self.__register_services()
 
     def __register_subscriber(self):
         """Register to the rated statistics."""
@@ -36,20 +47,52 @@ class CountermeasureNode(object):
             "/statistics_rated", RatedStatistics,
             HostLookup().callback_rated)
 
+    def __register_services(self):
+        """Register all services"""
+        rospy.Service(
+            "~reload_constraints", Empty, self.__handle_reload_constraints)
+
+    def __handle_reload_constraints(self, req):
+        """Reload all constraints from param server."""
+        self.__constraint_handler = ConstraintHandler(
+            self.__rated_statistic_storage)
+        return []
+
     def loop(self):
+        # simulation? wait for begin
+        while rospy.Time.now() == rospy.Time(0):
+            time.sleep(0.01)
         while not rospy.is_shutdown():
             self.__constraint_handler.evaluate_constraints()
             self.__constraint_handler.execute_reactions()
 
-            #: Todo: get check rate from param server
-            rospy.sleep(rospy.Duration(3))
+            rospy.sleep(self.__evaluation_period)
+
+    def __init_params(self):
+        """Initializes params on the parameter server,
+        if they are not already set.
+        """
+
+        default = {
+            "reaction_autonomy_level": 100,
+            "storage_timeout": 10,
+            "evaluation_period": 0.2,
+            "default/min_reaction_interval": 10,
+            "default/reaction_timeout": 30
+        }
+        for param in default:
+            if not rospy.has_param(helper.ARNI_CTM_CFG_NS + param):
+                rospy.set_param(helper.ARNI_CTM_CFG_NS + param, default[param])
 
 
 def main():
-    cn = CountermeasureNode()
-    rospy.loginfo(rospy.get_caller_id() + ": im on ")
+    try:
+        cn = CountermeasureNode()
+    #    rospy.loginfo(rospy.get_caller_id() + ": im on ")
 
-    cn.loop()
+        cn.loop()
+    except rospy.ROSInterruptException:
+        pass
 
 
 if __name__ == '__main__':

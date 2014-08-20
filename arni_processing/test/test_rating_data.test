@@ -1,0 +1,5 @@
+<launch>
+  <rosparam command="load" file="$(find arni_processing)/test/mockdata/mock_host.yaml" ns="/arni/test/mockdata/h!127.0.0.1" />
+  <rosparam command="load" file="$(find arni_processing)/test/mockdata/mock_host_spec.yaml" ns="/arni/specifications" />
+  <test test-name="test_rating_data" pkg="arni_processing" type="test_rating_data.py" />
+</launch>

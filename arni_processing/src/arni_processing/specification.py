@@ -1,5 +1,6 @@
 from metadata_tuple import MetadataTuple
 
+
 class Specification:
     """
     An object loaded from the specification configurations
@@ -9,14 +10,32 @@ class Specification:
 
     __values = {}
 
-    def add_tuple(self, tuple):
+    def add_tuple(self, t):
         """
         Adds a MetadataTuple to the bundle.
 
-        :param tuple: The Tuple to be added.
-        :type tuple: MetadataTuple
+        :param t: The Tuple to be added.
+        :type t: MetadataTuple
         """
-        self.__values[tuple.key] = tuple
+        self.__values[t.key] = t
+
+    def keys(self):
+        """
+        Returns all stored keys.
+
+        :return: list(str)
+        """
+        return self.__values.keys()
+
+    def has_field(self, field):
+        """
+        Returns whether a field is defined in this specification.
+
+        :param field: The metadata field to check for.
+        :type field: str
+        :return: bool
+        """
+        return field in self.__values.keys()
 
     def get(self, key):
         """
@@ -24,13 +43,13 @@ class Specification:
 
         :param key: The identifier for the stored measurement.
         :type key: str
-        :return: A list containing limit values for the measured fields. False, if the key does not exist.
+        :return: A MetadataTuple containing the limits in its value field.
         """
         if key in self.__values:
             return self.__values[key]
         return False
 
-    def __init__(self, tuples = {}):
+    def __init__(self, tuples={}):
         """
         A new Specification object to bundle multiple specifications.
 
@@ -38,3 +57,7 @@ class Specification:
         :type tuples: dict(str, MetadataTuple)
         """
         self.__values = tuples
+
+    def __str__(self):
+        for t in self.__values:
+            print("- " + str(t))
