@@ -6,13 +6,12 @@ from storage_container import StorageContainer
 
 
 class MetadataStorage:
+    """
+    The MetadataStorage holds StorageContainer objects with raw topic data and the rated values
+    and can provide them on request.
+    """
     storage = {}
 
-    duration = 0
-
-    auto_cleanup = True
-    cleanup_timer = 60
-    timer_running = True
 
     def __clean_up_timer(self):
         if self.auto_cleanup and self.timer_running:
@@ -73,7 +72,9 @@ class MetadataStorage:
         :param duration: Optional the duration to keep objects in storage. Set to 5 minutes by default.
         :type duration: int.
         """
-        self.duration = duration
+        self.storage = {}
+        self.duration = rospy.get_param('/arni/storage/timeout', duration)
+        self.timer_running = True
         self.auto_cleanup = rospy.get_param('/arni/storage/auto_cleanup', True)
         self.cleanup_timer = rospy.get_param('/arni/storage/cleanup_timer', 30)
         self.__clean_up_timer()

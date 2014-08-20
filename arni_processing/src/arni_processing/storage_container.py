@@ -1,4 +1,8 @@
 class StorageContainer:
+    """
+    Contains the data received from the ros topics, the rated data, the time it got rated and the
+    seuid identifying the package.
+    """
 
     def __init__(self, timestamp, identifier, data_raw, data_rated):
         """
