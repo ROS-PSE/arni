@@ -54,11 +54,7 @@ class MonitoringNode:
         :return: RatedStatisticsContainer.
         """
         result = self.__specification_handler.compare(data, identifier)
-        container = StorageContainer()
-        container.data_raw = data
-        container.data_rated = result
-        container.timestamp = rospy.Time.now()
-        container.identifier = identifier
+        container = StorageContainer(rospy.Time.now(), identifier, data, result)
         self.__metadata_storage.store(container)
         self.__publish_data(result.to_msg_type())
         return result
