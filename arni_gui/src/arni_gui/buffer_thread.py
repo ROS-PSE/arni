@@ -8,7 +8,7 @@ from arni_msgs.msg import HostStatistics
 from arni_msgs.srv import StatisticHistory
 
 """TODO: ROSModel richtig verlinken"""
-from ros_model import ROSModel
+from ros_model import *
 from rospy.timer import Timer
 from rospy.impl.tcpros_service import ServiceProxy
 from rospy.rostime import Duration

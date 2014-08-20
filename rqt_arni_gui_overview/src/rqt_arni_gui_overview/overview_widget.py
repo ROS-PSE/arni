@@ -5,10 +5,14 @@ import rospkg
 from python_qt_binding import loadUi
 from python_qt_binding.QtGui import QWidget
 
-class overview_widget(QWidget):
+from rospy.rostime import Time
+from arni_gui.ros_model import ROSModel
+from arni_gui.log_filter_proxy import LogFilterProxy
+
+class OverviewWidget(QWidget):
 
     def __init__(self):
-        super(overview_widget, self).__init__()
+        super(OverviewWidget, self).__init__()
         self.setObjectName('overview_widget')       
       
         # Get path to UI file which is a sibling of this file
@@ -17,6 +21,20 @@ class overview_widget(QWidget):
         # Extend the widget with all attributes and children from UI file
         loadUi(ui_file, self)
         self.setObjectName('SelectionWidgetUi')
+        
+        self.__draw_graphs = True
+        
+        self.__last_update = rospy.Time.now()
+        
+        #TODO self.__graph_layout =
+        
+        #TODO self.__graph_dict =
+        
+        #TODO self.__values_dict =
+        
+        self.__model = ROSModel(self)
+        
+        self.__log_filter_proxy = LogFilterProxy(self.log_tab_tree_widget)
 
 	self.__connect_slots()
 
@@ -31,7 +49,10 @@ class overview_widget(QWidget):
 	:param tab: the index of the selected tab
 	:type tab: int
 	"""
-        pass
+        if tab is 1:
+            self.__draw_graphs = True
+        else:
+            self.__draw_graphs = False
 
     def __on_range_combo_box_index_changed(self, index):
         """Handels the change of the graph range.

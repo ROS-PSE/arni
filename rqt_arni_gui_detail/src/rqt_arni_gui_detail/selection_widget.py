@@ -5,10 +5,14 @@ import rospkg
 from python_qt_binding import loadUi
 from python_qt_binding.QtGui import QWidget
 
-class selection_widget(QWidget):
+from rospy.rostime import Time
+from arni_gui.ros_model import ROSModel
+from arni_gui.log_filter_proxy import LogFilterProxy
+
+class SelectionWidget(QWidget):
 
     def __init__(self):
-        super(selection_widget, self).__init__()
+        super(SelectionWidget, self).__init__()
         self.setObjectName('selection_widget')       
       
         # Get path to UI file which is a sibling of this file
@@ -18,6 +22,20 @@ class selection_widget(QWidget):
         loadUi(ui_file, self)
         self.setObjectName('SelectionWidgetUi')
 
+        self.__draw_graphs = True
+        
+        self.__last_update = rospy.Time.now()
+        
+        #TODO self.__graph_layout =
+        
+        #TODO self.__graph_dict =
+        
+        #TODO self.__values_dict =
+        
+        self.__model = ROSModel(self)
+        
+        self.__log_filter_proxy = LogFilterProxy(self.log_tab_list_widget)
+        
 	self.__connect_slots()
 
     def __connect_slots(self):
@@ -41,12 +59,15 @@ class selection_widget(QWidget):
 	pass
 
     def __on_current_tab_changed(self, tab):
-	"""Will be called when you switch betwee tabs.
+	"""Will be called when you switch between tabs.
 
 	:param tab: index of the current tab
 	:type tab: int
 	"""
-	pass
+	if tab is 1:
+            self.__draw_graphs = True
+        else:
+            self.__draw_graphs = False
 		
     def __on_restart_push_button_clicked(self):
 	"""Handels the restart button and restarts a host or node.

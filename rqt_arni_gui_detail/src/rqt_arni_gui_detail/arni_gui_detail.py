@@ -2,8 +2,8 @@ import os
 import rospy
 import rospkg
 
-from tree_widget import tree_widget
-from selection_widget import selection_widget
+from tree_widget import TreeWidget
+from selection_widget import SelectionWidget
 
 
 from python_qt_binding import loadUi
@@ -12,10 +12,10 @@ from python_qt_binding.QtGui import *#QWidget
 
 from rqt_gui_py.plugin import Plugin
 
-class arni_gui_detail(Plugin):
+class ArniGuiDetail(Plugin):
 
     def __init__(self, context):
-        super(arni_gui_detail, self).__init__(context)
+        super(ArniGuiDetail, self).__init__(context)
         self.setObjectName('arni_gui_detail')
 
         # Process standalone plugin command-line arguments
@@ -31,10 +31,10 @@ class arni_gui_detail(Plugin):
             print 'unknowns: ', unknowns
 	
 	
-	self.__tree_widget = tree_widget()
+	self.__tree_widget = TreeWidget()
 	context.add_widget(self.__tree_widget)
 
-	self.__selection_widget = selection_widget()
+	self.__selection_widget = SelectionWidget()
 	context.add_widget(self.__selection_widget)
 
     def shutdown_plugin(self):

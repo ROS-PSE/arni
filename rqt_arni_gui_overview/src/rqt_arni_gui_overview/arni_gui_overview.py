@@ -2,7 +2,7 @@ import os
 import rospy
 import rospkg
 
-from overview_widget import overview_widget
+from overview_widget import OverviewWidget
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtGui import QWidget
@@ -10,9 +10,9 @@ from python_qt_binding.QtGui import QWidget
 from rqt_gui_py.plugin import Plugin
 
 
-class arni_gui_overview(Plugin):
+class ArniGuiOverview(Plugin):
     def __init__(self, context):
-        super(arni_gui_overview, self).__init__(context)
+        super(ArniGuiOverview, self).__init__(context)
         self.setObjectName('arni_gui_overview')
 
         # Process standalone plugin command-line arguments

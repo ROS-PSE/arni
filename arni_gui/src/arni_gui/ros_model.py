@@ -13,8 +13,10 @@ from arni_msgs.msg import RatedStatistics
 from arni_msgs.msg import NodeStatistics
 from arni_msgs.msg import HostStatistics
 
+from buffer_thread import *
 
-class ROSModel(QAbstractItemModel):
+
+class ROSModel(object):
     """
     Represents the data as a QtModel.
     This enables automated updates of the view.

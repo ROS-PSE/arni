@@ -7,12 +7,14 @@ from python_qt_binding import loadUi
 from python_qt_binding.QtCore import *
 from python_qt_binding.QtGui import *
 
+from arni_gui.ros_model import ROSModel
 from arni_gui.size_delegate import SizeDelegate
+from arni_gui.item_filter_proxy import ItemFilterProxy
 
-class tree_widget(QWidget):
+class TreeWidget(QWidget):
 
     def __init__(self):
-        super(tree_widget, self).__init__()
+        super(TreeWidget, self).__init__()
         self.setObjectName('treewidget')
 
         # Get path to UI file which is a sibling of this file
@@ -23,17 +25,22 @@ class tree_widget(QWidget):
         self.setObjectName('TreeWidgetUi')
 
 	##only for testing
-	model = QStandardItemModel()
-	for k in range(0, 4):
-	    parentItem = model.invisibleRootItem()
-	    for i in range(0, 4):
-		item = QStandardItem(("row %d, column %d") % (k, i))
-		parentItem.appendRow(item)
-		parentItem = item
-	self.item_tree_view.setModel(model)
+	#model = QStandardItemModel()
+	#for k in range(0, 4):
+	#    parentItem = model.invisibleRootItem()
+	#    for i in range(0, 4):
+	#	item = QStandardItem(("row %d, column %d") % (k, i))
+	#	parentItem.appendRow(item)
+	#	parentItem = item
+	#self.item_tree_view.setModel(model)
 	##
 
-	self.__size_delegate = SizeDelegate()
+        self.__model = ROSModel(self)
+        
+        self.__filter_proxy = ItemFilterProxy(self.item_tree_view)
+        
+	self.__size_delegate = SizeDelegate(self.item_tree_view)
+	self.item_tree_view.setItemDelegate(self.__size_delegate)	
 	
 	self.__connect_slots()
 
@@ -65,7 +72,10 @@ class tree_widget(QWidget):
 	:param activated: 2 if checkBox is set, 0 if checkBox is unset
 	:type activated: Integer
 	"""
-	pass
+	if activated is 2:
+	    self.__filter_proxy.show_nodes(True)
+	else:
+	    self.__filter_proxy.show_nodes(False)
 
     def __on_show_hosts_check_box_state_changed(self, activated):
 	"""Displays or delete the hosts in the box wether the checkBox is set or unset.
@@ -73,7 +83,11 @@ class tree_widget(QWidget):
 	:param activated: 2 if checkBox is set, 0 if check is unset
 	:type activated: Integer
 	"""
-	pass
+	if activated is 2:
+	    self.__filter_proxy.show_hosts(True)
+	else:
+	    self.__filter_proxy.show_hosts(False)
+
 
     def __on_show_topics_check_box_state_changed(self, activated):
 	"""Displays or delete the topics in the box wether the checkBox is set or unset.
@@ -81,7 +95,11 @@ class tree_widget(QWidget):
 	:param activated: 2 if checkBox is set, 0 if check is unset
 	:type activated: Integer
 	"""
-	pass
+	if activated is 2:
+	    self.__filter_proxy.show_topics(True)
+	else:
+	    self.__filter_proxy.show_topics(False)
+
 
     def __on_show_connections_check_box_state_changed(self, activated):
 	"""Displays or delete the connections in the box wether the checkBox is set or unset.
@@ -89,7 +107,11 @@ class tree_widget(QWidget):
 	:param activated: 2 if checkBox is set, 0 if check is unset
 	:type activated: Integer
 	"""
-	pass
+	if activated is 2:
+	    self.__filter_proxy.show_connections(True)
+	else:
+	    self.__filter_proxy.show_connections(False)
+
 
     def __on_show_erroneous_check_box_state_changed(self, activated):
 	"""If this checkBox is set, only erroneous hosts and nodes will be displayed.
@@ -105,11 +127,11 @@ class tree_widget(QWidget):
 
     def __on_minus_push_button_clicked(self):
 	"""Checks if the minus_push_button is clicked and zoomes out (decrease the size of the font)"""
-	pass
+	self.__size_delegate.set_smaller_font_size()
 
     def __on_plus_push_button_clicked(self):
 	"""Checks if the plus_push_button is clicked and zoomes in (increase the size of the font)"""
-	pass
+	self.__size_delegate.set_bigger_font_size()
 
     def __on_item_in_item_tree_view_double_clicked(self, item):
 	"""Handels the double-click action and opens the clicked item in the SelectionWidget

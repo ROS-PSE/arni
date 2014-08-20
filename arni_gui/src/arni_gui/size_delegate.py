@@ -10,7 +10,8 @@ class SizeDelegate(QStyledItemDelegate):
 
 
     def __init__(self, parent=None):
-        QStyledItemDelegate.__init__(parent)
+	super(SizeDelegate, self).__init__(parent)
+        #QStyledItemDelegate.__init__(parent)
         self.__current_font_size = 10
 
 
@@ -31,7 +32,7 @@ class SizeDelegate(QStyledItemDelegate):
         #todo:does this have to be set in the option param?
         font.setPixelSize(self.__current_font_size)
  
-        brush = __choose_brush(index)
+        brush = self.__choose_brush(index)
         painter.setFont(font)
         painter.setBrush(brush)
 
@@ -51,7 +52,7 @@ class SizeDelegate(QStyledItemDelegate):
         self.__current_font_size -= 2
 
 
-    def __choose_brush(index):
+    def __choose_brush(self, index):
         """
 
         :type index: QModelIndex

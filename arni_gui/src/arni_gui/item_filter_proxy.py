@@ -9,7 +9,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
     # todo: will call to setFilterRegEx be redirected to the parent automatically?
 
     def __init__(self, parent):
-         """Initializes the ItemFilterProxy
+        """Initializes the ItemFilterProxy
 
         :param parent: the parent-object
         :type parent: QObject
