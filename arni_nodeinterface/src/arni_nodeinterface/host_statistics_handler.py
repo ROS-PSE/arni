@@ -27,6 +27,7 @@ class HostStatisticsHandler( StatisticsHandler):
 
         self.__init_params()
         self.__register_service()
+        self.pub = rospy.Publisher('/statistics_host', HostStatistics)
 
         self.__update_intervall =  rospy.get_param('/update_intervall')
 
@@ -163,13 +164,13 @@ class HostStatisticsHandler( StatisticsHandler):
         Publishes the current status to a topic using ROS's publisher-subscriber mechanism.
         Triggered periodically. 
         """
-        pub = rospy.Publisher('/host_statistics', HostStatistics)
+        
         self._status.time_end(rospy.Time.now())
         stats = self.__calc_statistics()
 
         self.__publish_nodes()
 
-        pub.publish(stats)
+        self.pub.publish(stats)
         self._status.reset()
         self._status.time_start(rospy.Time.now())
 

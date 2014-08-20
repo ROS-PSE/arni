@@ -27,6 +27,7 @@ class NodeStatisticsHandler(StatisticsHandler):
         self._status = NodeStatus(rospy.Time.now())
         
         self.__node_process = node_process
+        self.pub = rospy.Publisher('/statistics_node', NodeStatistics)
     
     def measure_status(self):
         """
@@ -61,17 +62,17 @@ class NodeStatisticsHandler(StatisticsHandler):
                             self.receive_statistics)
 
         
-    def publish_status(self, topic):
+    def publish_status(self):
         """
         Publishes the current status to a topic using ROS's 
         publisher-subscriber mechanism. Triggered periodically.
         
         :topic: Topic to which the data should be published. 
         """
-        pub = rospy.Publisher('/node_statistics', NodeStatistics)
+        
         self._status.time_end(rospy.Time.now())
         stats = self.__calc_statistics()
-        pub.publish(stats)
+        self.pub.publish(stats)
         self._status.reset()
         self._status.time_start(rospy.Time.now())
         
