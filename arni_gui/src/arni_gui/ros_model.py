@@ -16,7 +16,7 @@ from arni_msgs.msg import HostStatistics
 from buffer_thread import *
 
 
-class ROSModel(object):
+class ROSModel(QAbstractItemModel):
     """
     Represents the data as a QtModel.
     This enables automated updates of the view.
@@ -35,14 +35,15 @@ class ROSModel(object):
         QAbstractItemModel.__init__(parent)
         self.__parent = parent
         self.__model_lock = Lock()
-        self.__root_item = AbstractItem()
+        self.__root_item = AbstractItem("root", AbstractItem.E_OTHER, False, self, "state", "data")
+        self.__identifier_dict = {"root": self.__root_item}
         self.__item_delegate = SizeDelegate()
         self.__log_model = QStandardItemModel()
         self.__set_header_data()
         self.__mapping = {
             1: 'type',
             2: 'name',
-            3: 'status',
+            3: 'state',
             4: 'data'
         }
 
@@ -51,7 +52,7 @@ class ROSModel(object):
         self.__root_item.append_data({
             'type': 'type',
             'name': 'name',
-            'status': 'status',
+            'state': 'state',
             'data:': 'data:',
         })
 
@@ -78,194 +79,260 @@ class ROSModel(object):
         return item.__get_latest_data(self.__mapping[index.column()])
 
 
-def flags(self, index):
-    """
-    Returns the flags of the item at the given index (like Qt::ItemIsEnabled).
+    def flags(self, index):
+        """
+        Returns the flags of the item at the given index (like Qt::ItemIsEnabled).
 
 
-    :param index:
-    :type index: QModelIndex
-    :returns: ItemFlags
-    """
-    if not index.isValid():
-        return Qt.NoItemFlags
-    return Qt.ItemIsEnabled | Qt.ItemIsSelectable
+        :param index:
+        :type index: QModelIndex
+        :returns: ItemFlags
+        """
+        if not index.isValid():
+            return Qt.NoItemFlags
+        return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
 
-def headerData(self, section, orientation, role):
-    """
-    Returns the headerData at the given section.
+    def headerData(self, section, orientation, role):
+        """
+        Returns the headerData at the given section.
 
-    :param section:
-    :type section: int
-    :param orientation:
-    :type orientation: Orientation
-    :param role:
-    :type role: int
-    :returns: QVariant
-    """
-    if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-        return self.__root_item.get_latest_data(self.__mapping[section])
-    raise IndexError("Illegal access to a non existent line.")
-
-
-def index(self, row, column, parent):
-    """
-    Returns the index of an item at the given column/row.
-
-    :param row:
-    :type row: int
-    :param column:
-    :type column: int
-    :param parent:
-    :type parent: QModelIndex
-    :returns: QModelIndex
-    """
-    if not self.hasIndex(row, column, parent):
-        return QModelIndex()
-
-    if not parent.isValid():
-        parent_item = self.__root_item
-    else:
-        parent_item = parent.internalPointer()
-
-    child_item = parent_item.get_child(row)
-    if child_item:
-        return self.createIndex(row, column, child_item)
-    else:
-        return QModelIndex()
+        :param section:
+        :type section: int
+        :param orientation:
+        :type orientation: Orientation
+        :param role:
+        :type role: int
+        :returns: QVariant
+        """
+        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+            return self.__root_item.get_latest_data(self.__mapping[section])
+        raise IndexError("Illegal access to a non existent line.")
 
 
-def parent(self, index):
-    """
-    Returns the QModelIndex of the parent of the child item specied via its index.
+    def index(self, row, column, parent):
+        """
+        Returns the index of an item at the given column/row.
 
-    :param index:
-    :type index:
-    :returns: QModelIndex
-    """
-    if not index.isValid():
-        return QModelIndex()
+        :param row:
+        :type row: int
+        :param column:
+        :type column: int
+        :param parent:
+        :type parent: QModelIndex
+        :returns: QModelIndex
+        """
+        if not self.hasIndex(row, column, parent):
+            return QModelIndex()
 
-    child_item = index.internalPointer()
-    parent_item = child_item.parent()
+        if not parent.isValid():
+            parent_item = self.__root_item
+        else:
+            parent_item = parent.internalPointer()
 
-    if parent_item == self.rootItem:
-        return QModelIndex()
-
-    return self.createIndex(parent_item.row(), 0, parent_item)
-
-
-def rowCount(self, parent):
-    """
-    Returns the amount of rows in the model.
-
-    :param parent:
-    :type parent: QModelIndex
-    :returns: int
-    """
-    if parent.column() > 0:
-        return 0
-
-    if not parent.isValid():
-        parent_item = self.rootItem
-    else:
-        parent_item = parent.internalPointer()
-
-    return parent_item.childCount()
+        child_item = parent_item.get_child(row)
+        if child_item:
+            return self.createIndex(row, column, child_item)
+        else:
+            return QModelIndex()
 
 
-def columCount(self, parent):
-    """
-    Returns the amount of columns in the model.
+    def parent(self, index):
+        """
+        Returns the QModelIndex of the parent of the child item specied via its index.
 
-    :param parent:
-    :type parent: QModelIndex
-    :returns: int
-    """
-    if parent.isValid():
-       return parent.internalPointer().column_count()
-    else:
-       return self.rootItem.column_count()
+        :param index:
+        :type index:
+        :returns: QModelIndex
+        """
+        if not index.isValid():
+            return QModelIndex()
 
+        child_item = index.internalPointer()
+        parent_item = child_item.parent()
 
-def update_model(self, rated_statistics, topic_statistics, host_statistics, node_statistics):
-    """
-    Updates the model by using the items of the list. The items will be of the message types .
+        if parent_item == self.rootItem:
+            return QModelIndex()
 
-    :param rated_statistics:
-    :type rated_statistics: list
-    :param topic_statistics:
-    :type topic_statistics: list
-    :param node_statistics:
-    :type node_statistics: list
-    :param host_statistics:
-    :type host_statistics: list
-    """
-    #todo: remove in productional code
-    now = rospy.Time.now()
-
-    for item in topic_statistics:
-        self.__transform_topic_statistics_item(item)
-
-    for item in node_statistics:
-        self.__transform_node_statistics_item(item)
-
-    for item in host_statistics:
-        self.__transform_host_statistics_item(item)
-    #rating last because it needs the time of the items before
-    for item in rated_statistics:
-        self.__transform_rated_statistics_item(item)
-
-    #todo: does this work correctly?
-    rospy.logdebug("update_model (in ros_model) took: %s ", rospy.Time.now() - now)
+        return self.createIndex(parent_item.row(), 0, parent_item)
 
 
-def __transform_rated_statistics_item(self, data):
-    """
-    Integrates a TopicStatistics in the model by moding its item/s by adding a new dict to the corresponding item (especially the TopicItem and the ConnectionItem).
+    def rowCount(self, parent):
+        """
+        Returns the amount of rows in the model.
 
-    :param data:
-    :type data: AbstractItem, Statistics, HostStatistics, RatedStatistics, StatisticHistory
-    """
-    pass
+        :param parent:
+        :type parent: QModelIndex
+        :returns: int
+        """
+        if parent.column() > 0:
+            return 0
 
+        if not parent.isValid():
+            parent_item = self.rootItem
+        else:
+            parent_item = parent.internalPointer()
 
-def __transform_topic_statistics_item(self, data):
-    """
-    Integrates a TopicStatistics in the model by moding its item/s by adding a new dict to the corresponding item (especially the TopicItem and the ConnectionItem).
-
-    :param data:
-    :type data: AbstractItem, Statistics, HostStatistics, RatedStatistics, StatisticHistory
-    """
-    pass
-
-
-def __transform_node_statistics_item(self, data):
-    """
-    Integrates a TopicStatistics in the model by moding its item/s by adding a new dict to the corresponding item (especially the TopicItem and the ConnectionItem).
-
-    :param data:
-    :type data: AbstractItem, Statistics, HostStatistics, RatedStatistics, StatisticHistory
-    """
-    pass
+        return parent_item.childCount()
 
 
-def __transform_host_statistics_item(self, data):
-    """
-    Integrates a TopicStatistics in the model by moding its item/s by adding a new dict to the corresponding item (especially the TopicItem and the ConnectionItem).
+    def columCount(self, parent):
+        """
+        Returns the amount of columns in the model.
 
-    :param data:
-    :type data: AbstractItem, Statistics, HostStatistics, RatedStatistics, StatisticHistory
-    """
-    pass
+        :param parent:
+        :type parent: QModelIndex
+        :returns: int
+        """
+        if parent.isValid():
+           return parent.internalPointer().column_count()
+        else:
+           return self.rootItem.column_count()
 
 
-def add_log_item(self, list):
-    """
-    Adds the given list as a log entry to the model.
+    def update_model(self, rated_statistics, topic_statistics, host_statistics, node_statistics):
+        """
+        Updates the model by using the items of the list. The items will be of the message types .
 
-    :param list: accepts a list of strings and adds these to the log model
-    :type list: list
-    """
-    pass
+        :param rated_statistics:
+        :type rated_statistics: list
+        :param topic_statistics:
+        :type topic_statistics: list
+        :param node_statistics:
+        :type node_statistics: list
+        :param host_statistics:
+        :type host_statistics: list
+        """
+        #todo: remove in productional code
+        now = rospy.Time.now()
+
+        for item in topic_statistics:
+            self.__transform_topic_statistics_item(item)
+
+        for item in node_statistics:
+            self.__transform_node_statistics_item(item)
+
+        for item in host_statistics:
+            self.__transform_host_statistics_item(item)
+        #rating last because it needs the time of the items before
+        for item in rated_statistics:
+            self.__transform_rated_statistics_item(item)
+
+        #todo: does this work correctly?
+        rospy.logdebug("update_model (in ros_model) took: %s ", rospy.Time.now() - now)
+
+
+    def __transform_rated_statistics_item(self, item):
+        """
+        Integrates a TopicStatistics in the model by moding its item/s by adding a new dict to the corresponding item (especially the TopicItem and the ConnectionItem).
+
+        :param data:
+        :type data: AbstractItem, Statistics, HostStatistics, RatedStatistics, StatisticHistory
+        """
+        # get identifier
+        seuid = item.seuid
+        # check if avaiable
+        if seuid not in self.__identifier_dict:
+            #having a problem, item doesn't exist but should not be created here
+            raise UserWarning("Received rated statistics for an item that doesn't existit the database!")
+
+        #update it
+        current_item = self.__identifier_dict[seuid]
+        data = {}
+        for element in item.rated_statistics_entity:
+            for number in range(0, len(element.statistic_type)):
+                data[element.statistic_type + ".actual_value " + number] = element.actual_value
+                data[element.statistic_type + ".expected_value " + number] = element.expected_value
+                data[element.statistic_type+ ".state " + number] = element.state
+                if element.state is not element.OK:
+                    data["state"] = "error"
+
+        current_item.update_data(data, item.window_start, item.window_end)
+
+
+
+    def __transform_topic_statistics_item(self, item):
+        """
+        Integrates a TopicStatistics in the model by moding its item/s by adding a new dict to the corresponding item
+        (especially the TopicItem and the ConnectionItem).
+
+        :param data:
+        :type data: AbstractItem, Statistics, HostStatistics, RatedStatistics, StatisticHistory
+        """
+        # get identifier
+        #todo: adapt this to the changes of the seuid!
+        topic_seuid = "t!" + item.topic
+        connection_seuid = "c!" + item.node_sub + "!" + item.topic + "!" + item.node_pub
+        topic_item = None
+        connection_item = None
+        # check if avaiable
+        if topic_seuid not in self.__identifier_dict:
+            #creating a topic item
+            parent = self.get_item_by_seuid(item.node_pub)
+            if parent is None:
+                # having a problem, there is no node with the given name
+                raise UserWarning("The parent of the given topic statistics item cannot be found.")
+
+            topic_item = AbstractItem(topic_seuid, AbstractItem.E_TOPIC, False, parent, )
+            #creating a connection item
+            connection_item = AbstractItem(connection_seuid, AbstractItem.E_CONNECTION, False, topic_item, "topic", "node_pub",
+                            "node_sub", "window_start", "window_stop", "dropped_msgs", "traffic", "period_mean",
+                            "period_stddev", "period_max", "stamp_age_mean", "stamp_age_stddev", "stamp_age_max")
+        elif connection_seuid not in self.__identifier_dict:
+            #creating a new connection item
+            connection_item = AbstractItem(connection_seuid, AbstractItem.E_CONNECTION, False, topic_item, "topic", "node_pub",
+                            "node_sub", "window_start", "window_stop", "dropped_msgs", "traffic", "period_mean",
+                            "period_stddev", "period_max", "stamp_age_mean", "stamp_age_stddev", "stamp_age_max")
+        else:
+            # get topic and connection item
+            topic_item = self.get_item_by_seuid(topic_seuid)
+            connection_item = self.get_item_by_seuid(connection_seuid)
+            if topic_item is None or connection_item is None:
+                raise UserWarning("The parent of the given topic statistics item cannot be found.")
+
+        # now update these
+
+
+
+
+    def __transform_node_statistics_item(self, item):
+        """
+        Integrates a TopicStatistics in the model by moding its item/s by adding a new dict to the corresponding item (especially the TopicItem and the ConnectionItem).
+
+        :param data:
+        :type data: AbstractItem, Statistics, HostStatistics, RatedStatistics, StatisticHistory
+        """
+        pass
+
+
+    def __transform_host_statistics_item(self, item):
+        """
+        Integrates a TopicStatistics in the model by moding its item/s by adding a new dict to the corresponding item (especially the TopicItem and the ConnectionItem).
+
+        :param data:
+        :type data: AbstractItem, Statistics, HostStatistics, RatedStatistics, StatisticHistory
+        """
+        pass
+
+    def get_item_by_seuid(self, seuid):
+        for item in self.__root_item.get_childs():
+            value = self.__get_item_by_name(seuid, item)
+            if value is not None:
+                return value
+        return None
+
+    def __get_item_by_seuid(self, seuid, current_item):
+        if current_item.get_seuid() == seuid:
+            return current_item
+        for item in current_item.get_childs():
+            self.__get_item_by_name()
+        return None
+
+    def add_log_item(self, list):
+        """
+        Adds the given list as a log entry to the model.
+
+        :param list: accepts a list of strings and adds these to the log model
+        :type list: list
+        """
+        pass

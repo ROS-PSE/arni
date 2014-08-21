@@ -4,42 +4,88 @@ from rospy.rostime import Duration, Time
 class AbstractItem:
     """ Provides a unified interface to access the items of the model"""
 
+    def __init__(self, seuid, type, can_execute_actions, parent=None):
+            #todo:doku is missing here
+            """Initializes theAbstractItem
 
-    def __init__(self, identifier, type, can_execute_actions, parent=None, ):
-        #todo:doku is missing here
-        """Initializes theAbstractItem
+            :param parent: the parent-object
+            :type parent: object
+            """
+            self.__data = {}
+            self.__child_items = []
+            self.__parent = parent
+            self.seuid = seuid
+            self.__type = type
+            self.__can_execute_actions = can_execute_actions
 
-        :param parent: the parent-object
-        :type parent: object
-        """
-        self.__data = []
-        self.__child_items = []
-        self.__parent = parent
-        self.__identifier = identifier
-        self.__type = type
-        self.__can_execute_actions = can_execute_actions
 
+    def get_seuid(self):
+        return self.seuid
+
+
+    def __add_data_list(self, name):
+        self.__data[name] = []
 
     def append_child(self, child):
-        """Append a child to the list of childs
+            """Append a child to the list of childs
 
-        :param child: the child item
-        :type child: AbstractItem
-        """
-        self.__child_items.append(child)
+            :param child: the child item
+            :type child: AbstractItem
+            """
+            self.__child_items.append(child)
 
 
     def append_data(self, data):
-        """Append data to the data_list of the AbstractItem
+        """Append data to the data of the AbstractItem.
 
-        :param data: the data to appen
-        :type data: object
+        :param data: the data to append in key value form
+        :type data: dict
         """
-        self.__data.append(data)
+        #todo: adapt this
+        for item in data.keys():
+            #todo: remove name and type if possible, the checks consume too much time
+            if item is 'name':
+                self.seuid = data[item]
+            elif item is 'type':
+                self.__type = data[item]
+            #first add empty elements to all lists --> this help to identify the time the entries were pushed
+            for key in self.__data:
+                self.__data[key].append(None)
+            try:
+                #todo: this lists have to be created when built by the model
+                self.__data[item].append(data[item])
+            except KeyError:
+                print("The given element is currently not in a list: %s", item)
+                raise
+
+
+    def update_data(self, data, window_start, window_end):
+        """
+
+        :param data:
+        :type data: dict
+        :param time:
+        :type time: rostime?
+        :return:
+        """
+        found = False
+        #todo: are these all bad cases?
+        for current in range(0, len(self.__data.window_start)):
+            if window_end < self.__data.window_start[current]:
+                continue
+            if window_start > self.__data.window_end[current]:
+                continue
+            found = True
+            for key in data:
+            #todo: correct?
+                self.__data[key][current] = data[key]
+
+        if found is not True:
+            raise UserWarning("No matching time window was found. Could not update the AbstractItem with seuid %s"
+                              , self.seuid)
 
 
     def child_count(self):
-        # todo: should this be "intelligent"?
         sum = 0
         for item in self.__child_items:
             sum += 1
@@ -53,6 +99,13 @@ class AbstractItem:
         # todo: return !not! a concrete number here ?!?!
         return 4
 
+    def get_childs(self):
+        """
+
+        :return:
+        """
+        return self.__child_items
+
 
     def get_child(self, row):
         """Returns the child at the position row
@@ -62,7 +115,7 @@ class AbstractItem:
 
         :returns: AbstractItem
         """
-        return self.__child_itemsitems[row]
+        return self.__child_items[row]
 
 
     def row(self):
@@ -84,12 +137,12 @@ class AbstractItem:
         """
         if key is not None:
             if key is 'name':
-                return self.__identifier
+                return self.seuid
             elif key is 'type':
                 return self.__type
             else:
                 try:
-                    return self.__data[key]
+                    return self.__data[key][-1]
                 except KeyError:
                     print("KeyError catched when accesing element %s.", key)
                     raise
@@ -103,8 +156,9 @@ class AbstractItem:
         """
         return self.__parent
 
-
+#todo: what are the following 3 methods for and how can they be done better?
     def get_items_older_than(self, time):
+        #todo: method is completly wrong!!! FIX IT
         """Returns all items which are older than time
 
         :param time: the upper bound in seconds
@@ -132,6 +186,7 @@ class AbstractItem:
 
 
     def get_items_younger_than(self, time):
+         #todo: method is completly wrong!!! FIX IT
         """Returns all items which are younger than time
 
         :param time: the lower bound
@@ -152,8 +207,4 @@ class AbstractItem:
     def execute_action(self, action):
         """Executes a action on the current item like stop or restart. Calls to this method should be
         redirected to the remote host on executed there."""
-        raise NotImplementedError
-        if self.__can_execute_action:
-            #todo: open service and send the message
-            #todo: find out how the service wants the parameters
-            pass
+        pass
