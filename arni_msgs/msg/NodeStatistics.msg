@@ -36,9 +36,9 @@ int32 node_message_frequency_mean
 int32 node_message_frequency_stddev
 int32 node_message_frequency_max
 
-int32 node_bandwith_mean
-int32 node_bandwith_stddev
-int32 node_bandwith_max
+int32 node_bandwidth_mean
+int32 node_bandwidth_stddev
+int32 node_bandwidth_max
 
 # Drive I/O statistics of the node 
 

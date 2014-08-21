@@ -1,65 +1,90 @@
-from status import Status
+import psutil
+from math import sqrt
 from collections import namedtuple
+
 
 statistic_tuple = namedtuple('statistic', ['mean', 'stddev','max'])
 
 
-class NodeStatus(Status):
+class Status(object):
     """
-    Extension of Status , to store additional information used by nodes.
+    Container Class to Store information about the current status.
     """
     
-    def __init__(self):
-    
-        super(NodeStatus, self).__init__()
-        
-        #: Network bandwidth used by the node in bytes.
-        self.__node_bandwidth = []
-        
-        #: Bytes read from disk by node.
-        self.__node_read = []
-        
-        #: Bytes written to disk by node.
-        self.__node_write = []
-        
-        #: Frequency of network calls by node.
-        self.__node_msg_frequency = []
-        
 
+    def __init__(self, start):
+        
+        super(Status, self).__init__()
+        
+        #: Cpu usage in percent.
+        self._cpu_usage = []        
+
+        self._cpu_count = psutil.cpu_count()
+
+        #: Cpu usage per core in percent.
+        self._cpu_usage_core = [[] for x in range(self._cpu_count)]
+        
+        #: Gpu usage per card
+        self._gpu_usage = []
+        
+        #:Ram usage
+        self._ram_usage = []
+        
+        #: Start of the time window
+        self._time_start
+        
+        #:End of the time window
+        self._time_end
         
         
-    def add_node_bandwidth(self, bytes):
+    def add_cpu_usage(self, usage):
         """
-        Adds another measured value in bytes, taken
-        from ROS topics statistics, to node_bandwidth. 
+        Adds another measured value to cpu_usage.
         
-        :param bytes: Bytes measured.
-        :type bytes: int
+        :param usage: measured percentage of cpu used.
+        :type usage: float
         """
-        self.__node_bandwidth.append(bytes)
+        self._cpu_usage.append(usage)
         
-    def add_node_io(self, read, write):
+    def add_cpu_usage_core(self, usage):
         """
-        Adds another pair of measured disk I/O values 
-        to node_read and node_write. 
+        Adds another set of measured values per core to  cpu_usage_core.
         
-        :param read: Bytes read.
-        :type read: int
-        :param write: Bytes written.
-        :type write: int
+        :param usage: measured percentage of cpu used per core.
+        :type usage: float[]
         """
-        self.__node_read.append(read)
-        self.__node_write.append(write)
+        for x in range(self._cpu_count):
+            self._cpu_usage_core[x].append(usage[x])
         
-    def add_node_msg_freq(self, freq):
+    def add_gpu_usage(self, usage):
         """
-        Adds another measured value to node_msg_frequency,
-        taken from ROS topics statistics. 
+        Adds another set of measured values per card to  gpu. 
         
-        :param freq: frequency of network calls.
-        :type bytes: int
+        :param usage: measured percentage of gpu used.
+        :type usage: float[]
         """
-        self.__node_msg_frequency.append(freq)
+        pass
+        
+    def add_ram_usage(self, usage):
+        """
+        Adds another measured value to ram_usage. 
+        
+        :param usage: measured percentage of ram used.
+        :type usage: float
+        """
+        self._ram_usage.append(usage)
+
+    def reset(self):
+        """
+        Resets the status .
+        """
+
+        del self._cpu_usage[:]
+        del self._cpu_usage_core[:]
+        del self._gpu_usage[:]
+        del self._ram_usage[:]
+
+        self.reset_specific()
 
 
     def reset_specific(self):
@@ -67,52 +92,103 @@ class NodeStatus(Status):
         Resets the values specific to Host or Nodes
         """
 
-        del self.__node_bandwidth[:]
-        del self.__node_read[:]
-        del self.__node_write[:]
-        del self.__node_msg_frequency[:]
+        pass
+
+    def calc_stats(self):
+        """
+        returns a dictionary containing avg,stddev,max values.
+        matching the fields in HostStatistics / NodeStatistics
+
+        :returns: Dictionary
+        """
+
+        result_dict = {}
+        
+        cpu_usage = self.calc_stat_tuple(self._cpu_usage)
+        cpu_usage_core = [self.calc_stat_tuple(self._cpu_usage_core[i]) 
+                            for i in range(self._cpu_count)]
+        ram_usage = self.calc_stat_tuple(self._ram_usage)
+
+        self.calc_stats_specific(result_dict)
+
+        result_dict['cpu_usage'] = cpu_usage        
+        result_dict['cpu_usage_core'] =  cpu_usage_core     
+        result_dict['ram_usage'] = ram_usage
+        
+        return result_dict
+
+
+    def calc_stat_tuple(self, slist):
+        """
+        Returns a named tuple containing mean , standard deviation and maximum
+        of a given list.
+
+        :returns: namedtuple
+        """
+        if not slist:
+            return slist
+        else:    
+            maxi = max(slist)
+            mean = sum(slist) / float(len(slist))
+            temp_sum = 0
+
+            for i in range(slist):
+                temp_sum += ( slist[i] - mean )**2
+
+            stddev = sqrt( float(1)/(len(slist) - 1 ) * temp_sum )
+
+            return statistic_tuple(mean , stddev , maxi)
 
     def calc_stats_specific(self , dict):
 
-        node_bandwidth = self.calc_stat_tuple(self.__node_bandwidth)
-        node_msg_frequency = self.calc_stat_tuple(self.__node_msg_frequency)
-        node_read = self.calc_stat_tuple(self.__node_read)
-        node_write = self.calc_stat_tuple(self.__node_write)
+        pass
 
-        dict['node_bandwidth'] = node_bandwidth
-        dict['node_msg_frequency'] = node_msg_frequency
-        dict['node_read'] = node_read
-        dict['node_write'] = node_write
 
     @property 
-    def node_bandwidth(self):
-        return self.__node_bandwidth
+    def cpu_usage(self):
+        return self._cpu_usage
 
     @property 
-    def node_read(self):
-        return self.__node_read
+    def cpu_usage_core(self):
+        return self._cpu_usage_core
 
     @property 
-    def node_write(self):
-        return self.__node_write
+    def gpu_usage(self):
+        return self._gpu_usage
 
-    @property
-    def node_msg_frequency(self):
-        return self.__node_msg_frequency
+    @property 
+    def ram_usage(self):
+        return self._ram_usage
+
+    @property 
+    def time_start(self):
+        return self._time_start
+
+    @property 
+    def time_end(self):
+        return self._time_end
 
 
-    @node_bandwidth.setter
-    def node_bandwidth(self, value):
-        self.__node_bandwidth = value
+    @cpu_usage.setter
+    def cpu_usage(self, value):
+        self._cpu_usage = value
 
-    @node_read.setter
-    def node_read(self, value):
-        self.__node_read = value
+    @cpu_usage_core.setter
+    def cpu_usage_core(self, value):
+        self._cpu_usage_core = value
 
-    @node_write.setter
-    def node_write(self, value):
-        self.__node_write = value
+    @gpu_usage.setter
+    def gpu_usage(self, value):
+        self._gpu_usage = value
 
-    @node_msg_frequency.setter
-    def node_msg_frequency(self,value):
-        self.__node_msg_frequency = value
+    @ram_usage.setter
+    def ram_usage(self, value):
+        self._ram_usage = value
+
+    @time_start.setter
+    def time_start(self, value):
+        self._time_start = value
+
+    @time_end.setter
+    def time_end(self, value):
+        self._time_end = value

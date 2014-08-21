@@ -11,7 +11,7 @@ class HostStatus(Status):
     additional information used by hosts. 
     """
     
-    def __init__(self):
+    def __init__(self, start):
         
         super(HostStatus, self).__init__()
         
@@ -167,25 +167,23 @@ class HostStatus(Status):
     def calc_stats_specific(self, stats_dict):
         
         cpu_temp = self.calc_stat_tuple(self.__cpu_temp)
-
         cpu_temp_core = self.calc_stat_tuple(self.__cpu_temp_core)
 
-        bandwidth = [ self.calc_stat_tuple(self.__bandwidth[key]) for key in self.__bandwidth]
-        msg_frequency = [ self.calc_stat_tuple(self.__msg_frequency[key]) for key in self.__msg_frequency]
+        bandwidth = [self.calc_stat_tuple(self.__bandwidth[key]) 
+                        for key in self.__bandwidth]
+        msg_frequency = [self.calc_stat_tuple(self.__msg_frequency[key]) 
+                        for key in self.__msg_frequency]
 
-        drive_write = [self.calc_stat_tuple(self.__drive_write[key]) for key in self.__drive_write]
-        drive_read = [self.calc_stat_tuple(self.__drive_read[key]) for key in self.__drive_read]
+        drive_write = [self.calc_stat_tuple(self.__drive_write[key]) 
+                        for key in self.__drive_write]
+        drive_read = [self.calc_stat_tuple(self.__drive_read[key]) 
+                        for key in self.__drive_read]
 
         stats_dict['cpu_temp_mean'] = cpu_temp
-
-        stats_dict['cpu_temp_core'] = cpu_temp_core
-        
-        stats_dict['bandwidth'] = bandwidth
-        
-        stats_dict['msg_frequency'] = msg_frequency
-        
-        stats_dict['drive_write'] = drive_write
-        
+        stats_dict['cpu_temp_core'] = cpu_temp_core        
+        stats_dict['bandwidth'] = bandwidth        
+        stats_dict['msg_frequency'] = msg_frequency        
+        stats_dict['drive_write'] = drive_write        
         stats_dict['drive_read'] = drive_read
 
 

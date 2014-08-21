@@ -2,7 +2,8 @@ import rospy
 import rosgraph_msgs
 import std_srvs.srv
 from std_srvs.srv import Empty
-from arni_msgs.msg import HostStatistics, NodeStatistics
+import arni_msgs
+from arni_msgs.msg import HostStatistics, NodeStatistics, RatedStatistics
 from arni_msgs.srv import StatisticHistory
 from arni_core.helper import *
 from rosgraph_msgs.msg import TopicStatistics
@@ -21,6 +22,7 @@ class MonitoringNode:
     def __init__(self):
         self.__metadata_storage = MetadataStorage()
         self.__specification_handler = SpecificationHandler()
+        self.pub = rospy.Publisher('/statistics_rated', arni_msgs.msg.RatedStatistics)
 
     def receive_data(self, data):
         """
@@ -36,8 +38,8 @@ class MonitoringNode:
         elif hasattr(data, "node_cpu_usage_mean"):
             seuid = "n" + SEUID_DELIMITER + data.node
         elif hasattr(data, "topic"):
-            seuid = "c" + SEUID_DELIMITER + data.node_sub\
-                    + SEUID_DELIMITER + data.topic\
+            seuid = "c" + SEUID_DELIMITER + data.node_sub \
+                    + SEUID_DELIMITER + data.topic \
                     + SEUID_DELIMITER + data.node_pub
         self.__process_data(data, seuid)
 
@@ -58,7 +60,7 @@ class MonitoringNode:
         container.timestamp = rospy.Time.now()
         container.identifier = identifier
         self.__metadata_storage.store(container)
-        self.__publish_data(result)
+        self.__publish_data(result.to_msg_type())
         return result
 
     def __publish_data(self, data):
@@ -66,9 +68,9 @@ class MonitoringNode:
         Publishes data to the RatedStatistics topic.
 
         :param data: The data to be published
-        :type data: RatedStatisticsContainer
+        :type data: RatedStatistics
         """
-        pass
+        self.pub(data)
 
     def storage_server(self, request):
         """
@@ -93,8 +95,8 @@ class MonitoringNode:
         return response
 
     def listener(self):
-        rospy.Subscriber('/statistics', TopicStatistics, self.receive_data)
-        rospy.Subscriber('/statistics_host', HostStatistics, self.receive_data)
-        rospy.Subscriber('/statistics_node', NodeStatistics, self.receive_data)
+        rospy.Subscriber('/statistics', rosgraph_msgs.msg.TopicStatistics, self.receive_data)
+        rospy.Subscriber('/statistics_host', arni_msgs.msg.HostStatistics, self.receive_data)
+        rospy.Subscriber('/statistics_node', arni_msgs.msg.NodeStatistics, self.receive_data)
         rospy.Service('~reload_specifications', std_srvs.srv.Empty, self.__specification_handler.reload_specifications)
         rospy.spin()
