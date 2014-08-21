@@ -4,7 +4,7 @@ from rospy.rostime import Duration, Time
 class AbstractItem:
     """ Provides a unified interface to access the items of the model"""
 
-    def __init__(self, seuid, type, can_execute_actions, parent=None):
+    def __init__(self, seuid, parent=None):
             #todo:doku is missing here
             """Initializes theAbstractItem
 
@@ -15,8 +15,7 @@ class AbstractItem:
             self.__child_items = []
             self.__parent = parent
             self.seuid = seuid
-            self.__type = type
-            self.__can_execute_actions = can_execute_actions
+            self.__attributes = None
 
 
     def get_seuid(self):
@@ -39,9 +38,13 @@ class AbstractItem:
         """Append data to the data of the AbstractItem.
 
         :param data: the data to append in key value form
-        :type data: dict
+        :type data:
         """
-        #todo: adapt this
+        for attribute in self.__attributes:
+            #todo: correct?
+            self.__data[attribute].append(data.getattr(attribute, None))
+
+        """todo: adapt this
         for item in data.keys():
             #todo: remove name and type if possible, the checks consume too much time
             if item is 'name':
@@ -56,8 +59,7 @@ class AbstractItem:
                 self.__data[item].append(data[item])
             except KeyError:
                 print("The given element is currently not in a list: %s", item)
-                raise
-
+                raise"""
 
     def update_data(self, data, window_start, window_end):
         """
@@ -70,19 +72,20 @@ class AbstractItem:
         """
         found = False
         #todo: are these all bad cases?
-        for current in range(0, len(self.__data.window_start)):
-            if window_end < self.__data.window_start[current]:
+        for current in range(0, len(self.__data["window_start"])):
+            if window_end < self.__data[window_start][current]:
                 continue
-            if window_start > self.__data.window_end[current]:
+            if window_start > self.__data[window_end][current]:
                 continue
             found = True
-            for key in data:
-            #todo: correct?
-                self.__data[key][current] = data[key]
+            for attribute in self.__attributes:
+                self.__data[attribute][current] = data.getattr(attribute, None)
+
+            # for key in data:
+            #     self.__data[key][current] = data[key]
 
         if found is not True:
-            raise UserWarning("No matching time window was found. Could not update the AbstractItem with seuid %s"
-                              , self.seuid)
+            raise UserWarning("No matching time window was found. Could not update the AbstractItem")
 
 
     def child_count(self):
@@ -203,7 +206,6 @@ class AbstractItem:
         return return_values
 
     @abstractmethod
-    # todo: no longer abstract method
     def execute_action(self, action):
         """Executes a action on the current item like stop or restart. Calls to this method should be
         redirected to the remote host on executed there."""

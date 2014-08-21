@@ -4,6 +4,12 @@ from python_qt_binding.QtCore import *
 from threading import Lock
 from size_delegate import SizeDelegate
 from abstract_item import AbstractItem
+
+from connection_item import ConnectionItem
+from topic_item import TopicItem
+from host_item import HostItem
+from node_item import NodeItem
+
 import rospy
 
 from arni_core.singleton import Singleton
@@ -273,16 +279,15 @@ class ROSModel(QAbstractItemModel):
                 # having a problem, there is no node with the given name
                 raise UserWarning("The parent of the given topic statistics item cannot be found.")
 
-            topic_item = AbstractItem(topic_seuid, AbstractItem.E_TOPIC, False, parent, )
+            topic_item = TopicItem(topic_seuid, parent)
+            self.__identifier_dict[topic_seuid] = connection_item
             #creating a connection item
-            connection_item = AbstractItem(connection_seuid, AbstractItem.E_CONNECTION, False, topic_item, "topic", "node_pub",
-                            "node_sub", "window_start", "window_stop", "dropped_msgs", "traffic", "period_mean",
-                            "period_stddev", "period_max", "stamp_age_mean", "stamp_age_stddev", "stamp_age_max")
+            connection_item = ConnectionItem(connection_seuid, topic_item)
+            self.__identifier_dict[connection_seuid] = connection_item
         elif connection_seuid not in self.__identifier_dict:
             #creating a new connection item
-            connection_item = AbstractItem(connection_seuid, AbstractItem.E_CONNECTION, False, topic_item, "topic", "node_pub",
-                            "node_sub", "window_start", "window_stop", "dropped_msgs", "traffic", "period_mean",
-                            "period_stddev", "period_max", "stamp_age_mean", "stamp_age_stddev", "stamp_age_max")
+            connection_item = ConnectionItem(connection_seuid, topic_item)
+            self.__identifier_dict[connection_seuid] = connection_item
         else:
             # get topic and connection item
             topic_item = self.get_item_by_seuid(topic_seuid)
@@ -291,9 +296,8 @@ class ROSModel(QAbstractItemModel):
                 raise UserWarning("The parent of the given topic statistics item cannot be found.")
 
         # now update these
-
-
-
+        connection_item.append_data(item)
+        topic_item.append_data(item)
 
     def __transform_node_statistics_item(self, item):
         """
@@ -302,8 +306,14 @@ class ROSModel(QAbstractItemModel):
         :param data:
         :type data: AbstractItem, Statistics, HostStatistics, RatedStatistics, StatisticHistory
         """
-        pass
+        node_item = None
+        if item.seuid not in self.__identifier_dict:
+            #create item
+            node_item = NodeItem()
+        else:
+            node_item = self.get_item_by_seuid(item.seuid)
 
+        node_item.append_data(item)
 
     def __transform_host_statistics_item(self, item):
         """
@@ -312,7 +322,15 @@ class ROSModel(QAbstractItemModel):
         :param data:
         :type data: AbstractItem, Statistics, HostStatistics, RatedStatistics, StatisticHistory
         """
-        pass
+        host_item = None
+        if item.seuid not in self.__identifier_dict:
+            #create item
+            host_item = NodeItem()
+        else:
+            host_item = self.get_item_by_seuid(item.seuid)
+
+        host_item.append_data(item)
+
 
     def get_item_by_seuid(self, seuid):
         for item in self.__root_item.get_childs():
