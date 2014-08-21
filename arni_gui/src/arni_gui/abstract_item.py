@@ -201,8 +201,8 @@ class AbstractItem:
             if item.timestamp > start_time:
                 return_values.append(item)
         return return_values
-    
 
+    @abstractmethod
     # todo: no longer abstract method
     def execute_action(self, action):
         """Executes a action on the current item like stop or restart. Calls to this method should be
