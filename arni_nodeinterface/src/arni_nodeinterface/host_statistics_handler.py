@@ -285,13 +285,19 @@ class HostStatisticsHandler( StatisticsHandler):
         :returns: String
         """
 
+        if reaction.node not in self.__node_list:
+            return 'spefified Node is not running on this Host'
+
         if reaction.action =='restart':
             node = self.__node_list[reaction.node]
-            return self.__node_manager.restart_node(node)
+            msg = self.__node_manager.restart_node(node)
+            self.remove_node(reaction.node)
         elif reaction.action == 'stop':     
-            return self.__node_manager.restart_node(reaction.node)
+            msg = self.__node_manager.restart_node(reaction.node)
+            self.remove_node(reaction.node)
         elif reaction.action == 'command':
-            return self.__node_manager.execute_command(reaction.command)
+            msg = self.__node_manager.execute_command(reaction.command)
+        return msg
 
         
     def remove_node(self, node):
@@ -321,6 +327,10 @@ class HostStatisticsHandler( StatisticsHandler):
                     self.__node_list[node_name] = new_node
                 except xmlrpclib.socket.error:
                     return False
+
+        for node_name in self.__node_list:
+            if node_name not in rosnode.get_node_names():
+                self.remove_node(node_name)
 
     def update_nodes(self):
         """

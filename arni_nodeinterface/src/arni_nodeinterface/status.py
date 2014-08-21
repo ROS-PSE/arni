@@ -105,7 +105,8 @@ class Status(object):
         result_dict = {}
         
         cpu_usage = self.calc_stat_tuple(self._cpu_usage)
-        cpu_usage_core = [self.calc_stat_tuple(self._cpu_usage_core[i]) for i in range(self._cpu_count)]
+        cpu_usage_core = [self.calc_stat_tuple(self._cpu_usage_core[i]) 
+                            for i in range(self._cpu_count)]
         ram_usage = self.calc_stat_tuple(self._ram_usage)
 
         self.calc_stats_specific(result_dict)

@@ -28,6 +28,7 @@ class NodeStatisticsHandler(StatisticsHandler):
         
         self.__node_process = node_process
         self.pub = rospy.Publisher('/statistics_node', NodeStatistics)
+        self.update_intervall = rospy.rospy.get_param('/update_intervall')
     
     def measure_status(self):
         """
@@ -47,18 +48,16 @@ class NodeStatisticsHandler(StatisticsHandler):
         #Disk I/O
         node_io = self.__node_process.io_counters()
 
-        read_rate = node_io.read_bytes / update_intervall
-        write_rate = node_io.write_bytes / update_intervall
+        read_rate = node_io.read_bytes / self.update_intervall
+        write_rate = node_io.write_bytes / self.update_intervall
 
         self._status.add_node_io(read_rate, write_rate)
-
-        #todo network stats
 
     def register_subscriber(self):
         """
         Register the subscriber for Topicstatistics
         """
-        rospy.Subscriber("/statistics", Topicstatistics, 
+        rospy.Subscriber("/statistics", TopicStatistics, 
                             self.receive_statistics)
 
         
@@ -168,3 +167,7 @@ class NodeStatisticsHandler(StatisticsHandler):
     def get_pid(self):
 
         return self.__node_process.pid
+
+    @property
+    def id(self):
+        return self._id

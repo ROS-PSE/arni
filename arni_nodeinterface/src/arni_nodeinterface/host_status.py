@@ -167,7 +167,6 @@ class HostStatus(Status):
     def calc_stats_specific(self, stats_dict):
         
         cpu_temp = self.calc_stat_tuple(self.__cpu_temp)
-
         cpu_temp_core = self.calc_stat_tuple(self.__cpu_temp_core)
 
         bandwidth = [self.calc_stat_tuple(self.__bandwidth[key]) 
@@ -181,15 +180,10 @@ class HostStatus(Status):
                         for key in self.__drive_read]
 
         stats_dict['cpu_temp_mean'] = cpu_temp
-
-        stats_dict['cpu_temp_core'] = cpu_temp_core
-        
-        stats_dict['bandwidth'] = bandwidth
-        
-        stats_dict['msg_frequency'] = msg_frequency
-        
-        stats_dict['drive_write'] = drive_write
-        
+        stats_dict['cpu_temp_core'] = cpu_temp_core        
+        stats_dict['bandwidth'] = bandwidth        
+        stats_dict['msg_frequency'] = msg_frequency        
+        stats_dict['drive_write'] = drive_write        
         stats_dict['drive_read'] = drive_read
 
 
