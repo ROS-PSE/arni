@@ -523,7 +523,7 @@ class AbstractItem(QObject):
                     if self.__rated_data[entry + ".state"]:
                         for i in range(0, len(self.__rated_data[entry + ".state"][-1])):
                             if self.__rated_data[entry + ".state"][-1][i] is "high" or self.__rated_data[entry + ".state"][-1][i] is "low":
-                                content += self.tr(entry) + ": " self.__rated_data[entry + ".state"][i] + "  "
+                                content += self.tr(entry) + ": " + self.__rated_data[entry + ".state"][i] + "  "
         return content
 
 
