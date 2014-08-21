@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import unittest
-from arni_processing.host_statistics_handler import *
-from arni_processing.host_status import *
+from arni_nodeinterface.host_statistics_handler import *
+from arni_nodeinterface.host_status import *
 
 import traceback
 import rospy
@@ -41,10 +41,6 @@ class TestStatisticsCalc(unittest.TestCase):
 
 if __name__ == '__main__':
     import rosunit
-    mockSpecs = rospy.get_param(spec_namespace)
-    rospy.delete_param(spec_namespace)
-    setup_messages()
-
     rosunit.unitrun(PKG, 'test_statistical_calc', TestStatisticsCalc)
     
 
