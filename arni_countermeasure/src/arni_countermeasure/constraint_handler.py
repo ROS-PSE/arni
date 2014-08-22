@@ -356,6 +356,8 @@ class ConstraintHandler(object):
         """Create a constraint tree from a dictionary.
         (the dict is usually from the parameter server.)
 
+        The dictionary needs to be in a list without any other items.
+
         Returns None if the tree is not valid.
 
         :return:   The constraint item containing the complete tree.
@@ -363,6 +365,15 @@ class ConstraintHandler(object):
         """
 
         root = None
+
+        # remove the list
+        if len(constraint_dict) == 1 and type(constraint_dict) is list:
+            constraint_dict = constraint_dict[0]
+        else:
+            rospy.logwarn(
+                "Constraint '%s' needs to contain exactly one root" % name
+                + " item with the tag '-' to mark it as a listitem")
+            return root
         # there can be only one root ;-)
         if len(constraint_dict) == 1:
             root = ConstraintHandler._traverse_dict(
@@ -372,7 +383,7 @@ class ConstraintHandler(object):
                 "Constraint '%s'" % name
                 + " has no constraint items. ")
         else:
-            rospy.logdebug(
+            rospy.logwarn(
                 "Constraint '%s' is starting" % name
                 + "with more than one constraint item."
                 + " Use 'and'/'or' as first item to add multiple items.")

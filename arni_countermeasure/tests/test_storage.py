@@ -148,5 +148,5 @@ class TestStorage(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    import rosunit
-    rosunit.unitrun(PKG, 'test_storage', TestStorage)
+    import rostest
+    rostest.rosrun(PKG, 'test_storage', TestStorage)

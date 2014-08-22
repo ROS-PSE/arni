@@ -58,15 +58,26 @@ class CountermeasureNode(object):
             self.__rated_statistic_storage)
         return []
 
+    def __callback_evaluate_and_react(self, event):
+        """ Evaluate every constraint and execute reactions 
+        if seemed necessary by the evaluation.
+        """
+        try:
+            self.__constraint_handler.evaluate_constraints()
+            self.__constraint_handler.execute_reactions()
+        except rospy.ROSInterruptException:
+            pass
+
     def loop(self):
         # simulation? wait for begin
         while rospy.Time.now() == rospy.Time(0):
             time.sleep(0.01)
-        while not rospy.is_shutdown():
-            self.__constraint_handler.evaluate_constraints()
-            self.__constraint_handler.execute_reactions()
 
-            rospy.sleep(self.__evaluation_period)
+        # evaluate periodically
+        rospy.Timer(
+            self.__evaluation_period,
+            self.__callback_evaluate_and_react)
+        rospy.spin()
 
     def __init_params(self):
         """Initializes params on the parameter server,

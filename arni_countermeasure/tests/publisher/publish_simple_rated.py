@@ -7,6 +7,7 @@ from arni_core.helper import *
 def talker():
     pub = rospy.Publisher('statistics_rated', RatedStatistics, queue_size=10)
     rospy.init_node('talker', anonymous=True)
+
     r = rospy.Rate(2)  # 10hz
     print "publishing.."
     while not rospy.is_shutdown():
