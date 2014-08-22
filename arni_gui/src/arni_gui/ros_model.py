@@ -33,7 +33,7 @@ class ROSModel(QAbstractItemModel):
     # This ensures the singleton character of this class via metaclassing.
     __metaclass__ = QAbstractItemModelSingleton
 
-    def __init__(self, parent):
+    def __init__(self, parent=None):
         """
         Defines the class attributes especially the root_item which later contains the
         list of headers e.g. for a TreeView representation.
@@ -50,7 +50,7 @@ class ROSModel(QAbstractItemModel):
             'window_end': rospy.get_rostime()
         })
 
-        QAbstractItemModel.__init__(parent)
+        QAbstractItemModel.__init__(self, parent)
         self.__parent = parent
         self.__model_lock = Lock()
 
@@ -82,6 +82,8 @@ class ROSModel(QAbstractItemModel):
         :param role: the role that should be used
         :type role: int
         """
+        
+       
         if not index.isValid():
             return None
         elif role != Qt.DisplayRole:
@@ -189,7 +191,7 @@ class ROSModel(QAbstractItemModel):
         return parent_item.childCount()
 
 
-    def columCount(self, parent):
+    def columnCount(self, parent):
         """
         Returns the amount of columns in the model.
 
@@ -200,7 +202,7 @@ class ROSModel(QAbstractItemModel):
         if parent.isValid():
            return parent.internalPointer().column_count()
         else:
-           return self.rootItem.column_count()
+           return self.__root_item.column_count()
 
 
     def update_model(self, rated_statistics, topic_statistics, host_statistics, node_statistics):
