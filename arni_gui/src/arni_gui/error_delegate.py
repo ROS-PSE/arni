@@ -7,7 +7,7 @@ class SizeDelegate(QStyledItemDelegate):
     """Makes it possible to change the font size of the Gui-Plugin content."""
 
     def __init__(self, parent=None):
-        QStyledItemDelegate.__init__(parent)
+        super(SizeDelegate, self).__init__(parent)
         self.__current_font_size = 10
 
 
