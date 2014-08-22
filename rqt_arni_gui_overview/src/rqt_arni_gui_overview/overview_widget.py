@@ -9,6 +9,7 @@ from rospy.rostime import Time
 from arni_gui.ros_model import ROSModel
 from arni_gui.log_filter_proxy import LogFilterProxy
 
+import pyqtgraph as pg
 
 class OverviewWidget(QWidget):
     def __init__(self):
@@ -28,9 +29,9 @@ class OverviewWidget(QWidget):
 
         # TODO self.__graph_layout =
 
-        #TODO self.__graph_dict =
+        # TODO self.__graph_dict =
 
-        #TODO self.__values_dict =
+        # TODO self.__values_dict =
 
         self.__model = ROSModel(self)
 
@@ -46,9 +47,9 @@ class OverviewWidget(QWidget):
     def __on_current_tab_changed(self, tab):
         """The Plugin wants to get notified when the tab changed so it can e.g. draw the graphs.
 
-	:param tab: the index of the selected tab
-	:type tab: int
-	"""
+        :param tab: the index of the selected tab
+        :type tab: int
+        """
         if tab is 1:
             self.__draw_graphs = True
         else:
@@ -56,10 +57,10 @@ class OverviewWidget(QWidget):
 
     def __on_range_combo_box_index_changed(self, index):
         """Handels the change of the graph range.
-	
-	:param index: the index of the selected range
-	:type index: int
-	"""
+
+        :param index: the index of the selected range
+        :type index: int
+        """
         pass
 
     def update(self):
