@@ -9,34 +9,34 @@ from rospy.rostime import Time
 from arni_gui.ros_model import ROSModel
 from arni_gui.log_filter_proxy import LogFilterProxy
 
-class OverviewWidget(QWidget):
 
+class OverviewWidget(QWidget):
     def __init__(self):
         super(OverviewWidget, self).__init__()
-        self.setObjectName('overview_widget')       
-      
+        self.setObjectName('overview_widget')
+
         # Get path to UI file which is a sibling of this file
-	rp = rospkg.RosPack()
+        rp = rospkg.RosPack()
         ui_file = os.path.join(rp.get_path('rqt_arni_gui_overview'), 'resources', 'OverviewWidget.ui')
         # Extend the widget with all attributes and children from UI file
         loadUi(ui_file, self)
         self.setObjectName('SelectionWidgetUi')
-        
+
         self.__draw_graphs = True
-        
+
         self.__last_update = rospy.Time.now()
-        
-        #TODO self.__graph_layout =
-        
+
+        # TODO self.__graph_layout =
+
         #TODO self.__graph_dict =
-        
+
         #TODO self.__values_dict =
-        
+
         self.__model = ROSModel(self)
-        
+
         self.__log_filter_proxy = LogFilterProxy(self.log_tab_tree_widget)
 
-	self.__connect_slots()
+        self.__connect_slots()
 
     def __connect_slots(self):
         """Initializes the slots of the OverviewPlugin."""

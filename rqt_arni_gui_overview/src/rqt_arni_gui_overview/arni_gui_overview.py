@@ -27,9 +27,9 @@ class ArniGuiOverview(Plugin):
         if not args.quiet:
             print 'arguments: ', args
             print 'unknowns: ', unknowns
- 
-	self.__overview_widget = overview_widget()
-	context.add_widget(self.__overview_widget)
+
+        self.__overview_widget = OverviewWidget()
+        context.add_widget(self.__overview_widget)
 
     def shutdown_plugin(self):
         # TODO unregister all publishers here

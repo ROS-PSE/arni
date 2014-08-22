@@ -26,3 +26,5 @@ Change
 *  **IMPORTANT**: should rethink the naming conventions in the gui part because of qt and python mixing the convetions can be fulfilled on the python/ros side...
 * the transform_data method has been deleted, 4 other methods have taken its place **docu still missing**
 * the names of the services now are /get_statistic_history and /execute_node_reaction
+* name change from add_log_item to add_log_entry
+* new class **ErrorDelegate** for painting the log model with color
