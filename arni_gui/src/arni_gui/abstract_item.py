@@ -15,7 +15,10 @@ class AbstractItem:
             self.__child_items = []
             self.__parent = parent
             self.seuid = seuid
-            self.__attributes = None
+            self.__attributes = ['type', 'name', 'state', 'data']
+
+            for item in self.__attributes:
+                self.__add_data_list(item)
 
 
     def get_seuid(self):
@@ -33,6 +36,17 @@ class AbstractItem:
             """
             self.__child_items.append(child)
 
+    def append_data_dict(self, data):
+        """Append data to the data of the AbstractItem.
+
+        :param data: the data to append in key value form
+        :type data: dict
+        """
+        for attribute in self.__attributes:
+            if attribute in data:
+                self.__data[attribute].append(data[attribute])
+            else:
+                self.__data[attribute].append("")
 
     def append_data(self, data):
         """Append data to the data of the AbstractItem.
@@ -42,7 +56,11 @@ class AbstractItem:
         """
         for attribute in self.__attributes:
             #todo: correct?
-            self.__data[attribute].append(data.getattr(attribute, None))
+            try:
+                self.__data[attribute].append(data.getattr(attribute, None))
+            except KeyError:
+                print("KeyError occurred when trying to access %s", attribute)
+                raise
 
         """todo: adapt this
         for item in data.keys():
@@ -65,7 +83,7 @@ class AbstractItem:
         """
 
         :param data:
-        :type data: dict
+        :type data:
         :param time:
         :type time: rostime?
         :return:
@@ -205,7 +223,6 @@ class AbstractItem:
                 return_values.append(item)
         return return_values
 
-    @abstractmethod
     def execute_action(self, action):
         """Executes a action on the current item like stop or restart. Calls to this method should be
         redirected to the remote host on executed there."""

@@ -43,7 +43,7 @@ class BufferThread(Thread):
         self.__running = False
 
     #todo: is this optimal=?
-    def start():
+    def start(self):
         if not self.__running:
             self.__get_history()
             self.__register_subscribers()

@@ -1,5 +1,5 @@
 from python_qt_binding.QtGui import QStandardItemModel
-#from python_qt_binding.QtCore import QAbstractItemModel
+from python_qt_binding.QtCore import QAbstractItemModel
 from python_qt_binding.QtCore import *
 from threading import Lock
 from size_delegate import SizeDelegate
@@ -21,6 +21,8 @@ from arni_msgs.msg import HostStatistics
 
 from buffer_thread import *
 
+class QAbstractItemModelSingleton(Singleton, type(QAbstractItemModel)):
+    pass
 
 class ROSModel(QAbstractItemModel):
     """
@@ -29,7 +31,7 @@ class ROSModel(QAbstractItemModel):
     """
 
     # This ensures the singleton character of this class via metaclassing.
-    __metaclass__ = Singleton
+    __metaclass__ = QAbstractItemModelSingleton
 
     def __init__(self, parent):
         """
@@ -38,14 +40,23 @@ class ROSModel(QAbstractItemModel):
         :param parent: the parent of the model
         :type parent:
         """
+        self.__root_item = AbstractItem("root", self)
+
+        self.__root_item.append_data_dict({
+            'type': 'type',
+            'name': 'name',
+            'state': 'state',
+            'data:': 'data'
+        })
+
         QAbstractItemModel.__init__(parent)
         self.__parent = parent
         self.__model_lock = Lock()
-        self.__root_item = AbstractItem("root", AbstractItem.E_OTHER, False, self, "state", "data")
+
         self.__identifier_dict = {"root": self.__root_item}
         self.__item_delegate = SizeDelegate()
         self.__log_model = QStandardItemModel()
-        self.__set_header_data()
+        #self.__set_header_data()
         self.__mapping = {
             1: 'type',
             2: 'name',
@@ -53,17 +64,12 @@ class ROSModel(QAbstractItemModel):
             4: 'data'
         }
 
-
-    def __set_header_data(self):
-        self.__root_item.append_data({
-            'type': 'type',
-            'name': 'name',
-            'state': 'state',
-            'data:': 'data:',
-        })
-
-        # todo:is this correct
-        self.headerDataChanged.emit()
+#is no longer needed because the header data won't change while running
+    # def __set_header_data(self):
+    #
+    #
+    #     # todo:is this correct
+    #     self.headerDataChanged.emit(Qt.Horizontal, 1, 4)
 
 
     def data(self, index, role):
