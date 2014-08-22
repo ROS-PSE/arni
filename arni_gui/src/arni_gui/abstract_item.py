@@ -48,6 +48,15 @@ class AbstractItem:
             else:
                 self.__data[attribute].append("")
 
+        self.__update_current_state()
+
+    def __update_current_state(self):
+        length = len(self.__data["state"])
+        for i in range(length - len(self.get_items_younger_than(10)), length):
+            if self.__data["state"][i] == "error":
+                self.__data["state"][-1] = "warning"
+                break
+
     def append_data(self, data):
         """Append data to the data of the AbstractItem.
 
@@ -61,6 +70,7 @@ class AbstractItem:
             except KeyError:
                 print("KeyError occurred when trying to access %s", attribute)
                 raise
+        self.__update_current_state()
 
         """todo: adapt this
         for item in data.keys():
@@ -210,8 +220,8 @@ class AbstractItem:
          #todo: method is completly wrong!!! FIX IT
         """Returns all items which are younger than time
 
-        :param time: the lower bound
-        :type time: rospy.Time
+        :param time: the lower bound in seconds
+        :type time: int
  
         :returns: AbstractItem
         """

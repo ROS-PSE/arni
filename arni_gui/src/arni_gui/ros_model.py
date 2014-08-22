@@ -55,7 +55,7 @@ class ROSModel(QAbstractItemModel):
 
         self.__identifier_dict = {"root": self.__root_item}
         self.__item_delegate = SizeDelegate()
-        self.__log_model = QStandardItemModel()
+        self.__log_model = QStandardItemModel(0, 4, self)
         #self.__set_header_data()
         self.__mapping = {
             1: 'type',
@@ -352,11 +352,19 @@ class ROSModel(QAbstractItemModel):
             self.__get_item_by_name()
         return None
 
-    def add_log_item(self, list):
+    def get_log_model(self):
+        return self.__log_model
+
+    def add_log_entry(self, type, date, location, message):
+        #todo: doku
         """
         Adds the given list as a log entry to the model.
 
         :param list: accepts a list of strings and adds these to the log model
         :type list: list
         """
-        pass
+        self.__log_model.insertRow(0)
+        self.__log_model.setData(self.__log_model.index(0, 0), type)
+        self.__log_model.setData(self.__log_model.index(0, 1), date)
+        self.__log_model.setData(self.__log_model.index(0, 2), location)
+        self.__log_model.setData(self.__log_model.index(0, 3), message)

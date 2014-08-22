@@ -13,7 +13,7 @@ class LogFilterProxy(QSortFilterProxyModel):
         :param parent: the parent-object
         :type parent: QObject
         """
-        self.__current_item = 0
+        self.__current_item = None
 
 
     def filterAcceptsRow(self, source_row, source_parent):
@@ -27,11 +27,10 @@ class LogFilterProxy(QSortFilterProxyModel):
 
         :returns: bool
         """
-        name = self.__current_item.get_identifier()
+        name = self.__current_item.get_seuid()
 
-        entries = []
         #todo: !!!!!!choose the right row here!!!!!!
-        if self.sourceModel.data(self.sourceModel().index(source_row, 2, source_parent)).find("name") is -1:
+        if self.sourceModel.data(self.sourceModel().index(source_row, 2, source_parent)).find(name) is -1:
             return False
 
         return True
