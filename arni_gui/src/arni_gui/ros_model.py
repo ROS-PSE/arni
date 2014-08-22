@@ -65,6 +65,7 @@ class ROSModel(QAbstractItemModel):
             4: 'data'
         }
 
+
 #is no longer needed because the header data won't change while running
     # def __set_header_data(self):
     #

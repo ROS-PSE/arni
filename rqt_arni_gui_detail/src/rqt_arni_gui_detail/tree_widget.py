@@ -3,6 +3,7 @@ import rospy
 import rospkg
 
 from python_qt_binding import loadUi
+from python_qt_binding.QtCore import QObject
 from python_qt_binding.QtCore import *
 from python_qt_binding.QtGui import *
 
@@ -34,9 +35,11 @@ class TreeWidget(QWidget):
         #self.item_tree_view.setModel(model)
         ##
 
-        self.__model = ROSModel(self)
+        self.__model = ROSModel()
 
         self.__filter_proxy = ItemFilterProxy(self.item_tree_view)
+        
+        self.item_tree_view.setModel(self.__model)
 
         self.__size_delegate = SizeDelegate(self.item_tree_view)
         self.item_tree_view.setItemDelegate(self.__size_delegate)

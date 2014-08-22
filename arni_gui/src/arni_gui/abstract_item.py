@@ -1,10 +1,10 @@
 from rospy.rostime import Duration, Time
+from python_qt_binding.QtCore import QObject
 
-
-class AbstractItem:
+class AbstractItem(QObject):
     """ Provides a unified interface to access the items of the model"""
 
-    def __init__(self, seuid, parent=None):
+    def __init__(self, seuid, parent=QObject()):
             #todo:doku is missing here
             """Initializes theAbstractItem
 
@@ -30,12 +30,12 @@ class AbstractItem:
         self.__data[name] = []
 
     def append_child(self, child):
-            """Append a child to the list of childs
+        """Append a child to the list of childs
 
-            :param child: the child item
-            :type child: AbstractItem
-            """
-            self.__child_items.append(child)
+        :param child: the child item
+        :type child: AbstractItem
+        """
+        self.__child_items.append(child)
 
     def append_data_dict(self, data):
         """Append data to the data of the AbstractItem.

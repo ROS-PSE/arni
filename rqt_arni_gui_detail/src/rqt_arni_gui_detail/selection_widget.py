@@ -4,6 +4,7 @@ import rospkg
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtGui import QWidget
+from python_qt_binding.QtCore import QObject
 
 from rospy.rostime import Time
 from arni_gui.ros_model import ROSModel
@@ -32,7 +33,7 @@ class SelectionWidget(QWidget):
 
         #TODO self.__values_dict =
 
-        self.__model = ROSModel(self)
+        self.__model = ROSModel()
 
         self.__log_filter_proxy = LogFilterProxy(self.log_tab_list_widget)
 

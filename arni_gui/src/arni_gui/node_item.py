@@ -1,4 +1,5 @@
 from abstract_item import AbstractItem
+from python_qt_binding.QtCore import QObject
 
 class NodeItem(AbstractItem):
 
@@ -6,17 +7,17 @@ class NodeItem(AbstractItem):
     """A TopicItem represents a node with all of its data. It also has a interface to start/stop/restart nodes."""
 
 
-    def __init__(self, seuid, parent=None):
+    def __init__(self, seuid, parent=QObject()):
         """Initializes the ConnectionItem
 
         :param list: connection list
         :type list: list
         :param parent: the parent-object
         :type parent: object
-        """
+        """        
         self.__type = "node"
-
-        AbstractItem.__init__(self, seuid, parent)
+        
+        super(AbstractItem, self).__init__(seuid, parent)
         #add the content
         self.__attributes = ["window_start", "window_stop", "node_cpu_usage_mean", "node_cpu_usage_stddev", "node_cpu_usage_max",
                       "node_cpu_usage_core_mean",
