@@ -15,7 +15,8 @@ class AbstractItem:
             self.__child_items = []
             self.__parent = parent
             self.seuid = seuid
-            self.__attributes = ['type', 'name', 'state', 'data']
+            self.__type = "abstract"
+            self.__attributes = ['type', 'name', 'state', 'data', 'window_end']
 
             for item in self.__attributes:
                 self.__add_data_list(item)
@@ -198,11 +199,12 @@ class AbstractItem:
         :returns: AbstractItem
         """
         return_values = []
-        for item in self.__data:
+        list_of_time = self.__data["window_end"]
+        for i in range(0, len(list_of_time)):
             # check timestamp
             end_time = Time.now() - Duration(secs=time)
-            if item.timestamp < end_time:
-                return_values.append(item)
+            if list_of_time[i] < end_time:
+                return_values.append(i)
         return return_values
 
 
@@ -213,7 +215,8 @@ class AbstractItem:
         :type time: rospy.Time
         """
         for item in self.get_items_older_than(self, time):
-            del item
+            for entry in self.__data:
+                del self.__data[entry][item]
 
 
     def get_items_younger_than(self, time):
@@ -226,11 +229,12 @@ class AbstractItem:
         :returns: AbstractItem
         """
         return_values = []
-        for item in self.__data:
+        list_of_time = self.__data["window_end"]
+        for i in range(0, len(list_of_time)):
             # check timestamp
             start_time = Time.now() - Duration(secs=time)
-            if item.timestamp > start_time:
-                return_values.append(item)
+            if list_of_time[i] > start_time:
+                return_values.append(i)
         return return_values
 
     def execute_action(self, action):

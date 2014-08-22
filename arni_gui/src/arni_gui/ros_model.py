@@ -46,7 +46,8 @@ class ROSModel(QAbstractItemModel):
             'type': 'type',
             'name': 'name',
             'state': 'state',
-            'data:': 'data'
+            'data:': 'data',
+            'window_end': rospy.get_rostime()
         })
 
         QAbstractItemModel.__init__(parent)
@@ -55,7 +56,7 @@ class ROSModel(QAbstractItemModel):
 
         self.__identifier_dict = {"root": self.__root_item}
         self.__item_delegate = SizeDelegate()
-        self.__log_model = QStandardItemModel(0, 4, self)
+        self.__log_model = QStandardItemModel(0, 4, None)
         #self.__set_header_data()
         self.__mapping = {
             1: 'type',

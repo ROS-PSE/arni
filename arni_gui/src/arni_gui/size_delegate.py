@@ -4,13 +4,14 @@ The todos should be fixed earlier or later.
 """
 from python_qt_binding.QtGui import QStyledItemDelegate, QFont, QBrush, QColor
 from helper_functions import choose_brush
+from python_qt_binding.QtCore import QObject
 
 class SizeDelegate(QStyledItemDelegate):
     """Makes it possible to change the font size of the Gui-Plugin content."""
-
-    def __init__(self, parent=None):
-	    # super(SizeDelegate, self).__init__(parent)
-        QStyledItemDelegate.__init__(parent)
+    #todo: is QObject here a dirty hack or does it work like this?
+    def __init__(self, parent=QObject()):
+        super(SizeDelegate, self).__init__(parent)
+        #QStyledItemDelegate.__init__(parent)
         self.__current_font_size = 10
 
 
