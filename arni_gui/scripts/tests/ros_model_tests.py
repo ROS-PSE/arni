@@ -1,4 +1,4 @@
-__author__ = 'virtubuntu'
+#!/usr/bin/env python
 
 from arni_gui.ros_model import ROSModel
 import unittest
@@ -14,12 +14,5 @@ class ROSModelTest(unittest.TestCase):
         model2 = ROSModel()
         self.assertEqual(type(model1), type(model2))
 
-    def check_the_init(self):
-        """
-        Check if the __init__ is only called once
-        """
-        model1 = ROSModel(QObject())
-        model2 = ROSModel(None)
-        self.assertEqual(model1.__parent, None)
 
 unittest.main()

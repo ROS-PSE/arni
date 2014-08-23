@@ -1,5 +1,12 @@
 from python_qt_binding.QtGui import QBrush, QColor
 
+
+# define constants
+# update frequency of the model in nsecs
+UPDATE_FREQUENCY = 100000000
+
+
+
 def choose_brush(self, index):
     """
     :type index: QModelIndex
@@ -15,3 +22,4 @@ def choose_brush(self, index):
         brush.setColor(QColor(255, 0, 0))
 
     return brush
+

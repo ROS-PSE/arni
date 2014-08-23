@@ -2,7 +2,9 @@ from rospy.rostime import Duration, Time
 from python_qt_binding.QtCore import QObject
 
 class AbstractItem(QObject):
-    """ Provides a unified interface to access the items of the model"""
+    """ Provides a unified interface to access the items of the model
+        INTERNAL: WARNING! Whenever the key-values at the beginning are not set right, the oddest things may occur!
+    """
 
     def __init__(self, seuid, parent=QObject()):
             #todo:doku is missing here
@@ -53,7 +55,7 @@ class AbstractItem(QObject):
 
     def __update_current_state(self):
         length = len(self.__data["state"])
-        for i in range(length - len(self.get_items_younger_than(10)), length):
+        for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5)))["type"]), length):
             if self.__data["state"][i] == "error":
                 self.__data["state"][-1] = "warning"
                 break
@@ -190,21 +192,25 @@ class AbstractItem(QObject):
 
 #todo: what are the following 3 methods for and how can they be done better?
     def get_items_older_than(self, time):
-        #todo: method is completly wrong!!! FIX IT
         """Returns all items which are older than time
 
         :param time: the upper bound in seconds
-        :type time: Time
+        :type time: rospy.Time
 
-        :returns: AbstractItem
+        :returns: dict of lists
         """
         return_values = []
+        for key in self.__data:
+            return_values[key] = []
+
         list_of_time = self.__data["window_end"]
         for i in range(0, len(list_of_time)):
             # check timestamp
-            end_time = Time.now() - Duration(secs=time)
-            if list_of_time[i] < end_time:
-                return_values.append(i)
+            #end_time = Time.now() - Duration(nsecs=time)
+            if list_of_time[i] < time:
+                #return_values.append()
+                for key in self.__data:
+                    return_values[key].append(self.__data[key][i])
         return return_values
 
 
@@ -214,27 +220,35 @@ class AbstractItem(QObject):
         :param time: the upper bound
         :type time: rospy.Time
         """
-        for item in self.get_items_older_than(self, time):
-            for entry in self.__data:
-                del self.__data[entry][item]
-
-
-    def get_items_younger_than(self, time):
-         #todo: method is completly wrong!!! FIX IT
-        """Returns all items which are younger than time
-
-        :param time: the lower bound in seconds
-        :type time: int
- 
-        :returns: AbstractItem
-        """
-        return_values = []
         list_of_time = self.__data["window_end"]
         for i in range(0, len(list_of_time)):
             # check timestamp
-            start_time = Time.now() - Duration(secs=time)
-            if list_of_time[i] > start_time:
-                return_values.append(i)
+            #end_time = Time.now() - Duration(nsecs=time)
+            if list_of_time[i] < time:
+                #return_values.append()
+                for key in self.__data:
+                    del self.__data[key][i]
+
+
+    def get_items_younger_than(self, time):
+        """Returns all items which are younger than time
+
+        :param time: the lower bound in seconds
+        :type time: rospy.Time
+ 
+        :returns: dict of lists
+        """
+        return_values = {}
+        for key in self.__data:
+            return_values[key] = []
+
+        list_of_time = self.__data["window_end"]
+        for i in range(0, len(list_of_time)):
+            # check timestamp
+            #start_time = Time.now() - Duration(nsecs=time)
+            if list_of_time[i] > time:
+                for key in self.__data:
+                    return_values[key].append(self.__data[key][i])
         return return_values
 
     def execute_action(self, action):
