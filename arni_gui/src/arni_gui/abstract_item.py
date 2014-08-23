@@ -6,7 +6,7 @@ class AbstractItem(QObject):
         INTERNAL: WARNING! Whenever the key-values at the beginning are not set right, the oddest things may occur!
     """
 
-    def __init__(self, seuid, parent=QObject()):
+    def __init__(self, seuid, parent=QObject(), *args):
             #todo:doku is missing here
             """Initializes theAbstractItem
 
@@ -21,13 +21,21 @@ class AbstractItem(QObject):
             self.seuid = seuid
             self.__type = "abstract"
             self.__attributes = ['type', 'name', 'state', 'data', 'window_end']
+            self.__attributes.extend(args)
+
 
             for item in self.__attributes:
+                self.__add_data_list(item)
+
+            for item in args:
                 self.__add_data_list(item)
 
 
     def get_seuid(self):
         return self.seuid
+
+    def get_state(self):
+        return self.__data["state"][-1]
 
 
     def __add_data_list(self, name):
@@ -60,7 +68,7 @@ class AbstractItem(QObject):
 
     def __update_current_state(self):
         length = len(self.__data["state"])
-        for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5)))["type"]), length):
+        for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5)))["window_end"]), length):
             if self.__data["state"][i] == "error":
                 self.__data["state"][-1] = "warning"
                 break
@@ -184,13 +192,13 @@ class AbstractItem(QObject):
                 try:
                     return self.__data[key][-1]
                 except KeyError:
-                    print("KeyError catched when accesing element %s.", key)
+                    print("KeyError caught when accessing element %s.", key)
                     raise
 
         return_dict = {}
         # return dict of latest item
         for entry in self.__data:
-            return_dict[entry] = self.__data[key][-1]
+            return_dict[entry] = self.__data[entry][-1]
         return return_dict
 
 
@@ -254,12 +262,17 @@ class AbstractItem(QObject):
             return_values[key] = []
 
         list_of_time = self.__data["window_end"]
-        for i in range(0, len(list_of_time)):
+        for i in range(0, len(list_of_time) - 1):
             # check timestamp
             #start_time = Time.now() - Duration(nsecs=time)
             if list_of_time[i] > time:
                 for key in self.__data:
-                    return_values[key].append(self.__data[key][i])
+                    try:
+                        return_values[key].append(self.__data[key][i])
+                    except IndexError:
+                        print("IndexError! length of the list %s, accessed index %s. length of data at given point %s, key is %s",
+                              len(list_of_time), i, len(self.__data[key]), key)
+                        raise
         return return_values
 
     def execute_action(self, action):

@@ -7,6 +7,7 @@ from python_qt_binding.QtGui import QTabWidget, QWidget
 #from python_qt_binding.QtCore import QObject
 from python_qt_binding import QtCore
 from python_qt_binding.QtCore import QRegExp
+from python_qt_binding.QtGui import QPixmap, QLabel
 
 from rospy.rostime import Time
 
@@ -22,8 +23,8 @@ class OverviewWidget(QWidget):
         #self.setObjectName('overview_widget')
 
         # Get path to UI file which is a sibling of this file
-        rp = rospkg.RosPack()
-        ui_file = os.path.join(rp.get_path('rqt_arni_gui_overview'), 'resources', 'OverviewWidget.ui')
+        self.rp = rospkg.RosPack()
+        ui_file = os.path.join(self.rp.get_path('rqt_arni_gui_overview'), 'resources', 'OverviewWidget.ui')
         # Extend the widget with all attributes and children from UI file
         loadUi(ui_file, self)
         #self.setObjectName('SelectionWidgetUi')
@@ -39,7 +40,19 @@ class OverviewWidget(QWidget):
 
         # TODO self.__graph_dict =
 
-        # TODO self.__values_dict =
+        self.__values_dict = {
+            "total_traffic": 0,
+            "connected_hosts": 0,
+            "connected_nodes": 0,
+            "topic_counter": 0,
+            "connection_counter": 0,
+            "cpu_usage_max": 0,
+            "cpu_temp_mean": 0,
+            "average_ram_load": 0,
+            "cpu_usage_mean": 0,
+            "cpu_temp_max": 0,
+            "ram_usage_max": 0
+        }
 
         self.__model = ROSModel()
 
@@ -61,6 +74,11 @@ class OverviewWidget(QWidget):
         # todo: test: eventually remove this
         self.log_tab_tree_view.setAlternatingRowColors(True)
         self.log_tab_tree_view.setSortingEnabled(True)
+
+        self.__model.layoutChanged.connect(self.update)
+
+        self.__state = "ok"
+        self.__previous_state = "ok"
 
 
 
@@ -91,7 +109,45 @@ class OverviewWidget(QWidget):
 
     def update(self):
         """Updates the Plugin and draws the graphs if draw_graphs is true."""
-        pass
+        data_dict = self.__model.get_overview_data_since()
+
+        self.__state = data_dict["state"]
+        # for testing only:
+        #self.__state = "warning"
+
+        if self.__previous_state is not self.__state:
+            self.__previous_state = self.__state
+            if self.__state == "ok":
+                self.status_text_line_edit.setText("Current status: ok")
+                pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_overview'), 'resources/graphics',
+                                              'light_green.png'))
+            elif self.__state == "warning":
+                self.status_text_line_edit.setText("Current status: warning")
+                pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_overview'), 'resources/graphics',
+                                              'light_orange.png'))
+            else:
+                self.status_text_line_edit.setText("Current status: error")
+                pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_overview'), 'resources/graphics',
+                                              'light_red.png'))
+            self.status_light_label.setPixmap(pixmap)
+            #self.status_light_label.setMask(pixmap.mask())
+            #self.status_light_label.resize(50, 50)
+
+        content = ""
+
+        content += "total_traffic: " + str(data_dict["total_traffic"]) + "<br>"
+        content += "connected_hosts: " + str(data_dict["connected_hosts"]) + "<br>"
+        content += "connected_nodes:" + str(data_dict["connected_nodes"]) + "<br>"
+        content += "topic_counter" + str(data_dict["topic_counter"]) + "<br>"
+        content += "connection_counter: " + str(data_dict["connection_counter"]) + "<br>"
+        content += "cpu_usage_max: " + str(data_dict["cpu_usage_max"]) + "<br>"
+        content += "cpu_temp_mean: " + str(data_dict["cpu_temp_mean"]) + "<br>"
+        content += "average_ram_load: " + str(data_dict["average_ram_load"]) + "<br>"
+        content += "cpu_usage_mean:" + str(data_dict["cpu_usage_mean"]) + "<br>"
+        content += "cpu_temp_max: " + str(data_dict["cpu_temp_max"]) + "<br>"
+        content += "ram_usage_max: " + str(data_dict["ram_usage_max"]) + "<br>"
+
+        self.information_tab_text_browser.setHtml(content)
 
     def update_graphs(sef):
         """Updates and redraws the graphs"""

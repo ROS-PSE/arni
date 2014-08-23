@@ -45,7 +45,10 @@ class ROSModel(QAbstractItemModel):
         """
         #rospy.init_node('arni_gui_model', log_level=rospy.DEBUG)
         super(ROSModel, self).__init__(parent)
-        self.__root_item = AbstractItem("root", self)
+        self.__root_item = AbstractItem("root", self, "cpu_usage_mean", "cpu_temp_mean", "cpu_usage_max", "cpu_temp_max",
+                                        "average_ram_load", "ram_usage_max", "total_traffic", "connected_hosts",
+                                        "connected_nodes", "topic_counter", "connection_counter")
+
 
         self.__root_item.append_data_dict({
             'type': 'type',
@@ -59,9 +62,9 @@ class ROSModel(QAbstractItemModel):
             "topic_counter": 0,
             "connection_counter": 0,
             "cpu_usage_max": 0,
-            "cpu_temp_stddev": 0,
+            "cpu_temp_mean": 0,
             "average_ram_load": 0,
-            "cpu_usage_stddev": 0,
+            "cpu_usage_mean": 0,
             "cpu_temp_max": 0,
             "ram_usage_max": 0,
         })
@@ -276,6 +279,7 @@ class ROSModel(QAbstractItemModel):
             self.__transform_rated_statistics_item(item)
 
         data_dict = {
+            "state": "ok",
             "total_traffic": 0,
             "connected_hosts": 0,
             "connected_nodes": 0,
@@ -295,38 +299,65 @@ class ROSModel(QAbstractItemModel):
         connected_nodes = 0
         topic_counter = 0
         connection_counter = 0
+        state = "ok"
 
         #time window
         #todo: where should total_traffic be calculated? currently sum of the bandwidth of the nics
+        #todo: extract in own method????
         #generate the general information
         for host_item in self.__root_item.get_childs():
             #hostinfo
             connected_hosts += 1
             data = host_item.get_items_younger_than(Time.now() - Duration(nsecs=UPDATE_FREQUENCY))
             #anpassen an host_item!!!!!
-            for key in data:
-                for entry in data[key]:
-                    if key is not ["bandwidth_mean", "cpu_usage_max", "cpu_temp_mean", "average_ram_load", "cpu_usage_mean", "cpu_temp_max", "ram_usage_max"]:
-                        pass
-                    elif key is "bandwidth_mean":
-                        data_dict["total_traffic"] += entry
-                    else:
-                        data_dict[key] += entry
+            if host_item.get_state() is "warning" and state is not "error":
+                state = "warning"
+            elif host_item.get_state() is "error":
+                state = "error"
 
+            for key in data:
+                if key is not ["bandwidth_mean", "cpu_usage_max", "cpu_temp_mean", "average_ram_load",
+                               "cpu_usage_mean", "cpu_temp_max", "ram_usage_max"]:
+                    break
+                elif key is "bandwidth_mean":
+                    for entry in data[key]:
+                        data_dict["total_traffic"] += entry
+                else:
+                    for entry in data[key]:
+                        data_dict[key] += entry
             for node_item in host_item.get_childs():
                 #nodeinfo
                 connected_nodes += 1
+
+                if node_item.get_state() is "warning" and state is not "error":
+                    state = "warning"
+                elif node_item.get_state() is "error":
+                    state = "error"
+
                 for topic_item in node_item.get_childs():
                     #topic info
                     topic_counter += 1
+
+                    if topic_item.get_state() is "warning" and state is not "error":
+                        state = "warning"
+                    elif topic_item.get_state() is "error":
+                        state = "error"
+
                     for connection_item in topic_item.get_childs():
                         #connection info
                         connection_counter += 1
+
+                        if connection_item.get_state() is "warning" and state is not "error":
+                            state = "warning"
+                        elif connection_item.get_state() is "error":
+                            state = "error"
+
 
         data_dict["connected_hosts"] = connected_hosts
         data_dict["connected_nodes"] = connected_nodes
         data_dict["topic_counter"] = topic_counter
         data_dict["connection_counter"] = connection_counter
+        data_dict["state"] = state
 
         #now give this information to the root :)
         self.__root_item.append_data_dict(data_dict)
