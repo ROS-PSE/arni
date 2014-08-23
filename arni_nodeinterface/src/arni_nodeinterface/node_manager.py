@@ -9,8 +9,6 @@ class NodeManager(object):
     """
     
     def __init__(self):
-    
-        super(NodeManager, self).__init__()
         
         
         
@@ -23,7 +21,7 @@ class NodeManager(object):
         :type node_id: String.
         :returns: String
         """
-        success, fail = rosnode.kill_nodes(['node_id'])
+        success, fail = rosnode.kill_nodes([node_id])
         if node_id in success:
             return 'Node ' + node_id +  ' successfully stopped'
         else:

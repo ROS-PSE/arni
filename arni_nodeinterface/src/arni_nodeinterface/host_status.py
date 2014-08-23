@@ -13,7 +13,7 @@ class HostStatus(Status):
     
     def __init__(self, start):
         
-        super(HostStatus, self).__init__()
+        super(HostStatus, self).__init__(start)
         
         #: CPU temp in celsius.
         self.__cpu_temp =  []
@@ -23,9 +23,7 @@ class HostStatus(Status):
         self.__cpu_temp_core = [[] for x in range(self._cpu_count)]
         
         #: GPU temp by card in celsius.
-        self.__gpu_temp = []
-        
-        self.__network_interfaces = psutil.net_io_counters(pernic = True)       
+        self.__gpu_temp = []     
 
 
         #: Dictionary holding sets of Network interface - bandwidth in bytes
@@ -164,27 +162,57 @@ class HostStatus(Status):
         self.__drive_write.clear()
         self.__msg_frequency.clear()
 
-    def calc_stats_specific(self, stats_dict):
+    def calc_stats_specific(self):
         
-        cpu_temp = self.calc_stat_tuple(self.__cpu_temp)
-        cpu_temp_core = self.calc_stat_tuple(self.__cpu_temp_core)
+        
+        self.__calc_temp_stats()
+        self.__calc_net_stats()
+        self.__calc_drive_stats()
 
+        self._stats_dict['interface_name'] = [key for key in self.__bandwidth]
+        self._stats_dict['drive_name'] = [key for key in self.__drive_read]
+
+    def __calc_temp_stats(self):
+
+        cpu_temp = self.calc_stat_tuple(self.__cpu_temp)     
+        cpu_temp_core =  [self.calc_stat_tuple(i) for i in self.__cpu_temp_core] 
+
+        self._stats_dict['cpu_temp_mean'] = cpu_temp.mean
+        self._stats_dict['cpu_temp_stddev'] = cpu_temp.stddev
+        self._stats_dict['cpu_temp_max'] = cpu_temp.max
+            
+    
+        self._stats_dict['cpu_temp_core_mean'] = [i.mean for i in cpu_temp_core]
+        self._stats_dict['cpu_temp_core_stddev'] = [i.stddev for i in cpu_temp_core]
+        self._stats_dict['cpu_temp_core_max'] = [i.max for i in cpu_temp_core]
+
+    def __calc_net_stats(self):
         bandwidth = [self.calc_stat_tuple(self.__bandwidth[key]) 
                         for key in self.__bandwidth]
         msg_frequency = [self.calc_stat_tuple(self.__msg_frequency[key]) 
                         for key in self.__msg_frequency]
 
-        drive_write = [self.calc_stat_tuple(self.__drive_write[key]) 
-                        for key in self.__drive_write]
-        drive_read = [self.calc_stat_tuple(self.__drive_read[key]) 
-                        for key in self.__drive_read]
+        self._stats_dict['bandwidth_mean'] = [i.mean for i in bandwidth]
+        self._stats_dict['bandwidth_stddev'] = [i.stddev for i in bandwidth]
+        self._stats_dict['bandwidth_max'] = [i.max for i in bandwidth]
 
-        stats_dict['cpu_temp_mean'] = cpu_temp
-        stats_dict['cpu_temp_core'] = cpu_temp_core        
-        stats_dict['bandwidth'] = bandwidth        
-        stats_dict['msg_frequency'] = msg_frequency        
-        stats_dict['drive_write'] = drive_write        
-        stats_dict['drive_read'] = drive_read
+        self._stats_dict['message_frequency_mean'] = [i.mean for i in msg_frequency]
+        self._stats_dict['message_frequency_stddev'] = [i.stddev for i in msg_frequency]
+        self._stats_dict['messag_frequency_max'] = [i.max for i in msg_frequency]
+
+    def __calc_drive_stats(self):
+        drive_write = [self.calc_stat_tuple(self.__drive_write[key]) 
+                                    for key in self.__drive_write]
+        drive_read = [self.calc_stat_tuple(self.__drive_read[key]) 
+                                    for key in self.__drive_read]
+
+        self._stats_dict['drive_write_mean'] = [i.mean for i in drive_write]
+        self._stats_dict['drive_write_stddev'] = [i.stddev for i in drive_write]
+        self._stats_dict['drive_write_max'] = [i.max for i in drive_write]
+
+        self._stats_dict['drive_read_mean'] = [i.mean for i in drive_read]
+        self._stats_dict['drive_read_stddev'] = [i.stddev for i in drive_read]
+        self._stats_dict['drive_read_max'] = [i.max for i in drive_read]
 
 
     @property 

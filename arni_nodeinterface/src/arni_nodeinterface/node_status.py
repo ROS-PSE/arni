@@ -11,7 +11,7 @@ class NodeStatus(Status):
     
     def __init__(self, start):
     
-        super(NodeStatus, self).__init__()
+        super(NodeStatus, self).__init__(start)
         
         #: Network bandwidth used by the node in bytes.
         self.__node_bandwidth = []
@@ -72,20 +72,41 @@ class NodeStatus(Status):
         del self.__node_write[:]
         del self.__node_msg_frequency[:]
 
-    def calc_stats_specific(self , dict):
+    def calc_stats_specific(self):
         """
         calculates statistics specific to nodes.
         """
 
+        self.__calc_net_stats()
+        self.__calc_drive_stats()
+
+    def __calc_net_stats(self):
+    
         node_bandwidth = self.calc_stat_tuple(self.__node_bandwidth)
         node_msg_frequency = self.calc_stat_tuple(self.__node_msg_frequency)
+
+        self._stats_dict['node_message_frequency_mean'] = node_msg_frequency.mean
+        self._stats_dict['node_message_frequency_stddev'] = node_msg_frequency.stddev
+        self._stats_dict['node_message_frequency_max'] = node_msg_frequency.max
+
+        self._stats_dict['node_bandwidth_mean'] = node_bandwidth.mean
+        self._stats_dict['node_bandwidth_stddev'] = node_bandwidth.stddev
+        self._stats_dict['node_bandwidth_max'] = node_bandwidth.max
+
+    def __calc_drive_stats(self):
+
         node_read = self.calc_stat_tuple(self.__node_read)
         node_write = self.calc_stat_tuple(self.__node_write)
 
-        dict['node_bandwidth'] = node_bandwidth
-        dict['node_msg_frequency'] = node_msg_frequency
-        dict['node_read'] = node_read
-        dict['node_write'] = node_write
+        self._stats_dict['node_read_mean'] = node_read.mean
+        self._stats_dict['node_read_stddev'] = node_read.stddev
+        self._stats_dict['node_read_max'] = node_read.max
+
+        self._stats_dict['node_write_mean'] = node_write.mean
+        self._stats_dict['node_write_stddev'] = node_write.stddev
+        self._stats_dict['node_write_max'] = node_write.max       
+
+
 
     @property 
     def node_bandwidth(self):

@@ -87,36 +87,33 @@ class NodeStatisticsHandler(StatisticsHandler):
 
         ns = NodeStatistics()
 
-        ns.node_cpu_usage_mean = stats_dict['cpu_usage'].mean
-        ns.node_cpu_usage_stddev = stats_dict['cpu_usage'].stddev
-        ns.node_cpu_usage_max = stats_dict['cpu_usage'].max
+        ns.node_cpu_usage_mean = stats_dict['cpu_usage_mean']
+        ns.node_cpu_usage_stddev = stats_dict['cpu_usage_stddev']
+        ns.node_cpu_usage_max = stats_dict['cpu_usage_max']
 
-        ns.node_cpu_usage_core_mean = [stats_dict['cpu_usage_core'][i].mean
-                                         for i in self._cpu_count]
-        ns.node_cpu_usage_core_stddev = [stats_dict['cpu_usage_core'][i].stddev
-                                        for i in self._cpu_count]
-        ns.node_cpu_usage_core_max = [stats_dict['cpu_usage_core'][i].max 
-                                        for i in self._cpu_count]
+        ns.node_cpu_usage_core_mean = stats_dict['cpu_usage_core_mean']
+        ns.node_cpu_usage_core_stddev = stats_dict['cpu_usage_core_stddev']
+        ns.node_cpu_usage_core_max = stats_dict['cpu_usage_core_max']
 
-        ns.node_ramusage_mean = stats_dict['ram_usage'].mean
-        ns.node_ramusage_stddev = stats_dict['ram_usage'].stddev
-        ns.node_ramusage_max = stats_dict['ram_usage'].max
+        ns.node_ramusage_mean = stats_dict['ram_usage_mean']
+        ns.node_ramusage_stddev = stats_dict['ram_usage_stddev']
+        ns.node_ramusage_max = stats_dict['ram_usage_max']
 
-        ns.node_message_frequency_mean = stats_dict['node_msg_frequency'].mean
-        ns.node_message_frequency_stddev = stats_dict['node_msg_frequency'].stddev
-        ns.node_message_frequency_max = stats_dict['node_msg_frequency'].max
+        ns.node_message_frequency_mean = stats_dict['node_msg_frequency_mean']
+        ns.node_message_frequency_stddev = stats_dict['node_msg_frequency_stddev']
+        ns.node_message_frequency_max = stats_dict['node_msg_frequency_max']
 
-        ns.node_bandwidth_mean = stats_dict['node_bandwidth'].mean
-        ns.node_bandwidth_stddev = stats_dict['node_bandwidth'].stddev
-        ns.node_bandwidth_max = stats_dict['node_bandwidth'].max
+        ns.node_bandwidth_mean = stats_dict['node_bandwidth_mean']
+        ns.node_bandwidth_stddev = stats_dict['node_bandwidth_stddev']
+        ns.node_bandwidth_max = stats_dict['node_bandwidth_max']
         
-        ns.node_write_mean = stats_dict['node_write'].mean
-        ns.node_write_stddev = stats_dict['node_write'].stddev
-        ns.node_write_max = stats_dict['node_write'].max
+        ns.node_write_mean = stats_dict['node_write_mean']
+        ns.node_write_stddev = stats_dict['node_write_stddev']
+        ns.node_write_max = stats_dict['node_write_max']
 
-        ns.node_read_mean = stats_dict['node_read'].mean
-        ns.node_read_stddev = stats_dict['node_read'].stddev
-        ns.node_read_max = stats_dict['node_read'].max
+        ns.node_read_mean = stats_dict['node_read_mean']
+        ns.node_read_stddev = stats_dict['node_read_stddev']
+        ns.node_read_max = stats_dict['node_read_max']
 
         return ns
 

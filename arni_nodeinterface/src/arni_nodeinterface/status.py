@@ -14,8 +14,6 @@ class Status(object):
 
     def __init__(self, start):
         
-        super(Status, self).__init__()
-        
         #: Cpu usage in percent.
         self._cpu_usage = []        
 
@@ -31,10 +29,11 @@ class Status(object):
         self._ram_usage = []
         
         #: Start of the time window
-        self._time_start
+        self._time_start = start
         
         #:End of the time window
-        self._time_end
+        self._time_end = 0
+        self._stats_dict = {}
         
         
     def add_cpu_usage(self, usage):
@@ -102,20 +101,40 @@ class Status(object):
         :returns: Dictionary
         """
 
-        result_dict = {}
-        
+        self.__calc_cpu_stats()
+        self.__calc_ram_stats()
+
+        self.calc_stats_specific()
+        return self._stats_dict
+
+
+    def __calc_cpu_stats(self):
+
         cpu_usage = self.calc_stat_tuple(self._cpu_usage)
-        cpu_usage_core = [self.calc_stat_tuple(self._cpu_usage_core[i]) 
-                            for i in range(self._cpu_count)]
+        cpu_usage_core = [self.calc_stat_tuple(i) 
+                            for i in self._cpu_usage_core]
+
+
+        self._stats_dict['cpu_usage_mean'] = cpu_usage.mean
+        self._stats_dict['cpu_usage_stddev'] = cpu_usage.stddev
+        self._stats_dict['cpu_usage_max'] = cpu_usage.max
+
+        self._stats_dict['cpu_usage_core_mean'] = [i.mean
+                                                    for i in cpu_usage_core]
+        self._stats_dict['cpu_usage_core_stddev'] = [i.stddev
+                                                    for i in cpu_usage_core]
+        self._stats_dict['cpu_usage_core_max'] = [i.max
+                                                    for i in cpu_usage_core]
+
+
+    def __calc_ram_stats(self):
+
         ram_usage = self.calc_stat_tuple(self._ram_usage)
 
-        self.calc_stats_specific(result_dict)
 
-        result_dict['cpu_usage'] = cpu_usage        
-        result_dict['cpu_usage_core'] =  cpu_usage_core     
-        result_dict['ram_usage'] = ram_usage
-        
-        return result_dict
+        for key in vars(ram_usage):
+            self._stats_dict['ram_usage_%s'%key] = vars(ram_usage)[key]
+
 
 
     def calc_stat_tuple(self, slist):
@@ -125,8 +144,8 @@ class Status(object):
 
         :returns: namedtuple
         """
-        if not slist:
-            return slist
+        if not slist or all(not i for i in slist):
+            return (0 , 0 , 0)
         else:    
             maxi = max(slist)
             mean = sum(slist) / float(len(slist))

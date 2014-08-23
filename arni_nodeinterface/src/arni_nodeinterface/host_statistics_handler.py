@@ -55,23 +55,37 @@ class HostStatisticsHandler( StatisticsHandler):
         
         #Base-stats for I/O
         self.__bandwidth_base = {}
+        self.__msg_freq_base = {}
+        self.__disk_write_base = {}
+        self.__disk_read_base = {}
+        
+
+
+    
+    def __set_bases(self):
+
+
+        psutil.cpu_percent()
+        psutil.cpu_percent(percpu = True)
 
         for interface in psutil.net_io_counters(True):
             
-            total_bytes = psutil.net_io_counters(True)[interface].bytes_recv + psutil.net_io_counters(True)[interface].bytes_sent
-            total_packages = psutil.net_io_counters(True)[interface].packets_sent + psutil.net_io_counters(True)[interface].packets.recv
+            netint = psutil.net_io_counters(True)[interface]
+            total_bytes = netint.bytes_recv + netint.bytes_sent
+            total_packages = netint.packets_sent + netint.packets_recv
             
             self.__bandwidth_base[interface] = total_bytes
             self.__msg_freq_base[interface] = total_packages
 
-        self.__disk_write_base = {}
-        self.__disk_read_base = {}
+        
 
         for key in psutil.disk_io_counters(True):
-             self.__disk_read_base[key] = psutil.disk_io_counters(True)[key].read_bytes
-             self.__disk_write_base[key] = psutil.disk_io_counters(True)[key].write_bytes
+             
+            disk = psutil.disk_io_counters(True)[key]
+            self.__disk_read_base[key] = disk.read_bytes
+            self.__disk_write_base[key] = disk.write_bytes
 
-    
+
     def __register_service(self):
         """
         Register all services
@@ -93,7 +107,7 @@ class HostStatisticsHandler( StatisticsHandler):
 
         #CPU 
         self._status.add_cpu_usage(psutil.cpu_percent())
-        self._status.add_cpu_usage_core(psutil.cpu_percent(None , True))
+        self._status.add_cpu_usage_core(psutil.cpu_percent(percpu = True))
 
         #RAM
         self._status.add_ram_usage(psutil.virtual_memory().percent)
@@ -105,7 +119,6 @@ class HostStatisticsHandler( StatisticsHandler):
         
         #Bandwidth and message frequency
         self.__measure_network_usage()
-
         #Disk usage        
         self.__measure_disk_usage()
 
@@ -118,11 +131,13 @@ class HostStatisticsHandler( StatisticsHandler):
 
         for key in network_interfaces:
             
-            total_bytes = self.__bandwidth_base[key] - (network_interfaces[key] + network_interfaces[key])
-            total_packages = self.__msg_freq_base[key] - (network_interfaces[key].packets_sent + network_interfaces[key].packets.recv)
+            total_bytes = (network_interfaces[key] + network_interfaces[key]) - self.__bandwidth_base[key]
+            total_packages = (network_interfaces[key].packets_sent + network_interfaces[key].packets.recv) - self.__msg_freq_base[key]
 
-            self._status.add_bandwidth(key, total_bytes/self.__update_intervall)
-            self._status.add_msg_frequency(key,total_packages/self.__update_intervall)
+            bandwidth = total_bytes / self.__update_intervall
+            msg_frequency = total_packages / self.__update_intervall
+            self._status.add_bandwidth(key, bandwidth)
+            self._status.add_msg_frequency(key, msg_frequency)
 
             #update base stats for next iteration
             self.__bandwidth_base[key] += total_bytes
@@ -133,30 +148,28 @@ class HostStatisticsHandler( StatisticsHandler):
         measure current disk usage 
         """
         # Free Space on disks
-        disks = psutil.disk_partitions(True)
-
+        disks = psutil.disk_partitions()
+        dev_name = ''
         for x in disks:
-            if 'cdrom' not in disks:
-                free_space = psutil.disk_usage(disks[x].mountpoint).free
-
-                self._status.add_drive_space( x , free_space)
+            if 'cdrom' not in x.opts and 'sr' not in x.device:
+                free_space = psutil.disk_usage(x.mountpoint).free
+                self._status.add_drive_space( x.device , free_space)
+                dev_name += x.device + ';'
 
         #Drive I/O
         drive_io = psutil.disk_io_counters(True)
-
         for key in drive_io:
-            readb = self.__disk_read_base[key] - drive_io[key].read_bytes
-            writeb = self.__disk_write_base[key] - drive_io[key].write_bytes
+            if key in dev_name:
+                readb = drive_io[key].read_bytes - self.__disk_read_base[key]
+                writeb = drive_io[key].write_bytes - self.__disk_write_base[key]
 
-            read_rate = readb / self.__update_intervall
-            write_rate = writeb / self.__update_intervall
-
-            self._status.add_drive_read(key, read_rate) #eventually intervalls
-            self._status.add_drive_write(key, write_rate)
-
-            ##update base stats for next iteration
-            self.__disk_read_base[key] += drive_io[key].read_bytes
-            self.__disk_write_base[key] += drive_io[key].write_bytes
+                read_rate = float(readb) / self.__update_intervall
+                write_rate = float(writeb) / self.__update_intervall
+                self._status.add_drive_read(key, read_rate) 
+                self._status.add_drive_write(key, write_rate)
+                ##update base stats for next iteration
+                self.__disk_read_base[key] += readb
+                self.__disk_write_base[key] += writeb
 
 
     def publish_status(self):
@@ -205,70 +218,44 @@ class HostStatisticsHandler( StatisticsHandler):
         
         hs.host = self._id
 
-        hs.cpu_usage_mean = stats_dict['cpu_usage'].mean 
-        hs.cpu_usage_stddev = stats_dict['cpu_usage'].stddev 
-        hs.cpu_usage_max = stats_dict['cpu_usage'].max
+        hs.cpu_usage_mean = stats_dict['cpu_usage_mean'].mean 
+        hs.cpu_usage_stddev = stats_dict['cpu_usage_stddev'].stddev 
+        hs.cpu_usage_max = stats_dict['cpu_usage_max'].max
 
-        hs.cpu_temp_mean = stats_dict['cpu_temp'].mean
-        hs.cpu_temp_stddev = stats_dict['cpu_temp'].stddev
-        hs.cpu_temp_max = stats_dict['cpu_temp'].max
+        hs.cpu_temp_mean = stats_dict['cpu_temp_mean'].mean
+        hs.cpu_temp_stddev = stats_dict['cpu_temp_stddev'].stddev
+        hs.cpu_temp_max = stats_dict['cpu_temp_max'].max
 
-        hs.cpu_usage_core_mean = [stats_dict['cpu_usage_core'][i].mean
-                                    for i in range(psutil.cpu_count())]
-        hs.cpu_usage_core_stddev = [stats_dict['cpu_usage_core'][i].stddev 
-                                    or i in range(psutil.cpu_count())]
-        hs.cpu_usage_core_max = [stats_dict['cpu_usage_core'][i].max 
-                                for i in range(psutil.cpu_count())]
+        hs.cpu_usage_core_mean = stats_dict['cpu_usage_core_mean']
+        hs.cpu_usage_core_stddev = stats_dict['cpu_usage_core_stddev']
+        hs.cpu_usage_core_max = stats_dict['cpu_usage_core_max']
 
-        hs.cpu_temp_core_mean = [stats_dict['cpu_temp_core'][i].mean 
-                                for i in range(psutil.cpu_count())]
-        hs.cpu_temp_core_stddev = [stats_dict['cpu_temp_core'][i].stddev 
-                                    for i in range(psutil.cpu_count())]
-        hs.cpu_temp_core_max = [stats_dict['cpu_temp_core'][i].max 
-                                for i in range(psutil.cpu_count())]
+        hs.cpu_temp_core_mean = stats_dict['cpu_temp_core_mean']
+        hs.cpu_temp_core_stddev = stats_dict['cpu_temp_core_stddev']
+        hs.cpu_temp_core_max = stats_dict['cpu_temp_core_max']
 
-        hs.ram_usage_mean = stats_dict['ram_usage'].mean
-        hs.ram_usage_stddev = stats_dict['ram_usage'].stddev
-        hs.ram_usage_max = stats_dict['ram_usage'].max
+        hs.ram_usage_mean = stats_dict['ram_usage_mean'].mean
+        hs.ram_usage_stddev = stats_dict['ram_usage_stddev'].stddev
+        hs.ram_usage_max = stats_dict['ram_usage_max'].max
 
-        mfr = len(stats_dict['msg_frequency'])
-        hs.interface_name = [key for key in psutil.network_io_counters(True)]
-        hs.message_frequency_mean =  [stats_dict['msg_frequency'][i].mean 
-                                        for i in range(mfr)]
-        hs.message_frequency_stddev = [stats_dict['msg_frequency'][i].stddev 
-                                        for i in range(mfr)]
-        hs.message_frequency_max = [stats_dict['msg_frequency'][i].stddev 
-                                    for i in range(mfr)]
+        hs.interface_name = stats_dict['interface_name']
+        hs.message_frequency_mean =  stats_dict['msg_frequency_mean']
+        hs.message_frequency_stddev = stats_dict['msg_frequency_stddev']
+        hs.message_frequency_max = stats_dict['msg_frequency_max']
 
-        bwr = len(stats_dict['bandwidth'])
-        hs.bandwidth_mean =  [stats_dict['bandwidth'][i].mean 
-                            for i in range(bwr)]
-        hs.bandwidth_stddev = [stats_dict['bandwidth'][i].stddev 
-                                for i in range(bwr)]
-        hs.bandwidth_max = [stats_dict['bandwidth'][i].stddev 
-                            for i in range(bwr)]
+        hs.bandwidth_mean =  stats_dict['bandwidth_mean']
+        hs.bandwidth_stddev = stats_dict['bandwidth_stddev']
+        hs.bandwidth_max = stats_dict['bandwidth_max']
 
         
-        hs.drive_name = [key for key in self._status.drive_space]
-        hs.drive_free_space = [self._status.drive_space(key) 
-                                for key in self._status.drive_space]
-
-
-        dwr = len(stats_dict['drive_write'])
-        hs.drive_write_mean = [stats_dict['drive_write'][x].mean 
-                                for x in range(dwr)]
-        hs.drive_write_stddev = [stats_dict['drive_write'][x].stddev 
-                                for x in range(dwr)]
-        hs.drive_write_max = [stats_dict['drive_write'][x].max 
-                                for x in range(dwr)]
-        
-        drr = len(stats_dict['drive_read'])
-        hs.drive_read_mean = [stats_dict['drive_read'][x].mean 
-                                for x in range(drr)]
-        hs.drive_read_stddev = [stats_dict['drive_read'][x].stddev 
-                                for x in range(drr)]
-        hs.drive_read_max = [stats_dict['drive_read'][x].max 
-                                for x in range(drr)]
+        hs.drive_name = stats_dict['drive_name']
+        hs.drive_free_space = stats_dict['drive_free_space']
+        hs.drive_write_mean = stats_dict['drive_write_mean']
+        hs.drive_write_stddev = stats_dict['drive_write_stddev']
+        hs.drive_write_max = stats_dict['drive_write_max']
+        hs.drive_read_mean = stats_dict['drive_read_mean']
+        hs.drive_read_stddev = stats_dict['drive_read_stddev']
+        hs.drive_read_max = stats_dict['drive_read_max']
     
 
         return hs
