@@ -14,5 +14,8 @@ class ROSModelTest(unittest.TestCase):
         model2 = ROSModel()
         self.assertEqual(type(model1), type(model2))
 
+    def test_log_model(self):
+        log_model = ROSModel().get_log_model()
+
 
 unittest.main()

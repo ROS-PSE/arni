@@ -14,9 +14,9 @@ class TopicItem(AbstractItem):
         :param parent: the parent-object
         :type parent: object
         """
+        super(TopicItem, self).__init__(parent)
         self.__type = "topic"
 
-        AbstractItem.__init__(self, seuid, parent)
         #add the content
         self.__attributes = ["""topic",""" "window_start", "window_stop", "dropped_msgs", "traffic", "period_mean",
                       "period_stddev", "period_max", "stamp_age_mean", "stamp_age_stddev", "stamp_age_max"]

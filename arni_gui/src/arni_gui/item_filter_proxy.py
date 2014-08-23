@@ -15,7 +15,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
         :param parent: the parent-object
         :type parent: QObject
         """
-        QSortFilterProxyModel.__init__(parent)
+        super(ItemFilterProxy, self).__init__(parent)
         #todo: how will these be set correctly at the initialization of the program?
         self.__show_hosts = True
         self.__show_nodes = True

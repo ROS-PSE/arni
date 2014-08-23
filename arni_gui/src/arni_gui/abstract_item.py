@@ -6,26 +6,36 @@ class AbstractItem(QObject):
         INTERNAL: WARNING! Whenever the key-values at the beginning are not set right, the oddest things may occur!
     """
 
-    def __init__(self, seuid, parent=QObject()):
+    def __init__(self, seuid, parent=QObject(), *args):
             #todo:doku is missing here
             """Initializes theAbstractItem
 
             :param parent: the parent-object
             :type parent: object
             """
+            super(AbstractItem, self).__init__(parent)
+
             self.__data = {}
             self.__child_items = []
             self.__parent = parent
             self.seuid = seuid
             self.__type = "abstract"
             self.__attributes = ['type', 'name', 'state', 'data', 'window_end']
+            self.__attributes.extend(args)
+
 
             for item in self.__attributes:
+                self.__add_data_list(item)
+
+            for item in args:
                 self.__add_data_list(item)
 
 
     def get_seuid(self):
         return self.seuid
+
+    def get_state(self):
+        return self.__data["state"][-1]
 
 
     def __add_data_list(self, name):
@@ -45,17 +55,20 @@ class AbstractItem(QObject):
         :param data: the data to append in key value form
         :type data: dict
         """
+        if "window_end" not in data:
+            data["window_end"] = Time.now()
         for attribute in self.__attributes:
             if attribute in data:
                 self.__data[attribute].append(data[attribute])
             else:
-                self.__data[attribute].append("")
+                #todo: is there something better than None in this case? like "" ?
+                self.__data[attribute].append(None)
 
         self.__update_current_state()
 
     def __update_current_state(self):
         length = len(self.__data["state"])
-        for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5)))["type"]), length):
+        for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5)))["window_end"]), length):
             if self.__data["state"][i] == "error":
                 self.__data["state"][-1] = "warning"
                 break
@@ -163,6 +176,7 @@ class AbstractItem(QObject):
 
 
     def get_latest_data(self, key=None):
+        #todo:update docu, now more mighty
         """Returns the latest dict of the data_list or the item of the dict with the given key
 
         :param key: the key for the dict
@@ -178,9 +192,14 @@ class AbstractItem(QObject):
                 try:
                     return self.__data[key][-1]
                 except KeyError:
-                    print("KeyError catched when accesing element %s.", key)
+                    print("KeyError caught when accessing element %s.", key)
                     raise
-        return self.__data[-1]
+
+        return_dict = {}
+        # return dict of latest item
+        for entry in self.__data:
+            return_dict[entry] = self.__data[entry][-1]
+        return return_dict
 
 
     def parent(self):
@@ -243,12 +262,17 @@ class AbstractItem(QObject):
             return_values[key] = []
 
         list_of_time = self.__data["window_end"]
-        for i in range(0, len(list_of_time)):
+        for i in range(0, len(list_of_time) - 1):
             # check timestamp
             #start_time = Time.now() - Duration(nsecs=time)
             if list_of_time[i] > time:
                 for key in self.__data:
-                    return_values[key].append(self.__data[key][i])
+                    try:
+                        return_values[key].append(self.__data[key][i])
+                    except IndexError:
+                        print("IndexError! length of the list %s, accessed index %s. length of data at given point %s, key is %s",
+                              len(list_of_time), i, len(self.__data[key]), key)
+                        raise
         return return_values
 
     def execute_action(self, action):

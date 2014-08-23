@@ -3,13 +3,11 @@ __author__ = 'Matthias Hadlich'
 from python_qt_binding.QtGui import QStyledItemDelegate, QFont, QBrush, QColor
 from helper_functions import choose_brush
 
-class SizeDelegate(QStyledItemDelegate):
+class LogDelegate(QStyledItemDelegate):
     """Makes it possible to change the font size of the Gui-Plugin content."""
 
     def __init__(self, parent=None):
-        super(SizeDelegate, self).__init__(parent)
-        self.__current_font_size = 10
-
+        super(LogDelegate, self).__init__(parent)
 
     def paint(self, painter, option, index):
         """Defines how the items of the model will be painted in the view.

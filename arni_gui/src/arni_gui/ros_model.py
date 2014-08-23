@@ -44,7 +44,11 @@ class ROSModel(QAbstractItemModel):
         :type parent:
         """
         #rospy.init_node('arni_gui_model', log_level=rospy.DEBUG)
-        self.__root_item = AbstractItem("root", self)
+        super(ROSModel, self).__init__(parent)
+        self.__root_item = AbstractItem("root", self, "cpu_usage_mean", "cpu_temp_mean", "cpu_usage_max", "cpu_temp_max",
+                                        "average_ram_load", "ram_usage_max", "total_traffic", "connected_hosts",
+                                        "connected_nodes", "topic_counter", "connection_counter")
+
 
         self.__root_item.append_data_dict({
             'type': 'type',
@@ -58,20 +62,19 @@ class ROSModel(QAbstractItemModel):
             "topic_counter": 0,
             "connection_counter": 0,
             "cpu_usage_max": 0,
-            "cpu_temp_stddev": 0,
+            "cpu_temp_mean": 0,
             "average_ram_load": 0,
-            "cpu_usage_stddev": 0,
+            "cpu_usage_mean": 0,
             "cpu_temp_max": 0,
             "ram_usage_max": 0,
         })
-
-        QAbstractItemModel.__init__(self, parent)
         self.__parent = parent
         self.__model_lock = Lock()
 
         self.__identifier_dict = {"root": self.__root_item}
         self.__item_delegate = SizeDelegate()
         self.__log_model = QStandardItemModel(0, 4, None)
+        self.__log_model.setHorizontalHeaderLabels(["type", "date", "location", "message"])
         #self.__set_header_data()
         self.__mapping = {
             1: 'type',
@@ -82,14 +85,40 @@ class ROSModel(QAbstractItemModel):
         rospy.logdebug("Finished model initialization.")
         self.__buffer_thread = BufferThread(self)
         self.__last_time_error_occured = 0
+<<<<<<< HEAD
         
         
+=======
+
+        self.add_log_entry("info", rospy.Time.now(), "ROSModel", "ROSModel initilization finished")
+        self.add_log_entry("error", rospy.Time.now(), "ROSModel", "Just testing")
+
+
+
+>>>>>>> 8c8dd83a67b0ba40c4989c69de662f70778f61a6
 #is no longer needed because the header data won't change while running
     # def __set_header_data(self):
     #
     #
     #     # todo:is this correct
     #     self.headerDataChanged.emit(Qt.Horizontal, 1, 4)
+
+
+    def get_overview_data_since(self, time=None):
+        """
+        Return the info needed for the OverviewWidget as a dict.
+
+        :param time:
+        :type time: rospy.Time
+        :return: dict of values
+        """
+        if time is None:
+            data_dict = self.__root_item.get_latest_data()
+        else:
+            data_dict = self.__root_item.get_items_younger_than(time)
+
+        return data_dict
+
 
 
     def data(self, index, role):
@@ -141,6 +170,7 @@ class ROSModel(QAbstractItemModel):
         """
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return self.__root_item.get_latest_data(self.__mapping[section])
+        print("orientation is %s, Role is %s", orientation, role)
         raise IndexError("Illegal access to a non existent line.")
 
 
@@ -203,11 +233,11 @@ class ROSModel(QAbstractItemModel):
             return 0
 
         if not parent.isValid():
-            parent_item = self.rootItem
+            parent_item = self.__root_item
         else:
             parent_item = parent.internalPointer()
 
-        return parent_item.childCount()
+        return parent_item.child_count()
 
 
     def columnCount(self, parent):
@@ -237,6 +267,7 @@ class ROSModel(QAbstractItemModel):
         :param host_statistics:
         :type host_statistics: list
         """
+        self.layoutAboutToBeChanged.emit()
         #todo: remove in productional code
         now = rospy.Time.now()
 
@@ -253,6 +284,7 @@ class ROSModel(QAbstractItemModel):
             self.__transform_rated_statistics_item(item)
 
         data_dict = {
+            "state": "ok",
             "total_traffic": 0,
             "connected_hosts": 0,
             "connected_nodes": 0,
@@ -272,43 +304,73 @@ class ROSModel(QAbstractItemModel):
         connected_nodes = 0
         topic_counter = 0
         connection_counter = 0
+        state = "ok"
 
         #time window
         #todo: where should total_traffic be calculated? currently sum of the bandwidth of the nics
+        #todo: extract in own method????
         #generate the general information
         for host_item in self.__root_item.get_childs():
             #hostinfo
             connected_hosts += 1
             data = host_item.get_items_younger_than(Time.now() - Duration(nsecs=UPDATE_FREQUENCY))
             #anpassen an host_item!!!!!
-            for key in data:
-                for entry in data[key]:
-                    if key is not ["bandwidth_mean", "cpu_usage_max", "cpu_temp_mean", "average_ram_load", "cpu_usage_mean", "cpu_temp_max", "ram_usage_max"]:
-                        pass
-                    elif key is "bandwidth_mean":
-                        data_dict["total_traffic"] += entry
-                    else:
-                        data_dict[key] += entry
+            if host_item.get_state() is "warning" and state is not "error":
+                state = "warning"
+            elif host_item.get_state() is "error":
+                state = "error"
 
+            for key in data:
+                if key is not ["bandwidth_mean", "cpu_usage_max", "cpu_temp_mean", "average_ram_load",
+                               "cpu_usage_mean", "cpu_temp_max", "ram_usage_max"]:
+                    break
+                elif key is "bandwidth_mean":
+                    for entry in data[key]:
+                        data_dict["total_traffic"] += entry
+                else:
+                    for entry in data[key]:
+                        data_dict[key] += entry
             for node_item in host_item.get_childs():
                 #nodeinfo
                 connected_nodes += 1
+
+                if node_item.get_state() is "warning" and state is not "error":
+                    state = "warning"
+                elif node_item.get_state() is "error":
+                    state = "error"
+
                 for topic_item in node_item.get_childs():
                     #topic info
                     topic_counter += 1
+
+                    if topic_item.get_state() is "warning" and state is not "error":
+                        state = "warning"
+                    elif topic_item.get_state() is "error":
+                        state = "error"
+
                     for connection_item in topic_item.get_childs():
                         #connection info
                         connection_counter += 1
+
+                        if connection_item.get_state() is "warning" and state is not "error":
+                            state = "warning"
+                        elif connection_item.get_state() is "error":
+                            state = "error"
+
 
         data_dict["connected_hosts"] = connected_hosts
         data_dict["connected_nodes"] = connected_nodes
         data_dict["topic_counter"] = topic_counter
         data_dict["connection_counter"] = connection_counter
+        data_dict["state"] = state
 
         #now give this information to the root :)
+        self.__root_item.append_data_dict(data_dict)
 
         #todo: does this work correctly?
         rospy.logdebug("update_model (in ros_model) took: %s ", rospy.Time.now() - now)
+
+        self.layoutChanged.emit()
 
 
     def __transform_rated_statistics_item(self, item):
@@ -445,4 +507,3 @@ class ROSModel(QAbstractItemModel):
         self.__log_model.setData(self.__log_model.index(0, 1), str(date))
         self.__log_model.setData(self.__log_model.index(0, 2), str(location))
         self.__log_model.setData(self.__log_model.index(0, 3), str(message))
-        

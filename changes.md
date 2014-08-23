@@ -28,3 +28,5 @@ Change
 * the names of the services now are /get_statistic_history and /execute_node_reaction
 * name change from add_log_item to add_log_entry
 * new class **ErrorDelegate** for painting the log model with color
+
+* overview.ui from log_tab_tree_widget to log_tab_tree_view. gets a new item graph_widget for the graphic widget containing the graphs

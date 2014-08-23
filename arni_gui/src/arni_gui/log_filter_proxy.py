@@ -14,6 +14,7 @@ class LogFilterProxy(QSortFilterProxyModel):
         :param parent: the parent-object
         :type parent: QObject
         """
+        super(LogFilterProxy, self).__init__(parent)
         self.__current_item = None
 
 
@@ -28,6 +29,9 @@ class LogFilterProxy(QSortFilterProxyModel):
 
         :returns: bool
         """
+        if self.__current_item is None:
+            return True
+
         name = self.__current_item.get_seuid()
 
         #todo: !!!!!!choose the right row here!!!!!!
