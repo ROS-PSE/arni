@@ -85,17 +85,10 @@ class ROSModel(QAbstractItemModel):
         rospy.logdebug("Finished model initialization.")
         self.__buffer_thread = BufferThread(self)
         self.__last_time_error_occured = 0
-<<<<<<< HEAD
-        
-        
-=======
-
         self.add_log_entry("info", rospy.Time.now(), "ROSModel", "ROSModel initilization finished")
         self.add_log_entry("error", rospy.Time.now(), "ROSModel", "Just testing")
-
-
-
->>>>>>> 8c8dd83a67b0ba40c4989c69de662f70778f61a6
+        
+        
 #is no longer needed because the header data won't change while running
     # def __set_header_data(self):
     #
