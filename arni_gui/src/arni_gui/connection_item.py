@@ -14,9 +14,10 @@ class ConnectionItem(AbstractItem):
         :param parent: the parent-object
         :type parent: object
         """
+        super(ConnectionItem, self).__init__(parent)
+
         self.__type = "connection"
 
-        AbstractItem.__init__(self, seuid, parent)
         #add the content
         self.__attributes = [""" NO longer needed: topic", "node_pub", "node_sub",""" "window_start", "window_stop",
                              "dropped_msgs", "traffic",

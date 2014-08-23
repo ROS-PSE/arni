@@ -13,6 +13,8 @@ class AbstractItem(QObject):
             :param parent: the parent-object
             :type parent: object
             """
+            super(AbstractItem, self).__init__(parent)
+
             self.__data = {}
             self.__child_items = []
             self.__parent = parent
@@ -45,11 +47,14 @@ class AbstractItem(QObject):
         :param data: the data to append in key value form
         :type data: dict
         """
+        if "window_end" not in data:
+            data["window_end"] = Time.now()
         for attribute in self.__attributes:
             if attribute in data:
                 self.__data[attribute].append(data[attribute])
             else:
-                self.__data[attribute].append("")
+                #todo: is there something better than None in this case? like "" ?
+                self.__data[attribute].append(None)
 
         self.__update_current_state()
 
@@ -163,6 +168,7 @@ class AbstractItem(QObject):
 
 
     def get_latest_data(self, key=None):
+        #todo:update docu, now more mighty
         """Returns the latest dict of the data_list or the item of the dict with the given key
 
         :param key: the key for the dict
@@ -180,7 +186,12 @@ class AbstractItem(QObject):
                 except KeyError:
                     print("KeyError catched when accesing element %s.", key)
                     raise
-        return self.__data[-1]
+
+        return_dict = {}
+        # return dict of latest item
+        for entry in self.__data:
+            return_dict[entry] = self.__data[key][-1]
+        return return_dict
 
 
     def parent(self):

@@ -44,6 +44,7 @@ class ROSModel(QAbstractItemModel):
         :type parent:
         """
         #rospy.init_node('arni_gui_model', log_level=rospy.DEBUG)
+        super(ROSModel, self).__init__(parent)
         self.__root_item = AbstractItem("root", self)
 
         self.__root_item.append_data_dict({
@@ -64,14 +65,13 @@ class ROSModel(QAbstractItemModel):
             "cpu_temp_max": 0,
             "ram_usage_max": 0,
         })
-
-        QAbstractItemModel.__init__(self, parent)
         self.__parent = parent
         self.__model_lock = Lock()
 
         self.__identifier_dict = {"root": self.__root_item}
         self.__item_delegate = SizeDelegate()
         self.__log_model = QStandardItemModel(0, 4, None)
+        self.__log_model.setHorizontalHeaderLabels(["type", "date", "location", "message"])
         #self.__set_header_data()
         self.__mapping = {
             1: 'type',
@@ -83,6 +83,9 @@ class ROSModel(QAbstractItemModel):
         self.__buffer_thread = BufferThread(self)
         self.__last_time_error_occured = 0
 
+        self.add_log_entry("info", rospy.Time.now(), "ROSModel", "ROSModel initilization finished")
+        self.add_log_entry("error", rospy.Time.now(), "ROSModel", "Just testing")
+
 
 
 #is no longer needed because the header data won't change while running
@@ -91,6 +94,23 @@ class ROSModel(QAbstractItemModel):
     #
     #     # todo:is this correct
     #     self.headerDataChanged.emit(Qt.Horizontal, 1, 4)
+
+
+    def get_overview_data_since(self, time=None):
+        """
+        Return the info needed for the OverviewWidget as a dict.
+
+        :param time:
+        :type time: rospy.Time
+        :return: dict of values
+        """
+        if time is None:
+            data_dict = self.__root_item.get_latest_data()
+        else:
+            data_dict = self.__root_item.get_items_younger_than(time)
+
+        return data_dict
+
 
 
     def data(self, index, role):
@@ -142,6 +162,7 @@ class ROSModel(QAbstractItemModel):
         """
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return self.__root_item.get_latest_data(self.__mapping[section])
+        print("orientation is %s, Role is %s", orientation, role)
         raise IndexError("Illegal access to a non existent line.")
 
 
@@ -204,11 +225,11 @@ class ROSModel(QAbstractItemModel):
             return 0
 
         if not parent.isValid():
-            parent_item = self.rootItem
+            parent_item = self.__root_item
         else:
             parent_item = parent.internalPointer()
 
-        return parent_item.childCount()
+        return parent_item.child_count()
 
 
     def columnCount(self, parent):
@@ -238,6 +259,7 @@ class ROSModel(QAbstractItemModel):
         :param host_statistics:
         :type host_statistics: list
         """
+        self.layoutAboutToBeChanged.emit()
         #todo: remove in productional code
         now = rospy.Time.now()
 
@@ -307,9 +329,12 @@ class ROSModel(QAbstractItemModel):
         data_dict["connection_counter"] = connection_counter
 
         #now give this information to the root :)
+        self.__root_item.append_data_dict(data_dict)
 
         #todo: does this work correctly?
         rospy.logdebug("update_model (in ros_model) took: %s ", rospy.Time.now() - now)
+
+        self.layoutChanged.emit()
 
 
     def __transform_rated_statistics_item(self, item):
@@ -443,6 +468,6 @@ class ROSModel(QAbstractItemModel):
         """
         self.__log_model.insertRow(0)
         self.__log_model.setData(self.__log_model.index(0, 0), type)
-        self.__log_model.setData(self.__log_model.index(0, 1), date)
+        self.__log_model.setData(self.__log_model.index(0, 1), str(date))
         self.__log_model.setData(self.__log_model.index(0, 2), location)
         self.__log_model.setData(self.__log_model.index(0, 3), message)

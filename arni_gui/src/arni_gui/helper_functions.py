@@ -7,7 +7,7 @@ UPDATE_FREQUENCY = 100000000
 
 
 
-def choose_brush(self, index):
+def choose_brush(index):
     """
     :type index: QModelIndex
     """

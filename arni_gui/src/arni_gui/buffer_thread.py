@@ -30,7 +30,7 @@ class BufferThread(Thread):
         :param model: the object of the ROSModel
         :type model: ROSModel
         """
-        Thread.__init__(self)
+        super(BufferThread, self).__init__()
 
         self.__rated_statistics_buffer_lock = Lock()
         self.__topic_statistics_buffer_lock = Lock()
@@ -45,6 +45,10 @@ class BufferThread(Thread):
         self.start()
         self.__timer = Timer(Duration(nsecs=UPDATE_FREQUENCY), self.__update_model)
 
+    def __del__(self):
+        print("\nDestructor BufferThread\n")
+        self.__timer.stop()
+        del self.__timer
 
     #todo: is this optimal=?
     def start(self):

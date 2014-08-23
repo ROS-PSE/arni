@@ -14,9 +14,10 @@ class HostItem(AbstractItem):
         :param parent: the parent-object
         :type parent: object
         """
+        super(HostItem, self).__init__(parent)
+
         self.__type = "host"
 
-        AbstractItem.__init__(self, seuid, parent)
         #add the content
         self.__attributes = ["window_start", "window_stop", "cpu_temp_mean", "cpu_temp_stddev", "cpu_temp_max", "cpu_usage_mean",
                       "cpu_usage_stddev", "cpu_usage_max", "cpu_usage_core_mean", "cpu_usage_core_stddev",
