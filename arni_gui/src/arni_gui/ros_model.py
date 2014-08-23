@@ -82,9 +82,8 @@ class ROSModel(QAbstractItemModel):
         rospy.logdebug("Finished model initialization.")
         self.__buffer_thread = BufferThread(self)
         self.__last_time_error_occured = 0
-
-
-
+        
+        
 #is no longer needed because the header data won't change while running
     # def __set_header_data(self):
     #
@@ -442,7 +441,8 @@ class ROSModel(QAbstractItemModel):
         :type list: list
         """
         self.__log_model.insertRow(0)
-        self.__log_model.setData(self.__log_model.index(0, 0), type)
-        self.__log_model.setData(self.__log_model.index(0, 1), date)
-        self.__log_model.setData(self.__log_model.index(0, 2), location)
-        self.__log_model.setData(self.__log_model.index(0, 3), message)
+        self.__log_model.setData(self.__log_model.index(0, 0), str(type))
+        self.__log_model.setData(self.__log_model.index(0, 1), str(date))
+        self.__log_model.setData(self.__log_model.index(0, 2), str(location))
+        self.__log_model.setData(self.__log_model.index(0, 3), str(message))
+        

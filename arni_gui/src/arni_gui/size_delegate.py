@@ -13,51 +13,44 @@ class SizeDelegate(QStyledItemDelegate):
         super(SizeDelegate, self).__init__(parent)
         #QStyledItemDelegate.__init__(parent)
         self.__current_font_size = 10
-
+        
 
     def paint(self, painter, option, index):
         """Defines how the items of the model will be painted in the view. Can be used  to draw e.g. bigger or smaller fonts.
 
-    :param painter: The painter which will be used to paint
-    :type painter: QPainter
-    :param option: The options parameter
-    :type option: QStyleOptionViewItem
-    :param index: The QModelIndex that will be painted
-    :type index: QModelIndex
-    """
+        :param painter: The painter which will be used to paint
+        :type painter: QPainter
+        :param option: The options parameter
+        :type option: QStyleOptionViewItem
+        :param index: The QModelIndex that will be painted
+        :type index: QModelIndex
+        """
         #todo:#Iignoretheoptionsparameter
         painter.save()
-        font = QFont()
-        #font.setWeight(QFont.Bold)
-        #setting the size of the font
-        #todo:does this have to be set in the option param?
-        
-        #font.setPointSize(self.__current_font_size)
- 
-        brush = choose_brush(index)
-        painter.setFont(font)
-        painter.setBrush(brush)
-        
         option.font.setPointSize(self.__current_font_size)
-        option.font.setWeight(QFont.Bold)
-
-        #todo:set painter background for error cases?
         QStyledItemDelegate.paint(self, painter, option, index)
-
         painter.restore()
 
 
+    # TODO: trigger a repaint without focus the tree_view
     def set_bigger_font_size(self):
         """Increases the displayed font-size."""
         self.__current_font_size += 2
+        
 
     def set_smaller_font_size(self):
         """Decreases the displayed font-size."""
         self.__current_font_size -= 2
         
+    # will only be calles at initialization
+    # only the height of a cell can be changed, changing the width has no effect
     def sizeHint(self, option, index):
-        result = QStyledItemDelegate().sizeHint(option, index);
-        result.setHeight(result.height()*2)
+        default = QStyledItemDelegate.sizeHint(self, option, index)
+        return QSize(default.width(), default.height())
         
-        return result
-        
+     
+    # TODO: DOKU
+    # handels the backgroundcolour from a cell
+    def initStyleOption(self, option, index):
+        super(SizeDelegate,self).initStyleOption(option, index)
+        option.backgroundBrush = QBrush(choose_brush(index))

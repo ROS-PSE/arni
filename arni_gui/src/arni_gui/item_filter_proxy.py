@@ -1,4 +1,5 @@
 from python_qt_binding.QtGui import QSortFilterProxyModel
+from python_qt_binding.QtCore import QObject
 
 
 class ItemFilterProxy(QSortFilterProxyModel):
@@ -8,7 +9,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
 
     # todo: will call to setFilterRegEx be redirected to the parent automatically?
 
-    def __init__(self, parent):
+    def __init__(self, parent=QObject()):
         """Initializes the ItemFilterProxy
 
         :param parent: the parent-object
@@ -18,8 +19,8 @@ class ItemFilterProxy(QSortFilterProxyModel):
         #todo: how will these be set correctly at the initialization of the program?
         self.__show_hosts = True
         self.__show_nodes = True
-        self.__show_connections = True
-        self.__show_topics = True
+        self.__show_connections = False
+        self.__show_topics = False
 
 
     def filterAcceptsRow(self, source_row, source_parent):

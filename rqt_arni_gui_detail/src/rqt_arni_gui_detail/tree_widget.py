@@ -23,26 +23,15 @@ class TreeWidget(QWidget):
         # Extend the widget with all attributes and children from UI file
         loadUi(ui_file, self)
         self.setObjectName('TreeWidgetUi')
-
-        # #only for testing
-        #model = QStandardItemModel()
-        #for k in range(0, 4):
-        #    parentItem = model.invisibleRootItem()
-        #    for i in range(0, 4):
-        #	item = QStandardItem(("row %d, column %d") % (k, i))
-        #	parentItem.appendRow(item)
-        #	parentItem = item
-        #self.item_tree_view.setModel(model)
-        ##
+        
 
         self.__model = ROSModel()
-
-        self.__filter_proxy = ItemFilterProxy(self.item_tree_view)
+        self.__filter_proxy = ItemFilterProxy()
         
         self.item_tree_view.setModel(self.__model)
 
-        self.__size_delegate = SizeDelegate(self.item_tree_view)
-        self.item_tree_view.setItemDelegate(self.__size_delegate)
+        self.__size_delegate = SizeDelegate()
+        self.item_tree_view.setItemDelegate(self.__size_delegate)       
 
         self.__connect_slots()
 

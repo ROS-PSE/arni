@@ -1,5 +1,6 @@
 from abstract_item import AbstractItem
 from python_qt_binding.QtGui import QSortFilterProxyModel
+from python_qt_binding.QtCore import QObject
 
 class LogFilterProxy(QSortFilterProxyModel):
     """The LogFilterProxy will especially be used to filter the complete log e.g. by a specific node.
@@ -7,7 +8,7 @@ class LogFilterProxy(QSortFilterProxyModel):
     should be shown."""
 
 
-    def __init__(self, parent):
+    def __init__(self, parent=QObject()):
         """Initializes the LogFilterProxy
     
         :param parent: the parent-object
