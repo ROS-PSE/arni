@@ -4,7 +4,7 @@ The todos should be fixed earlier or later.
 """
 from python_qt_binding.QtGui import QStyledItemDelegate, QFont, QBrush, QColor
 from helper_functions import choose_brush
-from python_qt_binding.QtCore import QObject
+from python_qt_binding.QtCore import QObject, QSize
 
 class SizeDelegate(QStyledItemDelegate):
     """Makes it possible to change the font size of the Gui-Plugin content."""
@@ -28,13 +28,18 @@ class SizeDelegate(QStyledItemDelegate):
         #todo:#Iignoretheoptionsparameter
         painter.save()
         font = QFont()
+        #font.setWeight(QFont.Bold)
         #setting the size of the font
         #todo:does this have to be set in the option param?
-        font.setPixelSize(self.__current_font_size)
+        
+        #font.setPointSize(self.__current_font_size)
  
         brush = choose_brush(index)
         painter.setFont(font)
         painter.setBrush(brush)
+        
+        option.font.setPointSize(self.__current_font_size)
+        option.font.setWeight(QFont.Bold)
 
         #todo:set painter background for error cases?
         QStyledItemDelegate.paint(self, painter, option, index)
@@ -46,7 +51,13 @@ class SizeDelegate(QStyledItemDelegate):
         """Increases the displayed font-size."""
         self.__current_font_size += 2
 
-
     def set_smaller_font_size(self):
         """Decreases the displayed font-size."""
         self.__current_font_size -= 2
+        
+    def sizeHint(self, option, index):
+        result = QStyledItemDelegate().sizeHint(option, index);
+        result.setHeight(result.height()*2)
+        
+        return result
+        
