@@ -9,12 +9,12 @@ class StatisticsHandler(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self):
+    def __init__(self, _id):
 
         super(StatisticsHandler, self).__init__()
 
         #: ID of the host or node.
-        self._id
+        self._id = _id 
 
         #: Holds information about the current status.
         self._status

@@ -154,7 +154,8 @@ class HostStatus(Status):
         Resets the values specific to Host or Nodes
         """
         del self.__cpu_temp[:]
-        del self.__cpu_temp_core[:]
+        for i in self.__cpu_temp_core:
+            del i[:]
         del self.__gpu_temp[:]
 
         self.__bandwidth.clear()
@@ -170,7 +171,9 @@ class HostStatus(Status):
         self.__calc_drive_stats()
 
         self._stats_dict['interface_name'] = [key for key in self.__bandwidth]
-        self._stats_dict['drive_name'] = [key for key in self.__drive_read]
+        self._stats_dict['drive_name'] = [key for key in self.__drive_space]
+        self._stats_dict['drive_free_space'] = [self.__drive_space[key] for key in 
+                                                self.__drive_space]
 
     def __calc_temp_stats(self):
 
@@ -198,7 +201,7 @@ class HostStatus(Status):
 
         self._stats_dict['message_frequency_mean'] = [i.mean for i in msg_frequency]
         self._stats_dict['message_frequency_stddev'] = [i.stddev for i in msg_frequency]
-        self._stats_dict['messag_frequency_max'] = [i.max for i in msg_frequency]
+        self._stats_dict['message_frequency_max'] = [i.max for i in msg_frequency]
 
     def __calc_drive_stats(self):
         drive_write = [self.calc_stat_tuple(self.__drive_write[key]) 

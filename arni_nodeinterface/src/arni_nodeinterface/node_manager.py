@@ -9,9 +9,10 @@ class NodeManager(object):
     """
     
     def __init__(self):
-        
-        
-        
+        """
+        empty comment to prevent indention error for whatever reason
+        """    
+           
     def stop_node(self, node_id):
         """
         Stops the node with the given id.
