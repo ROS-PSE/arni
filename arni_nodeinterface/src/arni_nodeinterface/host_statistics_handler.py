@@ -10,6 +10,7 @@ import xmlrpclib
 import rosnode
 import rospy
 import sensors
+import threading
 
 class HostStatisticsHandler( StatisticsHandler):
 
@@ -28,6 +29,7 @@ class HostStatisticsHandler( StatisticsHandler):
         self.__init_params()
         self.__register_service()
         self.pub = rospy.Publisher('/statistics_host', HostStatistics)
+        self.__lock = threading.lock()
        
         #: Used to store information about the host's status.
         self._status = HostStatus(rospy.Time.now())
@@ -88,6 +90,7 @@ class HostStatisticsHandler( StatisticsHandler):
         Triggered periodically.
         """
 
+        self.__lock.acquire()
         #update node list
         self.get_node_info()
         self.update_nodes()
@@ -107,6 +110,7 @@ class HostStatisticsHandler( StatisticsHandler):
         self.__measure_network_usage()
         #Disk usage        
         self.__measure_disk_usage()
+        self.__lock.release()
 
 
     def __measure_network_usage(self):
@@ -162,7 +166,7 @@ class HostStatisticsHandler( StatisticsHandler):
         Publishes the current status to a topic using ROS's publisher-subscriber mechanism.
         Triggered periodically. 
         """
-        
+        self.__lock.acquire()
         self._status.time_end = rospy.Time.now()
         stats = self.__calc_statistics()
 
@@ -171,6 +175,7 @@ class HostStatisticsHandler( StatisticsHandler):
         self.pub.publish(stats)
         self._status.reset()
         self._status.time_start = rospy.Time.now()
+        self.__lock.release()
 
     def __publish_nodes(self):
         """
@@ -273,10 +278,11 @@ class HostStatisticsHandler( StatisticsHandler):
         :returns: String
         """
 
+        msg = ''
         if reaction.node not in self.__node_list:
             return 'spefified Node is not running on this Host'
 
-        if reaction.action =='restart':
+        if reaction.action == 'restart':
             node = self.__node_list[reaction.node]
             msg = self.__node_manager.restart_node(node)
             self.remove_node(reaction.node)
@@ -285,6 +291,8 @@ class HostStatisticsHandler( StatisticsHandler):
             self.remove_node(reaction.node)
         elif reaction.action == 'command':
             msg = self.__node_manager.execute_command(reaction.command)
+        else:
+            msg = 'Failed to execute reaction, %s is no valid argument'%reaction.action
         return msg
 
         

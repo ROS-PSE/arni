@@ -10,10 +10,10 @@ def main():
     try:
         rospy.sleep(1)
         rospy.Timer(rospy.Duration(host.update_intervall), host.measure_status)
+        rospy.Timer(rospy.Duration(host.publish_intervall),host.publish_status)
         while not rospy.is_shutdown():
-            rospy.sleep(host.publish_intervall)
-            host.publish_status()
-        rospy.on_shutdown(host.shutdownhook)
+            rospy.spin()
+        rospy.on_shutdown(host.shut_down_hook)
     except rospy.ROSInterruptException:
         pass
 
