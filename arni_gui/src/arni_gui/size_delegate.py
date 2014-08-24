@@ -35,15 +35,15 @@ class SizeDelegate(QStyledItemDelegate):
     # TODO: trigger a repaint without focus the tree_view
     def set_bigger_font_size(self):
         """Increases the displayed font-size."""
-        self.__current_font_size += 2
+        self.__current_font_size += 1
         
 
     def set_smaller_font_size(self):
         """Decreases the displayed font-size."""
-        self.__current_font_size -= 2
+        self.__current_font_size -= 1
         
-    # will only be calles at initialization
-    # only the height of a cell can be changed, changing the width has no effect
+    ## will only be calles at initialization
+    ## only the height of a cell can be changed, changing the width has no effect
     def sizeHint(self, option, index):
         default = QStyledItemDelegate.sizeHint(self, option, index)
         return QSize(default.width(), default.height())

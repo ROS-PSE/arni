@@ -31,3 +31,6 @@ Change
 * new class **ErrorDelegate** for painting the log model with color
 
 * overview.ui from log_tab_tree_widget to log_tab_tree_view. gets a new item graph_widget for the graphic widget containing the graphs
+
+* selection.ui from log_tab_tree_widget to log_tab_tree_view.
+* arni_gui_detail: moved __on_item_in_item_tree_view_double_clicked(self, item): from tree_widget to arni_gui_detail to handle the content change of the selection_widget

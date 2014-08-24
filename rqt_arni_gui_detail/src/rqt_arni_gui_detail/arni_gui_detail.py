@@ -32,9 +32,24 @@ class ArniGuiDetail(Plugin):
 
         self.__tree_widget = TreeWidget()
         context.add_widget(self.__tree_widget)
+        self.__tree_widget.connect_slots()
 
+        #TODO init the selection widget with an given entry from the tree_widget or find another solution for the start of the plugin
         self.__selection_widget = SelectionWidget()
-        context.add_widget(self.__selection_widget)
+        context.add_widget(self.__selection_widget)       
+        self.__selection_widget.connect_slots()
+        
+        #: is handeld here for the widget communication
+        self.__tree_widget.item_tree_view.doubleClicked.connect(self.__on_item_in_item_tree_view_double_clicked)
+
+
+    def __on_item_in_item_tree_view_double_clicked(self, item):
+        """Handels the double-click action and opens the clicked item in the SelectionWidget
+
+        :param item: the double-clicked item
+        :type item: QModelIndex
+        """
+        self.__selection_widget.set_selected_item(item)
 
     def shutdown_plugin(self):
         # TODO unregister all publishers here
