@@ -30,7 +30,7 @@ class HostStatisticsHandler( StatisticsHandler):
 
         self.__init_params()
         self.__register_service()        
-        self.__lock = threading.lock()
+        self.__lock = threading.Lock()
 
         self.pub = rospy.Publisher('/statistics_host', HostStatistics, queue_size = 500)
         #: Used to store information about the host's status.
@@ -86,7 +86,7 @@ class HostStatisticsHandler( StatisticsHandler):
         rospy.Service("/" + self._id + "/execute_node_reaction", 
                         NodeReaction, self.execute_reaction)
 
-    def measure_status(self):
+    def measure_status(self, event):
         """
         Collects information about the host's current status using psutils.
         Triggered periodically.
@@ -163,7 +163,7 @@ class HostStatisticsHandler( StatisticsHandler):
                 self.__disk_write_base[key] += writeb
 
 
-    def publish_status(self):
+    def publish_status(self, event):
         """
         Publishes the current status to a topic using ROS's publisher-subscriber mechanism.
         Triggered periodically. 
