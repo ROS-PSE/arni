@@ -110,34 +110,34 @@ class OverviewWidget(QWidget):
             "cpu_temp_max": None,
             "ram_usage_max": None
         }
-
-        self.__maximum_values = {
-            "total_traffic": 10,
-            "connected_hosts": 10,
-            "connected_nodes": 10,
-            "topic_counter": 10,
-            "connection_counter": 10,
-            "cpu_usage_max": 100,
-            "cpu_temp_mean": 50,
-            "average_ram_load": 100,
-            "cpu_usage_mean": 100,
-            "cpu_temp_max": 90,
-            "ram_usage_max": 100
-        }
-
-        self.__values_dict = {
-            "total_traffic": None,
-            "connected_hosts": None,
-            "connected_nodes": None,
-            "topic_counter": None,
-            "connection_counter": None,
-            "cpu_usage_max": None,
-            "cpu_temp_mean": None,
-            "average_ram_load": None,
-            "cpu_usage_mean": None,
-            "cpu_temp_max": None,
-            "ram_usage_max": None
-        }
+        #
+        # self.__maximum_values = {
+        #     "total_traffic": 10,
+        #     "connected_hosts": 10,
+        #     "connected_nodes": 10,
+        #     "topic_counter": 10,
+        #     "connection_counter": 10,
+        #     "cpu_usage_max": 100,
+        #     "cpu_temp_mean": 50,
+        #     "average_ram_load": 100,
+        #     "cpu_usage_mean": 100,
+        #     "cpu_temp_max": 90,
+        #     "ram_usage_max": 100
+        # }
+        #
+        # self.__values_dict = {
+        #     "total_traffic": None,
+        #     "connected_hosts": None,
+        #     "connected_nodes": None,
+        #     "topic_counter": None,
+        #     "connection_counter": None,
+        #     "cpu_usage_max": None,
+        #     "cpu_temp_mean": None,
+        #     "average_ram_load": None,
+        #     "cpu_usage_mean": None,
+        #     "cpu_temp_max": None,
+        #     "ram_usage_max": None
+        # }
 
         #self.__graph_layout = QVBoxLayout()
         #self.__graph_widget = QWidget()
@@ -147,7 +147,7 @@ class OverviewWidget(QWidget):
         self.graph_scroll_area.resize(self.graph_scroll_area.maximumWidth(), len(self.__graph_dict) * 200)
         #self.__graph_widget.setSizePolicy(QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum))
 
-        for key in self.__graph_dict:
+        for key in self.__model.get_root_item().get_plotable_items():
             #y=np.arrange(0, self.__maximum_values[key], 2)
             date_axis = DateAxis(orientation="bottom")
             values_axis = pg.AxisItem(orientation="left")
@@ -162,13 +162,13 @@ class OverviewWidget(QWidget):
             plot_widget.showGrid(x=True, y=True)
             plot_widget.setMenuEnabled(enableMenu=True)
             plot_widget.enableAutoRange('xy', True)
-            plot_widget.viewGeometry
 
         #todo: make a first, special update at the beginning (might be that there is fresh data)
         #todo: separate from the layoutChanged signal --> own timer!
-        #elf.update_graphs(firstrun=True)
-
+        #self.update_graphs(None)
         self.__timer = Timer(Duration(secs=2), self.update_graphs)
+
+
 
 
 
@@ -195,6 +195,7 @@ class OverviewWidget(QWidget):
         :param index: the index of the selected range
         :type index: int
         """
+        #print("current_combo_box index changed\n")
         self.__current_combo_box_index = index
 
     def update(self):
@@ -236,26 +237,53 @@ class OverviewWidget(QWidget):
         self.__update_graphs_lock.acquire()
         if self.__draw_graphs is True:
             now = rospy.Time.now()
-            plot_data = self.__model.get_overview_data_since(Time.now() - Duration(self.__combo_box_index_to_seconds(
-                self.__current_combo_box_index)))
+            #plot_data = self.__model.get_overview_data_since(Time.now() - Duration(secs=self.__combo_box_index_to_seconds(self.__current_combo_box_index)))
             #now plotting
-            for key in  self.__values_dict:
-                #todo: is there a better way than int(str(x)) ?
-                temp = []
-                for item in plot_data["window_end"]:
-                    temp.append(int(str(item))/1000000000)
-                x = np.array(temp)
-                #print(x)
-                #print("\n")
-                #todo: does this also work, when ints are inputed (or None values^^)
-                y = np.array(plot_data[key], np.dtype('f8'))
-                #print(y)
-                #todo: will this plot every time a new line?
+            plotable_items = self.__model.get_root_item().get_plotable_items()
+            plotable_data = self.__model.get_root_item().get_items_younger_than(Time.now() - Duration(secs=self.__combo_box_index_to_seconds(self.__current_combo_box_index)), "window_end", *plotable_items)
+
+            #print("length time: " + str(len(plotable_data["window_end"])) + " length data: " + str(len(plotable_data[key])))
+            temp_time = []
+            temp_content = []
+
+            x = None
+            modulo = (len(plotable_data["window_end"]) / 100) + 1
+
+            for i in range(0, len(plotable_data["window_end"]), modulo):
+                #now having maximally 100 items to plot :)
+                temp_time.append(int(str(plotable_data["window_end"][i]))/1000000000)
+                    #print("time" + time.strftime("%d.%m-%H:%M:%S", time.localtime(int(str(item))/1000000000)) + "ms actual time: " + time.strftime("%d.%m-%H:%M:%S", time.localtime(int(str(Time.now()))/1000000000))+ "ms")
+                x = np.array(temp_time)
+                #del temp_time[:]
+
+            for key in plotable_items:
+                #print("length time: " + str(len(plotable_data["window_end"])) + " length data: " + str(len(plotable_data[key])))
+                #print("secs = " + str(self.__combo_box_index_to_seconds(self.__current_combo_box_index)))
+                for i in range(0, len(plotable_data["window_end"]), modulo):
+                    temp_content.append(plotable_data[key][i])
+                        #print(x)
+                        #print("\n")
+                        #todo: does this also work, when ints are inputed (or None values^^). is f8 needed here?
+                y = np.array(temp_content, np.dtype('f4'))
+                #print(len(temp_time))
+                #print(len(temp_content))
+                del temp_content[:]
+                now2 = rospy.Time.now()
                 self.__graph_dict[key].plot(x=x, y=y, fillLevel=0)
 
+
+                #todo: will this plot every time a new line?
+
+
+
+                string = "update_graphs - plot_data took: " + str(int(str(rospy.Time.now() - now2)) / 1000000) + "ms"
+                self.__model.add_log_entry("info",  rospy.Time.now(), "OverviewWidget", string)
+
+
+
+
+
                 #because of autoarrange y should not be set again and again
-                #todo: check if this is really working like intended
-                #todo: probably have to speed up internal implementation for fluent plotting
             string = "update_graphs took: " + str(int(str(rospy.Time.now() - now)) / 1000000) + "ms"
             self.__model.add_log_entry("info",  rospy.Time.now(), "OverviewWidget", string)
 

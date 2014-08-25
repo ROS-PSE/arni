@@ -272,7 +272,7 @@ class ROSModel(QAbstractItemModel):
         """
         self.layoutAboutToBeChanged.emit()
         #todo: remove in productional code
-        now = rospy.Time.now()
+        #now = rospy.Time.now()
 
         for item in topic_statistics:
             self.__transform_topic_statistics_item(item)
@@ -373,7 +373,7 @@ class ROSModel(QAbstractItemModel):
         self.__root_item.append_data_dict(data_dict)
 
         #todo: does this work correctly?
-        rospy.logdebug("update_model (in ros_model) took: %s ", rospy.Time.now() - now)
+        #self.add_log_entry("info", Time.now(), "ROSModel", "update_model (in ros_model) took: " + str(int(str(rospy.Time.now() - now))/1000000) + " milliseconds")
 
         self.layoutChanged.emit()
 
@@ -399,7 +399,7 @@ class ROSModel(QAbstractItemModel):
             for number in range(0, len(element.statistic_type)):
                 data[element.statistic_type + ".actual_value " + number] = element.actual_value
                 data[element.statistic_type + ".expected_value " + number] = element.expected_value
-                data[element.statistic_type+ ".state " + number] = element.state
+                data[element.statistic_type + ".state " + number] = element.state
                 if element.state is not element.OK:
                     data["state"] = "error"
 
@@ -533,3 +533,6 @@ class ROSModel(QAbstractItemModel):
 
     def get_overview_text(self):
         return self.__root_item.get_detailed_data()
+
+    def get_root_item(self):
+        return self.__root_item

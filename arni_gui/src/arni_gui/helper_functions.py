@@ -19,8 +19,6 @@ def choose_brush(index):
     elif index.data() == "warning":
         return QColor(255, 165, 0)
     elif index.data() == "error":
-        print("\n\n\n Testint\n\n\n")
         return QColor(255, 0, 0)
     else:
         return QColor(255, 255, 255)
-

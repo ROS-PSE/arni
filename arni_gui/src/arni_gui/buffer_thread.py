@@ -110,7 +110,7 @@ class BufferThread(Thread):
         :type item: RatedStatistics
         """
         #todo: are the locks necessary here? e.g. can this be called multiple times by the same subscriber?
-        self.__rated_statistics_buffer_lock.aquire()
+        self.__rated_statistics_buffer_lock.acquire()
         self.__rated_statistics_buffer.append(item)
         self.__rated_statistics_buffer_lock.release()
 
@@ -121,7 +121,7 @@ class BufferThread(Thread):
         :param item: the item which will be added to the buffer
         :type item: TopicStatistics
         """
-        self.__topic_statistics_buffer_lock.aquire()
+        self.__topic_statistics_buffer_lock.acquire()
         self.__topic_statistics_buffer.append(item)
         self.__topic_statistics_buffer_lock.release()
 
@@ -133,7 +133,7 @@ class BufferThread(Thread):
         :param item: the item which will be added to the buffer
         :type item: NodeStatistics
         """
-        self.__node_statistics_buffer_lock.aquire()
+        self.__node_statistics_buffer_lock.acquire()
         self.__node_statistics_buffer.append(item)
         self.__node_statistics_buffer_lock.release()
 
@@ -145,6 +145,6 @@ class BufferThread(Thread):
         :param item: the item which will be added to the buffer
         :type item: HostStatistics
         """
-        self.__host_statistics_buffer_lock.aquire()
+        self.__host_statistics_buffer_lock.acquire()
         self.__host_statistics_buffer.append(item)
         self.__host_statistics_buffer_lock.release()

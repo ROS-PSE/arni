@@ -34,3 +34,13 @@ class RootItem(AbstractItem):
         content += "</p>"
 
         return content
+
+
+    def get_plotable_items(self):
+        return ["average_ram_load", "cpu_usage_mean", "total_traffic"]
+
+    def units_of_plotable_items(self):
+        return {"average_ram_load": "%",
+                "cpu_usage_mean": "%",
+                "total_traffic": "%"
+                }

@@ -29,6 +29,8 @@ Change
 * the names of the services now are /get_statistic_history and /execute_node_reaction
 * name change from add_log_item to add_log_entry
 * new class **ErrorDelegate** for painting the log model with color
+* get_detailed_data 
+* extract the painting part from get_detailed_data to the widgets
 
 * overview.ui from log_tab_tree_widget to log_tab_tree_view.
 
@@ -47,7 +49,8 @@ Change
 * Gui does not react when being drawn..
 * why are sometimes empty values given to the axi?
 * why are there runtimeerrors when closing the gui. and why are there these threading errors(might it be the timers?)
-* scrolling does not work because of the permanent updates...
+* scrolling does not work because of the permanent updates...--> solution: if no data has changed, simply get_detailed_data simply returns None
+* in the gui the range box does not work correctly currently
 
 Done
 * lock updateGraphs --> non reentrant functions, otherwise segmentation faults occur!
