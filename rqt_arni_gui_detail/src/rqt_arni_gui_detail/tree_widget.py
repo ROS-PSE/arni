@@ -3,8 +3,7 @@ import rospy
 import rospkg
 
 from python_qt_binding import loadUi
-from python_qt_binding.QtCore import QObject
-from python_qt_binding.QtCore import *
+from python_qt_binding.QtCore import QObject, Qt, QRegExp
 from python_qt_binding.QtGui import *
 
 from arni_gui.ros_model import ROSModel
@@ -13,9 +12,10 @@ from arni_gui.item_filter_proxy import ItemFilterProxy
 
 
 class TreeWidget(QWidget):
-    def __init__(self):
+    def __init__(self, model):
         super(TreeWidget, self).__init__()
         self.setObjectName('treewidget')
+        self.__model = model
 
         # Get path to UI file which is a sibling of this file
         rp = rospkg.RosPack()
@@ -23,9 +23,8 @@ class TreeWidget(QWidget):
         # Extend the widget with all attributes and children from UI file
         loadUi(ui_file, self)
         self.setObjectName('TreeWidgetUi')
-        
 
-        self.__model = ROSModel()
+
         self.__filter_proxy = ItemFilterProxy()
         self.__filter_proxy.setSourceModel(self.__model)        
         self.item_tree_view.setModel(self.__filter_proxy)
@@ -60,7 +59,7 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if checkBox is unset
         :type activated: Integer
         """
-        if activated is 2:
+        if activated is Qt.Checked:
             self.__filter_proxy.show_nodes(True)
         else:
             self.__filter_proxy.show_nodes(False)
@@ -71,7 +70,7 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
-        if activated is 2:
+        if activated is Qt.Checked:
             self.__filter_proxy.show_hosts(True)
         else:
             self.__filter_proxy.show_hosts(False)
@@ -83,7 +82,7 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
-        if activated is 2:
+        if activated is Qt.Checked:
             self.__filter_proxy.show_topics(True)
         else:
             self.__filter_proxy.show_topics(False)
@@ -95,7 +94,7 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
-        if activated is 2:
+        if activated is Qt.Checked:
             self.__filter_proxy.show_connections(True)
         else:
             self.__filter_proxy.show_connections(False)
@@ -107,12 +106,13 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
-        pass
+        if activated is Qt.Checked:
+            #todo: does this match the right positions?
+            self.__filter_proxy.setFilterRegExp(QRegExp("error"))
 
-    #TODO say the filter_proxy to filter the items in the tree_view according to the content of the filter-box
     def __on_apply_push_button_clicked(self):
         """Filters the content in the box according to the content of the filter_line_edit"""
-        pass
+        self.__filter_proxy.setFilterRegExp(QRegExp(".*" + self.filter_line_Edit.text() + ".*"))
 
     def __on_minus_push_button_clicked(self):
         """Checks if the minus_push_button is clicked and zoomes out (decrease the size of the font)"""

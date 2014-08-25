@@ -26,6 +26,11 @@ class LogDelegate(QStyledItemDelegate):
         painter.setBrush(brush)
 
         #todo:set painter background for error cases?
-        QStyledItemDelegate.paint(self, painter, option, index)
+        super(LogDelegate, self).paint(painter, option, index)
 
         painter.restore()
+
+
+    def initStyleOption(self, option, index):
+        super(LogDelegate,self).initStyleOption(option, index)
+        option.backgroundBrush = QBrush(choose_brush(index))

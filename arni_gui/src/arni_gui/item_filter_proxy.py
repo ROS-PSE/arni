@@ -28,7 +28,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
         setFilterRegExp method so that e.g. only the entries of a specific host can be shown.
 
         :type source_row: int
-        :param source_parent: he source of the parent
+        :param source_parent: the source of the parent
         :type source_parent: QModelIndex
 
         :returns: bool
@@ -41,7 +41,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
 
         #todo:is this correct?
         data = self.sourceModel.data(entries[0])
-        for i in range (0,1):
+        for i in range(0, 1):
             if self.__show_hosts is True:
                 if data == "Host":
                     correct_type = True

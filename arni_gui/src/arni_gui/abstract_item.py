@@ -19,16 +19,16 @@ class AbstractItem(QObject):
             self.__child_items = []
             self.__parent = parent
             self.seuid = seuid
-            self.__type = "abstract"
-            self.__attributes = ['type', 'name', 'state', 'data', 'window_end']
-            self.__attributes.extend(args)
+            self.__type = "type"
+            self._attributes = ['type', 'name', 'state', 'data', 'window_end']
+            self._attributes.extend(args)
 
 
-            for item in self.__attributes:
-                self.__add_data_list(item)
-
-            for item in args:
-                self.__add_data_list(item)
+            # for item in self.__attributes:
+            #     self.__add_data_list(item)
+            #
+            # for item in args:
+            #     self.__add_data_list(item)
 
 
     def get_seuid(self):
@@ -38,7 +38,7 @@ class AbstractItem(QObject):
         return self.__data["state"][-1]
 
 
-    def __add_data_list(self, name):
+    def _add_data_list(self, name):
         self.__data[name] = []
 
     def append_child(self, child):
@@ -57,7 +57,7 @@ class AbstractItem(QObject):
         """
         if "window_end" not in data:
             data["window_end"] = Time.now()
-        for attribute in self.__attributes:
+        for attribute in self._attributes:
             if attribute in data:
                 self.__data[attribute].append(data[attribute])
             else:
@@ -79,7 +79,7 @@ class AbstractItem(QObject):
         :param data: the data to append in key value form
         :type data:
         """
-        for attribute in self.__attributes:
+        for attribute in self._attributes:
             #todo: correct?
             try:
                 self.__data[attribute].append(data.getattr(attribute, None))
@@ -105,7 +105,7 @@ class AbstractItem(QObject):
             if window_start > self.__data[window_end][current]:
                 continue
             found = True
-            for attribute in self.__attributes:
+            for attribute in self._attributes:
                 self.__data[attribute][current] = data.getattr(attribute, None)
 
             # for key in data:
@@ -158,25 +158,26 @@ class AbstractItem(QObject):
         return 0
 
 
-    def get_latest_data(self, key=None):
+    def get_latest_data(self, *kwargs):
         #todo:update docu, now more mighty
         """Returns the latest dict of the data_list or the item of the dict with the given key
 
-        :param key: the key for the dict
-        :type key: str
+        :param kwargs: the keys to the dict
+        :type kwargs: str
         :returns: dict or the item
         """
-        if key is not None:
-            if key is 'name':
-                return self.seuid
-            elif key is 'type':
-                return self.__type
-            else:
-                try:
-                    return self.__data[key][-1]
-                except KeyError:
-                    print("KeyError caught when accessing element %s.", key)
-                    raise
+        if kwargs is not None:
+            for key in kwargs:
+                if key is 'name':
+                    return self.seuid
+                elif key is 'type':
+                    return self.__type
+                else:
+                    try:
+                        return self.__data[key][-1]
+                    except KeyError:
+                        print("KeyError caught when accessing element %s.", key)
+                        raise
 
         return_dict = {}
         # return dict of latest item
@@ -262,3 +263,11 @@ class AbstractItem(QObject):
         """Executes a action on the current item like stop or restart. Calls to this method should be
         redirected to the remote host on executed there."""
         pass
+
+    def get_detailed_data(self):
+        """
+        Returns detailed description of current state as html text.
+
+        :return:
+        """
+        raise NotImplemented()

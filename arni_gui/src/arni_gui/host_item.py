@@ -19,16 +19,16 @@ class HostItem(AbstractItem):
         self.__type = "host"
 
         #add the content
-        self.__attributes = ["window_start", "window_stop", "cpu_temp_mean", "cpu_temp_stddev", "cpu_temp_max", "cpu_usage_mean",
+        self._attributes.extend(["window_start", "window_stop", "cpu_temp_mean", "cpu_temp_stddev", "cpu_temp_max", "cpu_usage_mean",
                       "cpu_usage_stddev", "cpu_usage_max", "cpu_usage_core_mean", "cpu_usage_core_stddev",
                       "cpu_usage_core_max", "cpu_temp_core", "cpu_temp_core_mean", "cpu_temp_core_stddev",
                       "cpu_temp_core_max", "gpu_temp_mean", "gpu_temp_stddev", "gpu_temp_max", "gpu_usage_mean",
                       "gpu_usage_stddev", "gpu_usage_max", "ram_usage_mean", "ram_usage_stddev", "ram_usage_max",
                       "interface_name", "message_frequency_mean", "message_frequency_stddev",
                       "message_frequency_max", "bandwidth_mean", "bandwidth_stddev", "bandwidth_max",
-                      "drive_name", "drive_free_space", "drive_read", "drive_write"]
-        for item in self.__attributes:
-            self.__add_data_list(item)
+                      "drive_name", "drive_free_space", "drive_read", "drive_write"])
+        for item in self._attributes:
+            self._add_data_list(item)
 
 
 
@@ -40,3 +40,23 @@ class HostItem(AbstractItem):
         """
         pass
 
+    def get_detailed_data(self):
+        #todo: fill the content sensefully!
+        data_dict = self.get_latest_data()
+
+        content = "<p style=\"font-size:15px\">"
+
+        content += "cpu_temp_mean: " + str(data_dict["cpu_temp_mean"]) + "<br>"
+        content += "bandwidth_mean: " + str(data_dict["bandwidth_mean"]) + "<br>"
+        # content += "connected_nodes:" + str(data_dict["connected_nodes"]) + "<br>"
+        # content += "topic_counter" + str(data_dict["topic_counter"]) + "<br>"
+        # content += "connection_counter: " + str(data_dict["connection_counter"]) + "<br>"
+        # content += "cpu_usage_max: " + str(data_dict["cpu_usage_max"]) + "<br>"
+        # content += "cpu_temp_mean: " + str(data_dict["cpu_temp_mean"]) + "<br>"
+        # content += "average_ram_load: " + str(data_dict["average_ram_load"]) + "<br>"
+        # content += "cpu_usage_mean:" + str(data_dict["cpu_usage_mean"]) + "<br>"
+        # content += "cpu_temp_max: " + str(data_dict["cpu_temp_max"]) + "<br>"
+        # content += "ram_usage_max: " + str(data_dict["ram_usage_max"]) + "<br>"
+
+        content += "</p>"
+        return content

@@ -9,6 +9,7 @@ from connection_item import ConnectionItem
 from topic_item import TopicItem
 from host_item import HostItem
 from node_item import NodeItem
+from root_item import RootItem
 
 import rospy
 from rospy.rostime import Duration, Time
@@ -48,18 +49,15 @@ class ROSModel(QAbstractItemModel):
         """
         #rospy.init_node('arni_gui_model', log_level=rospy.DEBUG)
         super(ROSModel, self).__init__(parent)
-        self.__root_item = AbstractItem("root", self, "cpu_usage_mean", "cpu_temp_mean", "cpu_usage_max", "cpu_temp_max",
-                                        "average_ram_load", "ram_usage_max", "total_traffic", "connected_hosts",
-                                        "connected_nodes", "topic_counter", "connection_counter")
-
+        self.__root_item = RootItem("abstract", self)
 
         self.__root_item.append_data_dict({
             'type': 'type',
             'name': 'name',
             'state': 'state',
             'data:': 'data',
+            # is time needed or ca it be removed
             'time': Time.now(),
-            #todo: is window_end needed at all or can it be removed
             'window_end': Time.now(),
             "total_traffic": 0,
             "connected_hosts": 0,
@@ -82,10 +80,10 @@ class ROSModel(QAbstractItemModel):
         self.__log_model.setHorizontalHeaderLabels(["type", "date", "location", "message"])
         #self.__set_header_data()
         self.__mapping = {
-            1: 'type',
-            2: 'name',
-            3: 'state',
-            4: 'data'
+            0: 'type',
+            1: 'name',
+            2: 'state',
+            3: 'data'
         }
         rospy.logdebug("Finished model initialization.")
         self.__buffer_thread = BufferThread(self)
@@ -128,16 +126,17 @@ class ROSModel(QAbstractItemModel):
         :param role: the role that should be used
         :type role: int
         """
-        
-       
-        if not index.isValid():
-            return None
-        elif role != Qt.DisplayRole:
-            return None
+        #todo: remove later
+        if index is not None:
+            if not index.isValid():
+                return None
+            elif role != Qt.DisplayRole:
+                return None
 
-        item = index.data()
+            item = index.data()
 
-        return item.get_latest_data(self.__mapping[index.column()])
+            return item.get_latest_data(self.__mapping[index.column()])
+        return None
 
 
     def flags(self, index):
@@ -167,9 +166,14 @@ class ROSModel(QAbstractItemModel):
         :returns: QVariant
         """
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return self.__root_item.get_latest_data(self.__mapping[section])
-        print("orientation is %s, Role is %s", orientation, role)
-        raise IndexError("Illegal access to a non existent line.")
+            return {'type': ' type',
+                    'name': ' name',
+                    'state': ' state',
+                    'data': ' data'}[self.__mapping[section]]
+                #self.__root_item.get_latest_data(self.__mapping[section])
+        return None
+        #print("orientation is %s, Role is %s should be %s, %s", orientation, role, Qt.Horizontal, Qt.DisplayRole)
+        #raise IndexError("Illegal access to a non existent line.")
 
 
     def index(self, row, column, parent):
@@ -190,7 +194,8 @@ class ROSModel(QAbstractItemModel):
         if not parent.isValid():
             parent_item = self.__root_item
         else:
-            parent_item = parent.internalPointer()
+            #todo: internalPointer or data????
+            parent_item = parent.data()
 
         child_item = parent_item.get_child(row)
         if child_item:
@@ -357,7 +362,6 @@ class ROSModel(QAbstractItemModel):
                         elif connection_item.get_state() is "error":
                             state = "error"
 
-
         data_dict["connected_hosts"] = connected_hosts
         data_dict["connected_nodes"] = connected_nodes
         data_dict["topic_counter"] = topic_counter
@@ -420,7 +424,7 @@ class ROSModel(QAbstractItemModel):
         # check if avaiable
         if topic_seuid not in self.__identifier_dict:
             #creating a topic item
-            parent = self.get_item_by_seuid(item.node_pub)
+            parent = self.__identifier_dict[item.node_pub]
             if parent is None:
                 # having a problem, there is no node with the given name
                 raise UserWarning("The parent of the given topic statistics item cannot be found.")
@@ -466,7 +470,7 @@ class ROSModel(QAbstractItemModel):
             parent.append_child(node_item)
 
         else:
-            node_item = self.get_item_by_seuid(item.seuid)
+            node_item = self.__identifier_dict[item.seuid]
 
         node_item.append_data(item)
 
@@ -484,17 +488,24 @@ class ROSModel(QAbstractItemModel):
             self.__identifier_dict[item.seuid] = host_item
             self.__root_item.append_child(host_item)
         else:
-            host_item = self.get_item_by_seuid(item.seuid)
+            host_item = self.__identifier_dict[item.seuid]
 
         host_item.append_data(item)
 
+
 #todo: deprecated and probably not needed --> self.__identifier_dict is a lot faster
     def get_item_by_seuid(self, seuid):
-        for item in self.__root_item.get_childs():
-            value = self.__get_item_by_name(seuid, item)
-            if value is not None:
-                return value
-        return None
+        try:
+            return self.__identifier_dict[seuid]
+        except KeyError:
+            print("There is no item with this seuid")
+            raise
+
+        # for item in self.__root_item.get_childs():
+        #     value = self.__get_item_by_name(seuid, item)
+        #     if value is not None:
+        #         return value
+        # return None
 
     def __get_item_by_seuid(self, seuid, current_item):
         if current_item.get_seuid() == seuid:
@@ -519,3 +530,6 @@ class ROSModel(QAbstractItemModel):
         self.__log_model.setData(self.__log_model.index(0, 1), time.strftime("%d.%m-%H:%M:%S", time.localtime(int(str(date)) / 1000000000)))
         self.__log_model.setData(self.__log_model.index(0, 2), str(location))
         self.__log_model.setData(self.__log_model.index(0, 3), str(message))
+
+    def get_overview_text(self):
+        return self.__root_item.get_detailed_data()

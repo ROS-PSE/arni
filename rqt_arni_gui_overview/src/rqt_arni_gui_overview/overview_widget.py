@@ -40,8 +40,8 @@ class OverviewWidget(QWidget):
 
         self.__draw_graphs = True
 
-        #self.__log_delegate = LogDelegate()
-        #self.log_tab_tree_view.setItemDelegate(self.__log_delegate)
+        self.__log_delegate = LogDelegate()
+        self.log_tab_tree_view.setItemDelegate(self.__log_delegate)
 
         self.__last_update = rospy.Time.now()
 
@@ -223,23 +223,9 @@ class OverviewWidget(QWidget):
             #self.status_light_label.setMask(pixmap.mask())
             #self.status_light_label.resize(50, 50)
 
-        content = "<p style=\"font-size:15px\">"
 
-        content += "total_traffic: " + str(data_dict["total_traffic"]) + "<br>"
-        content += "connected_hosts: " + str(data_dict["connected_hosts"]) + "<br>"
-        content += "connected_nodes:" + str(data_dict["connected_nodes"]) + "<br>"
-        content += "topic_counter" + str(data_dict["topic_counter"]) + "<br>"
-        content += "connection_counter: " + str(data_dict["connection_counter"]) + "<br>"
-        content += "cpu_usage_max: " + str(data_dict["cpu_usage_max"]) + "<br>"
-        content += "cpu_temp_mean: " + str(data_dict["cpu_temp_mean"]) + "<br>"
-        content += "average_ram_load: " + str(data_dict["average_ram_load"]) + "<br>"
-        content += "cpu_usage_mean:" + str(data_dict["cpu_usage_mean"]) + "<br>"
-        content += "cpu_temp_max: " + str(data_dict["cpu_temp_max"]) + "<br>"
-        content += "ram_usage_max: " + str(data_dict["ram_usage_max"]) + "<br>"
 
-        content += "</p>"
-
-        self.information_tab_text_browser.setHtml(content)
+        self.information_tab_text_browser.setHtml(self.__model.get_overview_text())
 
         #self.update_graphs()
         #todo: currently not needed

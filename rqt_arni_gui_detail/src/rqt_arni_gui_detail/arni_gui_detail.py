@@ -11,6 +11,8 @@ from python_qt_binding.QtGui import *  # QWidget
 
 from rqt_gui_py.plugin import Plugin
 
+from arni_gui.ros_model import ROSModel
+
 
 class ArniGuiDetail(Plugin):
     def __init__(self, context):
@@ -30,12 +32,14 @@ class ArniGuiDetail(Plugin):
             print 'arguments: ', args
             print 'unknowns: ', unknowns
 
-        self.__tree_widget = TreeWidget()
+        self.__model = ROSModel()
+        self.__tree_widget = TreeWidget(self.__model)
         context.add_widget(self.__tree_widget)
         self.__tree_widget.connect_slots()
 
         #TODO init the selection widget with an given entry from the tree_widget or find another solution for the start of the plugin
-        self.__selection_widget = SelectionWidget()
+        self.__selection_widget = SelectionWidget(self.__model)
+        self.__selection_widget.set_selected_item(None)
         context.add_widget(self.__selection_widget)       
         self.__selection_widget.connect_slots()
         
