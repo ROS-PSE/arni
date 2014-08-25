@@ -12,6 +12,7 @@ from node_item import NodeItem
 
 import rospy
 from rospy.rostime import Duration, Time
+from rospy.timer import Timer
 
 from arni_core.singleton import Singleton
 
@@ -19,6 +20,8 @@ from rosgraph_msgs.msg import TopicStatistics
 from arni_msgs.msg import RatedStatistics
 from arni_msgs.msg import NodeStatistics
 from arni_msgs.msg import HostStatistics
+
+import time
 
 from helper_functions import UPDATE_FREQUENCY
 
@@ -55,7 +58,9 @@ class ROSModel(QAbstractItemModel):
             'name': 'name',
             'state': 'state',
             'data:': 'data',
-            'window_end': rospy.get_rostime(),
+            'time': Time.now(),
+            #todo: is window_end needed at all or can it be removed
+            'window_end': Time.now(),
             "total_traffic": 0,
             "connected_hosts": 0,
             "connected_nodes": 0,
@@ -85,8 +90,8 @@ class ROSModel(QAbstractItemModel):
         rospy.logdebug("Finished model initialization.")
         self.__buffer_thread = BufferThread(self)
         self.__last_time_error_occured = 0
-        self.add_log_entry("info", rospy.Time.now(), "ROSModel", "ROSModel initilization finished")
-        self.add_log_entry("error", rospy.Time.now(), "ROSModel", "Just testing")
+        self.add_log_entry("info", Time.now(), "ROSModel", "ROSModel initialization finished")
+        self.add_log_entry("error", Time.now(), "ROSModel", "Just testing")
         
         
 #is no longer needed because the header data won't change while running
@@ -299,6 +304,8 @@ class ROSModel(QAbstractItemModel):
         connection_counter = 0
         state = "ok"
 
+        #TODO: REMOVE DATA AFTER A FEW MINUTES!!!
+
         #time window
         #todo: where should total_traffic be calculated? currently sum of the bandwidth of the nics
         #todo: extract in own method????
@@ -356,6 +363,7 @@ class ROSModel(QAbstractItemModel):
         data_dict["topic_counter"] = topic_counter
         data_dict["connection_counter"] = connection_counter
         data_dict["state"] = state
+        data_dict["window_end"] = Time.now()
 
         #now give this information to the root :)
         self.__root_item.append_data_dict(data_dict)
@@ -418,18 +426,21 @@ class ROSModel(QAbstractItemModel):
                 raise UserWarning("The parent of the given topic statistics item cannot be found.")
 
             topic_item = TopicItem(topic_seuid, parent)
+            parent.append_child(topic_item)
             self.__identifier_dict[topic_seuid] = connection_item
             #creating a connection item
             connection_item = ConnectionItem(connection_seuid, topic_item)
+            topic_item.append_child(connection_item)
             self.__identifier_dict[connection_seuid] = connection_item
         elif connection_seuid not in self.__identifier_dict:
             #creating a new connection item
             connection_item = ConnectionItem(connection_seuid, topic_item)
+            topic_item.append_child(connection_item)
             self.__identifier_dict[connection_seuid] = connection_item
         else:
             # get topic and connection item
-            topic_item = self.get_item_by_seuid(topic_seuid)
-            connection_item = self.get_item_by_seuid(connection_seuid)
+            topic_item = self.__identifier_dict[topic_seuid]
+            connection_item = self.__identifier_dict[connection_seuid]
             if topic_item is None or connection_item is None:
                 raise UserWarning("The parent of the given topic statistics item cannot be found.")
 
@@ -447,7 +458,13 @@ class ROSModel(QAbstractItemModel):
         node_item = None
         if item.seuid not in self.__identifier_dict:
             #create item
-            node_item = NodeItem()
+            node_item = NodeItem(item.seuid)
+            self.__identifier_dict[item.seuid] = node_item
+            parent = self.__identifier_dict["h:" + item.host]
+            if parent is None:
+                raise UserWarning("Parent of a given node was not found!")
+            parent.append_child(node_item)
+
         else:
             node_item = self.get_item_by_seuid(item.seuid)
 
@@ -463,13 +480,15 @@ class ROSModel(QAbstractItemModel):
         host_item = None
         if item.seuid not in self.__identifier_dict:
             #create item
-            host_item = NodeItem()
+            host_item = HostItem(item.seuid, self.__root_item)
+            self.__identifier_dict[item.seuid] = host_item
+            self.__root_item.append_child(host_item)
         else:
             host_item = self.get_item_by_seuid(item.seuid)
 
         host_item.append_data(item)
 
-
+#todo: deprecated and probably not needed --> self.__identifier_dict is a lot faster
     def get_item_by_seuid(self, seuid):
         for item in self.__root_item.get_childs():
             value = self.__get_item_by_name(seuid, item)
@@ -481,7 +500,7 @@ class ROSModel(QAbstractItemModel):
         if current_item.get_seuid() == seuid:
             return current_item
         for item in current_item.get_childs():
-            self.__get_item_by_name()
+            self.__get_item_by_name(item.seuid, item)
         return None
 
     def get_log_model(self):
@@ -497,6 +516,6 @@ class ROSModel(QAbstractItemModel):
         """
         self.__log_model.insertRow(0)
         self.__log_model.setData(self.__log_model.index(0, 0), str(type))
-        self.__log_model.setData(self.__log_model.index(0, 1), str(date))
+        self.__log_model.setData(self.__log_model.index(0, 1), time.strftime("%d.%m-%H:%M:%S", time.localtime(int(str(date)) / 1000000000)))
         self.__log_model.setData(self.__log_model.index(0, 2), str(location))
         self.__log_model.setData(self.__log_model.index(0, 3), str(message))

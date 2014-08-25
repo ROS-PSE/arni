@@ -4,16 +4,25 @@ import rospkg
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtGui import QTabWidget, QWidget
-#from python_qt_binding.QtCore import QObject
+from python_qt_binding.QtCore import QObject, Qt
+#from python_qt_binding.QtCore import *
 from python_qt_binding import QtCore
 from python_qt_binding.QtCore import QRegExp
-from python_qt_binding.QtGui import QPixmap, QLabel
+from python_qt_binding.QtGui import QPixmap, QLabel, QVBoxLayout, QSizePolicy
 
-from rospy.rostime import Time
+from rospy.rostime import Time, Duration
+from rospy.timer import Timer
 
 from arni_gui.ros_model import ROSModel
 from arni_gui.log_filter_proxy import LogFilterProxy
 from arni_gui.log_delegate import LogDelegate
+from threading import Lock
+
+from date_axis import DateAxis
+
+import time
+
+import numpy as np
 
 import pyqtgraph as pg
 
@@ -36,23 +45,19 @@ class OverviewWidget(QWidget):
 
         self.__last_update = rospy.Time.now()
 
-        # TODO self.__graph_layout =
-
-        # TODO self.__graph_dict =
-
-        self.__values_dict = {
-            "total_traffic": 0,
-            "connected_hosts": 0,
-            "connected_nodes": 0,
-            "topic_counter": 0,
-            "connection_counter": 0,
-            "cpu_usage_max": 0,
-            "cpu_temp_mean": 0,
-            "average_ram_load": 0,
-            "cpu_usage_mean": 0,
-            "cpu_temp_max": 0,
-            "ram_usage_max": 0
-        }
+        # self.__overview_dict = {
+        #     "total_traffic": 0,
+        #     "connected_hosts": 0,
+        #     "connected_nodes": 0,
+        #     "topic_counter": 0,
+        #     "connection_counter": 0,
+        #     "cpu_usage_max": 0,
+        #     "cpu_temp_mean": 0,
+        #     "average_ram_load": 0,
+        #     "cpu_usage_mean": 0,
+        #     "cpu_temp_max": 0,
+        #     "ram_usage_max": 0
+        # }
 
         self.__model = ROSModel()
 
@@ -74,11 +79,96 @@ class OverviewWidget(QWidget):
         # todo: test: eventually remove this
         self.log_tab_tree_view.setAlternatingRowColors(True)
         self.log_tab_tree_view.setSortingEnabled(True)
+        self.log_tab_tree_view.sortByColumn(1, Qt.AscendingOrder)
 
         self.__model.layoutChanged.connect(self.update)
 
         self.__state = "ok"
         self.__previous_state = "ok"
+
+        self.__current_combo_box_index = 0
+        self.__last_update = rospy.Time.now()
+
+        self.__graph_layout = pg.GraphicsLayoutWidget()
+        #self.__multiplotitem = pg.MultiPlotItem()
+        #self.__multiplotitem.setCentralWidget(self.__graph_layout)
+        self.graph_scroll_area.setWidget(self.__graph_layout)
+
+        self.__update_graphs_lock = Lock()
+
+
+        self.__graph_dict = {
+            "total_traffic": None,
+            "connected_hosts": None,
+            "connected_nodes": None,
+            "topic_counter": None,
+            "connection_counter": None,
+            "cpu_usage_max": None,
+            "cpu_temp_mean": None,
+            "average_ram_load": None,
+            "cpu_usage_mean": None,
+            "cpu_temp_max": None,
+            "ram_usage_max": None
+        }
+
+        self.__maximum_values = {
+            "total_traffic": 10,
+            "connected_hosts": 10,
+            "connected_nodes": 10,
+            "topic_counter": 10,
+            "connection_counter": 10,
+            "cpu_usage_max": 100,
+            "cpu_temp_mean": 50,
+            "average_ram_load": 100,
+            "cpu_usage_mean": 100,
+            "cpu_temp_max": 90,
+            "ram_usage_max": 100
+        }
+
+        self.__values_dict = {
+            "total_traffic": None,
+            "connected_hosts": None,
+            "connected_nodes": None,
+            "topic_counter": None,
+            "connection_counter": None,
+            "cpu_usage_max": None,
+            "cpu_temp_mean": None,
+            "average_ram_load": None,
+            "cpu_usage_mean": None,
+            "cpu_temp_max": None,
+            "ram_usage_max": None
+        }
+
+        #self.__graph_layout = QVBoxLayout()
+        #self.__graph_widget = QWidget()
+        #self.__graph_widget.setLayout(self.__graph_layout)
+        #self.graph_scroll_area.setWidget(self.__graph_widget)
+        self.__graph_layout.resize(self.__graph_layout.maximumWidth(), len(self.__graph_dict) * 200)
+        self.graph_scroll_area.resize(self.graph_scroll_area.maximumWidth(), len(self.__graph_dict) * 200)
+        #self.__graph_widget.setSizePolicy(QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum))
+
+        for key in self.__graph_dict:
+            #y=np.arrange(0, self.__maximum_values[key], 2)
+            date_axis = DateAxis(orientation="bottom")
+            values_axis = pg.AxisItem(orientation="left")
+            #values_axis.setHeight(h=400)
+            #vb = CustomViewBox()
+            #plot_widget = pg.PlotWidget()
+            plot_widget = self.__graph_layout.addPlot(title=key, axisItems={'bottom': date_axis, "left": values_axis})
+            plot_widget.resize(plot_widget.maximumWidth(), 250)
+            self.__graph_dict[key] = plot_widget
+            self.__graph_layout.nextRow()
+            plot_widget = self.__graph_dict[key]
+            plot_widget.showGrid(x=True, y=True)
+            plot_widget.setMenuEnabled(enableMenu=True)
+            plot_widget.enableAutoRange('xy', True)
+            plot_widget.viewGeometry
+
+        #todo: make a first, special update at the beginning (might be that there is fresh data)
+        #todo: separate from the layoutChanged signal --> own timer!
+        #elf.update_graphs(firstrun=True)
+
+        self.__timer = Timer(Duration(secs=2), self.update_graphs)
 
 
 
@@ -105,7 +195,7 @@ class OverviewWidget(QWidget):
         :param index: the index of the selected range
         :type index: int
         """
-        pass
+        self.__current_combo_box_index = index
 
     def update(self):
         """Updates the Plugin and draws the graphs if draw_graphs is true."""
@@ -133,7 +223,7 @@ class OverviewWidget(QWidget):
             #self.status_light_label.setMask(pixmap.mask())
             #self.status_light_label.resize(50, 50)
 
-        content = ""
+        content = "<p style=\"font-size:15px\">"
 
         content += "total_traffic: " + str(data_dict["total_traffic"]) + "<br>"
         content += "connected_hosts: " + str(data_dict["connected_hosts"]) + "<br>"
@@ -147,11 +237,52 @@ class OverviewWidget(QWidget):
         content += "cpu_temp_max: " + str(data_dict["cpu_temp_max"]) + "<br>"
         content += "ram_usage_max: " + str(data_dict["ram_usage_max"]) + "<br>"
 
+        content += "</p>"
+
         self.information_tab_text_browser.setHtml(content)
 
-    def update_graphs(sef):
+        #self.update_graphs()
+        #todo: currently not needed
+        self.__last_update = rospy.Time.now()
+
+    def update_graphs(self, event):
         """Updates and redraws the graphs"""
-        pass
+        self.__update_graphs_lock.acquire()
+        if self.__draw_graphs is True:
+            now = rospy.Time.now()
+            plot_data = self.__model.get_overview_data_since(Time.now() - Duration(self.__combo_box_index_to_seconds(
+                self.__current_combo_box_index)))
+            #now plotting
+            for key in  self.__values_dict:
+                #todo: is there a better way than int(str(x)) ?
+                temp = []
+                for item in plot_data["window_end"]:
+                    temp.append(int(str(item))/1000000000)
+                x = np.array(temp)
+                #print(x)
+                #print("\n")
+                #todo: does this also work, when ints are inputed (or None values^^)
+                y = np.array(plot_data[key], np.dtype('f8'))
+                #print(y)
+                #todo: will this plot every time a new line?
+                self.__graph_dict[key].plot(x=x, y=y, fillLevel=0)
+
+                #because of autoarrange y should not be set again and again
+                #todo: check if this is really working like intended
+                #todo: probably have to speed up internal implementation for fluent plotting
+            string = "update_graphs took: " + str(int(str(rospy.Time.now() - now)) / 1000000) + "ms"
+            self.__model.add_log_entry("info",  rospy.Time.now(), "OverviewWidget", string)
+
+        self.__update_graphs_lock.release()
+
+
+    def __combo_box_index_to_seconds(self, index):
+        if self.__current_combo_box_index == 0:
+            return 10
+        elif self.__current_combo_box_index == 1:
+            return 30
+        else:
+            return 300
 
     def get_current_tab(self):
         return self.tab_widget.currentIndex()

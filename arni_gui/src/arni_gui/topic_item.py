@@ -6,7 +6,7 @@ class TopicItem(AbstractItem):
     """A TopicItem represents a specific topic which contains many connections and has attributes like the number of sent messages"""
 
 
-    def __init__(self, seuid, type, can_execute_actions, parent=None):
+    def __init__(self, seuid, type, parent=None):
         """Initializes the ConnectionItem
 
         :param list: connection list

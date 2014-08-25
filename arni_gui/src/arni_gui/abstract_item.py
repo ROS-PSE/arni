@@ -88,23 +88,6 @@ class AbstractItem(QObject):
                 raise
         self.__update_current_state()
 
-        """todo: adapt this
-        for item in data.keys():
-            #todo: remove name and type if possible, the checks consume too much time
-            if item is 'name':
-                self.seuid = data[item]
-            elif item is 'type':
-                self.__type = data[item]
-            #first add empty elements to all lists --> this help to identify the time the entries were pushed
-            for key in self.__data:
-                self.__data[key].append(None)
-            try:
-                #todo: this lists have to be created when built by the model
-                self.__data[item].append(data[item])
-            except KeyError:
-                print("The given element is currently not in a list: %s", item)
-                raise"""
-
     def update_data(self, data, window_start, window_end):
         """
 

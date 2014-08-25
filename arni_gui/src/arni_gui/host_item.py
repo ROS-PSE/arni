@@ -6,7 +6,7 @@ class HostItem(AbstractItem):
     """A HostItem represents a host with all its data"""
 
 
-    def __init__(self, seuid, type, can_execute_actions, parent=None):
+    def __init__(self, seuid, parent=None):
         """Initializes the ConnectionItem
 
         :param list: connection list

@@ -30,3 +30,20 @@ Change
 * new class **ErrorDelegate** for painting the log model with color
 
 * overview.ui from log_tab_tree_widget to log_tab_tree_view. gets a new item graph_widget for the graphic widget containing the graphs
+
+##Big TODOS:
+
+* lock updateGraphs --> non reentrant functions, otherwise segmentation faults occur!
+* execute_action not implemented
+* create tests / test the gui parts
+* interpolate the data with flowcharts?
+* on close of one widget in detail gui, close the other!
+* enter tr() everywhere for internationalisation
+* the units in the overview are missing (maybe also some color if someone is too high)
+* reformat the ROSModel to use the seuid helper class
+* make sure there are no more dict["time"] calls, they are invalid
+* !!! **PERFORMANCE-PROBLEM** IN THE GUI: PROBABLY MAKE AbstractItem MORE INTELLIGENT!
+  * oviously linear complexity rising with the amount of entries...
+* Gui does not react when being drawn..
+* why are sometimes empty values given to the axi?
+* why are there runtimeerrors when closing the gui. and why are there these threading errors(might it be the timers?)

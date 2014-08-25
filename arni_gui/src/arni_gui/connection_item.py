@@ -6,7 +6,7 @@ class ConnectionItem(AbstractItem):
     """A ConnectionItem reresents the connection between a publisher and a subscriber and the topic they are publishing / listening on"""
 
 
-    def __init__(self, seuid, type, can_execute_actions, parent=None):
+    def __init__(self, seuid, parent=None):
         """Initializes the ConnectionItem
 
         :param list: connection list
