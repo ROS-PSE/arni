@@ -6,11 +6,11 @@ import os
 def main():
     
     #howto ROS_IP ?
-
-    rospy.init_node("HostStatistics", log_level=rospy.DEBUG)
-    rospy.sleep(1)
-    ip = os.getenv('ROS_IP', '127.0.0.1')
+	ip = os.getenv('ROS_IP', '127.0.0.1')
     ip = ip.replace('.','_')
+    rospy.init_node("HostStatistics_%s"ip, log_level=rospy.DEBUG)
+    rospy.sleep(1)
+
 
     host = HostStatisticsHandler(ip)
 
