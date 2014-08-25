@@ -11,8 +11,10 @@ class RatedStatisticsContainer:
         Creates a new RatedStatisticsContainer object for the given connection identifier.
 
         :param seuid: Identifies a host/node/connection.
-        :type seuid: str.
+        :type seuid: str or message type
         """
+        if not isinstance(seuid, str):
+            self.__from_msg_type(seuid)
         self.seuid = seuid
         self.metatype = []
         self.actual = []
@@ -37,6 +39,17 @@ class RatedStatisticsContainer:
     def keys(self):
         return self.metatype
 
+    def __from_msg_type(self, msg):
+        try:
+            self.seuid = msg.seuid
+            for re in msg.rated_statistics_entity:
+                self.metatype.append(msg.statistic_type)
+                self.actual.append(msg.actual_value)
+                self.expected.append(msg.expected_value)
+                self.state.append(msg.state)
+        except TypeError:
+            raise  TypeError("Could not access fields of a RatedStatistics.msg")
+
     def to_msg_type(self):
         """
         Creates a RatedStatisticsContainer messagetype based on the current data.
@@ -52,8 +65,9 @@ class RatedStatisticsContainer:
             r.window_stop = self.get_value("window_stop")["actual"]
         except KeyError:
             r.window_start = r.window_stop = None
-        fields = {"actual_value": "actual", "expected_value": "expected", "state": "state"}
         for k in self.keys():
+            if k in ("host", "node", "node_sub", "node_pub", "topic"):
+                continue
             re = RatedStatisticsEntity()
             re.statistic_type = k
             values = self.get_value(k)
@@ -68,15 +82,19 @@ class RatedStatisticsContainer:
                 for v in values["expected"]:
                     re.expected_value.append(" - ".join(str(x) for x in v))
             except TypeError:
-                re.expected_value.append(" - ".join(str(x) for x in values["expected"]))
+                if values["expected"] is None:
+                    re.expected_value.append("?")
+                else:
+                    re.expected_value.append(" - ".join(str(x) for x in values["expected"]))
             # state
+            re.state = []
             try:
                 for v in values["state"]:
                     re.state.append(v)
             except TypeError:
                 re.state.append(values["state"])
             r.rated_statistics_entity.append(re)
-
+        return r
 
     def get_value(self, metatype):
         """

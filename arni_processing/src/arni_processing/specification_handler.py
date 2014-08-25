@@ -67,7 +67,7 @@ class SpecificationHandler:
         if identifier is None:
             rospy.logdebug("[SpecificationHandler][compare] No identifier given.")
             return None
-        if not is_seuid(identifier):
+        if not SEUID().is_valid(identifier):
             rospy.logdebug("[SpecificationHandler][compare] Given identifier is invalid.")
             return None
         if data is None:
@@ -80,8 +80,11 @@ class SpecificationHandler:
             else:
                 if identifier[0] == "t":
                     pass
-                else:
-                    rospy.logdebug("[SpecificationHandler][compare] No Specification available for %s" % identifier)
+                elif identifier[0] == "c":
+                    if SEUID(identifier).topic in self.__specifications.keys():
+                        specification = self.__specifications[SEUID(identifier).topic]
+        # if specification is None:
+        #     rospy.logdebug("[SpecificationHandler][compare] No Specification available for %s" % identifier)
         for field in dir(data):
             if field[0] == "_" or "serialize" in field:
                 continue
