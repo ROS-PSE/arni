@@ -146,3 +146,13 @@ def is_seuid(seuid):
     :return: True, if the given parameter is a valid seuid, false if not.
     """
     return SEUID().is_valid(seuid)
+
+
+def underscore_ip(ip):
+    """
+    Takes an ipv4 adress and replaces dots with underscores.
+    """
+    if(ip is None):
+        return None
+
+    return ip.replace(".", "_")
