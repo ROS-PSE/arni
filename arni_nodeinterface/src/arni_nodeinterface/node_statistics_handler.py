@@ -1,7 +1,7 @@
 from statistics_handler import StatisticsHandler
 from node_status import NodeStatus
 from arni_msgs.msg import NodeStatistics
-from rosgraph_msgs import TopicStatistics
+from rosgraph_msgs.msg import TopicStatistics
 import psutil
 import subprocess
 import rospy
@@ -15,7 +15,7 @@ class NodeStatisticsHandler(StatisticsHandler):
     
     def __init__(self, host_id, node_id, node_process):
     
-        super(NodeStatisticsHandler, self).__init__()
+        super(NodeStatisticsHandler, self).__init__(node_id)
         
         #:identifier of this node
         self._id = node_id
@@ -29,6 +29,7 @@ class NodeStatisticsHandler(StatisticsHandler):
         self.__node_process = node_process
         self.pub = rospy.Publisher('/statistics_node', NodeStatistics)
         self.update_intervall = rospy.rospy.get_param('/update_intervall')
+        self.register_subscriber()
     
     def measure_status(self):
         """
@@ -38,12 +39,12 @@ class NodeStatisticsHandler(StatisticsHandler):
         """
         
         #CPU
-        self._status.add_cpu( self.__node_process.cpu_percent())
+        self._status.add_cpu_usage( self.__node_process.cpu_percent())
 
-        self._status.add_cpu_core(self.__cpu_usage_per_core())
+        self._status.add_cpu_usage_core(self.__cpu_usage_per_core())
 
         #RAM
-        self._status.add_ram( self.__node_process.memory_percent())
+        self._status.add_ram_usage( self.__node_process.memory_percent())
 
         #Disk I/O
         node_io = self.__node_process.io_counters()
@@ -69,11 +70,11 @@ class NodeStatisticsHandler(StatisticsHandler):
         :topic: Topic to which the data should be published. 
         """
         
-        self._status.time_end(rospy.Time.now())
+        self._status.time_end = rospy.Time.now()
         stats = self.__calc_statistics()
         self.pub.publish(stats)
         self._status.reset()
-        self._status.time_start(rospy.Time.now())
+        self._status.time_start = rospy.Time.now()
         
     def __calc_statistics(self):
         """
@@ -122,12 +123,12 @@ class NodeStatisticsHandler(StatisticsHandler):
         Receives the statistics published by ROS Topic statistics.
         """
         if self._id in stats.node_pub :
-            dur = stats.window_stop - stats.window_start
+            #dur = stats.window_stop - stats.window_start
 
-            self._status.add_node_bandwidth(float(stats.traffic) / dur)
+            self._status.add_node_bandwidth(stats.traffic)
                                             
 
-            self._status.add_node_msg_freq(stats.period_mean)
+            self._status.add_node_msg_freq(stats.period_mean.to_sec())
         
 
     def __cpu_usage_per_core(self):
@@ -139,9 +140,8 @@ class NodeStatisticsHandler(StatisticsHandler):
         
         """Use ps to collect information about process, 
         psr is the id of the cpu pcpu usage in percent"""
-        pipe = subprocess.Popen('ps -p ' + str(self.__node_process.pid())
-                                 + ' -L -o psr,pcpu', 
-                                 stdout = subprocess.PIPE).stdout
+        pipe = subprocess.Popen('ps -p %s -L -o psr,pcpu'%self.__node_process.pid, 
+                                 shell = True, stdout = subprocess.PIPE).stdout
         output = pipe.read()
 
         #format output string Format ,where format_output[2i] is psr 
@@ -151,7 +151,7 @@ class NodeStatisticsHandler(StatisticsHandler):
         format_output = format_output[0].split()
 
 
-        cpu_usage = [0 for i in psutil.cpu_count()]
+        cpu_usage = [0 for i in range(psutil.cpu_count())]
 
         for i in range(0, len(format_output)/2):
             psr = int(format_output[2*i])
@@ -168,3 +168,7 @@ class NodeStatisticsHandler(StatisticsHandler):
     @property
     def id(self):
         return self._id
+
+    @property
+    def node_process(self):
+        return self.__node_process

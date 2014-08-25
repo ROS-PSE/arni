@@ -79,7 +79,8 @@ class Status(object):
         """
 
         del self._cpu_usage[:]
-        del self._cpu_usage_core[:]
+        for i in self._cpu_usage_core:
+            del i[:]
         del self._gpu_usage[:]
         del self._ram_usage[:]
 
@@ -145,16 +146,16 @@ class Status(object):
         :returns: namedtuple
         """
         if not slist or all(not i for i in slist):
-            return (0 , 0 , 0)
+            return statistic_tuple(0 , 0 , 0)
         else:    
             maxi = max(slist)
             mean = sum(slist) / float(len(slist))
             temp_sum = 0
 
-            for i in range(slist):
-                temp_sum += ( slist[i] - mean )**2
+            for i in slist:
+                temp_sum += ( i - mean )**2
 
-            stddev = sqrt( float(1)/(len(slist) - 1 ) * temp_sum )
+            stddev = sqrt( float(1)/(len(slist)) * temp_sum )
 
             return statistic_tuple(mean , stddev , maxi)
 

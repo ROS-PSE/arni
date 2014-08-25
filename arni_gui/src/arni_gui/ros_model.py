@@ -135,9 +135,9 @@ class ROSModel(QAbstractItemModel):
         elif role != Qt.DisplayRole:
             return None
 
-        item = index.internalPointer()
+        item = index.data()
 
-        return item.__get_latest_data(self.__mapping[index.column()])
+        return item.get_latest_data(self.__mapping[index.column()])
 
 
     def flags(self, index):

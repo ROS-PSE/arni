@@ -10,6 +10,7 @@ import xmlrpclib
 import rosnode
 import rospy
 import sensors
+import threading
 
 class HostStatisticsHandler( StatisticsHandler):
 
@@ -21,28 +22,15 @@ class HostStatisticsHandler( StatisticsHandler):
     
     def __init__(self, hostid):
         
-        super(HostStatisticsHandler, self).__init__()
+        super(HostStatisticsHandler, self).__init__(hostid)
 
         rospy.init_node("HostStatistics", log_level=rospy.DEBUG)
 
         self.__init_params()
         self.__register_service()
         self.pub = rospy.Publisher('/statistics_host', HostStatistics)
-
-        self.__update_intervall =  rospy.get_param('/update_intervall')
-
-        self.__publish_intervall =  rospy.get_param('/publish_intervall')
-
-        #set Topic statistics to same time_window as update_intervall
-        rospy.set_param('/enable_statistics', True )
-        rospy.set_param('/statistics_window_min_elements',
-                        self.__update_intervall )
-        rospy.set_param('/statistics_window_max_elements', 
-                        self.__publish_intervall)
-
-        #: Identifier of the host, using ROS IP as unique identifier.
-        self._id = hostid
-        
+        self.__lock = threading.lock()
+       
         #: Used to store information about the host's status.
         self._status = HostStatus(rospy.Time.now())
         
@@ -57,10 +45,9 @@ class HostStatisticsHandler( StatisticsHandler):
         self.__bandwidth_base = {}
         self.__msg_freq_base = {}
         self.__disk_write_base = {}
-        self.__disk_read_base = {}
-        
+        self.__disk_read_base = {}      
 
-
+        self.__set_bases()
     
     def __set_bases(self):
 
@@ -78,12 +65,16 @@ class HostStatisticsHandler( StatisticsHandler):
             self.__msg_freq_base[interface] = total_packages
 
         
+        dev_names = ''
+        for disk in psutil.disk_partitions():
+            if all(['cdrom' not in disk.opts, 'sr' not in disk.device]):
+                    dev_names += disk.device + ';'
 
         for key in psutil.disk_io_counters(True):
-             
-            disk = psutil.disk_io_counters(True)[key]
-            self.__disk_read_base[key] = disk.read_bytes
-            self.__disk_write_base[key] = disk.write_bytes
+            if key in dev_names:     
+                disk = psutil.disk_io_counters(True)[key]
+                self.__disk_read_base[key] = disk.read_bytes
+                self.__disk_write_base[key] = disk.write_bytes
 
 
     def __register_service(self):
@@ -99,28 +90,27 @@ class HostStatisticsHandler( StatisticsHandler):
         Triggered periodically.
         """
 
+        self.__lock.acquire()
         #update node list
         self.get_node_info()
-
         self.update_nodes()
 
 
         #CPU 
         self._status.add_cpu_usage(psutil.cpu_percent())
         self._status.add_cpu_usage_core(psutil.cpu_percent(percpu = True))
-
         #RAM
         self._status.add_ram_usage(psutil.virtual_memory().percent)
-
         #temp
         sensor_list = []
-        self.get_sensors(sensor_list)        
+        self.get_sensors(sensor_list)    
 
         
         #Bandwidth and message frequency
         self.__measure_network_usage()
         #Disk usage        
         self.__measure_disk_usage()
+        self.__lock.release()
 
 
     def __measure_network_usage(self):
@@ -129,10 +119,9 @@ class HostStatisticsHandler( StatisticsHandler):
         """
         network_interfaces = psutil.net_io_counters(True)
 
-        for key in network_interfaces:
-            
-            total_bytes = (network_interfaces[key] + network_interfaces[key]) - self.__bandwidth_base[key]
-            total_packages = (network_interfaces[key].packets_sent + network_interfaces[key].packets.recv) - self.__msg_freq_base[key]
+        for key in network_interfaces:            
+            total_bytes = (network_interfaces[key].bytes_sent + network_interfaces[key].bytes_recv) - self.__bandwidth_base[key]
+            total_packages = (network_interfaces[key].packets_sent + network_interfaces[key].packets_recv) - self.__msg_freq_base[key]
 
             bandwidth = total_bytes / self.__update_intervall
             msg_frequency = total_packages / self.__update_intervall
@@ -152,8 +141,8 @@ class HostStatisticsHandler( StatisticsHandler):
         dev_name = ''
         for x in disks:
             if 'cdrom' not in x.opts and 'sr' not in x.device:
-                free_space = psutil.disk_usage(x.mountpoint).free
-                self._status.add_drive_space( x.device , free_space)
+                free_space = psutil.disk_usage(x.mountpoint).free / 2**20
+                self._status.add_drive_space(x.device , free_space)
                 dev_name += x.device + ';'
 
         #Drive I/O
@@ -163,8 +152,8 @@ class HostStatisticsHandler( StatisticsHandler):
                 readb = drive_io[key].read_bytes - self.__disk_read_base[key]
                 writeb = drive_io[key].write_bytes - self.__disk_write_base[key]
 
-                read_rate = float(readb) / self.__update_intervall
-                write_rate = float(writeb) / self.__update_intervall
+                read_rate = readb / self.__update_intervall
+                write_rate = writeb / self.__update_intervall
                 self._status.add_drive_read(key, read_rate) 
                 self._status.add_drive_write(key, write_rate)
                 ##update base stats for next iteration
@@ -177,22 +166,23 @@ class HostStatisticsHandler( StatisticsHandler):
         Publishes the current status to a topic using ROS's publisher-subscriber mechanism.
         Triggered periodically. 
         """
-        
-        self._status.time_end(rospy.Time.now())
+        self.__lock.acquire()
+        self._status.time_end = rospy.Time.now()
         stats = self.__calc_statistics()
 
         self.__publish_nodes()
 
         self.pub.publish(stats)
         self._status.reset()
-        self._status.time_start(rospy.Time.now())
+        self._status.time_start = rospy.Time.now()
+        self.__lock.release()
 
     def __publish_nodes(self):
         """
         publishes current status of all nodes.
         """
         for node in self.__node_list:
-            Thread(self.__node_list[node].publish_status, ()).start()   
+            Thread(target = self.__node_list[node].publish_status).start()   
 
         
     def __init_params(self):
@@ -202,6 +192,22 @@ class HostStatisticsHandler( StatisticsHandler):
 
         rospy.set_param('/update_intervall', 1)
         rospy.set_param('/publish_intervall', 10)
+
+        self.__update_intervall =  rospy.get_param('/update_intervall')
+        self.__publish_intervall =  rospy.get_param('/publish_intervall')
+
+        #set Topic statistics to same time_window as update_intervall
+        rospy.set_param('/enable_statistics', True )
+        rospy.set_param('/statistics_window_min_elements',
+                        self.__update_intervall )
+        rospy.set_param('/statistics_window_max_elements', 
+                        self.__publish_intervall)
+
+    def shut_down_hook(self):
+
+        for key in self.__node_list:
+            self.__node_list[key].pub.unregister()
+        self.pub.unregister()
 
 
     def __calc_statistics(self):
@@ -218,13 +224,13 @@ class HostStatisticsHandler( StatisticsHandler):
         
         hs.host = self._id
 
-        hs.cpu_usage_mean = stats_dict['cpu_usage_mean'].mean 
-        hs.cpu_usage_stddev = stats_dict['cpu_usage_stddev'].stddev 
-        hs.cpu_usage_max = stats_dict['cpu_usage_max'].max
+        hs.cpu_usage_mean = stats_dict['cpu_usage_mean'] 
+        hs.cpu_usage_stddev = stats_dict['cpu_usage_stddev'] 
+        hs.cpu_usage_max = stats_dict['cpu_usage_max']
 
-        hs.cpu_temp_mean = stats_dict['cpu_temp_mean'].mean
-        hs.cpu_temp_stddev = stats_dict['cpu_temp_stddev'].stddev
-        hs.cpu_temp_max = stats_dict['cpu_temp_max'].max
+        hs.cpu_temp_mean = stats_dict['cpu_temp_mean']
+        hs.cpu_temp_stddev = stats_dict['cpu_temp_stddev']
+        hs.cpu_temp_max = stats_dict['cpu_temp_max']
 
         hs.cpu_usage_core_mean = stats_dict['cpu_usage_core_mean']
         hs.cpu_usage_core_stddev = stats_dict['cpu_usage_core_stddev']
@@ -234,28 +240,28 @@ class HostStatisticsHandler( StatisticsHandler):
         hs.cpu_temp_core_stddev = stats_dict['cpu_temp_core_stddev']
         hs.cpu_temp_core_max = stats_dict['cpu_temp_core_max']
 
-        hs.ram_usage_mean = stats_dict['ram_usage_mean'].mean
-        hs.ram_usage_stddev = stats_dict['ram_usage_stddev'].stddev
-        hs.ram_usage_max = stats_dict['ram_usage_max'].max
+        hs.ram_usage_mean = stats_dict['ram_usage_mean']
+        hs.ram_usage_stddev = stats_dict['ram_usage_stddev']
+        hs.ram_usage_max = stats_dict['ram_usage_max']
 
         hs.interface_name = stats_dict['interface_name']
-        hs.message_frequency_mean =  stats_dict['msg_frequency_mean']
-        hs.message_frequency_stddev = stats_dict['msg_frequency_stddev']
-        hs.message_frequency_max = stats_dict['msg_frequency_max']
+        hs.message_frequency_mean =  map(stats_dict['message_frequency_mean'])
+        hs.message_frequency_stddev = map(stats_dict['message_frequency_stddev'])
+        hs.message_frequency_max = map(stats_dict['message_frequency_max'])
 
-        hs.bandwidth_mean =  stats_dict['bandwidth_mean']
-        hs.bandwidth_stddev = stats_dict['bandwidth_stddev']
-        hs.bandwidth_max = stats_dict['bandwidth_max']
+        hs.bandwidth_mean =  map(stats_dict['bandwidth_mean'])
+        hs.bandwidth_stddev = map(stats_dict['bandwidth_stddev'])
+        hs.bandwidth_max = map(stats_dict['bandwidth_max'])
 
         
         hs.drive_name = stats_dict['drive_name']
         hs.drive_free_space = stats_dict['drive_free_space']
-        hs.drive_write_mean = stats_dict['drive_write_mean']
-        hs.drive_write_stddev = stats_dict['drive_write_stddev']
-        hs.drive_write_max = stats_dict['drive_write_max']
-        hs.drive_read_mean = stats_dict['drive_read_mean']
-        hs.drive_read_stddev = stats_dict['drive_read_stddev']
-        hs.drive_read_max = stats_dict['drive_read_max']
+        hs.drive_write = stats_dict['drive_write_mean']
+        #hs.drive_write_stddev = stats_dict['drive_write_stddev']
+        #hs.drive_write_max = stats_dict['drive_write_max']
+        hs.drive_read = stats_dict['drive_read_mean']
+        #hs.drive_read_stddev = stats_dict['drive_read_stddev']
+        #hs.drive_read_max = stats_dict['drive_read_max']
     
 
         return hs
@@ -272,18 +278,21 @@ class HostStatisticsHandler( StatisticsHandler):
         :returns: String
         """
 
+        msg = ''
         if reaction.node not in self.__node_list:
             return 'spefified Node is not running on this Host'
 
-        if reaction.action =='restart':
+        if reaction.action == 'restart':
             node = self.__node_list[reaction.node]
             msg = self.__node_manager.restart_node(node)
             self.remove_node(reaction.node)
         elif reaction.action == 'stop':     
-            msg = self.__node_manager.restart_node(reaction.node)
+            msg = self.__node_manager.stop_node(reaction.node)
             self.remove_node(reaction.node)
         elif reaction.action == 'command':
             msg = self.__node_manager.execute_command(reaction.command)
+        else:
+            msg = 'Failed to execute reaction, %s is no valid argument'%reaction.action
         return msg
 
         
@@ -294,7 +303,7 @@ class HostStatisticsHandler( StatisticsHandler):
         :param node_id: id of the node to be removed.
         :type node_id: String
         """
-        if node._id in self.__node_list:
+        if node in self.__node_list:
             del self.__node_list[node._id]
 
     def get_node_info(self):
@@ -314,18 +323,20 @@ class HostStatisticsHandler( StatisticsHandler):
                     self.__node_list[node_name] = new_node
                 except xmlrpclib.socket.error:
                     return False
-
-        for node_name in self.__node_list:
-            if node_name not in rosnode.get_node_names():
-                self.remove_node(node_name)
-
+        try:
+            for node_name in self.__node_list:
+                if node_name not in rosnode.get_node_names():
+                    self.remove_node(node_name)
+        except RuntimeError:
+            pass
+            
     def update_nodes(self):
         """
         update the status of each node in its own threading
         """
 
         for node in self.__node_list:
-            Thread(self.__node_list[node].measure_status, ()).start()
+            Thread(target = self.__node_list[node].measure_status).start()
 
     def get_sensors(self, sensor_list):
 
@@ -338,18 +349,11 @@ class HostStatisticsHandler( StatisticsHandler):
         except sensors.SensorsError:
             pass
 
+    @property 
+    def update_intervall(self):
+        return self.__update_intervall
 
-def main():
-    
-    #howto ROS_IP ?
-    host = HostStatisticsHandler('localhost')
+    @property 
+    def publish_intervall(self):
+        return self.__publish_intervall
 
-    try:
-        while not rospy.is_shutdown():
-            for i in range(host.__publish_intervall / host.__update_intervall):
-                host.measure_status
-                rospy.sleep(host.__update_intervall)
-
-            host.publish_status()
-    except rospy.ROSInterruptException:
-        pass

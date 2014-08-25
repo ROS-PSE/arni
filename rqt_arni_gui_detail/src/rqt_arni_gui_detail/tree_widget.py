@@ -27,16 +27,14 @@ class TreeWidget(QWidget):
 
         self.__model = ROSModel()
         self.__filter_proxy = ItemFilterProxy()
-        
-        self.item_tree_view.setModel(self.__model)
+        self.__filter_proxy.setSourceModel(self.__model)        
+        self.item_tree_view.setModel(self.__filter_proxy)
 
         self.__size_delegate = SizeDelegate()
         self.item_tree_view.setItemDelegate(self.__size_delegate)       
 
-        self.__connect_slots()
 
-
-    def __connect_slots(self):
+    def connect_slots(self):
         # : show_nodes_check_box
         self.show_nodes_check_box.stateChanged.connect(self.__on_show_nodes_check_box_state_changed)
         #: show_hosts_check_box
@@ -53,8 +51,7 @@ class TreeWidget(QWidget):
         self.minus_push_button.clicked.connect(self.__on_minus_push_button_clicked)
         #: plus_push_button
         self.plus_push_button.clicked.connect(self.__on_plus_push_button_clicked)
-        #: item_tree_view
-        self.item_tree_view.doubleClicked.connect(self.__on_item_in_item_tree_view_double_clicked)
+     
 
 
     def __on_show_nodes_check_box_state_changed(self, activated):
@@ -112,23 +109,17 @@ class TreeWidget(QWidget):
         """
         pass
 
+    #TODO say the filter_proxy to filter the items in the tree_view according to the content of the filter-box
     def __on_apply_push_button_clicked(self):
         """Filters the content in the box according to the content of the filter_line_edit"""
         pass
 
     def __on_minus_push_button_clicked(self):
         """Checks if the minus_push_button is clicked and zoomes out (decrease the size of the font)"""
-        self.__size_delegate.set_smaller_font_size()
+        self.__size_delegate.set_smaller_font_size() 
 
     def __on_plus_push_button_clicked(self):
         """Checks if the plus_push_button is clicked and zoomes in (increase the size of the font)"""
         self.__size_delegate.set_bigger_font_size()
 
-    def __on_item_in_item_tree_view_double_clicked(self, item):
-        """Handels the double-click action and opens the clicked item in the SelectionWidget
-
-        :param item: the double-clicked item
-        :type item: QModelIndex
-        """
-        pass
 

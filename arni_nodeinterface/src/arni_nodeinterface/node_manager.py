@@ -2,6 +2,7 @@ from node_statistics_handler import NodeStatisticsHandler
 import subprocess
 import rosnode
 import roslaunch
+import psutil
 
 class NodeManager(object):
     """ 
@@ -9,9 +10,10 @@ class NodeManager(object):
     """
     
     def __init__(self):
-        
-        
-        
+        """
+        empty comment to prevent indention error for whatever reason
+        """    
+           
     def stop_node(self, node_id):
         """
         Stops the node with the given id.
@@ -23,9 +25,9 @@ class NodeManager(object):
         """
         success, fail = rosnode.kill_nodes([node_id])
         if node_id in success:
-            return 'Node ' + node_id +  ' successfully stopped'
+            return 'Node %s successfully stopped'%node_id
         else:
-            return 'Node ' + node_id + ' could not be stopped'
+            return 'Node %s could not be stopped'%node_id
             
         
     def restart_node(self, node):
@@ -37,32 +39,41 @@ class NodeManager(object):
         :type node_id: NodeStatisticsHandler.
         :returns: String
         """
-        pipe = subprocess.Popen('ps -p ' + str(node.get_pid()) + ' -o cmd',
-                        shell = True, stdout = subprocess.PIPE).stdout
-        out = pipe.read()
-
-        path = out.split('/',6)
-        arguments = None
-        if len(path[6].split(' ')) == 1:
-            package = path[5]
-            exe = path[6]
-        elif len(path[6].split(' ')) > 1:
-            package = path[5]
-            exe = path[6].split(' ')[0]
-            arguments = path[6].split(' ',1)[1]
-
-        new_node = roslaunch.core.Node(package, exe, args = arguments)
-        self.stop_node(node.id)
-        
-        try:
-            launch = roslaunch.scriptapi.ROSLaunch()
-            launch.start()
-            node_proc = launch.launch(new_node)
-
-            return 'Restarted Node' + node.id
-        except RLException:
-            return 'failed to launch new Node'
-
+        """pipe = subprocess.Popen('ps -p %s -o cmd'%node.get_pid(),
+                                                shell = True, stdout = subprocess.PIPE).stdout
+                                out = pipe.read()
+                        
+                                path = out.split('/',6)
+                                arguments = None
+                                if len(path[6].split(' ')) == 1:
+                                    package = path[5]
+                                    exe = path[6]
+                                elif len(path[6].split(' ')) > 1:
+                                    package = path[5]
+                                    exe = path[6].split(' ')[0]
+                                    arguments = path[6].split(' ',1)[1]
+                        
+                                new_node = roslaunch.core.Node(package, exe, args = arguments)
+                                self.stop_node(node.id)
+                                
+                                try:
+                                    launch = roslaunch.scriptapi.ROSLaunch()
+                                    launch.start()
+                                    node_proc = launch.launch(new_node)
+                        
+                                    return 'Restarted Node' + node.id
+                                except roslaunch.core.RLException:
+                                    return 'failed to launch new Node'"""
+        proc = node.node_proc
+        cmd = proc.cmdline()
+        if 'successfully' in self.stop_node(node.id):
+            try:
+                psutil.Popen(cmd)
+                return 'Restarted %s'%node.id
+            except OSError:
+                return 'Failed to restart %s'%node.id
+        else:
+            return 'Node %s could not be stopped'%node.id
 
 
     def execute_command(self, args):

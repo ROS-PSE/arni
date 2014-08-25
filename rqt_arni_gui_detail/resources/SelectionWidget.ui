@@ -198,7 +198,7 @@ p, li { white-space: pre-wrap; }
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_7">
          <item>
-          <widget class="QListWidget" name="log_tab_list_widget"/>
+          <widget class="QTreeView" name="log_tab_tree_view"/>
          </item>
         </layout>
        </widget>

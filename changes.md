@@ -8,6 +8,7 @@ Change
 ## Configuration files
 * Now uses seuid where possible
 => specifications now take **seuid**: {} instead of **type: name**: {} (see arni_processing/resources/testconfig.yaml)
+* Now uses list of dictionaries against UserErrors from invalid parameter names
 
 ## MetadataStorage
 * automatic cleanup now depends on the rosparameters /arni/storage/auto_cleanup (True) and /arni/storage/cleanup_timer (30)[seconds]
@@ -47,3 +48,6 @@ Change
 * Gui does not react when being drawn..
 * why are sometimes empty values given to the axi?
 * why are there runtimeerrors when closing the gui. and why are there these threading errors(might it be the timers?)
+=======
+* selection.ui from log_tab_tree_widget to log_tab_tree_view.
+* arni_gui_detail: moved __on_item_in_item_tree_view_double_clicked(self, item): from tree_widget to arni_gui_detail to handle the content change of the selection_widget

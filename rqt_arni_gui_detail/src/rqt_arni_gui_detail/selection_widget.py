@@ -3,7 +3,7 @@ import rospy
 import rospkg
 
 from python_qt_binding import loadUi
-from python_qt_binding.QtGui import QWidget
+from python_qt_binding.QtGui import QWidget, QPixmap
 from python_qt_binding.QtCore import QObject
 
 from rospy.rostime import Time
@@ -17,11 +17,13 @@ class SelectionWidget(QWidget):
         self.setObjectName('selection_widget')
 
         # Get path to UI file which is a sibling of this file
-        rp = rospkg.RosPack()
-        ui_file = os.path.join(rp.get_path('rqt_arni_gui_detail'), 'resources', 'SelectionWidget.ui')
+        self.rp = rospkg.RosPack()
+        ui_file = os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources', 'SelectionWidget.ui')
         # Extend the widget with all attributes and children from UI file
         loadUi(ui_file, self)
         self.setObjectName('SelectionWidgetUi')
+
+        self.__selected_item = None
 
         self.__draw_graphs = True
 
@@ -31,15 +33,38 @@ class SelectionWidget(QWidget):
 
         #TODO self.__graph_dict =
 
-        #TODO self.__values_dict =
+        #TODO fill the dict
+        self.__values_dict = {
+            "bandwith_mean": 0,
+            "bandwith_stddev": 0,
+            "bandwith_max": 0,
+        }	
 
         self.__model = ROSModel()
 
-        self.__log_filter_proxy = LogFilterProxy(self.log_tab_list_widget)
+        self.__log_model = self.__model.get_log_model()
+        self.__log_filter_proxy = LogFilterProxy()       
+        self.__log_filter_proxy.filter_by_item(self.__selected_item)
+        self.__log_filter_proxy.setDynamicSortFilter(True)        
+        self.__log_filter_proxy.setSourceModel(self.__log_model)        
+        self.log_tab_tree_view.setModel(self.__log_filter_proxy)
+        
+        #todo: should this be false?
+        self.log_tab_tree_view.setRootIsDecorated(True)
+        # todo: test: eventually remove this
+        self.log_tab_tree_view.setAlternatingRowColors(True)
+        self.log_tab_tree_view.setSortingEnabled(True)
 
-        self.__connect_slots()
+        self.__model.layoutChanged.connect(self.update)
 
-    def __connect_slots(self):
+        self.__state = "ok"
+        self.__previous_state = "ok"
+        pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
+                                              'light_red.png'))
+	self.status_light_label.setPixmap(pixmap)
+        
+
+    def connect_slots(self):
         # : tab_widget
         self.tab_widget.currentChanged.connect(self.__on_current_tab_changed)
         #: restart_push_button
@@ -51,13 +76,14 @@ class SelectionWidget(QWidget):
         #: range_combo_box
         self.range_combo_box.currentIndexChanged.connect(self.__on_range_combo_box_index_changed)
 
-    def __set_selected_item(self, selected_item):
+    def set_selected_item(self, selected_item):
         """Set the selected item.
 
         :param selected_item: the selected item
         :type selected_item: item
         """
-        pass
+        self.__selected_item = selected_item
+        self.__on_changed_selected_item(self.__selected_item)
 
     def __on_current_tab_changed(self, tab):
         """Will be called when you switch between tabs.
@@ -99,12 +125,41 @@ class SelectionWidget(QWidget):
         :param index: the index of the selected item
         :type index: QModelIndex
         """
-        pass
+        self.__log_filter_proxy.filter_by_item(self.__selected_item)
+        self.update()
 
     def update_graphs(self):
         """Updates the graph plot.
         """
         pass
-
- 
-
+      
+    
+    def update(self):
+        data_dict = self.__model.data(self.__selected_item, 0)
+        
+        self.__state = data_dict["state"]
+        
+        if self.__previous_state is not self.__state:
+            self.__previous_state = self.__state
+            if self.__state == "ok":
+                self.status_text_line_edit.setText("Current status: ok")
+                pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
+                                              'light_green.png'))
+            elif self.__state == "warning":
+                self.status_text_line_edit.setText("Current status: warning")
+                pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
+                                              'light_orange.png'))
+            else:
+                self.status_text_line_edit.setText("Current status: error")
+                pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
+                                              'light_red.png'))
+            self.status_light_label.setPixmap(pixmap)
+        
+        content = ""
+        
+        #TODO fil content
+        content += "bandwith_mean: " + str(data_dict["bandwith_mean"]) + "<br>"
+        content += "bandwith_stddev: " + str(data_dict["bandwith_stddev"]) + "<br>"
+        content += "bandwith_meanmax: " + str(data_dict["bandwith_max"]) + "<br>"
+   
+        self.information_tab_text_browser.setHtml(content)

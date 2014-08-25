@@ -2,7 +2,7 @@ import rospy
 from specification import Specification
 from metadata_tuple import MetadataTuple
 from rated_statistics import RatedStatisticsContainer
-from arni_core.helper import is_seuid
+from arni_core.helper import *
 
 
 class SpecificationHandler:
@@ -19,14 +19,15 @@ class SpecificationHandler:
         """
         try:
             params = rospy.get_param(self.__namespace)
-            for seuid in params.keys():
-                if is_seuid(seuid):
-                    spec = Specification()
-                    for k in params[seuid].keys():
-                        spec.add_tuple(MetadataTuple(k, params[seuid][k]))
-                    self.__specifications[seuid] = spec
-                else:
-                    rospy.logdebug("[SpecificationHandler][__load_specifications] %s is not a valid seuid." % seuid)
+            for o in params:
+                for seuid in o.keys():
+                    if SEUID().is_valid(seuid):
+                        spec = Specification()
+                        for k in o[seuid].keys():
+                            spec.add_tuple(MetadataTuple(k, o[seuid][k]))
+                        self.__specifications[seuid] = spec
+                    else:
+                        rospy.logdebug("[SpecificationHandler][__load_specifications] %s is not a valid seuid." % seuid)
         except KeyError as err:
             pass
         rospy.loginfo("[SpecificationHandler] Loaded %s parameters." % str(len(self.__specifications.keys())))
