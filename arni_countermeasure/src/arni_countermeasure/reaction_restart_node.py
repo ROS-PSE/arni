@@ -2,6 +2,7 @@ from reaction import *
 import rospy
 from arni_msgs.srv import NodeReaction
 from rospy import ServiceException
+import arni_core.helper as helper
 
 
 class ReactionRestartNode(Reaction):
@@ -12,7 +13,8 @@ class ReactionRestartNode(Reaction):
         super(ReactionRestartNode, self).__init__(node, autonomy_level)
 
     def execute_reaction(self):
-        service_name = "/execute_node_reaction/%s" % self._host
+        host_formatted = helper.underscore_ip(self._host)
+        service_name = "/execute_node_reaction/%s" % host_formatted
         try:
             if self._host is not None:
                 execute = rospy.ServiceProxy(
