@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+
 import rospy
-from monitoring_node import MonitoringNode
+from arni_processing.monitoring_node import MonitoringNode
 
 
 def main():
