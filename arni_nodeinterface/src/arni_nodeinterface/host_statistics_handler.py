@@ -78,13 +78,13 @@ class HostStatisticsHandler( StatisticsHandler):
                 self.__disk_read_base[key] = disk.read_bytes
                 self.__disk_write_base[key] = disk.write_bytes
 
-
     def __register_service(self):
         """
         Register all services
         """
-        rospy.Service("/" + self._id + "/execute_node_reaction", 
-                        NodeReaction, self.execute_reaction)
+        rospy.Service(
+            "/execute_node_reaction/%s" % self._id,
+            NodeReaction, self.execute_reaction)
 
     def measure_status(self, event):
         """
