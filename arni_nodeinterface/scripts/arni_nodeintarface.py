@@ -1,11 +1,18 @@
 #!/usr/bin/env python
 import rospy
 from host_statistics_handler import *
+import os
 
 def main():
     
     #howto ROS_IP ?
-    host = HostStatisticsHandler('localhost')
+
+    rospy.init_node("HostStatistics", log_level=rospy.DEBUG)
+    rospy.sleep(1)
+    ip = os.getenv('ROS_IP', '127.0.0.1')
+    ip = ip.replace('.','_')
+
+    host = HostStatisticsHandler(ip)
 
     try:
         rospy.sleep(1)
@@ -13,7 +20,7 @@ def main():
         rospy.Timer(rospy.Duration(host.publish_intervall),host.publish_status)
         while not rospy.is_shutdown():
             rospy.spin()
-        rospy.on_shutdown(host.shut_down_hook)
+        #rospy.on_shutdown(host.shut_down_hook)
     except rospy.ROSInterruptException:
         pass
 

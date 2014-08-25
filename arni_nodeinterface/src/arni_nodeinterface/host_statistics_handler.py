@@ -3,6 +3,7 @@ from node_statistics_handler import NodeStatisticsHandler
 from host_status import HostStatus
 from node_manager import NodeManager
 from threading import Thread
+import arni_msgs
 from arni_msgs.msg import HostStatistics
 from arni_msgs.srv import NodeReaction
 import psutil
@@ -24,13 +25,14 @@ class HostStatisticsHandler( StatisticsHandler):
         
         super(HostStatisticsHandler, self).__init__(hostid)
 
-        rospy.init_node("HostStatistics", log_level=rospy.DEBUG)
+        self.__update_intervall = 0
+        self.__publish_intervall = 0
 
         self.__init_params()
-        self.__register_service()
-        self.pub = rospy.Publisher('/statistics_host', HostStatistics)
+        self.__register_service()        
         self.__lock = threading.lock()
-       
+
+        self.pub = rospy.Publisher('/statistics_host', HostStatistics, queue_size = 500)
         #: Used to store information about the host's status.
         self._status = HostStatus(rospy.Time.now())
         
@@ -245,13 +247,13 @@ class HostStatisticsHandler( StatisticsHandler):
         hs.ram_usage_max = stats_dict['ram_usage_max']
 
         hs.interface_name = stats_dict['interface_name']
-        hs.message_frequency_mean =  map(stats_dict['message_frequency_mean'])
-        hs.message_frequency_stddev = map(stats_dict['message_frequency_stddev'])
-        hs.message_frequency_max = map(stats_dict['message_frequency_max'])
+        hs.message_frequency_mean =  map(int, stats_dict['message_frequency_mean'])
+        hs.message_frequency_stddev = map(int, stats_dict['message_frequency_stddev'])
+        hs.message_frequency_max = map(int, stats_dict['message_frequency_max'])
 
-        hs.bandwidth_mean =  map(stats_dict['bandwidth_mean'])
-        hs.bandwidth_stddev = map(stats_dict['bandwidth_stddev'])
-        hs.bandwidth_max = map(stats_dict['bandwidth_max'])
+        hs.bandwidth_mean =  map(int, stats_dict['bandwidth_mean'])
+        hs.bandwidth_stddev = map(int, stats_dict['bandwidth_stddev'])
+        hs.bandwidth_max = map(int, stats_dict['bandwidth_max'])
 
         
         hs.drive_name = stats_dict['drive_name']
