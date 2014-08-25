@@ -83,7 +83,7 @@ class HostStatisticsHandler( StatisticsHandler):
         """
         Register all services
         """
-        rospy.Service("/" + self._id + "/execute_node_reaction", 
+        rospy.Service("/execute_node_reaction/%s"%self._id, 
                         NodeReaction, self.execute_reaction)
 
     def measure_status(self, event):
