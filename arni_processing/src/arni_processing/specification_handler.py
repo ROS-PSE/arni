@@ -84,7 +84,7 @@ class SpecificationHandler:
                     if SEUID(identifier).topic in self.__specifications.keys():
                         specification = self.__specifications[SEUID(identifier).topic]
         # if specification is None:
-        #     rospy.logdebug("[SpecificationHandler][compare] No Specification available for %s" % identifier)
+        # rospy.logdebug("[SpecificationHandler][compare] No Specification available for %s" % identifier)
         for field in dir(data):
             if field[0] == "_" or "serialize" in field:
                 continue

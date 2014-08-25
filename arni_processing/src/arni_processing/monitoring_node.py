@@ -39,8 +39,8 @@ class MonitoringNode:
             rospy.logerr("received invalid message type:\n%s" % traceback.format_exc())
         try:
             self.__process_data(data, str(seuid))
-        except Exception:
-            pass
+        except Exception as msg:
+            rospy.logerr("an error occured processing the data:\n%s\n%s" % (msg, traceback.format_exc()))
 
     def __process_data(self, data, identifier):
         """
