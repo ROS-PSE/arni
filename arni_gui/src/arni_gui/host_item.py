@@ -14,7 +14,9 @@ class HostItem(AbstractItem):
         :param parent: the parent-object
         :type parent: object
         """
+        print "hier"
         super(HostItem, self).__init__(parent)
+        print "warscheinlich hier"
 
         self.__type = "host"
 
@@ -27,10 +29,15 @@ class HostItem(AbstractItem):
                       "interface_name", "message_frequency_mean", "message_frequency_stddev",
                       "message_frequency_max", "bandwidth_mean", "bandwidth_stddev", "bandwidth_max",
                       "drive_name", "drive_free_space", "drive_read", "drive_write"])
+        
+        self.__new_attributes = []
         for item in self._attributes:
+            self.__new_attributes.append(item + ".actual_value")
+            self.__new_attributes.append(item + ".expected_value")
+            self.__new_attributes.append(item + ".state")
+
+        for item in self.__new_attributes:
             self._add_data_list(item)
-
-
 
     def execute_action(self, action):
         """Sends a signal to stop or restart a host

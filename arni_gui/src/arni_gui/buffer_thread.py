@@ -85,7 +85,8 @@ class BufferThread(Thread):
         rospy.Subscriber(
             "/statistics_host", HostStatistics,
             self.__add_host_statistics_item)
-
+	
+	print "ich hab abboniert"
 
 # def start(self):
 #     """
@@ -100,9 +101,15 @@ class BufferThread(Thread):
         rospy.logdebug('Timer called at ' + str(event.current_real))
         self.__model.update_model(self.__rated_statistics_buffer, self.__topic_statistics_buffer,
                                   self.__host_statistics_buffer, self.__node_statistics_buffer)
-
+	
+	#print ""
+	#print self.__rated_statistics_buffer
+	#print self.__topic_statistics_buffer
+	#print self.__host_statistics_buffer
+	#print self.__node_statistics_buffer
 
     def __add_rated_statistics_item(self, item):
+        print("add rated")
         """
         Adds the item to the buffer list. Will be called whenever data from the topics is available.
 
@@ -110,41 +117,45 @@ class BufferThread(Thread):
         :type item: RatedStatistics
         """
         #todo: are the locks necessary here? e.g. can this be called multiple times by the same subscriber?
-        self.__rated_statistics_buffer_lock.aquire()
+        self.__rated_statistics_buffer_lock.acquire()
         self.__rated_statistics_buffer.append(item)
         self.__rated_statistics_buffer_lock.release()
 
     def __add_topic_statistics_item(self, item):
+	print "add topic"
         """
         Adds the item to the buffer list. Will be called whenever data from the topics is available.
 
         :param item: the item which will be added to the buffer
         :type item: TopicStatistics
         """
-        self.__topic_statistics_buffer_lock.aquire()
+        print "bla"
+        self.__topic_statistics_buffer_lock.acquire()
         self.__topic_statistics_buffer.append(item)
         self.__topic_statistics_buffer_lock.release()
 
 
     def __add_node_statistics_item(self, item):
+        print "node"
         """
         Adds the item to the buffer list. Will be called whenever data from the topics is available.
 
         :param item: the item which will be added to the buffer
         :type item: NodeStatistics
         """
-        self.__node_statistics_buffer_lock.aquire()
+        self.__node_statistics_buffer_lock.acquire()
         self.__node_statistics_buffer.append(item)
         self.__node_statistics_buffer_lock.release()
 
 
     def __add_host_statistics_item(self, item):
+        print "host"
         """
         Adds the item to the buffer list. Will be called whenever data from the topics is available.
 
         :param item: the item which will be added to the buffer
         :type item: HostStatistics
         """
-        self.__host_statistics_buffer_lock.aquire()
+        self.__host_statistics_buffer_lock.acquire()
         self.__host_statistics_buffer.append(item)
         self.__host_statistics_buffer_lock.release()
