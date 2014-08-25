@@ -317,14 +317,15 @@ class HostStatisticsHandler( StatisticsHandler):
         for node_name in rosnode.get_node_names():
             if node_name not in self.__node_list:
                 node_api = rosnode.get_api_uri(rospy.get_master(), node_name)
-                try:
-                    code, msg, pid = xmlrpclib.ServerProxy(node_api[2]).getPid('/NODEINFO')
-                    node_process = psutil.Process(pid)
-                    new_node = NodeStatisticsHandler(self._id, node_name, node_process)
+                if self._id in node_api[2]:
+                    try:
+                        code, msg, pid = xmlrpclib.ServerProxy(node_api[2]).getPid('/NODEINFO')
+                        node_process = psutil.Process(pid)
+                        new_node = NodeStatisticsHandler(self._id, node_name, node_process)
 
-                    self.__node_list[node_name] = new_node
-                except xmlrpclib.socket.error:
-                    return False
+                        self.__node_list[node_name] = new_node
+                    except xmlrpclib.socket.error:
+                        return False
         try:
             for node_name in self.__node_list:
                 if node_name not in rosnode.get_node_names():

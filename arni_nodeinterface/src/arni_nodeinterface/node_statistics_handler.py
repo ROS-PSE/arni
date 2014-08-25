@@ -99,10 +99,10 @@ class NodeStatisticsHandler(StatisticsHandler):
         ns.node_ramusage_stddev = stats_dict['ram_usage_stddev']
         ns.node_ramusage_max = stats_dict['ram_usage_max']
 
-        ns.node_message_frequency_mean = stats_dict['node_msg_frequency_mean']
+        ns.node_message_frequency_mean = stats_dict['node_message_frequency_mean']
         ns.node_message_frequency_stddev = stats_dict[
-            'node_msg_frequency_stddev']
-        ns.node_message_frequency_max = stats_dict['node_msg_frequency_max']
+            'node_message_frequency_stddev']
+        ns.node_message_frequency_max = stats_dict['node_message_frequency_max']
 
         ns.node_bandwidth_mean = stats_dict['node_bandwidth_mean']
         ns.node_bandwidth_stddev = stats_dict['node_bandwidth_stddev']
