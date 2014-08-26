@@ -147,6 +147,19 @@ class OverviewWidget(QWidget):
         self.graph_scroll_area.resize(self.graph_scroll_area.maximumWidth(), len(self.__graph_dict) * 200)
         #self.__graph_widget.setSizePolicy(QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum))
 
+        self.__plotted_curves = {}
+        self.create_graphs()
+
+
+
+
+        #todo: make a first, special update at the beginning (might be that there is fresh data)
+        #todo: separate from the layoutChanged signal --> own timer!
+        #self.update_graphs(None)
+        self.__timer = Timer(Duration(secs=2), self.update_graphs)
+
+
+    def create_graphs(self):
         for key in self.__model.get_root_item().get_plotable_items():
             #y=np.arrange(0, self.__maximum_values[key], 2)
             date_axis = DateAxis(orientation="bottom")
@@ -162,15 +175,9 @@ class OverviewWidget(QWidget):
             plot_widget.showGrid(x=True, y=True)
             plot_widget.setMenuEnabled(enableMenu=True)
             plot_widget.enableAutoRange('xy', True)
-
-        #todo: make a first, special update at the beginning (might be that there is fresh data)
-        #todo: separate from the layoutChanged signal --> own timer!
-        #self.update_graphs(None)
-        self.__timer = Timer(Duration(secs=2), self.update_graphs)
-
-
-
-
+            x = np.array([1])
+            y = np.array([int(str(Time.now()))/1000000000])
+            self.__plotted_curves[key] = plot_widget.plot(x=x, y=y, fillLevel=0)
 
 
     def __connect_slots(self):
@@ -240,18 +247,18 @@ class OverviewWidget(QWidget):
             #plot_data = self.__model.get_overview_data_since(Time.now() - Duration(secs=self.__combo_box_index_to_seconds(self.__current_combo_box_index)))
             #now plotting
             plotable_items = self.__model.get_root_item().get_plotable_items()
-            plotable_data = self.__model.get_root_item().get_items_younger_than(Time.now() - Duration(secs=self.__combo_box_index_to_seconds(self.__current_combo_box_index)), "window_end", *plotable_items)
+            plotable_data = self.__model.get_root_item().get_items_younger_than(Time.now() - Duration(secs=self.__combo_box_index_to_seconds(self.__current_combo_box_index)), "window_stop", *plotable_items)
 
             #print("length time: " + str(len(plotable_data["window_end"])) + " length data: " + str(len(plotable_data[key])))
             temp_time = []
             temp_content = []
 
             x = None
-            modulo = (len(plotable_data["window_end"]) / 100) + 1
+            modulo = (len(plotable_data["window_stop"]) / 500) + 1
 
-            for i in range(0, len(plotable_data["window_end"]), modulo):
+            for i in range(0, len(plotable_data["window_stop"]), modulo):
                 #now having maximally 100 items to plot :)
-                temp_time.append(int(str(plotable_data["window_end"][i]))/1000000000)
+                temp_time.append(int(str(plotable_data["window_stop"][i]))/1000000000)
                     #print("time" + time.strftime("%d.%m-%H:%M:%S", time.localtime(int(str(item))/1000000000)) + "ms actual time: " + time.strftime("%d.%m-%H:%M:%S", time.localtime(int(str(Time.now()))/1000000000))+ "ms")
                 x = np.array(temp_time)
                 #del temp_time[:]
@@ -259,7 +266,7 @@ class OverviewWidget(QWidget):
             for key in plotable_items:
                 #print("length time: " + str(len(plotable_data["window_end"])) + " length data: " + str(len(plotable_data[key])))
                 #print("secs = " + str(self.__combo_box_index_to_seconds(self.__current_combo_box_index)))
-                for i in range(0, len(plotable_data["window_end"]), modulo):
+                for i in range(0, len(plotable_data["window_stop"]), modulo):
                     temp_content.append(plotable_data[key][i])
                         #print(x)
                         #print("\n")
@@ -269,7 +276,8 @@ class OverviewWidget(QWidget):
                 #print(len(temp_content))
                 del temp_content[:]
                 now2 = rospy.Time.now()
-                self.__graph_dict[key].plot(x=x, y=y, fillLevel=0)
+                self.__plotted_curves[key].setData(x=x, y=y)
+                #self.__graph_dict[key].plot(x=x, y=y, fillLevel=0)
 
 
                 #todo: will this plot every time a new line?

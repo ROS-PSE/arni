@@ -266,7 +266,7 @@ class AbstractItem(QObject):
             return_values[key] = []
         breakpoint = 0
 
-        list_of_time = self.__data["window_end"]
+        list_of_time = self.__data["window_stop"]
         #print(len(list_of_time))
         #print("first time: " + tm.strftime("%d.%m-%H:%M:%S", tm.localtime((int(str(self.__data["window_end"][0]))/1000000000))))
         #print("last time: " + tm.strftime("%d.%m-%H:%M:%S", tm.localtime((int(str(self.__data["window_end"][-1]))/1000000000))))
