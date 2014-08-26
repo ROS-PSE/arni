@@ -1,18 +1,15 @@
 from abstract_item import AbstractItem
 
 class TopicItem(AbstractItem):
-
-
-    """A TopicItem represents a specific topic which contains many connections and has attributes like the number of sent messages"""
-
+    """A TopicItem represents a specific topic which contains many connections and has attributes like the number of sent messages."""
 
     def __init__(self, seuid, parent=None):
-        """Initializes the ConnectionItem
-
-        :param list: connection list
-        :type list: list
-        :param parent: the parent-object
-        :type parent: object
+        """Initializes the TopicItem.
+        
+        :param seuid: the seuid of the item
+        :type seuid: str
+        :param parent: the parent-item
+        :type parent: AbstractItem
         """
         super(TopicItem, self).__init__(seuid, parent)
         self.__type = "topic"
@@ -38,15 +35,23 @@ class TopicItem(AbstractItem):
 #todo: make the append_data methods "intelligent" here? buffer data or similar?
         #yes, pleaaaaaaaaaaaaaaaaaaaaaase!
 
+
     def execute_action(self, action):
-        """Not senseful, throws an exception
+        """
+        Not senseful, throws an exception.
 
         :param action: action to be executed
         :type action: RemoteAction
         """
         pass
 
+
     def get_detailed_data(self):
+        """
+        Returns the detailed data of the TopicItem.
+        
+        :returns: str
+        """
         #todo: fill the content sensefully!
         data_dict = self.get_latest_data()
 
@@ -69,4 +74,9 @@ class TopicItem(AbstractItem):
 
 
     def get_plotable_items(self):
+        """
+        Returns items for the plot.
+        
+        :returns: str[]
+        """
         return ["dropped_msgs", "traffic"]

@@ -4,14 +4,15 @@ from abstract_item import AbstractItem
 class ConnectionItem(AbstractItem):
     """A ConnectionItem reresents the connection between a publisher and a subscriber and the topic they are publishing / listening on"""
 
-
     def __init__(self, seuid, parent=None):
-        """Initializes the ConnectionItem
-
-        :param list: connection list
-        :type list: list
-        :param parent: the parent-object
-        :type parent: object
+        """Initializes the ConnectionItem.
+        
+        :param seuid: the seuid of the item
+        :type seuid: str
+        :param type: the type of the item
+        :type type: str
+        :param parent: the parent-item
+        :type parent: AbstractItem
         """
         super(ConnectionItem, self).__init__(seuid, parent)
 
@@ -37,8 +38,9 @@ class ConnectionItem(AbstractItem):
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)
 
+
     def execute_action(self, action):
-        """Not senseful
+        """Not senseful, throws an exception.
 
         :param action: action to be executed
         :type action: RemoteAction
@@ -47,6 +49,11 @@ class ConnectionItem(AbstractItem):
 
 
     def get_detailed_data(self):
+        """
+        Returns the detailed data of the ConnectionItem.
+        
+        :returns: str
+        """
         # todo: fill the content sensefully!
         data_dict = self.get_latest_data()
 
@@ -67,6 +74,12 @@ class ConnectionItem(AbstractItem):
         content += "</p>"
         return content
 
+
     def get_plotable_items(self):
+        """
+        Returns items for the plot.
+        
+        :returns: str[]
+        """
         #todo: append more items here
         return ["traffic", "dropped_msgs"]

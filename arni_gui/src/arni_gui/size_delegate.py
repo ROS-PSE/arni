@@ -9,6 +9,7 @@ from python_qt_binding.QtCore import QObject, QSize
 class SizeDelegate(QStyledItemDelegate):
     """Makes it possible to change the font size of the Gui-Plugin content."""
     #todo: is QObject here a dirty hack or does it work like this?
+    
     def __init__(self, parent=QObject()):
         super(SizeDelegate, self).__init__(parent)
         #QStyledItemDelegate.__init__(parent)
@@ -16,7 +17,8 @@ class SizeDelegate(QStyledItemDelegate):
         
 
     def paint(self, painter, option, index):
-        """Defines how the items of the model will be painted in the view. Can be used  to draw e.g. bigger or smaller fonts.
+        """
+        Defines how the items of the model will be painted in the view. Can be used  to draw e.g. bigger or smaller fonts.
 
         :param painter: The painter which will be used to paint
         :type painter: QPainter
@@ -42,15 +44,32 @@ class SizeDelegate(QStyledItemDelegate):
         """Decreases the displayed font-size."""
         self.__current_font_size -= 1
         
+        
     ## will only be calles at initialization
     ## only the height of a cell can be changed, changing the width has no effect
     def sizeHint(self, option, index):
+        """
+        Manupulates the size of a cell in the model.
+
+        :param option: The options parameter
+        :type option: QStyleOptionViewItem
+        :param index: The QModelIndex that will be painted
+        :type index: QModelIndex
+        
+        :returns: QSize
+        """
         default = QStyledItemDelegate.sizeHint(self, option, index)
         return QSize(default.width(), default.height())
         
      
-    # TODO: DOKU
-    # handels the backgroundcolour from a cell
     def initStyleOption(self, option, index):
+        """
+        Manupulates the background-color of a cell in the model.
+
+        :param option: The options parameter
+        :type option: QStyleOptionViewItem
+        :param index: The QModelIndex that will be painted
+        :type index: QModelIndex
+        """
         super(SizeDelegate,self).initStyleOption(option, index)
         option.backgroundBrush = QBrush(choose_brush(index))

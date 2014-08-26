@@ -1,14 +1,15 @@
 from python_qt_binding.QtGui import QBrush, QColor
 
-
 # define constants
 # update frequency of the model in nsecs
 UPDATE_FREQUENCY = 100000000
 
 
-
 def choose_brush(index):
     """
+    Chooses the brush according o the content of a cell.
+    
+    :param index: the index of the item 
     :type index: QModelIndex
     """
    

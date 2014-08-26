@@ -13,7 +13,9 @@ except ImportError as e:
     raise
 
 class RemoteAction(Enum):
-    """Gives a predefinition for a remote interaction with hosts and nodes"""
+    """
+    Gives a predefinition for a remote interaction with hosts and nodes.
+    """
 
     E_ACTION_STOP = 0
     E_ACTION_RESTART = 1

@@ -27,7 +27,10 @@ import numpy as np
 import pyqtgraph as pg
 
 class OverviewWidget(QWidget):
+    """The overviewWidget of the ArniGuiOverview-Plugin."""
+    
     def __init__(self):
+        """Initializes the widget."""
         super(OverviewWidget, self).__init__()
         #self.setObjectName('overview_widget')
 
@@ -155,11 +158,14 @@ class OverviewWidget(QWidget):
         #self.update_graphs(None)
         self.__timer = Timer(Duration(secs=1.5), self.update_graphs)
 
+
     def __del__(self):
+        """Destructor of the widget."""
         self.__timer.stop()
         del self.__timer
 
     def create_graphs(self):
+        """Creates the graphs for the plot."""
         for key in self.__model.get_root_item().get_plotable_items():
             #y=np.arrange(0, self.__maximum_values[key], 2)
             date_axis = DateAxis(orientation="bottom")
@@ -181,12 +187,14 @@ class OverviewWidget(QWidget):
 
 
     def __connect_slots(self):
-        """Initializes the slots of the OverviewPlugin."""
-        self.tab_widget.currentChanged.connect(self.__on_current_tab_changed)
+        """Connects the slots."""
+        self.tab_widget.currentChanged.connect(self._Initializes_on_current_tab_changed)
         self.range_combo_box.currentIndexChanged.connect(self.__on_range_combo_box_index_changed)
 
+
     def __on_current_tab_changed(self, tab):
-        """The Plugin wants to get notified when the tab changed so it can e.g. draw the graphs.
+        """
+        The Plugin wants to get notified when the tab changed so it can e.g. draw the graphs.
 
         :param tab: the index of the selected tab
         :type tab: int
@@ -196,14 +204,17 @@ class OverviewWidget(QWidget):
         else:
             self.__draw_graphs = False
 
+
     def __on_range_combo_box_index_changed(self, index):
-        """Handels the change of the graph range.
+        """
+        Handels the change of the graph range.
 
         :param index: the index of the selected range
         :type index: int
         """
         #print("current_combo_box index changed\n")
         self.__current_combo_box_index = index
+
 
     def update(self):
         """Updates the Plugin and draws the graphs if draw_graphs is true."""
@@ -238,8 +249,9 @@ class OverviewWidget(QWidget):
         #todo: currently not needed
         self.__last_update = rospy.Time.now()
 
+
     def update_graphs(self, event):
-        """Updates and redraws the graphs"""
+        """Updates and redraws the graphs."""
         self.__update_graphs_lock.acquire()
         if self.__draw_graphs is True:
             now = rospy.Time.now()
@@ -302,6 +314,14 @@ class OverviewWidget(QWidget):
 
 
     def __combo_box_index_to_seconds(self, index):
+        """
+        Calculates the range from the combo-box index.
+        
+        :param index: the index of teh combo-box
+        :type index: int
+        
+        :returns: int
+        """
         if self.__current_combo_box_index == 0:
             return 10
         elif self.__current_combo_box_index == 1:
@@ -309,18 +329,43 @@ class OverviewWidget(QWidget):
         else:
             return 300
 
+
     def get_current_tab(self):
+        """
+        Returns the current tab.
+        
+        :returns: int
+        """
         return self.tab_widget.currentIndex()
 
+
     def set_current_tab(self, index=0):
+        """Sets the default tab.
+        
+        :param index: the index of the tab
+        :type index: int
+        """
         if index is None:
             index = 0
         self.tab_widget.setCurrentIndex(index)
 
+
     def get_range_combo_box_index(self):
+        """
+        Returns the index of the combo-box.
+        
+        :returns: int
+        """
         return self.range_combo_box.currentIndex()
 
+
     def set_range_combo_box_index(self, index=0):
+        """
+        Sets the default value of the combo-box.
+        
+        :param index: the index of the combo-box
+        :type index: int
+        """
         if index is None:
             index = 0
         self.range_combo_box.setCurrentIndex(index)

@@ -3,19 +3,22 @@ from python_qt_binding.QtCore import QObject
 
 from threading import Lock
 
-# from ros_model import ROSModel
 
 class AbstractItem(QObject):
-    """ Provides a unified interface to access the items of the model
-        INTERNAL: WARNING! Whenever the key-values at the beginning are not set right, the oddest things may occur!
+    """ 
+    Provides a unified interface to access the items of the model.
+    INTERNAL: WARNING! Whenever the key-values at the beginning are not set right, the oddest things may occur!
     """
 
     def __init__(self, seuid, parent=None, *args):
-        # todo:doku is missing here
-        """Initializes theAbstractItem
-
-        :param parent: the parent-object
-        :type parent: object
+        """Initializes the AbstractItem.
+        
+        :param seuid: the seuid of the AbsractItem
+        :type seuid: str
+        :param parent: the parent-item
+        :type parent: AbstractItem
+        :param *args:
+        :type *args: 
         """
         print(str(type(self)) + str(type(seuid)) + str(type(parent)))
         super(AbstractItem, self).__init__(parent)
@@ -37,19 +40,46 @@ class AbstractItem(QObject):
 
 
     def get_seuid(self):
+        """
+        Returns the seuid of the Abstractitem.
+        
+        :returns: str
+        """
         return self.seuid
 
+
     def get_state(self):
+        """
+        Returns the state of the AbstractItem.
+        
+        :returns: str
+        """
         return self.__state[-1]
 
+
     def _add_data_list(self, name):
+        """
+        Adds keys to the data_list.
+        
+        :param name: the key to be added
+        :type name: str
+        """
         self.__data[name] = []
 
+
     def _add_rated_data_list(self, name):
+        """
+        Adds keys to the rated_data_list.
+        
+        :param name: the key to be added
+        :type name: str
+        """
         self.__rated_data[name] = []
 
+
     def append_child(self, child):
-        """Append a child to the list of childs
+        """
+        Append a child to the list of childs.
 
         :param child: the child item
         :type child: AbstractItem
@@ -58,6 +88,12 @@ class AbstractItem(QObject):
 
 
     def append_rated_data_dict(self, data):
+        """
+        Appends data to the rate_data of the AbstractItem.
+        
+        :param data: the data to append in key value from
+        :type data: dict
+        """
         if "window_stop" not in data:
             data["window_stop"] = Time.now()
         for attribute in self.__rated_data:
@@ -74,8 +110,10 @@ class AbstractItem(QObject):
 
         self.__update_current_state()
 
+
     def append_data_dict(self, data):
-        """Append data to the data of the AbstractItem.
+        """
+        Appends data to the data of the AbstractItem.
 
         :param data: the data to append in key value form
         :type data: dict
@@ -98,6 +136,9 @@ class AbstractItem(QObject):
 
 
     def __update_current_state(self):
+        """
+        This method udates the current state of the AbstractItem.
+        """
         length = len(self.__state)
         # print("__update_current_state")
         # for i in range(length - len(
@@ -111,11 +152,14 @@ class AbstractItem(QObject):
                 break
         self.__last_update = Time.now()
 
+
+    #TODO append_data or append_data_dict is correct
     def append_data(self, data):
-        """Append data to the data of the AbstractItem.
+        """
+        Appends data to the data of the AbstractItem.
 
         :param data: the data to append in key value form
-        :type data:
+        :type data: dict
         """
         for attribute in self.__data:
             try:
@@ -127,14 +171,17 @@ class AbstractItem(QObject):
         self.__state.append("ok")
         self.__update_current_state()
 
+
     def update_rated_data(self, data, window_start, window_stop):
         """
+        Appends data to the rated_data of the AbstractItem.
 
-        :param data:
-        :type data:
-        :param time:
-        :type time: rostime?
-        :return:
+        :param data: the data to append in key value form
+        :type data: dict
+        :param window_start: the time of window_start
+        :type window_start: Time
+        :param window_stop: the time of window_stop
+        :type window_stop: Time
         """
         found = False
         # todo: are these all bad cases?
@@ -156,6 +203,11 @@ class AbstractItem(QObject):
 
 
     def child_count(self):
+        """
+        Returns the number of children from the AbstractItem.
+        
+        :returns: int
+        """
         sum = 0
         for item in self.__child_items:
             sum += 1
@@ -166,19 +218,26 @@ class AbstractItem(QObject):
 
 
     def column_count(self):
+        """
+        Returns the number of columns.
+        
+        :returns: int
+        """
         # todo: return !not! a concrete number here ?!?!
         return 4
 
     def get_childs(self):
         """
+        Returns a list with all children.
 
-        :return:
+        :returns: list
         """
         return self.__child_items
 
 
     def get_child(self, row):
-        """Returns the child at the position row
+        """
+        Returns the child at the position row.
 
         :param row: the index of the row
         :type row: int
@@ -190,7 +249,9 @@ class AbstractItem(QObject):
 
     def row(self):
         """
-        todo: document!
+        Returns the index of the Item.
+        
+        :returns: int
         """
         if self.__parent:
             return self.__parent.childItems.index(self)
@@ -199,11 +260,12 @@ class AbstractItem(QObject):
 
 
     def get_latest_data(self, *kwargs):
-        # todo:update docu, now more mighty
-        """Returns the latest dict of the data_list or the item of the dict with the given key
+        """
+        Returns the latest dict of the data_list or the item of the dict with the given key.
 
         :param kwargs: the keys to the dict
         :type kwargs: str
+        
         :returns: dict or the item
         """
         if kwargs is not None:
@@ -220,7 +282,6 @@ class AbstractItem(QObject):
                     else:
                         raise KeyError("item" + key + "was not found")
 
-
         return_dict = {}
         # return dict of latest item
         for entry in self.__data:
@@ -232,19 +293,24 @@ class AbstractItem(QObject):
 
 
     def parent(self):
-        """Returns the parent of this or None if there is no parent
+        """
+        Returns the parent of this or None if there is no parent.
 
         :returns: AbstractItem
         """
         return self.__parent
 
+
     # todo: what are the following 3 methods for and how can they be done better?
     #todo: UPDATE!!!! CURRENTLY NOT WORKING
     def get_items_older_than(self, time, *args):
-        """Returns all items which are older than time
+        """
+        Returns all items which are older than time.
 
         :param time: the upper bound in seconds
         :type time: rospy.Time
+        :param kwargs: the keys to the dict
+        :type kwargs: str
 
         :returns: dict of lists
         """
@@ -294,14 +360,10 @@ class AbstractItem(QObject):
                     break
 
             # now shrink the time itself
-
             # print("length time: " + str(len(return_values["window_end"])) + " length state: " + str(len(return_values["state"])))
-
         #print("length return values: " + str(len(return_values["window_end"])))
         return return_values
-
-
-
+    
         # return_values = []
         # for key in self.__data:
         #     return_values[key] = []
@@ -318,7 +380,8 @@ class AbstractItem(QObject):
 
 
     def delete_items_older_than(self, time):
-        """Deletes all items which are older than time
+        """
+        Deletes all items which are older than time.
 
         :param time: the upper bound
         :type time: rospy.Time
@@ -338,7 +401,8 @@ class AbstractItem(QObject):
 
 
     def get_items_younger_than(self, time, *args):
-        """Returns all items which are younger than time
+        """
+        Returns all items which are younger than time.
 
         :param time: the lower bound in seconds
         :type time: rospy.Time
@@ -369,7 +433,7 @@ class AbstractItem(QObject):
         #print(len(list_of_time))
         #print("first time: " + tm.strftime("%d.%m-%H:%M:%S", tm.localtime((int(str(self.__data["window_end"][0]))/1000000000))))
         #print("last time: " + tm.strftime("%d.%m-%H:%M:%S", tm.localtime((int(str(self.__data["window_end"][-1]))/1000000000))))
-        #print("for")
+        #print("for"
         if length is not 0:
             if list_of_time[0] >= time:
                 for key in return_values:
@@ -415,8 +479,6 @@ class AbstractItem(QObject):
         #print("length return values: " + str(len(return_values["window_end"])))
         return return_values
 
-
-
     # check timestamp
     #start_time = Time.now() - Duration(nsecs=time)
     # if list_of_time[i] > time:
@@ -445,8 +507,13 @@ class AbstractItem(QObject):
 
 
 def execute_action(self, action):
-    """Executes a action on the current item like stop or restart. Calls to this method should be
-    redirected to the remote host on executed there."""
+    """
+    Executes a action on the current item like stop or restart. Calls to this method should be
+    redirected to the remote host on executed there.
+    
+    :param acion: the action which should be executed
+    :type action: RemoteAction
+    """
     pass
 
 
@@ -454,7 +521,7 @@ def get_detailed_data(self):
     """
     Returns detailed description of current state as html text.
 
-    :return:
+    :return: str
     """
     raise NotImplemented()
 

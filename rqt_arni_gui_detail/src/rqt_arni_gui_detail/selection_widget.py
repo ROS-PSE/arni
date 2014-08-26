@@ -14,7 +14,15 @@ from arni_gui.log_filter_proxy import LogFilterProxy
 from arni_gui.log_delegate import LogDelegate
 
 class SelectionWidget(QWidget):
+    """The SelectionWidget of the ArniGuiDetail-Plugin."""
+    
     def __init__(self, model):
+        """
+        Initializes the Widget.
+        
+        :param model: the model of the widget
+        :type model: ROSModel
+        """
         super(SelectionWidget, self).__init__()
         self.setObjectName('selection_widget')
         self.__model = model
@@ -34,7 +42,6 @@ class SelectionWidget(QWidget):
         self.__last_update = rospy.Time.now()
 
         # TODO self.__graph_layout =
-
         #TODO self.__graph_dict =
 
         #TODO fill the dict
@@ -71,6 +78,7 @@ class SelectionWidget(QWidget):
         
 
     def connect_slots(self):
+        """Connects the slots"""
         # : tab_widget
         self.tab_widget.currentChanged.connect(self.__on_current_tab_changed)
         #: restart_push_button
@@ -82,17 +90,21 @@ class SelectionWidget(QWidget):
         #: range_combo_box
         self.range_combo_box.currentIndexChanged.connect(self.__on_range_combo_box_index_changed)
 
+
     def set_selected_item(self, selected_item):
-        """Set the selected item.
+        """
+        Sets the selected item.
 
         :param selected_item: the selected item
-        :type selected_item: item
+        :type selected_item: AbstractItem
         """
         self.__selected_item = selected_item
         self.__on_changed_selected_item(self.__selected_item)
 
+
     def __on_current_tab_changed(self, tab):
-        """Will be called when you switch between tabs.
+        """
+        Will be called when switching between tabs.
 
         :param tab: index of the current tab
         :type tab: int
@@ -102,15 +114,15 @@ class SelectionWidget(QWidget):
         else:
             self.__draw_graphs = False
 
+
     def __on_restart_push_button_clicked(self):
-        """Handels the restart button and restarts a host or node.
-        """
+        """Handels the restart button and restarts a host or node."""
         if self.__selected_item is not None:
             self.__selected_item.execute_action("restart")
 
+
     def __on_stop_push_button_clicked(self):
-        """Handels the stop button and stops a host or node.
-        """
+        """Handels the stop button and stops a host or node."""
         if self.__selected_item is not None:
             self.__selected_item.execute_action("stop")
 
@@ -119,16 +131,20 @@ class SelectionWidget(QWidget):
     #     """
     #     pass
 
+
     def __on_range_combo_box_index_changed(self, index):
-        """Handels the change of the graph range.
+        """
+        Handels the change of the graph range.
 
         :param index: the index of the selected range
         :type index: int
         """
         self.__current_combo_box_index = index
 
+
     def __on_changed_selected_item(self, index):
-        """Handels the change of the selected item.
+        """
+        Handels the change of the selected item.
 
         :param index: the index of the selected item
         :type index: QModelIndex
@@ -136,13 +152,14 @@ class SelectionWidget(QWidget):
         self.__log_filter_proxy.filter_by_item(self.__selected_item)
         self.update()
 
+
     def update_graphs(self, event):
-        """Updates the graph plot.
-        """
+        """Updates the graph plot."""
         pass
       
     
     def update(self):
+        """Updates the widget."""
         #data_dict = self.__model.data(self.__selected_item, 0)
 
         if self.__selected_item is not None:
@@ -180,7 +197,16 @@ class SelectionWidget(QWidget):
                                                       " about it")
             self.__log_filter_proxy.filter_by_item(None)
 
+
     def __combo_box_index_to_seconds(self, index):
+        """
+        Calculates the range from the combo-box index.
+        
+        :param index: the index of teh combo-box
+        :type index: int
+        
+        :returns: int
+        """
         if self.__current_combo_box_index == 0:
             return 10
         elif self.__current_combo_box_index == 1:
@@ -188,18 +214,43 @@ class SelectionWidget(QWidget):
         else:
             return 300
 
+
     def get_current_tab(self):
+        """
+        Returns the current tab.
+        
+        :returns: int
+        """
         return self.tab_widget.currentIndex()
 
+
     def set_current_tab(self, index=0):
+        """Sets the default tab.
+        
+        :param index: the index of the tab
+        :type index: int
+        """
         if index is None:
             index = 0
         self.tab_widget.setCurrentIndex(index)
 
+
     def get_range_combo_box_index(self):
+        """
+        Returns the index of the combo-box.
+        
+        :returns: int
+        """
         return self.range_combo_box.currentIndex()
 
+
     def set_range_combo_box_index(self, index=0):
+        """
+        Sets the default value of the combo-box.
+        
+        :param index: the index of the combo-box
+        :type index: int
+        """
         if index is None:
             index = 0
         self.range_combo_box.setCurrentIndex(index)
