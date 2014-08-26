@@ -84,8 +84,9 @@ class HostStatisticsHandler( StatisticsHandler):
         """
         Register all services
         """
+        ip = self._id.replace('.','_')
         rospy.Service(
-            "/execute_node_reaction/%s" % self._id,
+            "/execute_node_reaction/%s" %ip,
             NodeReaction, self.execute_reaction)
 
     def measure_status(self, event):
@@ -226,7 +227,6 @@ class HostStatisticsHandler( StatisticsHandler):
 
         hs = HostStatistics()
 
-        
         hs.host = self._id
         hs.window_start = self._status.time_start
         hs.window_stop = self._status.time_end
@@ -321,7 +321,7 @@ class HostStatisticsHandler( StatisticsHandler):
         nodes = []
         for node_name in rosnode.get_node_names():
             node_api = rosnode.get_api_uri(rospy.get_master(), node_name)
-            if self._id.replace('_','.') in node_api[2]:
+            if self._id in node_api[2]:
                 nodes.append(node_name)
 
 
@@ -334,11 +334,12 @@ class HostStatisticsHandler( StatisticsHandler):
                         continue
                     node_process = psutil.Process(pid)
                     new_node = NodeStatisticsHandler(self._id, node, node_process)
-                    self.__dict_lock.acquire()
+                    self.__dict_lock.acquire(True)
                     self.__node_list[node] = new_node
                     self.__dict_lock.release()
                 except:
-                    self.__dict_lock.release()
+                    rospy.loginfo('Node %s unreachable'%node)
+                    #self.__dict_lock.release()
                     continue
         
         self.__dict_lock.acquire()
