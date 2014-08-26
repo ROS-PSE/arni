@@ -38,21 +38,24 @@ class NodeStatisticsHandler(StatisticsHandler):
         Triggered periodically.
         """
         rospy.loginfo('measuring nodestatus %s'%self._id)
-        # CPU
-        self._status.add_cpu_usage(self.__node_process.cpu_percent())
+        try:        
+            # CPU
+            self._status.add_cpu_usage(self.__node_process.cpu_percent())
 
-        self._status.add_cpu_usage_core(self.__cpu_usage_per_core())
+            self._status.add_cpu_usage_core(self.__cpu_usage_per_core())
 
-        # RAM
-        self._status.add_ram_usage(self.__node_process.memory_percent())
+            # RAM
+            self._status.add_ram_usage(self.__node_process.memory_percent())
 
-        # Disk I/O
-        node_io = self.__node_process.io_counters()
+            # Disk I/O
+            node_io = self.__node_process.io_counters()
 
-        read_rate = node_io.read_bytes / self.update_intervall
-        write_rate = node_io.write_bytes / self.update_intervall
+            read_rate = node_io.read_bytes / self.update_intervall
+            write_rate = node_io.write_bytes / self.update_intervall
 
-        self._status.add_node_io(read_rate, write_rate)
+            self._status.add_node_io(read_rate, write_rate)
+        except psutil.NoSuchProcess:
+            pass
 
     def register_subscriber(self):
         """

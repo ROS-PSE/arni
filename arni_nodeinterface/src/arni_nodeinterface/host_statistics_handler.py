@@ -178,6 +178,7 @@ class HostStatisticsHandler( StatisticsHandler):
         rospy.loginfo('publishing host')
         self.__publish_nodes()
         self.__dict_lock.release()
+        rospy.loginfo('publishing stats: %s'%stats)
         self.pub.publish(stats)
         self._status.reset()
         self._status.time_start = rospy.Time.now()
