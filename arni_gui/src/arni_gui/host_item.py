@@ -1,18 +1,17 @@
 from abstract_item import AbstractItem
 
 class HostItem(AbstractItem):
-
-
-    """A HostItem represents a host with all its data"""
+    """A HostItem represents a host with all its data."""
 
 
     def __init__(self, seuid, parent=None):
-        """Initializes the ConnectionItem
+        """
+        Initializes the ConnectionItem.
 
-        :param list: connection list
+        :param seuid: the seuid of the HostItem
         :type list: list
-        :param parent: the parent-object
-        :type parent: object
+        :param parent: the parent-item
+        :type parent: AbstractItem
         """
         super(HostItem, self).__init__(seuid, parent)
 
@@ -42,8 +41,10 @@ class HostItem(AbstractItem):
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)
 
+
     def execute_action(self, action):
-        """Sends a signal to stop or restart a host
+        """
+        Sends a signal to stop or restart a host.
 
         :param action: action to be executed
         :type action: RemoteAction
@@ -51,6 +52,11 @@ class HostItem(AbstractItem):
         pass
 
     def get_detailed_data(self):
+        """
+        Returns the detailed data of the HostItem.
+        
+        :returns: str
+        """
         #todo: fill the content sensefully!
         data_dict = self.get_latest_data()
 
@@ -72,4 +78,9 @@ class HostItem(AbstractItem):
         return content
 
     def get_plotable_items(self):
+        """
+        Returns items for the plot.
+        
+        :returns: str[]
+        """
         return ["cpu_temp_mean", "bandwidth_mean"]

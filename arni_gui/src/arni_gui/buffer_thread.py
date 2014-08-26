@@ -46,10 +46,15 @@ class BufferThread(Thread):
         self.start()
         self.__timer = Timer(Duration(nsecs=UPDATE_FREQUENCY), self.__update_model)
 
+
     def __del__(self):
+        """
+        The Destructor of the BufferThread
+        """
         print("\nDestructor BufferThread\n")
         self.__timer.stop()
         del self.__timer
+
 
     # todo: is this optimal=?
     def start(self):
@@ -57,10 +62,10 @@ class BufferThread(Thread):
             self.__get_history()
             self.__register_subscribers()
 
+
     def __get_history(self):
         """
-        for fetching the history from the monitoring_node
-        :return:
+        For fetching the history from the monitoring_node.
         """
         rospy.logdebug("waiting for service %s", "get_statistic_history")
         #not needed because the monitoring node doesn't have to be running
@@ -72,8 +77,11 @@ class BufferThread(Thread):
             rospy.logdebug("get_statistic_history is not available, probably monitoring_node is not running. "
                            "Will continue without the information about the past")
 
+
     def __register_subscribers(self):
-        """Register to the services needed to get fresh data"""
+        """
+        Registers to the services needed to get fresh data.
+        """
         rospy.Subscriber(
             "/statistics_rated", RatedStatistics,
             self.__add_rated_statistics_item)
@@ -86,31 +94,20 @@ class BufferThread(Thread):
         rospy.Subscriber(
             "/statistics_host", HostStatistics,
             self.__add_host_statistics_item)
-
-        print "ich hab abboniert"
-
-    # def start(self):
-    #     """
-    #     Starts the thread and also the timer for regulary updates of the model. It is ensured via the running attribute that this function cannot be called multiple times.
-    #     """
-
-
+        
+        
     def __update_model(self, event):
         """
-        Starts the update of the model. Will be called regulary by the timer. Will first read the data from the *buffer* and add the according data items to the items of the model and afterwards use the *rated_buffer* to add a rating to these entries.
+        Starts the update of the model. 
+        Will be called regulary by the timer, first read the data from the *buffer* and add the according data items to the items of the model,
+        afterwards use the *rated_buffer* to add a rating to these entries.
         """
         rospy.logdebug('Timer called at ' + str(event.current_real))
         self.__model.update_model(self.__rated_statistics_buffer, self.__topic_statistics_buffer,
                                   self.__host_statistics_buffer, self.__node_statistics_buffer)
-
-    #print ""
-    #print self.__rated_statistics_buffer
-    #print self.__topic_statistics_buffer
-    #print self.__host_statistics_buffer
-    #print self.__node_statistics_buffer
-
+        
+        
     def __add_rated_statistics_item(self, item):
-        print("add rated")
         """
         Adds the item to the buffer list. Will be called whenever data from the topics is available.
 
@@ -122,22 +119,20 @@ class BufferThread(Thread):
         self.__rated_statistics_buffer.append(item)
         self.__rated_statistics_buffer_lock.release()
 
+
     def __add_topic_statistics_item(self, item):
-        print "add topic"
         """
         Adds the item to the buffer list. Will be called whenever data from the topics is available.
 
         :param item: the item which will be added to the buffer
         :type item: TopicStatistics
         """
-        print "bla"
         self.__topic_statistics_buffer_lock.acquire()
         self.__topic_statistics_buffer.append(item)
         self.__topic_statistics_buffer_lock.release()
 
 
     def __add_node_statistics_item(self, item):
-        print "node"
         """
         Adds the item to the buffer list. Will be called whenever data from the topics is available.
 
@@ -150,7 +145,6 @@ class BufferThread(Thread):
 
 
     def __add_host_statistics_item(self, item):
-        print "host"
         """
         Adds the item to the buffer list. Will be called whenever data from the topics is available.
 

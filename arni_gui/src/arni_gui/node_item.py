@@ -2,20 +2,18 @@ from abstract_item import AbstractItem
 from python_qt_binding.QtCore import QObject
 
 class NodeItem(AbstractItem):
+    """A NodeItem represents a node with all of its data. It also has a interface to start/stop/restart nodes."""
 
 
-    """A TopicItem represents a node with all of its data. It also has a interface to start/stop/restart nodes."""
-
-
-    def __init__(self, seuid, parent=QObject()):
-        """Initializes the ConnectionItem
-
-        :param list: connection list
-        :type list: list
-        :param parent: the parent-object
-        :type parent: object
+    def __init__(self, seuid, parent=None):
         """
-        super(NodeItem, self).__init__(seuid, parent)
+        Initializes the NodeItem.
+        
+        :param seuid: the seuid of the item
+        :type seuid: str
+        :param parent: the parent-item
+        :type parent: AbstractItem
+        """
         self.__type = "node"
         #add the content
         self._attributes.extend(["node_cpu_usage_mean", "node_cpu_usage_stddev", "node_cpu_usage_max",
@@ -42,14 +40,21 @@ class NodeItem(AbstractItem):
 
 
     def execute_action(self, action):
-        """Sends a signal to top or restart the node.
+        """
+        Sends a signal to top or restart the node.
 
         :param action: action to be executed
         :type action: RemoteAction
         """
         raise NotImplementedError()
 
+
     def get_detailed_data(self):
+        """
+        Returns the detailed data of the NodeItem.
+        
+        :returns: str
+        """
         #todo: fill the content sensefully!
         data_dict = self.get_latest_data()
 
@@ -70,5 +75,11 @@ class NodeItem(AbstractItem):
         content += "</p>"
         return content
 
+
     def get_plotable_items(self):
+        """
+        Returns items for the plot.
+        
+        :returns: str[]
+        """
         return ["node_cpu_usage_mean", "node_bandwidth_mean"]

@@ -12,7 +12,15 @@ from arni_gui.item_filter_proxy import ItemFilterProxy
 
 
 class TreeWidget(QWidget):
+    """The TreeWidget of the ArniGuiDetail-Plugin."""
+    
     def __init__(self, model):
+        """
+        Initializes the widget.
+        
+        :param model: the model of the widget
+        :type model: ROSModel
+        """
         super(TreeWidget, self).__init__()
         self.setObjectName('treewidget')
         self.__model = model
@@ -45,6 +53,7 @@ class TreeWidget(QWidget):
 
 
     def connect_slots(self):
+        """Connects the slots."""
         # : show_nodes_check_box
         self.show_nodes_check_box.stateChanged.connect(self.__on_show_nodes_check_box_state_changed)
         #: show_hosts_check_box
@@ -63,9 +72,9 @@ class TreeWidget(QWidget):
         self.plus_push_button.clicked.connect(self.__on_plus_push_button_clicked)
      
 
-
     def __on_show_nodes_check_box_state_changed(self, activated):
-        """Displays or delete the nodes in the box wether the check box is set or unset.
+        """
+        Displays or delete the nodes in the box wether the check box is set or unset.
 
         :param activated: 2 if checkBox is set, 0 if checkBox is unset
         :type activated: Integer
@@ -75,8 +84,10 @@ class TreeWidget(QWidget):
         else:
             self.__filter_proxy.show_nodes(False)
 
+
     def __on_show_hosts_check_box_state_changed(self, activated):
-        """Displays or delete the hosts in the box wether the checkBox is set or unset.
+        """
+        Displays or delete the hosts in the box wether the checkBox is set or unset.
 
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
@@ -100,7 +111,8 @@ class TreeWidget(QWidget):
 
 
     def __on_show_connections_check_box_state_changed(self, activated):
-        """Displays or delete the connections in the box wether the checkBox is set or unset.
+        """
+        Displays or delete the connections in the box wether the checkBox is set or unset.
 
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
@@ -112,7 +124,8 @@ class TreeWidget(QWidget):
 
 
     def __on_show_erroneous_check_box_state_changed(self, activated):
-        """If this checkBox is set, only erroneous hosts and nodes will be displayed.
+        """
+        If this checkBox is set, only erroneous hosts and nodes will be displayed.
 
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
@@ -121,24 +134,39 @@ class TreeWidget(QWidget):
             #todo: does this match the right positions?
             self.__filter_proxy.setFilterRegExp(QRegExp("error"))
 
+
     def __on_apply_push_button_clicked(self):
-        """Filters the content in the box according to the content of the filter_line_edit"""
+        """Filters the content in the box according to the content of the filter_line_edit."""
         self.__filter_proxy.setFilterRegExp(QRegExp(".*" + self.filter_line_Edit.text() + ".*"))
 
+
     def __on_minus_push_button_clicked(self):
-        """Checks if the minus_push_button is clicked and zoomes out (decrease the size of the font)"""
+        """Checks if the minus_push_button is clicked and zoomes out (decrease the size of the font)."""
         self.__size_delegate.set_smaller_font_size()
         self.__relative_font_size -= 1
 
+
     def __on_plus_push_button_clicked(self):
-        """Checks if the plus_push_button is clicked and zoomes in (increase the size of the font)"""
+        """Checks if the plus_push_button is clicked and zoomes in (increase the size of the font)."""
         self.__size_delegate.set_bigger_font_size()
         self.__relative_font_size += 1
 
+
     def get_relative_font_size(self):
+        """
+        Returns the ralitve font size.
+        
+        :returns int
+        """
         return self.__relative_font_size
 
     def set_relative_font_size(self, relative_font_size):
+        """
+        Sets the relative font size.
+        
+        :param relative_font_size: the actual relative font size
+        :type relative_font_size: int
+        """
         if relative_font_size >= 0:
             for i in range(0, relative_font_size):
                 self.__on_plus_push_button_clicked()

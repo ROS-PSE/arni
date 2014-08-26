@@ -3,7 +3,18 @@ from abstract_item import AbstractItem
 from python_qt_binding.QtCore import QObject
 
 class RootItem(AbstractItem):
+    """The RootItem represents the parent of the ROSModel"""
+    
     def __init__(self, seuid, parent=QObject(), *args):
+        """Initializes the TItem.
+        
+        :param seuid: the seuid of the item
+        :type seuid: str
+        :param parent: the parent-item
+        :type parent: QObject
+        :param args:
+        :type args: str
+        """
         super(RootItem, self).__init__("root", parent)
         #AbstractItem.__init__(self, "root", parent)
         self._attributes.extend(["cpu_usage_mean", "cpu_temp_mean", "cpu_usage_max", "cpu_temp_max",
@@ -22,7 +33,11 @@ class RootItem(AbstractItem):
 
 
     def get_detailed_data(self):
-
+        """
+        Returns the detailed data of the NodeItem.
+        
+        :returns: str
+        """
         data_dict = self.get_latest_data()
 
         content = "<p style=\"font-size:15px\">"
@@ -45,10 +60,21 @@ class RootItem(AbstractItem):
 
 
     def get_plotable_items(self):
+        """
+        Returns items for the plot.
+        
+        :returns: str[]
+        """
         return ["average_ram_load", "cpu_usage_mean", "total_traffic"]
+
 
 #todo: what do i need this for?
     def units_of_plotable_items(self):
+        """
+        Returns the units of the items for the plot.
+        
+        :returns str[]
+        """
         return {"average_ram_load": "%",
                 "cpu_usage_mean": "%",
                 "total_traffic": "%"

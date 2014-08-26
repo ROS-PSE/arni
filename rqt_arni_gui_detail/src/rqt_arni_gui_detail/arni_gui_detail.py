@@ -15,7 +15,11 @@ from arni_gui.ros_model import ROSModel
 
 
 class ArniGuiDetail(Plugin):
+    """The ArniGuiDetail-Plugin"""
+    
     def __init__(self, context):
+        """Initializes the Plugin"""
+        
         super(ArniGuiDetail, self).__init__(context)
         self.setObjectName('arni_gui_detail')
 
@@ -51,16 +55,19 @@ class ArniGuiDetail(Plugin):
 
 
     def __on_item_in_item_tree_view_double_clicked(self, item):
-        """Handels the double-click action and opens the clicked item in the SelectionWidget
+        """
+        Handels the double-click action and opens the clicked item in the SelectionWidget
 
         :param item: the double-clicked item
         :type item: QModelIndex
         """
         self.__selection_widget.set_selected_item(item)
 
+
     def shutdown_plugin(self):
         # TODO unregister all publishers here
         pass
+
 
     def save_settings(self, plugin_settings, instance_settings):
         # TODO save intrinsic configuration, usually using:
@@ -73,6 +80,7 @@ class ArniGuiDetail(Plugin):
         instance_settings.set_value("show_connections_check_box", self.__tree_widget.show_connections_check_box.checkState())
         instance_settings.set_value("show_erroneous_check_box", self.__tree_widget.show_erroneous_check_box.checkState())
         instance_settings.set_value("relative_font_size", self.__tree_widget.get_relative_font_size())
+
 
     def restore_settings(self, plugin_settings, instance_settings):
         # TODO restore intrinsic configuration, usually using:

@@ -30,15 +30,18 @@ from helper_functions import UPDATE_FREQUENCY
 
 from buffer_thread import *
 
+
 class QAbstractItemModelSingleton(Singleton, type(QAbstractItemModel)):
+    """
+    Helper-Class which allow ROSModel to be a Singleton
+    """
     pass
+
 
 class ROSModel(QAbstractItemModel):
     """
-    Represents the data as a QtModel.
-    This enables automated updates of the view.
+    Enables automated updates of the view, it represents the data as a QtModel
     """
-
     # This ensures the singleton character of this class via metaclassing.
     __metaclass__ = QAbstractItemModelSingleton
 
@@ -47,7 +50,7 @@ class ROSModel(QAbstractItemModel):
         Defines the class attributes especially the root_item which later contains the
         list of headers e.g. for a TreeView representation.
         :param parent: the parent of the model
-        :type parent:
+        :type parent: QObject
         """
         #rospy.init_node('arni_gui_model', log_level=rospy.DEBUG)
         super(ROSModel, self).__init__(parent)
@@ -60,13 +63,13 @@ class ROSModel(QAbstractItemModel):
         self.__item_delegate = SizeDelegate()
         self.__log_model = QStandardItemModel(0, 4, None)
         self.__log_model.setHorizontalHeaderLabels(["type", "date", "location", "message"])
-        #self.__set_header_data()
         self.__mapping = {
             0: 'type',
             1: 'name',
             2: 'state',
             3: 'data'
         }
+        
         rospy.logdebug("Finished model initialization.")
         self.__buffer_thread = BufferThread(self)
         self.__last_time_error_occured = 0
@@ -74,22 +77,15 @@ class ROSModel(QAbstractItemModel):
         self.add_log_entry("error", Time.now(), "ROSModel", "Just testing")
 
         self.__seuid_helper = SEUID()
-        
-        
-#is no longer needed because the header data won't change while running
-    # def __set_header_data(self):
-    #
-    #
-    #     # todo:is this correct
-    #     self.headerDataChanged.emit(Qt.Horizontal, 1, 4)
 
 
     def get_overview_data_since(self, time=None):
         """
         Return the info needed for the OverviewWidget as a dict.
 
-        :param time:
+        :param time: the lower bound from the intervall
         :type time: rospy.Time
+        
         :return: dict of values
         """
         if time is None:
@@ -98,7 +94,6 @@ class ROSModel(QAbstractItemModel):
             data_dict = self.__root_item.get_items_younger_than(time)
 
         return data_dict
-
 
 
     def data(self, index, role):
@@ -118,7 +113,6 @@ class ROSModel(QAbstractItemModel):
                 return None
 
             item = index.data()
-
             return item.get_latest_data(self.__mapping[index.column()])
         return None
 
@@ -127,9 +121,9 @@ class ROSModel(QAbstractItemModel):
         """
         Returns the flags of the item at the given index (like Qt::ItemIsEnabled).
 
-
-        :param index:
+        :param index: the index of the item
         :type index: QModelIndex
+        
         :returns: ItemFlags
         """
         if not index.isValid():
@@ -164,12 +158,13 @@ class ROSModel(QAbstractItemModel):
         """
         Returns the index of an item at the given column/row.
 
-        :param row:
+        :param row: the index of the row
         :type row: int
-        :param column:
+        :param column: the index of the column
         :type column: int
-        :param parent:
+        :param parent: the parent 
         :type parent: QModelIndex
+        
         :returns: QModelIndex
         """
         if not self.hasIndex(row, column, parent):
@@ -190,10 +185,11 @@ class ROSModel(QAbstractItemModel):
 
     def parent(self, index):
         """
-        Returns the QModelIndex of the parent of the child item specied via its index.
+        Returns the QModelIndex of the parent from the child item specied via its index.
 
-        :param index:
-        :type index:
+        :param index: the index of the child
+        :type index: QModelIndex
+        
         :returns: QModelIndex
         """
         if not index.isValid():
@@ -212,8 +208,9 @@ class ROSModel(QAbstractItemModel):
         """
         Returns the amount of rows in the model.
 
-        :param parent:
+        :param parent: the parent
         :type parent: QModelIndex
+        
         :returns: int
         """
         if parent.column() > 0:
@@ -231,8 +228,9 @@ class ROSModel(QAbstractItemModel):
         """
         Returns the amount of columns in the model.
 
-        :param parent:
+        :param parent: the parent
         :type parent: QModelIndex
+        
         :returns: int
         """
         if parent.isValid():
@@ -243,15 +241,15 @@ class ROSModel(QAbstractItemModel):
 
     def update_model(self, rated_statistics, topic_statistics, host_statistics, node_statistics):
         """
-        Updates the model by using the items of the list. The items will be of the message types .
+        Updates the model by using the items of the list. The items will be of the message types.
 
-        :param rated_statistics:
+        :param rated_statistics: the rated_statistics buffer
         :type rated_statistics: list
-        :param topic_statistics:
+        :param topic_statistics: the topic_statistics buffer
         :type topic_statistics: list
-        :param node_statistics:
+        :param node_statistics: the node_statistics buffer
         :type node_statistics: list
-        :param host_statistics:
+        :param host_statistics: the host_statistics buffer
         :type host_statistics: list
         """
         self.layoutAboutToBeChanged.emit()
@@ -261,20 +259,16 @@ class ROSModel(QAbstractItemModel):
         # in order of their appearance in the treeview for always having valid parents
         for item in host_statistics:
             self.__transform_host_statistics_item(item)
-            print "host"
         
         for item in node_statistics:
             self.__transform_node_statistics_item(item)
-            print "node"        
             
         for item in topic_statistics:
             self.__transform_topic_statistics_item(item)
-            print "topic"
 
         #rating last because it needs the time of the items before
         for item in rated_statistics:
             self.__transform_rated_statistics_item(item)
-            print "rated"
 
         data_dict = {
             "state": "ok",
@@ -372,10 +366,10 @@ class ROSModel(QAbstractItemModel):
 
     def __transform_rated_statistics_item(self, item):
         """
-        Integrates a TopicStatistics in the model by moding its item/s by adding a new dict to the corresponding item (especially the TopicItem and the ConnectionItem).
+        Integrates RatedStatistics in the model by moding its item/s by adding a new dict to the corresponding item.
 
-        :param data:
-        :type data: AbstractItem, Statistics, HostStatistics, RatedStatistics, StatisticHistory
+        :param item: the RatedStatisics item
+        :type item: RatedStatistics
         """
         # get identifier
         seuid = item.seuid
@@ -405,14 +399,12 @@ class ROSModel(QAbstractItemModel):
             current_item.update_rated_data(data)
 
 
-
     def __transform_topic_statistics_item(self, item):
         """
-        Integrates a TopicStatistics in the model by moding its item/s by adding a new dict to the corresponding item
-        (especially the TopicItem and the ConnectionItem).
+        Integrates TopicStatistics in the model by moding its item/s by adding a new dict to the corresponding item.
 
-        :param data:
-        :type data: AbstractItem, Statistics, HostStatistics, RatedStatistics, StatisticHistory
+        :param item: the TopicStatistics item
+        :type item: TopicStatisticsStatistics
         """
         # get identifier
         #todo: adapt this to the changes of the seuid!
@@ -474,12 +466,13 @@ class ROSModel(QAbstractItemModel):
         connection_item.append_data(item)
         topic_item.append_data(item)
 
+
     def __transform_node_statistics_item(self, item):
         """
-        Integrates a TopicStatistics in the model by moding its item/s by adding a new dict to the corresponding item (especially the TopicItem and the ConnectionItem).
+        Integrates NodeStatistics in the model by moding its item/s by adding a new dict to the corresponding item. 
 
-        :param data:
-        :type data: AbstractItem, Statistics, HostStatistics, RatedStatistics, StatisticHistory
+        :param item: the NodeStatistics item
+        :type item: NodeStatistics
         """
         item_seuid = "n" + SEUID_DELIMITER + item.node
         print(item_seuid)
@@ -503,12 +496,13 @@ class ROSModel(QAbstractItemModel):
 
         node_item.append_data(item)
 
+
     def __transform_host_statistics_item(self, item):
         """
-        Integrates a TopicStatistics in the model by moding its item/s by adding a new dict to the corresponding item (especially the TopicItem and the ConnectionItem).
-
-        :param data:
-        :type data: AbstractItem, Statistics, HostStatistics, RatedStatistics, StatisticHistory
+        Integrates HostStatistics in the model by moding its item/s by adding a new dict to the corresponding item.
+        
+        :param item: the HostStatistics item
+        :type item: HostStatistics
         """
         host_item = None
         item_seuid = "h" + SEUID_DELIMITER + item.host
@@ -526,35 +520,66 @@ class ROSModel(QAbstractItemModel):
 
 #todo: deprecated and probably not needed --> self.__identifier_dict is a lot faster
     def get_item_by_seuid(self, seuid):
+        """
+        Returns an item according to the given seuid.
+        
+        :param seuid: the seuid of the wanted item
+        :type seuid: str
+        
+        :returns: AbstractItem
+        """
         try:
             return self.__identifier_dict[seuid]
         except KeyError:
             print("There is no item with this seuid")
             raise
-
         # for item in self.__root_item.get_childs():
         #     value = self.__get_item_by_name(seuid, item)
         #     if value is not None:
         #         return value
         # return None
 
+
+    #TODO which one of these tw methods is correct
     def __get_item_by_seuid(self, seuid, current_item):
+        """
+        Returns an item according to the given seuid and the currently selected item.            
+        
+        :param seid: the seuid of the wanted item
+        :type seuid: str
+        :param current_item: the currently selected item
+        :type current_item: Abstractitem
+        
+        :retuns: AbstractItem
+        """
         if current_item.get_seuid() == seuid:
             return current_item
         for item in current_item.get_childs():
             self.__get_item_by_name(item.seuid, item)
         return None
 
+
     def get_log_model(self):
+        """
+        Returns the log_model.
+        
+        :returns: QStandardItemModel
+        """
         return self.__log_model
 
-    def add_log_entry(self, type, date, location, message):
-        #todo: doku
-        """
-        Adds the given list as a log entry to the model.
 
-        :param list: accepts a list of strings and adds these to the log model
-        :type list: list
+    def add_log_entry(self, type, date, location, message):
+        """
+        Adds a log entry to the log_model.       
+
+        :param type: the type of the log_entry
+        :type type: str
+        :param date: the time of the log_entry
+        :type date: Time
+        :param location: the location, were the fault/info/... occured
+        :type location: str
+        :param message: the message of the log_entry
+        :type message: str
         """
         self.__log_model.insertRow(0)
         self.__log_model.setData(self.__log_model.index(0, 0), str(type))
@@ -562,8 +587,20 @@ class ROSModel(QAbstractItemModel):
         self.__log_model.setData(self.__log_model.index(0, 2), str(location))
         self.__log_model.setData(self.__log_model.index(0, 3), str(message))
 
+
     def get_overview_text(self):
+        """
+        Returns the overview-data for the overview-widget.
+        
+        :returns: str  
+        """
         return self.__root_item.get_detailed_data()
 
+
     def get_root_item(self):
+        """
+        returns the root item of the ROSModel.
+        
+        :returns: AbstractItem
+        """
         return self.__root_item

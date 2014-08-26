@@ -6,11 +6,11 @@ class ItemFilterProxy(QSortFilterProxyModel):
     """The ItemFilterProxy which is a QSortFilterProxyModel helps to filter the data going to the view so the user only
      sees what he wants to see (which he can modified by telling the view)."""
 
-
     # todo: will call to setFilterRegEx be redirected to the parent automatically?
 
     def __init__(self, parent=QObject()):
-        """Initializes the ItemFilterProxy
+        """
+        Initializes the ItemFilterProxy
 
         :param parent: the parent-object
         :type parent: QObject
@@ -24,9 +24,11 @@ class ItemFilterProxy(QSortFilterProxyModel):
 
 
     def filterAcceptsRow(self, source_row, source_parent):
-        """Tells by analysing the given row if it should be shown or not. This behaviour can be modified via
+        """
+        Tells by analysing the given row if it should be shown or not. This behaviour can be modified via
         setFilterRegExp method so that e.g. only the entries of a specific host can be shown.
 
+        :param source_row: the source of the parent
         :type source_row: int
         :param source_parent: the source of the parent
         :type source_parent: QModelIndex
@@ -67,7 +69,8 @@ class ItemFilterProxy(QSortFilterProxyModel):
 
 
     def lessThan(self, left, right):
-        """Defines the sorting of behaviour when comparing two entries of model item by telling how to compare these.
+        """
+        Defines the sorting of behaviour when comparing two entries of model item by telling how to compare these.
 
         :param left: the left-hand side
         :type left: QModellIndex
@@ -81,7 +84,8 @@ class ItemFilterProxy(QSortFilterProxyModel):
 
 
     def show_hosts(self, show_hosts):
-        """Set true if hosts should be shown
+        """
+        Set true if hosts should be shown
 
         :param show_hosts: true if hosts should be shown
         :type show_hosts: bool
@@ -90,7 +94,8 @@ class ItemFilterProxy(QSortFilterProxyModel):
 
 
     def show_nodes(self, show_nodes):
-        """Set true if nodes should be shown
+        """
+        Set true if nodes should be shown
 
         :param show_nodes: true if nodes should be shown
         :type show_nodes: bool
@@ -99,7 +104,8 @@ class ItemFilterProxy(QSortFilterProxyModel):
 
 
     def show_connections(self, show_connections):
-        """Set true if connections should be shown
+        """
+        Set true if connections should be shown
 
         :param show_connections: true if connections should be shown
         :type show_connections: bool
@@ -108,7 +114,8 @@ class ItemFilterProxy(QSortFilterProxyModel):
 
 
     def show_topics(self, show_topics):
-        """Set true if topics should be shown
+        """
+        Set true if topics should be shown
 
         :param show_topics: true if topics should be shown
         :type show_topics: bool
