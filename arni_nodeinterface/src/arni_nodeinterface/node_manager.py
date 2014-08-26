@@ -87,7 +87,7 @@ class NodeManager(object):
         """
         
         try:
-            proc = subprocess.Popen(args, stdout = subprocess.PIPE, 
+            proc = subprocess.Popen(args, shell = True, stdout = subprocess.PIPE, 
                                 stderr = subprocess.PIPE)
         
             output = proc.communicate()
