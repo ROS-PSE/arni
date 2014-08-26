@@ -1,8 +1,7 @@
 from abstract_item import AbstractItem
 
+
 class ConnectionItem(AbstractItem):
-
-
     """A ConnectionItem reresents the connection between a publisher and a subscriber and the topic they are publishing / listening on"""
 
 
@@ -18,11 +17,11 @@ class ConnectionItem(AbstractItem):
 
         self.__type = "connection"
 
-        #add the content	
-	self._attributes.extend([""" NO longer needed: topic", "node_pub", "node_sub",""" "window_start", "window_stop",
-                             "dropped_msgs", "traffic",
-                             "period_mean", "period_stddev", "period_max", "stamp_age_mean", "stamp_age_stddev",
-                             "stamp_age_max"])
+        # add the content
+        self._attributes.extend([""" NO longer needed: topic", "node_pub", "node_sub",""" "window_start", "window_stop",
+                                 "dropped_msgs", "traffic",
+                                 "period_mean", "period_stddev", "period_max", "stamp_age_mean", "stamp_age_stddev",
+                                 "stamp_age_max"])
 
         self.__new_attributes = []
         for item in self._attributes:
@@ -30,22 +29,25 @@ class ConnectionItem(AbstractItem):
             self.__new_attributes.append(item + ".expected_value")
             self.__new_attributes.append(item + ".state")
 
+        self.__new_attributes.extend(self._attributes)
+        del self._attributes
+
         for item in self.__new_attributes:
-	    print item
+            print item
             self._add_data_list(item)
 
 
-
     def execute_action(self, action):
-        """Not senseful, throws an exception
+        """Not senseful
 
         :param action: action to be executed
         :type action: RemoteAction
         """
         pass
 
+
     def get_detailed_data(self):
-        #todo: fill the content sensefully!
+        # todo: fill the content sensefully!
         data_dict = self.get_latest_data()
 
         content = "<p style=\"font-size:15px\">"
@@ -64,3 +66,7 @@ class ConnectionItem(AbstractItem):
 
         content += "</p>"
         return content
+
+    def get_plotable_items(self):
+        #todo: append more items here
+        return ["traffic", "dropped_msgs"]

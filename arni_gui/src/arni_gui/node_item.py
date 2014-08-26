@@ -26,12 +26,14 @@ class NodeItem(AbstractItem):
                       "node_bandwidth_max", "node_write_mean", "node_write_stddev", "node_write_max", "node_read_mean",
                       "node_read_stddev", "node_read_max"])
 
-
         self.__new_attributes = []
         for item in self._attributes:
             self.__new_attributes.append(item + ".actual_value")
             self.__new_attributes.append(item + ".expected_value")
             self.__new_attributes.append(item + ".state")
+
+        self.__new_attributes.extend(self._attributes)
+        del self._attributes
 
         for item in self.__new_attributes:
             self._add_data_list(item)
@@ -65,3 +67,6 @@ class NodeItem(AbstractItem):
 
         content += "</p>"
         return content
+
+    def get_plotable_items(self):
+        return ["node_cpu_usage_mean", "node_bandwidth_mean"]

@@ -155,6 +155,9 @@ class OverviewWidget(QWidget):
         #self.update_graphs(None)
         self.__timer = Timer(Duration(secs=1.5), self.update_graphs)
 
+    def __del__(self):
+        self.__timer.stop()
+        del self.__timer
 
     def create_graphs(self):
         for key in self.__model.get_root_item().get_plotable_items():
@@ -253,26 +256,36 @@ class OverviewWidget(QWidget):
             x = None
             modulo = (len(plotable_data["window_stop"]) / 200) + 1
 
-            for i in range(0, len(plotable_data["window_stop"]), modulo):
-                #now having maximally 100 items to plot :)
+            length = len(plotable_data["window_stop"])
+            for i in range(0, length, modulo):
+                # now having maximally 100 items to plot :)
                 temp_time.append(int(str(plotable_data["window_stop"][i]))/1000000000)
                     #print("time" + time.strftime("%d.%m-%H:%M:%S", time.localtime(int(str(item))/1000000000)) + "ms actual time: " + time.strftime("%d.%m-%H:%M:%S", time.localtime(int(str(Time.now()))/1000000000))+ "ms")
-                x = np.array(temp_time)
+            x = np.array(temp_time)
                 #del temp_time[:]
 
+
             for key in plotable_items:
-                #print("length time: " + str(len(plotable_data["window_stop"])) + " length data: " + str(len(plotable_data[key])))
-                #print("secs = " + str(self.__combo_box_index_to_seconds(self.__current_combo_box_index)))
-                for i in range(0, len(plotable_data["window_stop"]), modulo):
+                #print("length time: " + str(length) + " length data: " + str(len(plotable_data[key])))
+                for i in range(0, length, modulo):
                     temp_content.append(plotable_data[key][i])
-                        #print(x)
-                        #print("\n")
-                        #todo: does this also work, when ints are inputed (or None values^^). is f8 needed here?
-                y = np.array(temp_content, np.dtype('f4'))
+                #todo: does this also work, when ints are inputed (or None values^^). is f8 needed here?
+                #print("length content before:" + str(len(temp_content)))
+                y = np.array(temp_content)
+                #print("length content after:" + str(len(temp_content)))
+                # if len(x) is not len(y):
+                #     print("another time: length time: " + str(len(plotable_data["window_stop"])) + " length data: " + str(len(plotable_data[key])))
+                #     print(temp_time)
+                #     print(temp_content)
+                #     print("computed values\n")
+                #     print(x)
+                #     print(y)
                 #print(len(temp_time))
                 #print(len(temp_content))
                 del temp_content[:]
                 now2 = rospy.Time.now()
+
+                print("shortened length time: " + str(len(x)) + " shortened length data: " + str(len(y)))
                 self.__plotted_curves[key].setData(x=x, y=y)
 
                 string = "update_graphs - plot_data took: " + str(int(str(rospy.Time.now() - now2)) / 1000000) + "ms"

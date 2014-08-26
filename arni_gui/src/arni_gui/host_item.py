@@ -36,6 +36,9 @@ class HostItem(AbstractItem):
             self.__new_attributes.append(item + ".expected_value")
             self.__new_attributes.append(item + ".state")
 
+        self.__new_attributes.extend(self._attributes)
+        del self._attributes
+
         for item in self.__new_attributes:
             self._add_data_list(item)
 
@@ -67,3 +70,6 @@ class HostItem(AbstractItem):
 
         content += "</p>"
         return content
+
+    def get_plotable_items(self):
+        return ["cpu_temp_mean", "bandwidth_mean"]

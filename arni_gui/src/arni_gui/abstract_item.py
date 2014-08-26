@@ -1,7 +1,7 @@
 from rospy.rostime import Duration, Time
 from python_qt_binding.QtCore import QObject
 
-import time as tm
+from threading import Lock
 
 # from ros_model import ROSModel
 
@@ -25,14 +25,14 @@ class AbstractItem(QObject):
         self.seuid = seuid
         self.__type = "type"
         self.__data_attribute = "data"
+        # WARNING!!! Child classes have to call the append_data_list method, otherwise will not work!!!
         self._attributes = ['state', 'window_stop', 'window_start']
         self._attributes.extend(args)
 
+        self.__data_lock = Lock()
+
         self.__last_update = Time.now()
         self.__creation_time = Time.now()
-
-        for item in self._attributes:
-            self._add_data_list(item)
 
 
     def get_seuid(self):
@@ -58,16 +58,19 @@ class AbstractItem(QObject):
         :param data: the data to append in key value form
         :type data: dict
         """
+        self.__data_lock.acquire()
         if "window_stop" not in data:
             data["window_stop"] = Time.now()
-        for attribute in self._attributes:
+        for attribute in self.__data:
             if attribute in data:
                 self.__data[attribute].append(data[attribute])
             else:
                 # todo: is there something better than None in this case? like "" ?
                 self.__data[attribute].append(None)
 
+        self.__data_lock.release()
         self.__update_current_state()
+
 
     def __update_current_state(self):
         length = len(self.__data["state"])
@@ -87,7 +90,8 @@ class AbstractItem(QObject):
         :param data: the data to append in key value form
         :type data:
         """
-        for attribute in self._attributes:
+        self.__data_lock.acquire()
+        for attribute in self.__data:
             # todo: correct?
             if attribute is 'state':
                 self.__data[attribute].append("")
@@ -97,6 +101,7 @@ class AbstractItem(QObject):
             except KeyError:
                 print("KeyError occurred when trying to access %s", attribute)
                 raise
+        self.__data_lock.release()
         self.__update_current_state()
 
     def update_data(self, data, window_start, window_stop):
@@ -108,6 +113,7 @@ class AbstractItem(QObject):
         :type time: rostime?
         :return:
         """
+        self.__data_lock.acquire()
         found = False
         # todo: are these all bad cases?
         for current in range(0, len(self.__data["window_start"])):
@@ -116,7 +122,7 @@ class AbstractItem(QObject):
             if window_start > self.__data[window_stop][current]:
                 continue
             found = True
-            for attribute in self._attributes:
+            for attribute in self.__data:
                 self.__data[attribute][current] = data.getattr(attribute, None)
 
                 # for key in data:
@@ -124,6 +130,7 @@ class AbstractItem(QObject):
 
         if found is not True:
             raise UserWarning("No matching time window was found. Could not update the AbstractItem")
+        self.__data_lock.release()
         self.__update_current_state()
 
 
@@ -235,40 +242,28 @@ class AbstractItem(QObject):
         #print("last time: " + tm.strftime("%d.%m-%H:%M:%S", tm.localtime((int(str(time))/1000000000))))
         #print("for")
 
-        if list_of_time[0] >= time:
+        if list_of_time[len(list_of_time)-1] < time:
             print("here")
             for key in return_values:
                 return_values[key] = self.__data[key]
         else:
-            for i in range(len(list_of_time) - 1, -1, -1):
+            for i in range(0, len(list_of_time), -1):
                 #print(i)
                 #print(len(list_of_time))
                 #print(int(str(list_of_time[i]))-int(str(time)))
-                if list_of_time[i] < time:
-                    breakpoint = i + 1
+                if list_of_time[i] > time:
+                    breakpoint = i - 1
                     # i + 1 was the first hit
                     #print("entered")
                     #if args is None:
                     for key in return_values:
                         try:
-                            return_values[key] = self.__data[key][breakpoint:len(list_of_time)]
-                            #print("i is " + str(i) +"length: " + str(len(return_values[key])) + " complete length: " + str(len(list_of_time)))
+                            return_values[key] = self.__data[key][0:breakpoint]
+                            print("i is " + str(i) +"length: " + str(len(return_values[key])) + " complete length: " + str(len(list_of_time)))
                         except IndexError:
-                            print(
-                                "IndexError! length of the list %s, accessed index %s. length of data at given point %s, key is %s",
-                                len(list_of_time), i, len(self.__data[key]), key)
+                            print("IndexError! length of the list %s, accessed index %s. length of data at given point"
+                                  " %s, key is %s", len(list_of_time), i, len(self.__data[key]), key)
                             raise
-            # else:
-            #     for entry in args:
-            #         try:
-            #             #todo [i:len(list_of_time)] is this the right window?
-            #             return_values[entry] = self.__data[entry][breakpoint:len(list_of_time)]
-            #             #print("i is " + str(i) + "key: " + entry + " length: " + str(len(return_values[entry])) + " complete length: " + str(len(list_of_time)))
-            #         except IndexError:
-            #             print(
-            #                 "IndexError! length of the list %s, accessed index %s. length of data at given point %s, key is %s",
-            #                 len(list_of_time), i, len(self.__data[entry]), entry)
-            #             raise
                     break
 
             # now shrink the time itself
@@ -280,19 +275,19 @@ class AbstractItem(QObject):
 
 
 
-        return_values = []
-        for key in self.__data:
-            return_values[key] = []
-
-        list_of_time = self.__data["window_stop"]
-        for i in range(0, len(list_of_time)):
-            # check timestamp
-            #end_time = Time.now() - Duration(nsecs=time)
-            if list_of_time[i] < time:
-                #return_values.append()
-                for key in self.__data:
-                    return_values[key].append(self.__data[key][i])
-        return return_values
+        # return_values = []
+        # for key in self.__data:
+        #     return_values[key] = []
+        #
+        # list_of_time = self.__data["window_stop"]
+        # for i in range(0, len(list_of_time)):
+        #     # check timestamp
+        #     #end_time = Time.now() - Duration(nsecs=time)
+        #     if list_of_time[i] < time:
+        #         #return_values.append()
+        #         for key in self.__data:
+        #             return_values[key].append(self.__data[key][i])
+        # return return_values
 
 
     def delete_items_older_than(self, time):
@@ -323,7 +318,8 @@ class AbstractItem(QObject):
 
         :returns: dict of lists
         """
-        # todo: method assumes the data comes in sorted by time. if this is not the case, this method will not work!
+        self.__data_lock.acquire()
+        #  todo: method assumes the data comes in sorted by time. if this is not the case, this method will not work!
         #print("info" + " AbstractItem" + " duration of time:" + str(int(str(Time.now() - time))/1000000) + " milliseconds")
         #now = Time.now()
         return_values = {}
@@ -339,6 +335,7 @@ class AbstractItem(QObject):
         breakpoint = 0
 
         list_of_time = self.__data["window_stop"]
+        length = len(list_of_time)
         #print(len(list_of_time))
         #print("first time: " + tm.strftime("%d.%m-%H:%M:%S", tm.localtime((int(str(self.__data["window_end"][0]))/1000000000))))
         #print("last time: " + tm.strftime("%d.%m-%H:%M:%S", tm.localtime((int(str(self.__data["window_end"][-1]))/1000000000))))
@@ -347,7 +344,7 @@ class AbstractItem(QObject):
             for key in return_values:
                 return_values[key] = self.__data[key]
         else:
-            for i in range(len(list_of_time) - 1, -1, -1):
+            for i in range(length - 1, -1, -1):
                 #print(i)
                 #print(len(list_of_time))
                 #print(int(str(list_of_time[i]))-int(str(time)))
@@ -358,12 +355,12 @@ class AbstractItem(QObject):
                     #if args is None:
                     for key in return_values:
                         try:
-                            return_values[key] = self.__data[key][breakpoint:len(list_of_time)]
+                            return_values[key] = self.__data[key][breakpoint:length]
                             #print("i is " + str(i) +"length: " + str(len(return_values[key])) + " complete length: " + str(len(list_of_time)))
                         except IndexError:
                             print(
                                 "IndexError! length of the list %s, accessed index %s. length of data at given point %s, key is %s",
-                                len(list_of_time), i, len(self.__data[key]), key)
+                                length, i, len(self.__data[key]), key)
                             raise
                 # else:
                 #     for entry in args:
@@ -383,6 +380,7 @@ class AbstractItem(QObject):
             # print("length time: " + str(len(return_values["window_end"])) + " length state: " + str(len(return_values["state"])))
 
         #print("length return values: " + str(len(return_values["window_end"])))
+        self.__data_lock.release()
         return return_values
 
 

@@ -18,14 +18,17 @@ class TopicItem(AbstractItem):
         self.__type = "topic"
 
         #add the content
-        self._attributes.extend(["""topic",""" "window_start", "window_stop", "dropped_msgs", "traffic", "period_mean",
-                      "period_stddev", "period_max", "stamp_age_mean", "stamp_age_stddev", "stamp_age_max"])
+        self._attributes.extend(["window_start", "window_stop", "delivered_msgs", "dropped_msgs",
+                                 "traffic", "stamp_age_mean", "stamp_age_stddev", "stamp_age_max"])
 
         self.__new_attributes = []
         for item in self._attributes:
             self.__new_attributes.append(item + ".actual_value")
             self.__new_attributes.append(item + ".expected_value")
             self.__new_attributes.append(item + ".state")
+
+        self.__new_attributes.extend(self._attributes)
+        del self._attributes
 
         for item in self.__new_attributes:
             self._add_data_list(item)
@@ -60,3 +63,7 @@ class TopicItem(AbstractItem):
 
         content += "</p>"
         return content
+
+
+    def get_plotable_items(self):
+        return ["dropped_msgs", "traffic"]

@@ -10,7 +10,11 @@ class RootItem(AbstractItem):
                                         "average_ram_load", "ram_usage_max", "total_traffic", "connected_hosts",
                                         "connected_nodes", "topic_counter", "connection_counter"])
 
-        for item in self._attributes:
+        self.__new_attributes = []
+        self.__new_attributes.extend(self._attributes)
+        del self._attributes
+
+        for item in self.__new_attributes:
             self._add_data_list(item)
 
     def get_detailed_data(self):
@@ -39,6 +43,7 @@ class RootItem(AbstractItem):
     def get_plotable_items(self):
         return ["average_ram_load", "cpu_usage_mean", "total_traffic"]
 
+#todo: what do i need this for?
     def units_of_plotable_items(self):
         return {"average_ram_load": "%",
                 "cpu_usage_mean": "%",
