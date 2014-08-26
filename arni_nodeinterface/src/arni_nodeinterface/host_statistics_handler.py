@@ -195,12 +195,8 @@ class HostStatisticsHandler( StatisticsHandler):
         """
         Initializes params on the parameter server,
         """
-
-        rospy.set_param('/update_intervall', 1)
-        rospy.set_param('/publish_intervall', 10)
-
-        self.__update_intervall =  rospy.get_param('/update_intervall')
-        self.__publish_intervall =  rospy.get_param('/publish_intervall')
+        self.__update_intervall =  rospy.get_param('~update_intervall', 1)
+        self.__publish_intervall =  rospy.get_param('~publish_intervall', 10)
 
         #set Topic statistics to same time_window as update_intervall
         rospy.set_param('/enable_statistics', True )
