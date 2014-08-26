@@ -74,6 +74,16 @@ class TestRatingData(unittest.TestCase):
         s = SEUID(hs)
         self.assertEqual(s.host, "127.0.0.1")
 
+    def test_get_seuid(self):
+        s = SEUID(hs)
+        self.assertEqual("h!127.0.0.1", s.get_seuid("host"))
+
+    def test_get_seuid_invalid(self):
+        s = SEUID()
+        self.assertRaises(AttributeError, s.get_seuid, "host")
+        s = SEUID(hs)
+        self.assertRaises(KeyError, s.get_seuid, "node")
+
 
 if __name__ == '__main__':
     import rosunit

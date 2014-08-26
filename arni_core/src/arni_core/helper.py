@@ -60,6 +60,27 @@ class SEUID:
             self.topic = parts[2]
             self.publisher = parts[3]
 
+    def get_seuid(self, field):
+        """
+        Returns the seuid for a specified component.
+
+        :param field: Can be "host", "topic", "subscriber", "publisher" or "node".
+            Only if the SEUID object contains this key
+        :return: A seuid (str)
+        :raises KeyError: When the current SEUID does not contain the given field since it has a different type
+        :raises AttributeError: When the given parameter is none of the above.
+        """
+        fields = ("host", "topic", "subscriber", "publisher", "node")
+        if field in fields and hasattr(self, field):
+            if getattr(self, field) is None:
+                raise KeyError("[SEUID] this seuid does not contain the field %s" % field)
+                return None
+            else:
+                starts = "htnnn"
+                return starts[fields.index(field)] + SEUID().DELIMITER + getattr(self, field)
+        else:
+            raise AttributeError("[SEUID] %s is not a public field" % field)
+
     def from_message(self, msg):
         """
         Creates a SEUID from a Message object.
@@ -152,7 +173,7 @@ def underscore_ip(ip):
     """
     Takes an ipv4 adress and replaces dots with underscores.
     """
-    if(ip is None):
+    if (ip is None):
         return None
 
     return ip.replace(".", "_")
