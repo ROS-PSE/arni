@@ -26,17 +26,19 @@ class NodeItem(AbstractItem):
                       "node_bandwidth_max", "node_write_mean", "node_write_stddev", "node_write_max", "node_read_mean",
                       "node_read_stddev", "node_read_max"])
 
-        self.__new_attributes = []
         for item in self._attributes:
-            self.__new_attributes.append(item + ".actual_value")
-            self.__new_attributes.append(item + ".expected_value")
-            self.__new_attributes.append(item + ".state")
+            self._add_data_list(item)
 
-        self.__new_attributes.extend(self._attributes)
+        self.__rated_attributes = ["state"]
+        for item in self._attributes:
+            self.__rated_attributes.append(item + ".actual_value")
+            self.__rated_attributes.append(item + ".expected_value")
+            self.__rated_attributes.append(item + ".state")
+
         del self._attributes
 
-        for item in self.__new_attributes:
-            self._add_data_list(item)
+        for item in self.__rated_attributes:
+            self._add_rated_data_list(item)
 
 
     def execute_action(self, action):
