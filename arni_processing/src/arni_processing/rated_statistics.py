@@ -20,6 +20,7 @@ class RatedStatisticsContainer:
         self.actual = []
         self.expected = []
         self.state = []
+        self.host = ""
 
     def add_value(self, metatype, actual, expected, state):
         """
@@ -70,6 +71,8 @@ class RatedStatisticsContainer:
         r.seuid = self.seuid
         if self.seuid[0] == "h":
             r.host = self.seuid[2:]
+        else:
+            r.host = self.host
         try:
             r.window_start = self.get_value("window_start")["actual"]
             r.window_stop = self.get_value("window_stop")["actual"]
