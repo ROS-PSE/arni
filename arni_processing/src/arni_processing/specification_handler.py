@@ -75,6 +75,8 @@ class SpecificationHandler:
             rospy.logdebug("[SpecificationHandler][compare] No data given.")
             return None
         result = RatedStatisticsContainer(identifier)
+        if identifier[0] == "n":
+            result.host = data.host
         if specification is None:
             if identifier in self.__specifications.keys():
                 specification = self.__specifications[identifier]
@@ -158,10 +160,9 @@ class SpecificationHandler:
             r.seuid = topic
             fields = ("dropped_msgs", "traffic", "traffic_per_second", "stamp_age_max", "stamp_age_mean", "packages",
                       "packages_per_second")
-            alt_names = {"packages_per_second": "bandwidth"}
+            alt_names = {"traffic_per_second": "bandwidth"}
             # fields = ("delivered_msgs", "dropped_msgs", "traffic", "stamp_age_max", "stamp_age_mean")
             for f in fields:
-                limits = self.__get_limits(specification, f)
                 re = RatedStatisticsEntity()
                 re.statistic_type = f
                 if f in alt_names.keys():
@@ -174,6 +175,7 @@ class SpecificationHandler:
                 else:
                     value = data[f]
                 re.actual_value.append(str(value))
+                limits = self.__get_limits(specification, re.statistic_type)
                 re.expected_value.append(str(limits))
                 re.state = [self.__compare(value, limits)]
                 r.rated_statistics_entity.append(re)
