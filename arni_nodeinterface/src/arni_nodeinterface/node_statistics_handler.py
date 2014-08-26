@@ -86,7 +86,10 @@ class NodeStatisticsHandler(StatisticsHandler):
         stats_dict = self._status.calc_stats()
 
         ns = NodeStatistics()
-
+        ns.host = self.__host_id
+        ns.node = self._id
+        ns.window_start = self._status.time_start
+        ns.window_stop = self._status.time_end
         ns.node_cpu_usage_mean = stats_dict['cpu_usage_mean']
         ns.node_cpu_usage_stddev = stats_dict['cpu_usage_stddev']
         ns.node_cpu_usage_max = stats_dict['cpu_usage_max']
