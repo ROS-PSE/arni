@@ -62,12 +62,35 @@ class ArniGuiDetail(Plugin):
     def save_settings(self, plugin_settings, instance_settings):
         # TODO save intrinsic configuration, usually using:
         # instance_settings.set_value(k, v)
-        pass
+        instance_settings.set_value("tab_widget", self.__selection_widget.get_current_tab())
+        instance_settings.set_value("range_combo_box", self.__selection_widget.get_range_combo_box_index())
+        instance_settings.set_value("show_nodes_check_box", self.__tree_widget.show_nodes_check_box.checkState())
+        instance_settings.set_value("show_hosts_check_box", self.__tree_widget.show_hosts_check_box.checkState())
+        instance_settings.set_value("show_topics_check_box", self.__tree_widget.show_topics_check_box.checkState())
+        instance_settings.set_value("show_connections_check_box", self.__tree_widget.show_connections_check_box.checkState())
+        instance_settings.set_value("show_erroneous_check_box", self.__tree_widget.show_erroneous_check_box.checkState())
+        instance_settings.set_value("relative_font_size", self.__tree_widget.get_relative_font_size())
 
     def restore_settings(self, plugin_settings, instance_settings):
         # TODO restore intrinsic configuration, usually using:
         # v = instance_settings.value(k)
-        pass
+        tab_value = instance_settings.value("tab_widget")
+        combo_box_value = instance_settings.value("range_combo_box")
+        show_nodes_check_box = instance_settings.value("show_nodes_check_box")
+        show_hosts_check_box = instance_settings.value("show_hosts_check_box")
+        show_topics_check_box = instance_settings.value("show_topics_check_box")
+        show_erroneous_check_box = instance_settings.value("show_erroneous_check_box")
+        show_connections_check_box = instance_settings.value("show_connections_check_box")
+        relative_font_size = instance_settings.value("relative_font_size")
+
+        self.__selection_widget.set_current_tab(0 if tab_value is None else int(tab_value))
+        self.__selection_widget.set_range_combo_box_index(0 if combo_box_value is None else int(combo_box_value))
+        self.__tree_widget.show_nodes_check_box.setCheckState(Qt.Checked if show_nodes_check_box is None else int(show_nodes_check_box))
+        self.__tree_widget.show_hosts_check_box.setCheckState(Qt.Checked if show_hosts_check_box is None else int(show_hosts_check_box))
+        self.__tree_widget.show_topics_check_box.setCheckState(Qt.Checked if show_topics_check_box is None else int(show_topics_check_box))
+        self.__tree_widget.show_connections_check_box.setCheckState(Qt.Checked if show_erroneous_check_box is None else int(show_erroneous_check_box))
+        self.__tree_widget.show_erroneous_check_box.setCheckState(Qt.Checked if show_connections_check_box is None else int(show_connections_check_box))
+        self.__tree_widget.set_relative_font_size(0 if relative_font_size is None else int(relative_font_size))
 
         # def trigger_configuration(self):
         # Comment in to signal that the plugin has a way to configure

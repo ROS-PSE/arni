@@ -11,6 +11,7 @@ from rospy.timer import Timer
 
 from arni_gui.ros_model import ROSModel
 from arni_gui.log_filter_proxy import LogFilterProxy
+from arni_gui.log_delegate import LogDelegate
 
 class SelectionWidget(QWidget):
     def __init__(self, model):
@@ -49,6 +50,8 @@ class SelectionWidget(QWidget):
         self.__log_filter_proxy.setDynamicSortFilter(True)        
         self.__log_filter_proxy.setSourceModel(self.__log_model)        
         self.log_tab_tree_view.setModel(self.__log_filter_proxy)
+        self.__log_delegate = LogDelegate()
+        self.log_tab_tree_view.setItemDelegate(self.__log_delegate)
         
         #todo: should this be false?
         self.log_tab_tree_view.setRootIsDecorated(False)
@@ -176,3 +179,27 @@ class SelectionWidget(QWidget):
             self.information_tab_text_browser.setText("Please select an item in the TreeView to get more information"
                                                       " about it")
             self.__log_filter_proxy.filter_by_item(None)
+
+    def __combo_box_index_to_seconds(self, index):
+        if self.__current_combo_box_index == 0:
+            return 10
+        elif self.__current_combo_box_index == 1:
+            return 30
+        else:
+            return 300
+
+    def get_current_tab(self):
+        return self.tab_widget.currentIndex()
+
+    def set_current_tab(self, index=0):
+        if index is None:
+            index = 0
+        self.tab_widget.setCurrentIndex(index)
+
+    def get_range_combo_box_index(self):
+        return self.range_combo_box.currentIndex()
+
+    def set_range_combo_box_index(self, index=0):
+        if index is None:
+            index = 0
+        self.range_combo_box.setCurrentIndex(index)

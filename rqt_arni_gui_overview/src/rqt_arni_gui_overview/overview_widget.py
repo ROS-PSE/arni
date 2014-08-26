@@ -150,13 +150,10 @@ class OverviewWidget(QWidget):
         self.__plotted_curves = {}
         self.create_graphs()
 
-
-
-
         #todo: make a first, special update at the beginning (might be that there is fresh data)
         #todo: separate from the layoutChanged signal --> own timer!
         #self.update_graphs(None)
-        self.__timer = Timer(Duration(secs=2), self.update_graphs)
+        self.__timer = Timer(Duration(secs=1.5), self.update_graphs)
 
 
     def create_graphs(self):
@@ -254,7 +251,7 @@ class OverviewWidget(QWidget):
             temp_content = []
 
             x = None
-            modulo = (len(plotable_data["window_stop"]) / 500) + 1
+            modulo = (len(plotable_data["window_stop"]) / 200) + 1
 
             for i in range(0, len(plotable_data["window_stop"]), modulo):
                 #now having maximally 100 items to plot :)
@@ -264,7 +261,7 @@ class OverviewWidget(QWidget):
                 #del temp_time[:]
 
             for key in plotable_items:
-                #print("length time: " + str(len(plotable_data["window_end"])) + " length data: " + str(len(plotable_data[key])))
+                #print("length time: " + str(len(plotable_data["window_stop"])) + " length data: " + str(len(plotable_data[key])))
                 #print("secs = " + str(self.__combo_box_index_to_seconds(self.__current_combo_box_index)))
                 for i in range(0, len(plotable_data["window_stop"]), modulo):
                     temp_content.append(plotable_data[key][i])
@@ -277,12 +274,6 @@ class OverviewWidget(QWidget):
                 del temp_content[:]
                 now2 = rospy.Time.now()
                 self.__plotted_curves[key].setData(x=x, y=y)
-                #self.__graph_dict[key].plot(x=x, y=y, fillLevel=0)
-
-
-                #todo: will this plot every time a new line?
-
-
 
                 string = "update_graphs - plot_data took: " + str(int(str(rospy.Time.now() - now2)) / 1000000) + "ms"
                 self.__model.add_log_entry("info",  rospy.Time.now(), "OverviewWidget", string)

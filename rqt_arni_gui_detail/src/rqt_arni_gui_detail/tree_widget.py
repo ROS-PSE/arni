@@ -26,11 +26,22 @@ class TreeWidget(QWidget):
 
 
         self.__filter_proxy = ItemFilterProxy()
-        self.__filter_proxy.setSourceModel(self.__model)        
+        self.__filter_proxy.setSourceModel(self.__model)
         self.item_tree_view.setModel(self.__filter_proxy)
+        self.__filter_proxy.setDynamicSortFilter(True)
+
+        self.item_tree_view.setRootIsDecorated(True)
+        # todo: test: eventually remove this
+        self.item_tree_view.setAlternatingRowColors(True)
+        self.item_tree_view.setSortingEnabled(True)
+        self.item_tree_view.sortByColumn(1, Qt.AscendingOrder)
+
+        self.__model.layoutChanged.connect(self.update)
 
         self.__size_delegate = SizeDelegate()
-        self.item_tree_view.setItemDelegate(self.__size_delegate)       
+        self.item_tree_view.setItemDelegate(self.__size_delegate)
+
+        self.__relative_font_size = 0
 
 
     def connect_slots(self):
@@ -116,10 +127,21 @@ class TreeWidget(QWidget):
 
     def __on_minus_push_button_clicked(self):
         """Checks if the minus_push_button is clicked and zoomes out (decrease the size of the font)"""
-        self.__size_delegate.set_smaller_font_size() 
+        self.__size_delegate.set_smaller_font_size()
+        self.__relative_font_size -= 1
 
     def __on_plus_push_button_clicked(self):
         """Checks if the plus_push_button is clicked and zoomes in (increase the size of the font)"""
         self.__size_delegate.set_bigger_font_size()
+        self.__relative_font_size += 1
 
+    def get_relative_font_size(self):
+        return self.__relative_font_size
 
+    def set_relative_font_size(self, relative_font_size):
+        if relative_font_size >= 0:
+            for i in range(0, relative_font_size):
+                self.__on_plus_push_button_clicked()
+        else:
+            for i in range(relative_font_size, 0):
+                self.__on_plus_minus_button_clicked()
