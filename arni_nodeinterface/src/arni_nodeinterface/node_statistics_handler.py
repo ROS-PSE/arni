@@ -37,7 +37,7 @@ class NodeStatisticsHandler(StatisticsHandler):
         using psutils and rospy.statistics
         Triggered periodically.
         """
-
+        rospy.loginfo('measuring nodestatus %s'%self._id)
         # CPU
         self._status.add_cpu_usage(self.__node_process.cpu_percent())
 
@@ -68,7 +68,7 @@ class NodeStatisticsHandler(StatisticsHandler):
 
         :topic: Topic to which the data should be published.
         """
-
+        rospy.loginfo('publishing node %s'%self._id)
         self._status.time_end = rospy.Time.now()
         stats = self.__calc_statistics()
         self.pub.publish(stats)

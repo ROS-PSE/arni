@@ -93,12 +93,12 @@ class HostStatisticsHandler( StatisticsHandler):
         Collects information about the host's current status using psutils.
         Triggered periodically.
         """
-
+        rospy.loginfo('measuring hoststatus')
         self.__lock.acquire()
         #update node list
         self.__dict_lock.acquire()
         self.update_nodes()
-        self.__dict_lock.realease()
+        self.__dict_lock.release()
 
         #CPU 
         self._status.add_cpu_usage(psutil.cpu_percent())
@@ -174,6 +174,7 @@ class HostStatisticsHandler( StatisticsHandler):
         self._status.time_end = rospy.Time.now()
         stats = self.__calc_statistics()
         self.__dict_lock.acquire()
+        rospy.loginfo('publishing host')
         self.__publish_nodes()
         self.__dict_lock.release()
         self.pub.publish(stats)
@@ -335,9 +336,9 @@ class HostStatisticsHandler( StatisticsHandler):
                     new_node = NodeStatisticsHandler(self._id, node, node_process)
                     self.__dict_lock.acquire()
                     self.__node_list[node] = new_node
-                    self.__dict_lock.realease()
+                    self.__dict_lock.release()
                 except:
-                    self.__dict_lock.realease()
+                    self.__dict_lock.release()
                     continue
         
         self.__dict_lock.acquire()
@@ -347,7 +348,9 @@ class HostStatisticsHandler( StatisticsHandler):
                 to_remove.append(node_name)
         for node_name in to_remove:
             self.remove_node(node_name)
-        self.__dict_lock.realease()
+        self.__dict_lock.release()
+
+        rospy.loginfo([key for key in self.__node_list])
 
 
     def node_server_proxy(self, node_api):
