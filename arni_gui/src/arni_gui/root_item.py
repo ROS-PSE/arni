@@ -10,12 +10,16 @@ class RootItem(AbstractItem):
                                         "average_ram_load", "ram_usage_max", "total_traffic", "connected_hosts",
                                         "connected_nodes", "topic_counter", "connection_counter"])
 
-        self.__new_attributes = []
-        self.__new_attributes.extend(self._attributes)
+        for item in self._attributes:
+            self._add_data_list(item)
+
+        self.__rated_attributes = ["state"]
+
         del self._attributes
 
-        for item in self.__new_attributes:
-            self._add_data_list(item)
+        for item in self.__rated_attributes:
+            self._add_rated_data_list(item)
+
 
     def get_detailed_data(self):
 

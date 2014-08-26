@@ -53,26 +53,6 @@ class ROSModel(QAbstractItemModel):
         super(ROSModel, self).__init__(parent)
         self.__root_item = RootItem("abstract", self)
 
-        self.__root_item.append_data_dict({
-            'type': 'type',
-            'name': 'name',
-            'state': 'state',
-            'data:': 'data',
-            # is time needed or ca it be removed
-            'time': Time.now(),
-            'window_end': Time.now(),
-            "total_traffic": 0,
-            "connected_hosts": 0,
-            "connected_nodes": 0,
-            "topic_counter": 0,
-            "connection_counter": 0,
-            "cpu_usage_max": 0,
-            "cpu_temp_mean": 0,
-            "average_ram_load": 0,
-            "cpu_usage_mean": 0,
-            "cpu_temp_max": 0,
-            "ram_usage_max": 0,
-        })
         self.__parent = parent
         self.__model_lock = Lock()
 
@@ -416,7 +396,7 @@ class ROSModel(QAbstractItemModel):
                     if element.state is not element.OK:
                         data["state"] = "error"
 
-            current_item.update_data(data, item.window_start, item.window_end)
+            current_item.update_rated_data(data, item.window_start, item.window_end)
 
 
 
@@ -431,8 +411,8 @@ class ROSModel(QAbstractItemModel):
         # get identifier
         #todo: adapt this to the changes of the seuid!
         #TODO
-        topic_seuid = self.__seuid_helper.from_message(item)
-        connection_seuid =  self.__seuid_helper.from_message(item)
+        topic_seuid = "t" + SEUID_DELIMITER + item.topic
+        connection_seuid = str(self.__seuid_helper.from_message(item))
         topic_item = None
         connection_item = None
         # check if avaiable
@@ -515,7 +495,7 @@ class ROSModel(QAbstractItemModel):
         :type data: AbstractItem, Statistics, HostStatistics, RatedStatistics, StatisticHistory
         """
         host_item = None
-        item_seuid = "" + SEUID_DELIMITER + item.host
+        item_seuid = "h" + SEUID_DELIMITER + item.host
         if item_seuid not in self.__identifier_dict:
             #create item
             host_item = HostItem(item_seuid, self.__root_item)

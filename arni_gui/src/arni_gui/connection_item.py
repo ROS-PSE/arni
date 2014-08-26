@@ -23,19 +23,25 @@ class ConnectionItem(AbstractItem):
                                  "period_mean", "period_stddev", "period_max", "stamp_age_mean", "stamp_age_stddev",
                                  "stamp_age_max"])
 
-        self.__new_attributes = []
         for item in self._attributes:
-            self.__new_attributes.append(item + ".actual_value")
-            self.__new_attributes.append(item + ".expected_value")
-            self.__new_attributes.append(item + ".state")
-
-        self.__new_attributes.extend(self._attributes)
-        del self._attributes
-
-        for item in self.__new_attributes:
-            print item
             self._add_data_list(item)
 
+        self.__rated_attributes = ["state"]
+        for item in self._attributes:
+            self.__rated_attributes.append(item + ".actual_value")
+            self.__rated_attributes.append(item + ".expected_value")
+            self.__rated_attributes.append(item + ".state")
+
+        del self._attributes
+
+        for item in self.__rated_attributes:
+            self._add_rated_data_list(item)
+
+    def get_msg_keys(self):
+        return ["topic", "node_pub", "node_sub", "window_start", "window_stop",
+                                 "dropped_msgs", "traffic",
+                                 "period_mean", "period_stddev", "period_max", "stamp_age_mean", "stamp_age_stddev",
+                                 "stamp_age_max", 'window_stop', 'window_start']
 
     def execute_action(self, action):
         """Not senseful

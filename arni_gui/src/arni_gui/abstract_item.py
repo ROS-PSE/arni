@@ -20,16 +20,16 @@ class AbstractItem(QObject):
         super(AbstractItem, self).__init__(parent)
 
         self.__data = {}
+        self.__rated_data = {}
         self.__child_items = []
         self.__parent = parent
         self.seuid = seuid
         self.__type = "type"
         self.__data_attribute = "data"
+        self.__state = []
         # WARNING!!! Child classes have to call the append_data_list method, otherwise will not work!!!
-        self._attributes = ['state', 'window_stop', 'window_start']
+        self._attributes = ['window_stop', 'window_start']
         self._attributes.extend(args)
-
-        self.__data_lock = Lock()
 
         self.__last_update = Time.now()
         self.__creation_time = Time.now()
@@ -39,10 +39,13 @@ class AbstractItem(QObject):
         return self.seuid
 
     def get_state(self):
-        return self.__data['state'][-1]
+        return self.__state[-1]
 
     def _add_data_list(self, name):
         self.__data[name] = []
+
+    def _add_rated_data_list(self, name):
+        self.__rated_data[name] = []
 
     def append_child(self, child):
         """Append a child to the list of childs
@@ -52,13 +55,26 @@ class AbstractItem(QObject):
         """
         self.__child_items.append(child)
 
+
+    def append_rated_data_dict(self, data):
+        if "window_stop" not in data:
+            data["window_stop"] = Time.now()
+        for attribute in self.__rated_data:
+            if attribute in data:
+                self.__data[attribute].append(data[attribute])
+            else:
+                # todo: is there something better than None in this case? like "" ?
+                self.__data[attribute].append(None)
+
+        self.__update_current_state()
+
     def append_data_dict(self, data):
         """Append data to the data of the AbstractItem.
 
         :param data: the data to append in key value form
         :type data: dict
         """
-        self.__data_lock.acquire()
+
         if "window_stop" not in data:
             data["window_stop"] = Time.now()
         for attribute in self.__data:
@@ -66,21 +82,24 @@ class AbstractItem(QObject):
                 self.__data[attribute].append(data[attribute])
             else:
                 # todo: is there something better than None in this case? like "" ?
-                self.__data[attribute].append(None)
 
-        self.__data_lock.release()
+                self.__data[attribute].append(None)
+        if "state" in data:
+            self.__state.append(data["state"])
         self.__update_current_state()
 
 
     def __update_current_state(self):
-        length = len(self.__data["state"])
+        length = len(self.__state)
         # print("__update_current_state")
         # for i in range(length - len(
         # (self.get_items_younger_than(self.__last_update, "window_end", "state"))["window_end"]), length):
+        #print(length)
+        #print(len(self.__data["window_stop"]))
         for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5), ))["window_stop"]),
                        length):
-            if self.__data["state"][i] == "error":
-                self.__data["state"][-1] = "warning"
+            if self.__state[i] == "error":
+                self.__state[-1] = "warning"
                 break
         self.__last_update = Time.now()
 
@@ -90,21 +109,19 @@ class AbstractItem(QObject):
         :param data: the data to append in key value form
         :type data:
         """
-        self.__data_lock.acquire()
         for attribute in self.__data:
             # todo: correct?
-            if attribute is 'state':
-                self.__data[attribute].append("")
-                continue
+            # if attribute is 'state':
+            #     self.__data[attribute].append("")
+            #     continue
             try:
                 self.__data[attribute].append(getattr(data, attribute))
             except KeyError:
                 print("KeyError occurred when trying to access %s", attribute)
                 raise
-        self.__data_lock.release()
         self.__update_current_state()
 
-    def update_data(self, data, window_start, window_stop):
+    def update_rated_data(self, data, window_start, window_stop):
         """
 
         :param data:
@@ -113,16 +130,15 @@ class AbstractItem(QObject):
         :type time: rostime?
         :return:
         """
-        self.__data_lock.acquire()
         found = False
         # todo: are these all bad cases?
         for current in range(0, len(self.__data["window_start"])):
-            if window_stop < self.__data[window_start][current]:
+            if window_stop < self.__data["window_start"][current]:
                 continue
-            if window_start > self.__data[window_stop][current]:
+            if window_start > self.__data["window_stop"][current]:
                 continue
             found = True
-            for attribute in self.__data:
+            for attribute in self.__rated_data:
                 self.__data[attribute][current] = data.getattr(attribute, None)
 
                 # for key in data:
@@ -130,7 +146,6 @@ class AbstractItem(QObject):
 
         if found is not True:
             raise UserWarning("No matching time window was found. Could not update the AbstractItem")
-        self.__data_lock.release()
         self.__update_current_state()
 
 
@@ -192,16 +207,21 @@ class AbstractItem(QObject):
                 elif key is 'type':
                     return self.__type
                 else:
-                    try:
+                    if key in self.__data:
                         return self.__data[key][-1]
-                    except KeyError:
-                        print("KeyError caught when accessing element %s.", key)
-                        raise
+                    elif key in self.__rated_data:
+                        return self.__rated_data[key][-1]
+                    else:
+                        raise KeyError("item" + key + "was not found")
+
 
         return_dict = {}
         # return dict of latest item
         for entry in self.__data:
             return_dict[entry] = self.__data[entry][-1]
+        for entry in self.__rated_data:
+            return_dict[entry] = self.__rated_data[entry][-1]
+        return_dict["state"] = self.__state[-1]
         return return_dict
 
 
@@ -213,6 +233,7 @@ class AbstractItem(QObject):
         return self.__parent
 
     # todo: what are the following 3 methods for and how can they be done better?
+    #todo: UPDATE!!!! CURRENTLY NOT WORKING
     def get_items_older_than(self, time, *args):
         """Returns all items which are older than time
 
@@ -318,7 +339,6 @@ class AbstractItem(QObject):
 
         :returns: dict of lists
         """
-        self.__data_lock.acquire()
         #  todo: method assumes the data comes in sorted by time. if this is not the case, this method will not work!
         #print("info" + " AbstractItem" + " duration of time:" + str(int(str(Time.now() - time))/1000000) + " milliseconds")
         #now = Time.now()
@@ -354,14 +374,16 @@ class AbstractItem(QObject):
                     #print("entered")
                     #if args is None:
                     for key in return_values:
-                        try:
+                        if key in self.__data:
                             return_values[key] = self.__data[key][breakpoint:length]
                             #print("i is " + str(i) +"length: " + str(len(return_values[key])) + " complete length: " + str(len(list_of_time)))
-                        except IndexError:
-                            print(
-                                "IndexError! length of the list %s, accessed index %s. length of data at given point %s, key is %s",
+                        elif key in self.__rated_data:
+                            return_values[key] = self.__rated_data[key][breakpoint:length]
+                        elif key is "state":
+                            return_values[key] = self.__state[breakpoint:length]
+                        else:
+                            raise IndexError("IndexError! length of the list %s, accessed index %s. length of data at given point %s, key is %s",
                                 length, i, len(self.__data[key]), key)
-                            raise
                 # else:
                 #     for entry in args:
                 #         try:
@@ -380,7 +402,6 @@ class AbstractItem(QObject):
             # print("length time: " + str(len(return_values["window_end"])) + " length state: " + str(len(return_values["state"])))
 
         #print("length return values: " + str(len(return_values["window_end"])))
-        self.__data_lock.release()
         return return_values
 
 

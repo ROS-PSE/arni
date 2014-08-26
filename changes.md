@@ -50,6 +50,9 @@ Change
 * scrolling does not work because of the permanent updates...--> solution: if no data has changed, simply get_detailed_data simply returns None
 * in the gui the range box does not work correctly currently
 * RUNTIME_ERROR BECAUSE ELEMENT HAS BEEN DELETED
+* aufteilung in self.__data und self.__rated_data
+* state wird noch nicht regelmäßig im richtigen zeitfesnter aufgerufen!!! führt sicher zu fehlen, muss aber vermtulich allgemein im rahmen der rated datas angepasst werden. 
+
 
 Done
 * lock updateGraphs --> non reentrant functions, otherwise segmentation faults occur!
