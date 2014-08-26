@@ -8,6 +8,7 @@ from arni_msgs.msg import HostStatistics
 from arni_msgs.srv import NodeReaction
 import psutil
 import xmlrpclib
+import socket
 import rosnode
 import rospy
 import sensors
@@ -319,20 +320,30 @@ class HostStatisticsHandler( StatisticsHandler):
                 node_api = rosnode.get_api_uri(rospy.get_master(), node_name)
                 if self._id in node_api[2]:
                     try:
-                        code, msg, pid = xmlrpclib.ServerProxy(node_api[2]).getPid('/NODEINFO')
+                        pid = self.node_server_proxy(node_api)
+                        if not pid:
+                            continue
                         node_process = psutil.Process(pid)
                         new_node = NodeStatisticsHandler(self._id, node_name, node_process)
-
                         self.__node_list[node_name] = new_node
-                    except xmlrpclib.socket.error:
-                        return False
+                    except :
+                        continue
         try:
             for node_name in self.__node_list:
                 if node_name not in rosnode.get_node_names():
                     self.remove_node(node_name)
         except RuntimeError:
             pass
-            
+    
+
+    def node_server_proxy(self, node_api):
+        socket.setdefaulttimeout(3)
+        try:
+            code,msg,pid = xmlrpclib.ServerProxy(node_api[2]).getPid('/NODEINFO')
+            return pid
+        except:
+            return False
+
     def update_nodes(self):
         """
         update the status of each node in its own threading

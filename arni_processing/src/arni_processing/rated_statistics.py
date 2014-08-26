@@ -99,7 +99,6 @@ class RatedStatisticsContainer:
                 else:
                     re.expected_value.append(str(values["expected"]))
             r.rated_statistics_entity.append(re)
-        print(r)
         return r
 
     def get_value(self, metatype):
