@@ -154,9 +154,10 @@ class Status(object):
 
             for i in slist:
                 temp_sum += ( i - mean )**2
-
-            stddev = sqrt( float(1)/(len(slist)) * temp_sum )
-
+            stddev = 0
+            if len(slist) > 1:
+                stddev = sqrt( float(1)/(len(slist)) * temp_sum )
+            
             return statistic_tuple(mean , stddev , maxi)
 
     def calc_stats_specific(self , dict):

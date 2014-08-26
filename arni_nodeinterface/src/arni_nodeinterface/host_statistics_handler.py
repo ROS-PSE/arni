@@ -32,6 +32,7 @@ class HostStatisticsHandler( StatisticsHandler):
         self.__init_params()
         self.__register_service()        
         self.__lock = threading.Lock()
+        self.__dict_lock = threading.Lock()
 
         self.pub = rospy.Publisher('/statistics_host', HostStatistics, queue_size = 500)
         #: Used to store information about the host's status.
@@ -83,8 +84,9 @@ class HostStatisticsHandler( StatisticsHandler):
         """
         Register all services
         """
+        ip = self._id.replace('.','_')
         rospy.Service(
-            "/execute_node_reaction/%s" % self._id,
+            "/execute_node_reaction/%s" %ip,
             NodeReaction, self.execute_reaction)
 
     def measure_status(self, event):
@@ -92,12 +94,12 @@ class HostStatisticsHandler( StatisticsHandler):
         Collects information about the host's current status using psutils.
         Triggered periodically.
         """
-
+        rospy.loginfo('measuring hoststatus')
         self.__lock.acquire()
         #update node list
-        self.get_node_info()
+        self.__dict_lock.acquire()
         self.update_nodes()
-
+        self.__dict_lock.release()
 
         #CPU 
         self._status.add_cpu_usage(psutil.cpu_percent())
@@ -172,9 +174,11 @@ class HostStatisticsHandler( StatisticsHandler):
         self.__lock.acquire()
         self._status.time_end = rospy.Time.now()
         stats = self.__calc_statistics()
-
+        self.__dict_lock.acquire()
+        rospy.loginfo('publishing host')
         self.__publish_nodes()
-
+        self.__dict_lock.release()
+        rospy.loginfo('publishing stats: %s'%stats)
         self.pub.publish(stats)
         self._status.reset()
         self._status.time_start = rospy.Time.now()
@@ -224,8 +228,9 @@ class HostStatisticsHandler( StatisticsHandler):
 
         hs = HostStatistics()
 
-        
         hs.host = self._id
+        hs.window_start = self._status.time_start
+        hs.window_stop = self._status.time_end
 
         hs.cpu_usage_mean = stats_dict['cpu_usage_mean'] 
         hs.cpu_usage_stddev = stats_dict['cpu_usage_stddev'] 
@@ -307,41 +312,55 @@ class HostStatisticsHandler( StatisticsHandler):
         :type node_id: String
         """
         if node in self.__node_list:
-            del self.__node_list[node._id]
+            del self.__node_list[node]
 
-    def get_node_info(self):
+    def get_node_info(self, event):
         """
         Get the list of all Nodes running on the host.
         Update the __node_list
         """ 
-    
+        nodes = []
         for node_name in rosnode.get_node_names():
-            if node_name not in self.__node_list:
-                node_api = rosnode.get_api_uri(rospy.get_master(), node_name)
-                if self._id in node_api[2]:
-                    try:
-                        pid = self.node_server_proxy(node_api)
-                        if not pid:
-                            continue
-                        node_process = psutil.Process(pid)
-                        new_node = NodeStatisticsHandler(self._id, node_name, node_process)
-                        self.__node_list[node_name] = new_node
-                    except :
+            node_api = rosnode.get_api_uri(rospy.get_master(), node_name)
+            if self._id in node_api[2]:
+                nodes.append(node_name)
+
+
+        for node in nodes:
+            if node not in self.__node_list:
+                node_api = rosnode.get_api_uri(rospy.get_master(), node)
+                try:
+                    pid = self.node_server_proxy(node_api)
+                    if not pid:
                         continue
-        try:
-            for node_name in self.__node_list:
-                if node_name not in rosnode.get_node_names():
-                    self.remove_node(node_name)
-        except RuntimeError:
-            pass
-    
+                    node_process = psutil.Process(pid)
+                    new_node = NodeStatisticsHandler(self._id, node, node_process)
+                    self.__dict_lock.acquire(True)
+                    self.__node_list[node] = new_node
+                    self.__dict_lock.release()
+                except:
+                    rospy.loginfo('Node %s unreachable'%node)
+                    #self.__dict_lock.release()
+                    continue
+        
+        self.__dict_lock.acquire()
+        to_remove = []
+        for node_name in self.__node_list:
+            if node_name not in nodes:
+                to_remove.append(node_name)
+        for node_name in to_remove:
+            self.remove_node(node_name)
+        self.__dict_lock.release()
+
+        rospy.loginfo([key for key in self.__node_list])
+
 
     def node_server_proxy(self, node_api):
         socket.setdefaulttimeout(3)
         try:
             code,msg,pid = xmlrpclib.ServerProxy(node_api[2]).getPid('/NODEINFO')
             return pid
-        except:
+        except socket.Error:
             return False
 
     def update_nodes(self):

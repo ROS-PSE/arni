@@ -15,11 +15,6 @@ class MetadataStorage:
 
     def __cleanup_timer(self):
         last_cleanup = rospy.Time.now()
-        # if self.auto_cleanup and self.timer_running and not rospy.is_shutdown():
-        #     t = threading.Timer(self.cleanup_timer, self.__clean_up)
-        #     t.start()
-        #     return t
-        rospy.loginfo("started cleanup timer")
         while not rospy.is_shutdown():
             if self.auto_cleanup and rospy.Time.now() - last_cleanup >= rospy.Duration(self.cleanup_timer):
                 last_cleanup = rospy.Time.now()
@@ -36,7 +31,6 @@ class MetadataStorage:
                     del self.storage[ident][stamp]
                     counter += 1
         rospy.logdebug("[MetadataStorage] Cleared storage, removed %s packages." % counter)
-        # return self.__clean_up_timer()
 
     def store(self, container):
         """
@@ -84,7 +78,6 @@ class MetadataStorage:
         self.timer_running = True
         self.auto_cleanup = rospy.get_param('/arni/storage/auto_cleanup', True)
         self.cleanup_timer = rospy.get_param('/arni/storage/cleanup_timer', 30)
-        # self.__cleanup_thread = self.__cleanup_timer()
         thr = threading.Thread(target=self.__cleanup_timer)
         thr.start()
 

@@ -37,22 +37,25 @@ class NodeStatisticsHandler(StatisticsHandler):
         using psutils and rospy.statistics
         Triggered periodically.
         """
+        rospy.loginfo('measuring nodestatus %s'%self._id)
+        try:        
+            # CPU
+            self._status.add_cpu_usage(self.__node_process.cpu_percent())
 
-        # CPU
-        self._status.add_cpu_usage(self.__node_process.cpu_percent())
+            self._status.add_cpu_usage_core(self.__cpu_usage_per_core())
 
-        self._status.add_cpu_usage_core(self.__cpu_usage_per_core())
+            # RAM
+            self._status.add_ram_usage(self.__node_process.memory_percent())
 
-        # RAM
-        self._status.add_ram_usage(self.__node_process.memory_percent())
+            # Disk I/O
+            node_io = self.__node_process.io_counters()
 
-        # Disk I/O
-        node_io = self.__node_process.io_counters()
+            read_rate = node_io.read_bytes / self.update_intervall
+            write_rate = node_io.write_bytes / self.update_intervall
 
-        read_rate = node_io.read_bytes / self.update_intervall
-        write_rate = node_io.write_bytes / self.update_intervall
-
-        self._status.add_node_io(read_rate, write_rate)
+            self._status.add_node_io(read_rate, write_rate)
+        except psutil.NoSuchProcess:
+            pass
 
     def register_subscriber(self):
         """
@@ -68,7 +71,7 @@ class NodeStatisticsHandler(StatisticsHandler):
 
         :topic: Topic to which the data should be published.
         """
-
+        rospy.loginfo('publishing node %s'%self._id)
         self._status.time_end = rospy.Time.now()
         stats = self.__calc_statistics()
         self.pub.publish(stats)
@@ -86,7 +89,10 @@ class NodeStatisticsHandler(StatisticsHandler):
         stats_dict = self._status.calc_stats()
 
         ns = NodeStatistics()
-
+        ns.host = self.__host_id
+        ns.node = self._id
+        ns.window_start = self._status.time_start
+        ns.window_stop = self._status.time_end
         ns.node_cpu_usage_mean = stats_dict['cpu_usage_mean']
         ns.node_cpu_usage_stddev = stats_dict['cpu_usage_stddev']
         ns.node_cpu_usage_max = stats_dict['cpu_usage_max']

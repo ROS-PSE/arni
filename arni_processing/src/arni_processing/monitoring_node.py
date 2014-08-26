@@ -24,6 +24,8 @@ class MonitoringNode:
         self.__metadata_storage = MetadataStorage()
         self.__specification_handler = SpecificationHandler()
         self.__publisher = rospy.Publisher('/statistics_rated', arni_msgs.msg.RatedStatistics, queue_size=50)
+        self.__aggregate = []
+        self.__aggregate_start = rospy.Time.now()
 
     def receive_data(self, data):
         """
@@ -35,12 +37,14 @@ class MonitoringNode:
         """
         try:
             seuid = SEUID(data)
+            try:
+                self.__process_data(data, seuid)
+            except Exception as msg:
+                rospy.logerr("an error occured processing the data:\n%s\n%s" % (msg, traceback.format_exc()))
         except TypeError as msg:
             rospy.logerr("received invalid message type:\n%s" % traceback.format_exc())
-        try:
-            self.__process_data(data, str(seuid))
-        except Exception as msg:
-            rospy.logerr("an error occured processing the data:\n%s\n%s" % (msg, traceback.format_exc()))
+        except NameError as msg:
+            rospy.logerr("received invalid message type (%s):\n%s" % (type(data), traceback.format_exc()))
 
     def __process_data(self, data, identifier):
         """
@@ -52,11 +56,24 @@ class MonitoringNode:
         :type identifier: str
         :return: RatedStatisticsContainer.
         """
-        result = self.__specification_handler.compare(data, identifier)
-        container = StorageContainer(rospy.Time.now(), identifier, data, result)
+        if str(identifier)[0] == "c":
+            self.__aggregate_data(data, identifier.topic)
+        result = self.__specification_handler.compare(data, str(identifier))
+        container = StorageContainer(rospy.Time.now(), str(identifier), data, result)
         self.__metadata_storage.store(container)
         self.__publish_data(result.to_msg_type())
         return result
+
+    def __aggregate_data(self, data, seuid):
+        if self.__aggregate is None or \
+                                rospy.Time.now() - self.__aggregate_start >= \
+                        rospy.Duration(rospy.get_param("/arni/aggregation_window", 3)):
+            res = self.__specification_handler.compare_topic(self.__aggregate)
+            for r in res:
+                self.__publish_data(r)
+            self.__aggregate = []
+            self.__aggregate_start = rospy.Time.now()
+        self.__aggregate.append(data)
 
     def __publish_data(self, data):
         """
