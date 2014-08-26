@@ -1,6 +1,5 @@
 import rospy
 from specification import Specification
-from metadata_tuple import MetadataTuple
 from rated_statistics import RatedStatisticsContainer
 from arni_core.helper import *
 
@@ -24,7 +23,7 @@ class SpecificationHandler:
                     if SEUID().is_valid(seuid):
                         spec = Specification()
                         for k in o[seuid].keys():
-                            spec.add_tuple(MetadataTuple(k, o[seuid][k]))
+                            spec.add_tuple((k, o[seuid][k]))
                         self.__specifications[seuid] = spec
                     else:
                         rospy.logdebug("[SpecificationHandler][__load_specifications] %s is not a valid seuid." % seuid)
@@ -91,7 +90,7 @@ class SpecificationHandler:
             current_obj = {}
             value = getattr(data, field)
             try:
-                specs = specification.get(field).value
+                specs = specification.get(field)[1]
                 limits = specs[0:2]
                 if len(specs) > 2 and specs[2][0].lower() == "r":
                     if limits[1] > 1:

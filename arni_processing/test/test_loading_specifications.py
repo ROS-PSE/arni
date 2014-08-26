@@ -85,7 +85,7 @@ class TestLoadingSpecifications(unittest.TestCase):
         sp = sh.get(seuid)
         self.assertItemsEqual(sp.keys(), test_spec[0][test_spec[0].keys()[0]].keys())
         for k in test_spec[0][test_spec[0].keys()[0]].keys():
-            self.assertEqual(test_spec[0][test_spec[0].keys()[0]][k], sp.get(k).value)
+            self.assertEqual(test_spec[0][test_spec[0].keys()[0]][k], sp.get(k)[1])
 
 
 if __name__ == '__main__':
