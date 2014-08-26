@@ -51,7 +51,7 @@ class ROSModel(QAbstractItemModel):
         """
         #rospy.init_node('arni_gui_model', log_level=rospy.DEBUG)
         super(ROSModel, self).__init__(parent)
-        self.__root_item = RootItem("abstract", self)
+        self.__root_item = RootItem("abstract")
 
         self.__parent = parent
         self.__model_lock = Lock()
@@ -382,7 +382,7 @@ class ROSModel(QAbstractItemModel):
         # check if avaiable
         if seuid not in self.__identifier_dict:
             #having a problem, item doesn't exist but should not be created here
-            raise UserWarning("Received rated statistics for an item that doesn't exist the database!")
+            self.add_log_entry("warning", Time.now(), "ROSModel", "Received rated statistics for an item that doesn't exist the database!")
         else:
             #update it
             current_item = self.__identifier_dict[seuid]
@@ -471,17 +471,23 @@ class ROSModel(QAbstractItemModel):
         :param data:
         :type data: AbstractItem, Statistics, HostStatistics, RatedStatistics, StatisticHistory
         """
-        item_seuid = str(self.__seuid_helper.from_message(item))
+        item_seuid = "n" + SEUID_DELIMITER + item.node
+        print(item_seuid)
         if item_seuid not in self.__identifier_dict:
             #create item
-            node_item = NodeItem(item_seuid)
+            host_seuid = "h" + SEUID_DELIMITER + item.host
+            host_item = None
+            if host_seuid not in self.__identifier_dict:
+                host_item = HostItem(host_seuid, self.__root_item)
+                self.__identifier_dict[host_seuid] = host_item
+                self.__root_item.append_child(host_item)
+                self.add_log_entry("info", Time.now(), "ROSModel", "Added a new HostItem with name " + host_seuid)
+            else:
+                host_item = self.__identifier_dict[host_seuid]
+            node_item = NodeItem(item_seuid, host_item)
             self.__identifier_dict[item_seuid] = node_item
-            parent = self.__identifier_dict["h" + SEUID_DELIMITER + item.host]
             self.add_log_entry("info", Time.now(), "ROSModel", "Added a new NodeItem with name " + item_seuid)
-            if parent is None:
-                raise UserWarning("Parent of a given node was not found!")
-            parent.append_child(node_item)
-
+            host_item.append_child(node_item)
         else:
             node_item = self.__identifier_dict[item.seuid]
 

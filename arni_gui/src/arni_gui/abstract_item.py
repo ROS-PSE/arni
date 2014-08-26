@@ -17,6 +17,7 @@ class AbstractItem(QObject):
         :param parent: the parent-object
         :type parent: object
         """
+        print(str(type(self)) + str(type(seuid)) + str(type(parent)))
         super(AbstractItem, self).__init__(parent)
 
         self.__data = {}
@@ -28,7 +29,7 @@ class AbstractItem(QObject):
         self.__data_attribute = "data"
         self.__state = []
         # WARNING!!! Child classes have to call the append_data_list method, otherwise will not work!!!
-        self._attributes = ['window_stop', 'window_start']
+        self._attributes = []
         self._attributes.extend(args)
 
         self.__last_update = Time.now()
@@ -66,6 +67,11 @@ class AbstractItem(QObject):
                 # todo: is there something better than None in this case? like "" ?
                 self.__data[attribute].append(None)
 
+        if "state" in data:
+            self.__state.append(data["state"])
+        else:
+            self.__state.append(data["ok"])
+
         self.__update_current_state()
 
     def append_data_dict(self, data):
@@ -86,6 +92,8 @@ class AbstractItem(QObject):
                 self.__data[attribute].append(None)
         if "state" in data:
             self.__state.append(data["state"])
+        else:
+            self.__state.append(data["ok"])
         self.__update_current_state()
 
 
@@ -94,8 +102,8 @@ class AbstractItem(QObject):
         # print("__update_current_state")
         # for i in range(length - len(
         # (self.get_items_younger_than(self.__last_update, "window_end", "state"))["window_end"]), length):
-        #print(length)
-        #print(len(self.__data["window_stop"]))
+        print(length)
+        print(len(self.__data["window_stop"]))
         for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5), ))["window_stop"]),
                        length):
             if self.__state[i] == "error":
@@ -110,15 +118,13 @@ class AbstractItem(QObject):
         :type data:
         """
         for attribute in self.__data:
-            # todo: correct?
-            # if attribute is 'state':
-            #     self.__data[attribute].append("")
-            #     continue
             try:
                 self.__data[attribute].append(getattr(data, attribute))
             except KeyError:
                 print("KeyError occurred when trying to access %s", attribute)
                 raise
+
+        self.__state.append("ok")
         self.__update_current_state()
 
     def update_rated_data(self, data, window_start, window_stop):
@@ -354,52 +360,57 @@ class AbstractItem(QObject):
                 return_values[key] = []
         breakpoint = 0
 
-        list_of_time = self.__data["window_stop"]
+        list_of_time = None
+        try:
+            list_of_time = self.__data["window_stop"]
+        except KeyError:
+            print(str(type(self)) + str(self.__type) + " " + self.get_seuid() + " window_stop not found")
         length = len(list_of_time)
         #print(len(list_of_time))
         #print("first time: " + tm.strftime("%d.%m-%H:%M:%S", tm.localtime((int(str(self.__data["window_end"][0]))/1000000000))))
         #print("last time: " + tm.strftime("%d.%m-%H:%M:%S", tm.localtime((int(str(self.__data["window_end"][-1]))/1000000000))))
         #print("for")
-        if list_of_time[0] >= time:
-            for key in return_values:
-                return_values[key] = self.__data[key]
-        else:
-            for i in range(length - 1, -1, -1):
-                #print(i)
-                #print(len(list_of_time))
-                #print(int(str(list_of_time[i]))-int(str(time)))
-                if list_of_time[i] < time:
-                    breakpoint = i + 1
-                    # i + 1 was the first hit
-                    #print("entered")
-                    #if args is None:
-                    for key in return_values:
-                        if key in self.__data:
-                            return_values[key] = self.__data[key][breakpoint:length]
-                            #print("i is " + str(i) +"length: " + str(len(return_values[key])) + " complete length: " + str(len(list_of_time)))
-                        elif key in self.__rated_data:
-                            return_values[key] = self.__rated_data[key][breakpoint:length]
-                        elif key is "state":
-                            return_values[key] = self.__state[breakpoint:length]
-                        else:
-                            raise IndexError("IndexError! length of the list %s, accessed index %s. length of data at given point %s, key is %s",
-                                length, i, len(self.__data[key]), key)
-                # else:
-                #     for entry in args:
-                #         try:
-                #             #todo [i:len(list_of_time)] is this the right window?
-                #             return_values[entry] = self.__data[entry][breakpoint:len(list_of_time)]
-                #             #print("i is " + str(i) + "key: " + entry + " length: " + str(len(return_values[entry])) + " complete length: " + str(len(list_of_time)))
-                #         except IndexError:
-                #             print(
-                #                 "IndexError! length of the list %s, accessed index %s. length of data at given point %s, key is %s",
-                #                 len(list_of_time), i, len(self.__data[entry]), entry)
-                #             raise
-                    break
+        if length is not 0:
+            if list_of_time[0] >= time:
+                for key in return_values:
+                    return_values[key] = self.__data[key]
+            else:
+                for i in range(length - 1, -1, -1):
+                    #print(i)
+                    #print(len(list_of_time))
+                    #print(int(str(list_of_time[i]))-int(str(time)))
+                    if list_of_time[i] < time:
+                        breakpoint = i + 1
+                        # i + 1 was the first hit
+                        #print("entered")
+                        #if args is None:
+                        for key in return_values:
+                            if key in self.__data:
+                                return_values[key] = self.__data[key][breakpoint:length]
+                                #print("i is " + str(i) +"length: " + str(len(return_values[key])) + " complete length: " + str(len(list_of_time)))
+                            elif key in self.__rated_data:
+                                return_values[key] = self.__rated_data[key][breakpoint:length]
+                            elif key is "state":
+                                return_values[key] = self.__state[breakpoint:length]
+                            else:
+                                raise IndexError("IndexError! length of the list %s, accessed index %s. length of data at given point %s, key is %s",
+                                    length, i, len(self.__data[key]), key)
+                    # else:
+                    #     for entry in args:
+                    #         try:
+                    #             #todo [i:len(list_of_time)] is this the right window?
+                    #             return_values[entry] = self.__data[entry][breakpoint:len(list_of_time)]
+                    #             #print("i is " + str(i) + "key: " + entry + " length: " + str(len(return_values[entry])) + " complete length: " + str(len(list_of_time)))
+                    #         except IndexError:
+                    #             print(
+                    #                 "IndexError! length of the list %s, accessed index %s. length of data at given point %s, key is %s",
+                    #                 len(list_of_time), i, len(self.__data[entry]), entry)
+                    #             raise
+                        break
 
-            # now shrink the time itself
+                # now shrink the time itself
 
-            # print("length time: " + str(len(return_values["window_end"])) + " length state: " + str(len(return_values["state"])))
+                # print("length time: " + str(len(return_values["window_end"])) + " length state: " + str(len(return_values["state"])))
 
         #print("length return values: " + str(len(return_values["window_end"])))
         return return_values

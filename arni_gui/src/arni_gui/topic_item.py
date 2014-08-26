@@ -6,7 +6,7 @@ class TopicItem(AbstractItem):
     """A TopicItem represents a specific topic which contains many connections and has attributes like the number of sent messages"""
 
 
-    def __init__(self, seuid, type, parent=None):
+    def __init__(self, seuid, parent=None):
         """Initializes the ConnectionItem
 
         :param list: connection list
@@ -14,7 +14,7 @@ class TopicItem(AbstractItem):
         :param parent: the parent-object
         :type parent: object
         """
-        super(TopicItem, self).__init__(parent)
+        super(TopicItem, self).__init__(seuid, parent)
         self.__type = "topic"
 
         #add the content
@@ -25,7 +25,7 @@ class TopicItem(AbstractItem):
         for item in self._attributes:
             self._add_data_list(item)
 
-        self.__rated_attributes = ["state"]
+        self.__rated_attributes = []
         for item in self._attributes:
             self.__rated_attributes.append(item + ".actual_value")
             self.__rated_attributes.append(item + ".expected_value")

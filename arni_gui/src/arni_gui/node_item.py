@@ -14,9 +14,9 @@ class NodeItem(AbstractItem):
         :type list: list
         :param parent: the parent-object
         :type parent: object
-        """        
+        """
+        super(NodeItem, self).__init__(seuid, parent)
         self.__type = "node"
-        super(NodeItem, self).__init__(parent)
         #add the content
         self._attributes.extend(["window_start", "window_stop", "node_cpu_usage_mean", "node_cpu_usage_stddev", "node_cpu_usage_max",
                       "node_cpu_usage_core_mean",
@@ -29,7 +29,7 @@ class NodeItem(AbstractItem):
         for item in self._attributes:
             self._add_data_list(item)
 
-        self.__rated_attributes = ["state"]
+        self.__rated_attributes = []
         for item in self._attributes:
             self.__rated_attributes.append(item + ".actual_value")
             self.__rated_attributes.append(item + ".expected_value")

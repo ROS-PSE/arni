@@ -232,8 +232,6 @@ class OverviewWidget(QWidget):
             #self.status_light_label.setMask(pixmap.mask())
             #self.status_light_label.resize(50, 50)
 
-
-
         self.information_tab_text_browser.setHtml(self.__model.get_overview_text())
 
         #self.update_graphs()

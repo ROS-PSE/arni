@@ -6,14 +6,14 @@ class RootItem(AbstractItem):
     def __init__(self, seuid, parent=QObject(), *args):
         super(RootItem, self).__init__("root", parent)
         #AbstractItem.__init__(self, "root", parent)
-        self._attributes.extend(["cpu_usage_mean", "cpu_temp_mean", "cpu_usage_max", "cpu_temp_max",
+        self._attributes.extend(["window_start", "window_stop", "cpu_usage_mean", "cpu_temp_mean", "cpu_usage_max", "cpu_temp_max",
                                         "average_ram_load", "ram_usage_max", "total_traffic", "connected_hosts",
                                         "connected_nodes", "topic_counter", "connection_counter"])
-
+        self.__type = "root"
         for item in self._attributes:
             self._add_data_list(item)
 
-        self.__rated_attributes = ["state"]
+        self.__rated_attributes = []
 
         del self._attributes
 

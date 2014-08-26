@@ -13,12 +13,12 @@ class ConnectionItem(AbstractItem):
         :param parent: the parent-object
         :type parent: object
         """
-        super(ConnectionItem, self).__init__(parent)
+        super(ConnectionItem, self).__init__(seuid, parent)
 
         self.__type = "connection"
 
         # add the content
-        self._attributes.extend([""" NO longer needed: topic", "node_pub", "node_sub",""" "window_start", "window_stop",
+        self._attributes.extend(["window_start", "window_stop",
                                  "dropped_msgs", "traffic",
                                  "period_mean", "period_stddev", "period_max", "stamp_age_mean", "stamp_age_stddev",
                                  "stamp_age_max"])
@@ -26,7 +26,7 @@ class ConnectionItem(AbstractItem):
         for item in self._attributes:
             self._add_data_list(item)
 
-        self.__rated_attributes = ["state"]
+        self.__rated_attributes = []
         for item in self._attributes:
             self.__rated_attributes.append(item + ".actual_value")
             self.__rated_attributes.append(item + ".expected_value")
@@ -36,12 +36,6 @@ class ConnectionItem(AbstractItem):
 
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)
-
-    def get_msg_keys(self):
-        return ["topic", "node_pub", "node_sub", "window_start", "window_stop",
-                                 "dropped_msgs", "traffic",
-                                 "period_mean", "period_stddev", "period_max", "stamp_age_mean", "stamp_age_stddev",
-                                 "stamp_age_max", 'window_stop', 'window_start']
 
     def execute_action(self, action):
         """Not senseful

@@ -14,9 +14,7 @@ class HostItem(AbstractItem):
         :param parent: the parent-object
         :type parent: object
         """
-        print "hier"
-        super(HostItem, self).__init__(parent)
-        print "warscheinlich hier"
+        super(HostItem, self).__init__(seuid, parent)
 
         self.__type = "host"
 
@@ -30,11 +28,14 @@ class HostItem(AbstractItem):
                       "message_frequency_max", "bandwidth_mean", "bandwidth_stddev", "bandwidth_max",
                       "drive_name", "drive_free_space", "drive_read", "drive_write"])
 
-        self.__rated_attributes = ["state"]
+        self.__rated_attributes = []
         for item in self._attributes:
             self.__rated_attributes.append(item + ".actual_value")
             self.__rated_attributes.append(item + ".expected_value")
             self.__rated_attributes.append(item + ".state")
+
+        for item in self._attributes:
+            self._add_data_list(item)
 
         del self._attributes
 
