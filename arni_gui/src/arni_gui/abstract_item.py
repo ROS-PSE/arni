@@ -35,12 +35,18 @@ class AbstractItem(QObject):
         self.__last_update = Time.now()
         self.__creation_time = Time.now()
 
+        self._add_data_list("window_start")
+        self._add_data_list("window_stop")
+        self._add_rated_data_list("window_start")
+        self._add_rated_data_list("window_stop")
+
 
     def get_seuid(self):
         return self.seuid
 
     def get_state(self):
-        return self.__state[-1]
+        if self.__state:
+            return self.__state[-1]
 
     def _add_data_list(self, name):
         self.__data[name] = []
@@ -127,7 +133,7 @@ class AbstractItem(QObject):
         self.__state.append("ok")
         self.__update_current_state()
 
-    def update_rated_data(self, data, window_start, window_stop):
+    def update_rated_data(self, data):
         """
 
         :param data:
@@ -136,22 +142,26 @@ class AbstractItem(QObject):
         :type time: rostime?
         :return:
         """
-        found = False
-        # todo: are these all bad cases?
-        for current in range(0, len(self.__data["window_start"])):
-            if window_stop < self.__data["window_start"][current]:
-                continue
-            if window_start > self.__data["window_stop"][current]:
-                continue
-            found = True
-            for attribute in self.__rated_data:
-                self.__data[attribute][current] = data.getattr(attribute, None)
+        # found = False
+        # # todo: are these all bad cases?
+        # for current in range(0, len(self.__data["window_start"])):
+        #     if window_stop < self.__data["window_start"][current]:
+        #         continue
+        #     if window_start > self.__data["window_stop"][current]:
+        #         continue
+        #     found = True
 
-                # for key in data:
-                # self.__data[key][current] = data[key]
+        #todo: WHAT HAPPENS TO STATE AND WHY IS IT NEVER USED
 
-        if found is not True:
-            raise UserWarning("No matching time window was found. Could not update the AbstractItem")
+        for entry in self.__rated_data:
+            try:
+                self.__rated_data[entry].append(data[entry])
+            except KeyError:
+                print("An entry found in the object dictionary of the rated data was not found in the given rated data")
+                raise
+
+        #if found is not True:
+        #    raise UserWarning("No matching time window was found. Could not update the AbstractItem")
         self.__update_current_state()
 
 

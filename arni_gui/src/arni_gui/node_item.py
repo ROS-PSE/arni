@@ -18,7 +18,7 @@ class NodeItem(AbstractItem):
         super(NodeItem, self).__init__(seuid, parent)
         self.__type = "node"
         #add the content
-        self._attributes.extend(["window_start", "window_stop", "node_cpu_usage_mean", "node_cpu_usage_stddev", "node_cpu_usage_max",
+        self._attributes.extend(["node_cpu_usage_mean", "node_cpu_usage_stddev", "node_cpu_usage_max",
                       "node_cpu_usage_core_mean",
                       "node_cpu_usage_core_stddev", "node_cpu_usage_core_max", "node_gpu_usage_mean", "node_gpu_usage_stddev",
                       "node_gpu_usage_max", "node_ramusage_mean", "node_ramusage_stddev", "node_ramusage_max",

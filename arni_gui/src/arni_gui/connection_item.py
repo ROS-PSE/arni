@@ -18,8 +18,7 @@ class ConnectionItem(AbstractItem):
         self.__type = "connection"
 
         # add the content
-        self._attributes.extend(["window_start", "window_stop",
-                                 "dropped_msgs", "traffic",
+        self._attributes.extend(["dropped_msgs", "traffic",
                                  "period_mean", "period_stddev", "period_max", "stamp_age_mean", "stamp_age_stddev",
                                  "stamp_age_max"])
 

@@ -18,7 +18,7 @@ class TopicItem(AbstractItem):
         self.__type = "topic"
 
         #add the content
-        self._attributes.extend(["window_start", "window_stop", #"delivered_msgs",
+        self._attributes.extend([#"delivered_msgs",
                                  "dropped_msgs",
                                  "traffic", "stamp_age_mean", "stamp_age_stddev", "stamp_age_max"])
 

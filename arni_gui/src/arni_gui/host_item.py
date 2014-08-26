@@ -19,7 +19,7 @@ class HostItem(AbstractItem):
         self.__type = "host"
 
         #add the content
-        self._attributes.extend(["window_start", "window_stop", "cpu_temp_mean", "cpu_temp_stddev", "cpu_temp_max", "cpu_usage_mean",
+        self._attributes.extend(["cpu_temp_mean", "cpu_temp_stddev", "cpu_temp_max", "cpu_usage_mean",
                       "cpu_usage_stddev", "cpu_usage_max", "cpu_usage_core_mean", "cpu_usage_core_stddev",
                       "cpu_usage_core_max", "cpu_temp_core", "cpu_temp_core_mean", "cpu_temp_core_stddev",
                       "cpu_temp_core_max", "gpu_temp_mean", "gpu_temp_stddev", "gpu_temp_max", "gpu_usage_mean",

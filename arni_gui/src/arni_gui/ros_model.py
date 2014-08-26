@@ -388,15 +388,21 @@ class ROSModel(QAbstractItemModel):
             current_item = self.__identifier_dict[seuid]
             data = {}
             for element in item.rated_statistics_entity:
-                for number in range(0, len(element.statistic_type)):
-                    #TODO: CURRENTLY NOT WORKING! FIX AND TRY --> DOES NOT USE LIST MECAHNISNM
-                    data[element.statistic_type + ".actual_value " + number] = element.actual_value
-                    data[element.statistic_type + ".expected_value " + number] = element.expected_value
-                    data[element.statistic_type + ".state " + number] = element.state
-                    if element.state is not element.OK:
-                        data["state"] = "error"
+                if element.statistic_type not in data:
+                    data[element.statistic_type + ".actual_value "] = []
+                    data[element.statistic_type + ".expected_value "] = []
+                    data[element.statistic_type + ".state "] = []
 
-            current_item.update_rated_data(data, item.window_start, item.window_end)
+                data[element.statistic_type + ".actual_value "].append(element.actual_value)
+                data[element.statistic_type + ".expected_value "].append(element.expected_value)
+                data[element.statistic_type + ".state "].append(element.state)
+
+                if element.state is not element.OK:
+                    data["state"] = "error"
+
+            data["window_start"] = item.window_start
+            data["window_stop"] = item.window_stop
+            current_item.update_rated_data(data)
 
 
 
@@ -412,7 +418,8 @@ class ROSModel(QAbstractItemModel):
         #todo: adapt this to the changes of the seuid!
         #TODO
         topic_seuid = "t" + SEUID_DELIMITER + item.topic
-        connection_seuid = str(self.__seuid_helper.from_message(item))
+        connection_seuid = "c" + SEUID_DELIMITER + item.node_sub + SEUID_DELIMITER + item.topic \
+                              + SEUID_DELIMITER + item.node_pub
         topic_item = None
         connection_item = None
         # check if avaiable
@@ -440,7 +447,7 @@ class ROSModel(QAbstractItemModel):
 
             topic_item = TopicItem(topic_seuid, parent)
             parent.append_child(topic_item)
-            self.__identifier_dict[topic_seuid] = connection_item
+            self.__identifier_dict[topic_seuid] = topic_item
             self.add_log_entry("info", Time.now(), "ROSModel", "Added a new TopicItem with name " + topic_seuid)
             #creating a connection item
             connection_item = ConnectionItem(connection_seuid, topic_item)
@@ -458,6 +465,9 @@ class ROSModel(QAbstractItemModel):
             topic_item = self.__identifier_dict[topic_seuid]
             connection_item = self.__identifier_dict[connection_seuid]
             if topic_item is None or connection_item is None:
+                for item in self.__identifier_dict:
+                    if self.__identifier_dict[item] is None:
+                        print(item)
                 raise UserWarning("The parent of the given topic statistics item cannot be found.")
 
         # now update these

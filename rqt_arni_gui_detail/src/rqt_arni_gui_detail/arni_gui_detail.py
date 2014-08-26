@@ -42,6 +42,9 @@ class ArniGuiDetail(Plugin):
         self.__selection_widget.set_selected_item(None)
         context.add_widget(self.__selection_widget)       
         self.__selection_widget.connect_slots()
+        #todo: does this work as expected?
+        self.__selection_widget.destroyed.connect(self.__tree_widget.close)
+        self.__tree_widget.destroyed.connect(self.__selection_widget.close)
         
         #: is handeld here for the widget communication
         self.__tree_widget.item_tree_view.doubleClicked.connect(self.__on_item_in_item_tree_view_double_clicked)

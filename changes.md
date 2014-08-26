@@ -47,15 +47,13 @@ Change
 * the units in the overview are missing (maybe also some color if someone is too high)
 * reformat the ROSModel to use the seuid helper class
 * make sure there are no more dict["time"] calls, they are invalid
-* Gui does not react when being drawn..
 * why are sometimes empty values given to the axi?
 * why are there runtimeerrors when closing the gui. and why are there these threading errors(might it be the timers?)
 * scrolling does not work because of the permanent updates...--> solution: if no data has changed, simply get_detailed_data simply returns None
-* in the gui the range box does not work correctly currently
 * RUNTIME_ERROR BECAUSE ELEMENT HAS BEEN DELETED
-* aufteilung in self.__data und self.__rated_data
 * state wird noch nicht regelmäßig im richtigen zeitfesnter aufgerufen!!! führt sicher zu fehlen, muss aber vermtulich allgemein im rahmen der rated datas angepasst werden. 
-
+* GUI WANTS TO RECEIVE ITEMS THE TOPIC DOES NOT PROVIDE!!!
+* gibt immer noch index-fehler, falls ein element abgefragt wird, das keine daten hat!!!
 
 Done
 * lock updateGraphs --> non reentrant functions, otherwise segmentation faults occur!
