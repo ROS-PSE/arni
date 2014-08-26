@@ -317,20 +317,22 @@ class HostStatisticsHandler( StatisticsHandler):
         Get the list of all Nodes running on the host.
         Update the __node_list
         """ 
-        nodes = {}
+        nodes = []
         for node_name in rosnode.get_node_names():
             node_api = rosnode.get_api_uri(rospy.get_master(), node_name)
             if self._id.replace('_','.') in node_api[2]:
+                nodes.append(node_name)
+
 
         for node in nodes:
             if node not in self.__node_list:
-                node_api = rosnode.get_api_uri(rospy.get_master(), node_name)
+                node_api = rosnode.get_api_uri(rospy.get_master(), node)
                 try:
                     pid = self.node_server_proxy(node_api)
                     if not pid:
                         continue
                     node_process = psutil.Process(pid)
-                    new_node = NodeStatisticsHandler(self._id, node_name, node_process)
+                    new_node = NodeStatisticsHandler(self._id, node, node_process)
                     self.__dict_lock.acquire()
                     self.__node_list[node] = new_node
                     self.__dict_lock.realease()
