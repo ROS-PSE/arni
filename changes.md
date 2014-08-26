@@ -10,8 +10,11 @@ Change
 => specifications now take **seuid**: {} instead of **type: name**: {} (see arni_processing/resources/testconfig.yaml)
 * Now uses list of dictionaries against UserErrors from invalid parameter names
 
+* /arni/aggregation_window (3) Length of time to aggregate topics
+
 ## MetadataStorage
 * automatic cleanup now depends on the rosparameters /arni/storage/auto_cleanup (True) and /arni/storage/cleanup_timer (30)[seconds]
+
 
 * AbstractItem needs a new method: get_identifier() --> this is needed in LogFilterProxy to determine the name of this element (at least I think so)
 * getInstance no longer needed in ROSModel (add additional classes), the singleton effect is implemented with metaclasses
