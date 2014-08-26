@@ -9,9 +9,8 @@ class AbstractItem(QObject):
     """ Provides a unified interface to access the items of the model
         INTERNAL: WARNING! Whenever the key-values at the beginning are not set right, the oddest things may occur!
     """
-
-    def __init__(self, seuid, parent=QObject(), *args):
-        #todo:doku is missing here
+    def __init__(self, seuid, parent=None, *args):
+            #todo:doku is missing here
         """Initializes theAbstractItem
 
         :param parent: the parent-object
@@ -19,29 +18,33 @@ class AbstractItem(QObject):
         """
         super(AbstractItem, self).__init__(parent)
 
+        # self.__data = {}
+        # self.__child_items = []
+        # self.__parent = parent
+        # self.seuid = seuid
+        # self.__type = "type"
+        # self._attributes = ['type', 'name', 'state', 'data', 'window_end']
+        # self._attributes.extend(args)
         self.__data = {}
         self.__child_items = []
         self.__parent = parent
         self.seuid = seuid
         self.__type = "type"
-        self._attributes = ['type', 'name', 'state', 'data', 'window_end']
+        self.__data_attribute = "data"
+        self._attributes = ['state', 'window_stop', 'window_start']
         self._attributes.extend(args)
 
         self.__last_update = Time.now()
 
-        # for item in self.__attributes:
-        #     self.__add_data_list(item)
-        #
-        # for item in args:
-        #     self.__add_data_list(item)
+        for item in self._attributes:
+            self._add_data_list(item)
 
 
     def get_seuid(self):
         return self.seuid
 
     def get_state(self):
-        return self.__data["state"][-1]
-
+        return self.__data['state'][-1]
 
     def _add_data_list(self, name):
         self.__data[name] = []
@@ -60,8 +63,8 @@ class AbstractItem(QObject):
         :param data: the data to append in key value form
         :type data: dict
         """
-        if "window_end" not in data:
-            data["window_end"] = Time.now()
+        if "window_stop" not in data:
+            data["window_stop"] = Time.now()
         for attribute in self._attributes:
             if attribute in data:
                 self.__data[attribute].append(data[attribute])
@@ -74,8 +77,9 @@ class AbstractItem(QObject):
     def __update_current_state(self):
         length = len(self.__data["state"])
         #print("__update_current_state")
-        for i in range(length - len(
-                (self.get_items_younger_than(self.__last_update, "window_end", "state"))["window_end"]), length):
+        # for i in range(length - len(
+        #         (self.get_items_younger_than(self.__last_update, "window_end", "state"))["window_end"]), length):
+        for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5)))["window_stop"]), length):
             if self.__data["state"][i] == "error":
                 self.__data["state"][-1] = "warning"
                 break
@@ -89,15 +93,17 @@ class AbstractItem(QObject):
         """
         for attribute in self._attributes:
             #todo: correct?
+            if attribute is 'state':
+	        self.__data[attribute].append("")
+	        continue
             try:
-                self.__data[attribute].append(data.getattr(attribute, None))
+                self.__data[attribute].append(getattr(data, attribute))
             except KeyError:
                 print("KeyError occurred when trying to access %s", attribute)
                 raise
         self.__update_current_state()
 
-
-    def update_data(self, data, window_start, window_end):
+    def update_data(self, data, window_start, window_stop):
         """
 
         :param data:
@@ -109,9 +115,9 @@ class AbstractItem(QObject):
         found = False
         #todo: are these all bad cases?
         for current in range(0, len(self.__data["window_start"])):
-            if window_end < self.__data[window_start][current]:
+            if window_stop < self.__data[window_start][current]:
                 continue
-            if window_start > self.__data[window_end][current]:
+            if window_start > self.__data[window_stop][current]:
                 continue
             found = True
             for attribute in self._attributes:
@@ -216,7 +222,7 @@ class AbstractItem(QObject):
         for key in self.__data:
             return_values[key] = []
 
-        list_of_time = self.__data["window_end"]
+        list_of_time = self.__data["window_stop"]
         for i in range(0, len(list_of_time)):
             # check timestamp
             #end_time = Time.now() - Duration(nsecs=time)
@@ -233,7 +239,7 @@ class AbstractItem(QObject):
         :param time: the upper bound
         :type time: rospy.Time
         """
-        list_of_time = self.__data["window_end"]
+        list_of_time = self.__data["window_stop"]
         for i in range(0, len(list_of_time)):
             # check timestamp
             #end_time = Time.now() - Duration(nsecs=time)
@@ -315,7 +321,20 @@ class AbstractItem(QObject):
         #                   len(list_of_time), i, len(self.__data[key]), key)
         #             raise
         #print("info" + " AbstractItem" + " get_items_younger_than took: " + str(int(str(Time.now() - now))/1000000) + " milliseconds")
-        return return_values
+
+        # list_of_time = self.__data["window_stop"]
+        # for i in range(0, len(list_of_time) - 1):
+        #     # check timestamp
+        #     #start_time = Time.now() - Duration(nsecs=time)
+        #     if list_of_time[i] > time:
+        #         for key in self.__data:
+        #             try:
+        #                 return_values[key].append(self.__data[key][i])
+        #             except IndexError:
+        #                 print("IndexError! length of the list %s, accessed index %s. length of data at given point %s, key is %s",
+        #                       len(list_of_time), i, len(self.__data[key]), key)
+        #                 raise
+        # return return_values
 
     def execute_action(self, action):
         """Executes a action on the current item like stop or restart. Calls to this method should be

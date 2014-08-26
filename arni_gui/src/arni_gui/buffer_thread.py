@@ -17,6 +17,7 @@ from rospy.service import ServiceException
 
 from helper_functions import UPDATE_FREQUENCY
 
+
 class BufferThread(Thread):
     """
     This thread should buffer the incoming data and regularly update the model and hence also the model.
@@ -50,7 +51,7 @@ class BufferThread(Thread):
         self.__timer.stop()
         del self.__timer
 
-    #todo: is this optimal=?
+    # todo: is this optimal=?
     def start(self):
         if not self.__running:
             self.__get_history()
@@ -86,11 +87,12 @@ class BufferThread(Thread):
             "/statistics_host", HostStatistics,
             self.__add_host_statistics_item)
 
+        print "ich hab abboniert"
 
-# def start(self):
-#     """
-#     Starts the thread and also the timer for regulary updates of the model. It is ensured via the running attribute that this function cannot be called multiple times.
-#     """
+    # def start(self):
+    #     """
+    #     Starts the thread and also the timer for regulary updates of the model. It is ensured via the running attribute that this function cannot be called multiple times.
+    #     """
 
 
     def __update_model(self, event):
@@ -101,8 +103,14 @@ class BufferThread(Thread):
         self.__model.update_model(self.__rated_statistics_buffer, self.__topic_statistics_buffer,
                                   self.__host_statistics_buffer, self.__node_statistics_buffer)
 
+    #print ""
+    #print self.__rated_statistics_buffer
+    #print self.__topic_statistics_buffer
+    #print self.__host_statistics_buffer
+    #print self.__node_statistics_buffer
 
     def __add_rated_statistics_item(self, item):
+        print("add rated")
         """
         Adds the item to the buffer list. Will be called whenever data from the topics is available.
 
@@ -115,18 +123,21 @@ class BufferThread(Thread):
         self.__rated_statistics_buffer_lock.release()
 
     def __add_topic_statistics_item(self, item):
+        print "add topic"
         """
         Adds the item to the buffer list. Will be called whenever data from the topics is available.
 
         :param item: the item which will be added to the buffer
         :type item: TopicStatistics
         """
+        print "bla"
         self.__topic_statistics_buffer_lock.acquire()
         self.__topic_statistics_buffer.append(item)
         self.__topic_statistics_buffer_lock.release()
 
 
     def __add_node_statistics_item(self, item):
+        print "node"
         """
         Adds the item to the buffer list. Will be called whenever data from the topics is available.
 
@@ -139,6 +150,7 @@ class BufferThread(Thread):
 
 
     def __add_host_statistics_item(self, item):
+        print "host"
         """
         Adds the item to the buffer list. Will be called whenever data from the topics is available.
 

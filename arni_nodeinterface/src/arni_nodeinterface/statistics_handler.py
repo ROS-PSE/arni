@@ -17,7 +17,7 @@ class StatisticsHandler(object):
         self._id = _id 
 
         #: Holds information about the current status.
-        self._status
+        #self._status
 
     @abstractmethod
     def measure_status(self):

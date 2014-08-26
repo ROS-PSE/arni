@@ -1,4 +1,5 @@
 import rospy
+import traceback
 import rosgraph_msgs
 import std_srvs.srv
 from std_srvs.srv import Empty
@@ -22,7 +23,7 @@ class MonitoringNode:
     def __init__(self):
         self.__metadata_storage = MetadataStorage()
         self.__specification_handler = SpecificationHandler()
-        self.pub = rospy.Publisher('/statistics_rated', arni_msgs.msg.RatedStatistics)
+        self.__publisher = rospy.Publisher('/statistics_rated', arni_msgs.msg.RatedStatistics, queue_size=50)
 
     def receive_data(self, data):
         """
@@ -34,9 +35,12 @@ class MonitoringNode:
         """
         try:
             seuid = SEUID(data)
+        except TypeError as msg:
+            rospy.logerr("received invalid message type:\n%s" % traceback.format_exc())
+        try:
             self.__process_data(data, str(seuid))
-        except TypeError:
-            pass
+        except Exception as msg:
+            rospy.logerr("an error occured processing the data:\n%s\n%s" % (msg, traceback.format_exc()))
 
     def __process_data(self, data, identifier):
         """
@@ -61,7 +65,10 @@ class MonitoringNode:
         :param data: The data to be published
         :type data: RatedStatistics
         """
-        self.pub(data)
+        try:
+            self.__publisher.publish(data)
+        except Exception as msg:
+            rospy.logerr(msg)
 
     def storage_server(self, request):
         """

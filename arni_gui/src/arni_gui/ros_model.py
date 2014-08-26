@@ -274,17 +274,22 @@ class ROSModel(QAbstractItemModel):
         #todo: remove in productional code
         #now = rospy.Time.now()
 
-        for item in topic_statistics:
-            self.__transform_topic_statistics_item(item)
-
-        for item in node_statistics:
-            self.__transform_node_statistics_item(item)
-
         for item in host_statistics:
             self.__transform_host_statistics_item(item)
+            print "host"
+        
+        for item in node_statistics:
+            self.__transform_node_statistics_item(item)
+            print "node"        
+            
+        for item in topic_statistics:
+            self.__transform_topic_statistics_item(item)
+            print "topic"
+
         #rating last because it needs the time of the items before
         for item in rated_statistics:
             self.__transform_rated_statistics_item(item)
+            print "rated"
 
         data_dict = {
             "state": "ok",
@@ -424,7 +429,18 @@ class ROSModel(QAbstractItemModel):
         # check if avaiable
         if topic_seuid not in self.__identifier_dict:
             #creating a topic item
-            parent = self.__identifier_dict[item.node_pub]
+            try: 
+                parent = self.__identifier_dict[item.node_pub]
+            except:
+	        host_item = HostItem("h!annonymos", self.__root_item)
+                self.__identifier_dict["h!annonymos"] = host_item
+                self.__root_item.append_child(host_item)
+                
+                node_item = NodeItem("n!" + item.node_pub, host_item)
+                self.__identifier_dict["n!" + item.node_pub] = node_item
+                host_item.append_child(node_item)
+                
+                parent = self.__identifier_dict["n!" + item.node_pub]
             if parent is None:
                 # having a problem, there is no node with the given name
                 raise UserWarning("The parent of the given topic statistics item cannot be found.")
@@ -460,11 +476,11 @@ class ROSModel(QAbstractItemModel):
         :type data: AbstractItem, Statistics, HostStatistics, RatedStatistics, StatisticHistory
         """
         node_item = None
-        if item.seuid not in self.__identifier_dict:
+        if item.node not in self.__identifier_dict:
             #create item
             node_item = NodeItem(item.seuid)
             self.__identifier_dict[item.seuid] = node_item
-            parent = self.__identifier_dict["h:" + item.host]
+            parent = self.__identifier_dict["h!" + item.host]
             if parent is None:
                 raise UserWarning("Parent of a given node was not found!")
             parent.append_child(node_item)

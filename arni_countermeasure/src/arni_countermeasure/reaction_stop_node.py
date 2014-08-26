@@ -12,7 +12,8 @@ class ReactionStopNode(Reaction):
         super(ReactionStopNode, self).__init__(node, autonomy_level)
 
     def execute_reaction(self):
-        service_name = "/execute_node_reaction/%s" % self._host
+        host_formatted = helper.underscore_ip(self._host)
+        service_name = "/execute_node_reaction/%s" % host_formatted
         try:
             if self._host is not None:
                 execute = rospy.ServiceProxy(

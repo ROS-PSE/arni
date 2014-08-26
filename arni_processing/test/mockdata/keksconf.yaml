@@ -1,0 +1,7 @@
+- n!/hufflepuff:
+    node_message_frequency_mean: [5, 20]
+    node_message_frequency_stddev: [0, 2]
+    node_cpu_usage_mean: [0, 1]
+- h!192_168_0_14:
+    cpu_usage_mean: [0, 10]
+    ram_usage_mean: [43, 60]

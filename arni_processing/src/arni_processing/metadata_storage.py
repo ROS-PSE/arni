@@ -23,7 +23,7 @@ class MetadataStorage:
         counter = 0
         for ident in self.storage.keys():
             for stamp in self.storage[ident].keys():
-                if rospy.Time.now() - stamp > self.duration:
+                if rospy.Time.now() - stamp > rospy.Duration(self.duration):
                     del self.storage[ident][stamp]
                     counter += 1
         rospy.logdebug("[MetadataStorage] Cleared storage, removed %s packages." % counter)

@@ -21,14 +21,14 @@ class TopicItem(AbstractItem):
         self._attributes.extend(["""topic",""" "window_start", "window_stop", "dropped_msgs", "traffic", "period_mean",
                       "period_stddev", "period_max", "stamp_age_mean", "stamp_age_stddev", "stamp_age_max"])
 
+        self.__new_attributes = []
         for item in self._attributes:
-            self._attributes.append(item + ".actual_value")
-            self._attributes.append(item + ".expected_value")
-            self._attributes.append(item + ".state")
+            self.__new_attributes.append(item + ".actual_value")
+            self.__new_attributes.append(item + ".expected_value")
+            self.__new_attributes.append(item + ".state")
 
-        for item in self._attributes:
+        for item in self.__new_attributes:
             self._add_data_list(item)
-
 #todo: make the append_data methods "intelligent" here? buffer data or similar?
         #yes, pleaaaaaaaaaaaaaaaaaaaaaase!
 
