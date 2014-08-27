@@ -5,7 +5,7 @@ import std_srvs.srv
 from std_srvs.srv import Empty
 import arni_msgs
 from arni_msgs.msg import HostStatistics, NodeStatistics, RatedStatistics
-from arni_msgs.srv import StatisticHistory
+from arni_msgs.srv import StatisticHistory, StatisticHistoryResponse
 from arni_core.helper import *
 from rosgraph_msgs.msg import TopicStatistics
 from metadata_storage import MetadataStorage
@@ -116,11 +116,11 @@ class MonitoringNode:
         Returns StorageContainer objects on request.
 
         :param request: The request containing a timestamp and an identifier.
-        :type request: MetadataStorageRequest.
-        :returns: MetadataStorageResponse
+        :type request: StatisticHistoryRequest.
+        :returns: StatisticHistoryResponse
         """
         data = self.__metadata_storage.get("*", request.timestamp)
-        response = StatisticHistory()
+        response = StatisticHistoryResponse()
         for container in data:
             if container.identifier[0] == "h":
                 response.host_statistics.append(container.data_raw)
@@ -143,4 +143,5 @@ class MonitoringNode:
         rospy.Subscriber('/statistics_host', arni_msgs.msg.HostStatistics, self.receive_data)
         rospy.Subscriber('/statistics_node', arni_msgs.msg.NodeStatistics, self.receive_data)
         rospy.Service('~reload_specifications', std_srvs.srv.Empty, self.__specification_handler.reload_specifications)
+        rospy.Service('~get_statistic_history', arni_msgs.srv.StatisticHistory, self.storage_server)
         rospy.spin()

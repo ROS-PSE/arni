@@ -42,7 +42,7 @@ class MetadataStorage:
         Stores a given StorageContainer object.
 
         :param container: The data to store.
-        :type container StorageContainer
+        :type container: StorageContainer
         """
         if not container.identifier in self.storage:
             self.storage[container.identifier] = {}
