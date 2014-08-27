@@ -2,7 +2,7 @@ from python_qt_binding.QtGui import QBrush, QColor
 
 # define constants
 # update frequency of the model in nsecs
-UPDATE_FREQUENCY = 100000000
+UPDATE_FREQUENCY = 1000000000
 
 
 def choose_brush(index):

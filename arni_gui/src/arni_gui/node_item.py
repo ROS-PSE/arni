@@ -14,11 +14,12 @@ class NodeItem(AbstractItem):
         :param parent: the parent-item
         :type parent: AbstractItem
         """
-        
         #add the content
         super(NodeItem, self).__init__(seuid, parent)
         self._type = "node"
         self.__parent = parent
+
+        self._type = "node"
 
         self._attributes.extend(["node_cpu_usage_mean", "node_cpu_usage_stddev", "node_cpu_usage_max",
                       "node_cpu_usage_core_mean",

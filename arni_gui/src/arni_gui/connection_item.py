@@ -67,9 +67,9 @@ class ConnectionItem(AbstractItem):
         content += "period_mean:" + str(data_dict["period_mean"]) + "<br>"
         content += "period_stddev" + str(data_dict["period_stddev"]) + "<br>"
         content += "period_max: " + str(data_dict["period_max"]) + "<br>"
-        content += "stamp_age_mean: " + str(data_dict["stamp_age_mean"]) + "<br>"
-        content += "stamp_age_stddev: " + str(data_dict["stamp_age_stddev"]) + "<br>"
-        content += "stamp_age_max: " + str(data_dict["stamp_age_max"]) + "<br>"
+        #content += "stamp_age_mean: " + str(data_dict["stamp_age_mean"]) + "<br>"
+        #content += "stamp_age_stddev: " + str(data_dict["stamp_age_stddev"]) + "<br>"
+        #content += "stamp_age_max: " + str(data_dict["stamp_age_max"]) + "<br>"
 
         content += "</p>"
         return content

@@ -63,7 +63,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
             if self.__show_topics is True:
                 if data == "topic":
                     correct_type = True
-                    break 
+                    break
 
         if correct_type is False:
             return False
@@ -85,7 +85,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
         :returns: bool
         """
         #todo:is here more logic needed e.g. do we not only use strings and numeric values?
-        return left < right;
+        return left < right
 
 
     def show_hosts(self, show_hosts):

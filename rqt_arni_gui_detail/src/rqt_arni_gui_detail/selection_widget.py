@@ -91,14 +91,14 @@ class SelectionWidget(QWidget):
         self.range_combo_box.currentIndexChanged.connect(self.__on_range_combo_box_index_changed)
 
 
-    def set_selected_item(self, selected_item):
+    def set_selected_item(self, index):
         """
         Sets the selected item.
 
         :param selected_item: the selected item
-        :type selected_item: AbstractItem
+        :type selected_item: QModelIndex
         """
-        self.__selected_item = selected_item
+        self.__selected_item = index.internalPointer()
         self.__on_changed_selected_item(self.__selected_item)
 
 
@@ -181,12 +181,7 @@ class SelectionWidget(QWidget):
                                                   'block_red.png'))
                 self.status_light_label.setPixmap(pixmap)
 
-            content = ""
-
-            #TODO fil content
-            content += "bandwith_mean: " + str(data_dict["bandwith_mean"]) + "<br>"
-            content += "bandwith_stddev: " + str(data_dict["bandwith_stddev"]) + "<br>"
-            content += "bandwith_meanmax: " + str(data_dict["bandwith_max"]) + "<br>"
+            content = self.__selected_item.get_detailed_data()
 
             self.information_tab_text_browser.setHtml(content)
         else:
