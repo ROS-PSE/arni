@@ -248,6 +248,7 @@ class SpecificationHandler:
         self.__limit_cache = {}
         self.__specifications = {}
         self.__load_specifications()
+        return []
 
     def __init__(self):
         """
