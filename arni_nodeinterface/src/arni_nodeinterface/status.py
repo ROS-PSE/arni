@@ -104,6 +104,7 @@ class Status(object):
 
         self.__calc_cpu_stats()
         self.__calc_ram_stats()
+        self.__calc_gpu_stats()
 
         self.calc_stats_specific()
         return self._stats_dict
@@ -126,6 +127,13 @@ class Status(object):
                                                     for i in cpu_usage_core]
         self._stats_dict['cpu_usage_core_max'] = [i.max
                                                     for i in cpu_usage_core]
+
+    def __calc_gpu_stats(self):
+
+        gpu_usage = self.calc_stat_tuple(self._gpu_usage)
+        self._stats_dict['gpu_usage_mean'] = gpu_usage.mean
+        self._stats_dict['gpu_usage_stddev'] = gpu_usage.stddev
+        self._stats_dict['gpu_usage_max'] = gpu_usage.max
 
 
     def __calc_ram_stats(self):

@@ -107,8 +107,8 @@ class HostStatisticsHandler( StatisticsHandler):
         #RAM
         self._status.add_ram_usage(psutil.virtual_memory().percent)
         #temp
-        sensor_list = []
-        self.get_sensors(sensor_list)    
+        
+        #self.get_sensors()    
 
         
         #Bandwidth and message frequency
@@ -176,6 +176,7 @@ class HostStatisticsHandler( StatisticsHandler):
         stats = self.__calc_statistics()
         self.__dict_lock.acquire()
         rospy.loginfo('publishing host')
+        rospy.loginfo(stats)
         self.__publish_nodes()
         self.__dict_lock.release()
         self.pub.publish(stats)
@@ -265,7 +266,13 @@ class HostStatisticsHandler( StatisticsHandler):
         hs.drive_read = stats_dict['drive_read_mean']
         #hs.drive_read_stddev = stats_dict['drive_read_stddev']
         #hs.drive_read_max = stats_dict['drive_read_max']
-    
+
+        hs.gpu_temp_mean = stats_dict['gpu_temp_mean']
+        hs.gpu_temp_stddev = stats_dict['gpu_temp_stddev']
+        hs.gpu_temp_max = stats_dict['gpu_temp_max']
+        hs.gpu_usage_mean = stats_dict['gpu_usage_mean']
+        hs.gpu_usage_stddev = stats_dict['gpu_usage_stddev']
+        hs.gpu_usage_max = stats_dict['gpu_usage_max']
 
         return hs
 
@@ -333,9 +340,8 @@ class HostStatisticsHandler( StatisticsHandler):
                     self.__dict_lock.acquire(True)
                     self.__node_list[node] = new_node
                     self.__dict_lock.release()
-                except:
-                    rospy.loginfo('Node %s unreachable'%node)
-                    #self.__dict_lock.release()
+                except psutil.NoSuchProcess:
+                    rospy.loginfo('pid %d does not exit'%pid)
                     continue
         
         self.__dict_lock.acquire()
@@ -356,6 +362,7 @@ class HostStatisticsHandler( StatisticsHandler):
             code,msg,pid = xmlrpclib.ServerProxy(node_api[2]).getPid('/NODEINFO')
             return pid
         except socket.Error:
+            rospy.loginfo('Node %s unreachable'%node)
             return False
 
     def update_nodes(self):
@@ -366,16 +373,22 @@ class HostStatisticsHandler( StatisticsHandler):
         for node in self.__node_list:
             Thread(target = self.__node_list[node].measure_status).start()
 
-    def get_sensors(self, sensor_list):
-
+    def get_sensors(self):
+        
+        temp_core = []
         sensors.init()
         try:
             for chip in sensors.iter_detected_chips():
                 for feature in chip:
                     if feature.name.startswith(b'temp'):
-                        sensor_list.append(feature)
+                        if feature.label.startswith('Physical') or ('CPU'):
+                            self._status.add_cpu_temp(feature.get_value())
+                        elif feature.label.startswith('Core'):
+                            temp_core.append(feature.get_value())
         except sensors.SensorsError:
             pass
+        self._status.add_cpu_temp_core(temp_core)
+       
 
     @property 
     def update_intervall(self):
