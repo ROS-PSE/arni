@@ -21,5 +21,5 @@ def choose_brush(index):
         return QColor(255, 165, 0)
     elif index.data() == "error":
         return QColor(255, 0, 0)
-    else:
-        return QColor(255, 255, 255)
+
+    return None

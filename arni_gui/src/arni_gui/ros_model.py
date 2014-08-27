@@ -433,16 +433,24 @@ class ROSModel(QAbstractItemModel):
                 parent = self.__identifier_dict[item.node_pub]
             except KeyError:
                 host_seuid = "h" + SEUID_DELIMITER + self.__find_host.get_host(item.node_pub)
-                host_item = HostItem(host_seuid, self.__root_item)
-                self.__identifier_dict[host_seuid] = host_item
-                self.__root_item.append_child(host_item)
-                self.add_log_entry("info", Time.now(), "ROSModel", "Added a new HostItem with name " + host_seuid)
-
+                host_item = None
+                if host_seuid not in self.__identifier_dict:
+                    host_item = HostItem(host_seuid, self.__root_item)
+                    self.__identifier_dict[host_seuid] = host_item
+                    self.__root_item.append_child(host_item)
+                    self.add_log_entry("info", Time.now(), "ROSModel", "Added a new HostItem with name " + host_seuid)
+                else:
+                    host_item = self.__identifier_dict[host_seuid] 
+                
                 node_seuid = "n" + SEUID_DELIMITER + item.node_pub
-                node_item = NodeItem(node_seuid, host_item)
-                self.__identifier_dict[node_seuid] = node_item
-                host_item.append_child(node_item)
-                self.add_log_entry("info", Time.now(), "ROSModel", "Added a new NodeItem with name " + node_seuid)
+                node_item = None
+                if node_seuid not in self.__identifier_dict:
+		    node_item = NodeItem(node_seuid, host_item)
+                    self.__identifier_dict[node_seuid] = node_item
+                    host_item.append_child(node_item)
+                    self.add_log_entry("info", Time.now(), "ROSModel", "Added a new NodeItem with name " + node_seuid)
+                else:
+		    node_item = self.__identifier_dict[node_seuid]             
                 
                 parent = self.__identifier_dict["n" + SEUID_DELIMITER + item.node_pub]
             if parent is None:
