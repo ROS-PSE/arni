@@ -142,11 +142,14 @@ class TreeWidget(QWidget):
         if activated is 2:
             #todo: does this match the right positions?
             self.__filter_proxy.setFilterRegExp(QRegExp("error"))
+            self.__filter_proxy.setFilterKeyColumn(2)
+        else:
+	    self.__filter_proxy.setFilterRegExp(QRegExp(""))
 
 
     def __on_apply_push_button_clicked(self):
         """Filters the content in the box according to the content of the filter_line_edit."""
-        #self.__filter_proxy.setFilterRegExp(QRegExp(".*" + self.filter_line_Edit.text() + ".*"))
+        self.__filter_proxy.setFilterRegExp(QRegExp(".*" + self.filter_line_Edit.text() + ".*"))
 
 
     def __on_minus_push_button_clicked(self):
