@@ -24,6 +24,7 @@ class SpecificationHandler:
                 for seuid in o.keys():
                     if SEUID().is_valid(seuid):
                         spec = Specification()
+                        spec.seuid = seuid
                         for k in o[seuid].keys():
                             spec.add_tuple((k, o[seuid][k]))
                         self.__specifications[seuid] = spec
@@ -198,6 +199,9 @@ class SpecificationHandler:
     def __get_limits(self, specification, field):
         if specification is None or field is None:
             return None
+        key = "%s_%s" % (specification.seuid, field)
+        if key in self.__limit_cache.keys():
+            return self.__limit_cache[key]
         try:
             specs = specification.get(field)[1]
             limits = specs[0:2]
@@ -208,8 +212,11 @@ class SpecificationHandler:
                 r = limits[1]
                 limits[0] = m - m * r
                 limits[1] = m + m * r
-        except TypeError, AttributeError:
+        except TypeError:
             limits = None
+        except AttributeError:
+            limits = None
+        self.__limit_cache[key] = limits
         return limits
 
     def __compare(self, value, reference):
@@ -233,11 +240,11 @@ class SpecificationHandler:
         Reloads all specifications loaded into the namespace /arni/specifications
         """
         self.__specifications = {}
+        self.__limit_cache = {}
         self.__load_specifications()
 
     def __init__(self):
         """
         Initiates the SpecificationHandler kicking off the loading of available specifications.
         """
-        self.__specifications = {}
-        self.__load_specifications()
+        self.reload_specifications()

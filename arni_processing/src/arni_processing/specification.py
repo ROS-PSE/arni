@@ -55,6 +55,7 @@ class Specification:
         """
         for t in tuples:
             self.add_tuple(t)
+        self.seuid = ""
 
     def __str__(self):
         for t in self.__values:
