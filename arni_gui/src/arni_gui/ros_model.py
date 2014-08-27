@@ -30,6 +30,8 @@ from helper_functions import UPDATE_FREQUENCY
 
 from buffer_thread import *
 
+from arni_core.host_lookup import HostLookup
+
 
 class QAbstractItemModelSingleton(Singleton, type(QAbstractItemModel)):
     """
@@ -77,6 +79,8 @@ class ROSModel(QAbstractItemModel):
         self.add_log_entry("error", Time.now(), "ROSModel", "Just testing")
 
         self.__seuid_helper = SEUID()
+        
+        self.__find_host = HostLookup()
 
 
 
@@ -428,7 +432,7 @@ class ROSModel(QAbstractItemModel):
             try: 
                 parent = self.__identifier_dict[item.node_pub]
             except KeyError:
-                host_seuid = "h" + SEUID_DELIMITER + "anonymous"
+                host_seuid = "h" + SEUID_DELIMITER + self.__find_host.get_host(item.node_pub)
                 host_item = HostItem(host_seuid, self.__root_item)
                 self.__identifier_dict[host_seuid] = host_item
                 self.__root_item.append_child(host_item)

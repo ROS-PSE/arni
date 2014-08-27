@@ -47,6 +47,7 @@ class ArniGuiDetail(Plugin):
         self.__tree_widget = TreeWidget(self.__model, self.__selection_widget)
         context.add_widget(self.__tree_widget)
         self.__tree_widget.connect_slots()
+        self.__tree_widget.show_erroneous_check_box.setCheckState(0)
 
         self.__selection_widget.connect_slots()
         #todo: does this work as expected?

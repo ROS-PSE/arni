@@ -37,7 +37,7 @@ class TreeWidget(QWidget):
         self.__filter_proxy = ItemFilterProxy(self)
 
         self.__filter_proxy.setSourceModel(self.__model)
-        self.item_tree_view.setModel(self.__filter_proxy)
+        self.item_tree_view.setModel(self.__model)#self.__filter_proxy)
         #self.item_tree_view.setModel(self.__model)
         
         self.__filter_proxy.setDynamicSortFilter(True)
@@ -139,14 +139,18 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
+        print activated
         if activated is 2:
             #todo: does this match the right positions?
             self.__filter_proxy.setFilterRegExp(QRegExp("error"))
+            self.__filter_proxy.setFilterKeyColumn(2)
+        else:
+	    self.__filter_proxy.setFilterRegExp(QRegExp(""))
 
 
     def __on_apply_push_button_clicked(self):
         """Filters the content in the box according to the content of the filter_line_edit."""
-        #self.__filter_proxy.setFilterRegExp(QRegExp(".*" + self.filter_line_Edit.text() + ".*"))
+        self.__filter_proxy.setFilterRegExp(QRegExp(".*" + self.filter_line_Edit.text() + ".*"))
 
 
     def __on_minus_push_button_clicked(self):

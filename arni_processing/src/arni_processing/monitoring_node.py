@@ -28,10 +28,10 @@ class MonitoringNode:
         self.__aggregate = []
         self.__aggregate_start = rospy.Time.now()
         self.__processing_enabled = rospy.get_param("/enable_statistics", False)
-        rospy.Timer(rospy.Duration(5), self.__publish_data)
+        rospy.Timer(rospy.Duration(5), self.__publish_queue)
         rospy.Timer(rospy.Duration(rospy.get_param("/arni/check_enabled_interval", 10)), self.__update_enabled)
 
-    def __update_enabled(self):
+    def __update_enabled(self, event):
         self.__processing_enabled = rospy.get_param("/enable_statistics", False)
 
     def receive_data(self, data):

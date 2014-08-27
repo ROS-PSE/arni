@@ -168,19 +168,23 @@ class SelectionWidget(QWidget):
             if self.__previous_state is not self.__state:
                 self.__previous_state = self.__state
                 if self.__state == "ok":
-                    self.status_text_line_edit.setText("Current status: ok")
+                    self.current_status_label.setText("online")
+                    self.host_node_label.setText("Current status: ok")
                     pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
                                                   'block_green.png'))
-                # elif self.__state == "warning":
-                #     self.status_text_line_edit.setText("Current status: warning")
+                elif self.__state == "warning":
+                    self.current_status_label.setText("online")
+                    self.host_node_label.setText("Current status: warning")
+                    pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
+                                                  'block_red.png'))
                 #     pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
                 #                                   'light_orange.png'))
                 else:
-                    self.status_text_line_edit.setText("Current status: error")
+                    self.host_node_label.setText("Current status: error")
                     pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
                                                   'block_red.png'))
                 self.status_light_label.setPixmap(pixmap)
-
+            print("here")
             content = self.__selected_item.get_detailed_data()
 
             self.information_tab_text_browser.setHtml(content)
