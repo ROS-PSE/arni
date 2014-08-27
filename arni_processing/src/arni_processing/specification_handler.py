@@ -30,7 +30,7 @@ class SpecificationHandler:
                         self.__specifications[seuid] = spec
                     else:
                         rospy.logdebug("[SpecificationHandler][__load_specifications] %s is not a valid seuid." % seuid)
-        except KeyError as err:
+        except KeyError:
             pass
         rospy.loginfo("[SpecificationHandler] Loaded %s parameters." % str(len(self.__specifications.keys())))
 
@@ -92,7 +92,7 @@ class SpecificationHandler:
         # exclude = ("window_start", "window_stop")
         # for x in exclude:
         # if x in fields:
-        #         fields.remove(x)
+        # fields.remove(x)
         if identifier[0] == "c":
             fields.append("bandwidth")
         for field in fields:
@@ -123,15 +123,18 @@ class SpecificationHandler:
             result.add_value(field, current_obj["actual"], current_obj["expected"], current_obj["state"])
         return result
 
-    def compare_topic(self, data=[]):
+    def compare_topic(self, data=None):
         """
         Compares Messages about one topic
 
         :param data: List of Statistics messages
         :return: list of RatedStatistics messages
         """
+        if not data:
+            data = []
         by_topic = {}
         result = []
+        delivered_msgs_set = False
         for message in data:
             seuid = SEUID(message)
             if not seuid.get_seuid("topic") in by_topic.keys():
@@ -152,7 +155,9 @@ class SpecificationHandler:
                                                                    by_topic[seuid.get_seuid("topic")]["window_min"])
             by_topic[seuid.get_seuid("topic")]["window_max"] = max(message.window_stop,
                                                                    by_topic[seuid.get_seuid("topic")]["window_max"])
-            # by_topic[seuid.get_seuid("topic")]["delivered_msgs"] += message.delivered_msgs * scale
+            if hasattr(message, "delivered_msgs"):
+                delivered_msgs_set = True
+                by_topic[seuid.get_seuid("topic")]["delivered_msgs"] += message.delivered_msgs * scale
             by_topic[seuid.get_seuid("topic")]["dropped_msgs"] += message.dropped_msgs * scale
             by_topic[seuid.get_seuid("topic")]["traffic"] += message.traffic * scale
             by_topic[seuid.get_seuid("topic")]["stamp_age_max"] = max(message.stamp_age_max,
@@ -173,8 +178,10 @@ class SpecificationHandler:
             fields = ["dropped_msgs", "traffic", "traffic_per_second", "stamp_age_max", "stamp_age_mean", "packages",
                       "packages_per_second"]
             fields.remove("traffic")
+            if delivered_msgs_set:
+                fields.append("delivered_msgs")
+                fields.append("delivered_msgs_per_second")
             alt_names = {"traffic_per_second": "bandwidth"}
-            # fields = ("delivered_msgs", "dropped_msgs", "traffic", "stamp_age_max", "stamp_age_mean")
             for f in fields:
                 re = RatedStatisticsEntity()
                 re.statistic_type = f
@@ -193,7 +200,6 @@ class SpecificationHandler:
                 re.state = [self.__compare(value, limits)]
                 r.rated_statistics_entity.append(re)
             result.append(r)
-            # print(result)
         return result
 
     def __get_limits(self, specification, field):
@@ -225,8 +231,8 @@ class SpecificationHandler:
                 not isinstance(reference[1], (int, long, float, complex)):
             return 2
         reference.sort()
-        r = (reference[0] - reference[1]) / 2
-        m = reference[0] + r
+        # r = (reference[0] - reference[1]) / 2
+        # m = reference[0] + r
         if reference[0] > value:
             state = 1
         elif reference[1] < value:
@@ -235,16 +241,18 @@ class SpecificationHandler:
             state = 3
         return state
 
-    def reload_specifications(self):
+    def reload_specifications(self, msg=None):
         """
         Reloads all specifications loaded into the namespace /arni/specifications
         """
-        self.__specifications = {}
         self.__limit_cache = {}
+        self.__specifications = {}
         self.__load_specifications()
 
     def __init__(self):
         """
         Initiates the SpecificationHandler kicking off the loading of available specifications.
         """
+        self.__limit_cache = {}
+        self.__specifications = {}
         self.reload_specifications()
