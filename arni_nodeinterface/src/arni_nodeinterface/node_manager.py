@@ -45,10 +45,7 @@ class NodeManager(object):
         if 'successfully' in self.stop_node(node.id):
             try:
                 rospy.logdebug(' '.join(cmd))
-                #p = psutil.Popen('roslaunch %s'%cmd[1])
-                #rospy.logdebug(psutil.pid_exists(p.pid))
-                p = subprocess.Popen(' '.join(cmd), shell = True, stdout = subprocess.PIPE)
-                #rospy.logdebug(p.communicate()[0])
+                subprocess.Popen(' '.join(cmd), shell = True, stdout = subprocess.PIPE)
                 return 'Restarted %s'%node.id
             except OSError:
                 return 'Failed to restart %s'%node.id

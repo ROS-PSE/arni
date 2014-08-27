@@ -6,12 +6,22 @@ from threading import Thread
 import arni_msgs
 from arni_msgs.msg import HostStatistics
 from arni_msgs.srv import NodeReaction
-import psutil
 import xmlrpclib
 import socket
 import rosnode
 import rospy
-import sensors
+import sys
+try:
+    import sensors
+    import psutil
+except ImportError:
+    sys.stderr.write('External Packages PySensors and Psutil must be installed')    
+    sys.exit(1)
+
+if psutil.__version__ < '2.1.1':
+    sys.stderr.write('Installed psutil version is outdated. Update Psutil to 2.1.1 or newer')
+    sys.exit(1)
+    
 import threading
 
 class HostStatisticsHandler( StatisticsHandler):
@@ -94,7 +104,6 @@ class HostStatisticsHandler( StatisticsHandler):
         Collects information about the host's current status using psutils.
         Triggered periodically.
         """
-        rospy.loginfo('measuring hoststatus')
         self.__lock.acquire()
         #update node list
         self.__dict_lock.acquire()
@@ -175,8 +184,6 @@ class HostStatisticsHandler( StatisticsHandler):
         self._status.time_end = rospy.Time.now()
         stats = self.__calc_statistics()
         self.__dict_lock.acquire()
-        rospy.loginfo('publishing host')
-        #rospy.loginfo(stats)
         self.__publish_nodes()
         self.__dict_lock.release()
         self.pub.publish(stats)
@@ -323,14 +330,14 @@ class HostStatisticsHandler( StatisticsHandler):
         """ 
         nodes = []
         for node_name in rosnode.get_node_names():
-            node_api = rosnode.get_api_uri(rospy.get_master(), node_name)
+            node_api = rosnode.get_api_uri(rospy.get_master(), node_name, skip_cache = True)
             if self._id in node_api[2]:
                 nodes.append(node_name)
 
 
         for node in nodes:
             if node not in self.__node_list:
-                node_api = rosnode.get_api_uri(rospy.get_master(), node)
+                node_api = rosnode.get_api_uri(rospy.get_master(), node, skip_cache = True)
                 try:
                     rospy.logdebug('Getting Nodeinfo %s'%node)
                     pid = self.node_server_proxy(node_api, node)
@@ -359,9 +366,11 @@ class HostStatisticsHandler( StatisticsHandler):
 
 
     def node_server_proxy(self, node_api, node):
-        socket.setdefaulttimeout(3)
+        socket.setdefaulttimeout(1)
         try:
+            rospy.logdebug('Node %s at API %s'%(node , node_api))
             code,msg,pid = xmlrpclib.ServerProxy(node_api[2]).getPid('/NODEINFO')
+           
             return pid
         except socket.error:
             rospy.logdebug('Node %s is unreachable'%node)

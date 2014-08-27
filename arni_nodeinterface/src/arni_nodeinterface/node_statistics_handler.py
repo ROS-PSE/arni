@@ -40,7 +40,6 @@ class NodeStatisticsHandler(StatisticsHandler):
         using psutils and rospy.statistics
         Triggered periodically.
         """
-        rospy.loginfo('measuring nodestatus %s'%self._id)
         try:        
             # CPU
             self._status.add_cpu_usage(self.__node_process.cpu_percent())
@@ -77,10 +76,8 @@ class NodeStatisticsHandler(StatisticsHandler):
 
         :topic: Topic to which the data should be published.
         """
-        #rospy.loginfo('publishing node %s'%self._id)
         self._status.time_end = rospy.Time.now()
         stats = self.__calc_statistics()
-        #rospy.loginfo(stats)
         self.pub.publish(stats)
         self._status.reset()
         self._status.time_start = rospy.Time.now()
@@ -140,9 +137,7 @@ class NodeStatisticsHandler(StatisticsHandler):
         """
         if self._id in stats.node_pub:
             dur = stats.window_stop - stats.window_start
-
             self._status.add_node_bandwidth(stats.traffic / dur.to_sec())
-
             self._status.add_node_msg_freq(stats.period_mean.to_sec())
 
     def __cpu_usage_per_core(self):
