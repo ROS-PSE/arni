@@ -2,7 +2,7 @@ from abstract_item import AbstractItem
 from python_qt_binding.QtCore import QObject
 
 from arni_core.host_lookup import HostLookup
-from arni_msg.srv import NodeReaction
+from arni_msgs.srv import NodeReaction
 
 
 
@@ -69,7 +69,10 @@ class NodeItem(AbstractItem):
             rospy.logdebug(
                 "sending command '%s' to node %s returned: %s"
                 % (self.__command, self._node, resp.returnmessage))
-
+        except ServiceException:
+            rospy.logdebug(
+                "could not stop node %s, service %s not found"
+                % (self._node, service_name))
 
     def get_detailed_data(self):
         """
