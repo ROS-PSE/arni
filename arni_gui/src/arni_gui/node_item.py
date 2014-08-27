@@ -90,3 +90,6 @@ class NodeItem(AbstractItem):
         :returns: str[]
         """
         return ["node_cpu_usage_mean", "node_bandwidth_mean"]
+
+    def get_short_data(self):
+        return "NodeItem"

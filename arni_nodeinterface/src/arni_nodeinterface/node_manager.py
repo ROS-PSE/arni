@@ -3,6 +3,7 @@ import subprocess
 import rosnode
 import roslaunch
 import psutil
+import rospy
 
 class NodeManager(object):
     """ 
@@ -39,36 +40,15 @@ class NodeManager(object):
         :type node_id: NodeStatisticsHandler.
         :returns: String
         """
-        """pipe = subprocess.Popen('ps -p %s -o cmd'%node.get_pid(),
-                                                shell = True, stdout = subprocess.PIPE).stdout
-                                out = pipe.read()
-                        
-                                path = out.split('/',6)
-                                arguments = None
-                                if len(path[6].split(' ')) == 1:
-                                    package = path[5]
-                                    exe = path[6]
-                                elif len(path[6].split(' ')) > 1:
-                                    package = path[5]
-                                    exe = path[6].split(' ')[0]
-                                    arguments = path[6].split(' ',1)[1]
-                        
-                                new_node = roslaunch.core.Node(package, exe, args = arguments)
-                                self.stop_node(node.id)
-                                
-                                try:
-                                    launch = roslaunch.scriptapi.ROSLaunch()
-                                    launch.start()
-                                    node_proc = launch.launch(new_node)
-                        
-                                    return 'Restarted Node' + node.id
-                                except roslaunch.core.RLException:
-                                    return 'failed to launch new Node'"""
-        proc = node.node_proc
+        proc = node.node_process
         cmd = proc.cmdline()
         if 'successfully' in self.stop_node(node.id):
             try:
-                psutil.Popen(cmd)
+                rospy.logdebug(' '.join(cmd))
+                #p = psutil.Popen('roslaunch %s'%cmd[1])
+                #rospy.logdebug(psutil.pid_exists(p.pid))
+                p = subprocess.Popen(' '.join(cmd), shell = True, stdout = subprocess.PIPE)
+                #rospy.logdebug(p.communicate()[0])
                 return 'Restarted %s'%node.id
             except OSError:
                 return 'Failed to restart %s'%node.id

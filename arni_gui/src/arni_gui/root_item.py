@@ -83,3 +83,6 @@ class RootItem(AbstractItem):
                 "cpu_usage_mean": "%",
                 "total_traffic": "%"
                 }
+
+    def get_short_data(self):
+        return NotImplementedError()

@@ -209,7 +209,9 @@ class AbstractItem(QObject):
         if "state" in data:
             if data["state"] is "error":
                 if not self.__state:
-		    self.__state.append(None)
+
+                    #todo: this is not good... FIX IT
+                    self.__state.append(None)
                 self.__state[-1] = "error"
         #if found is not True:
         #    raise UserWarning("No matching time window was found. Could not update the AbstractItem")
@@ -288,7 +290,13 @@ class AbstractItem(QObject):
                 if key is 'name':
                     return self.seuid
                 elif key is 'type':
-                    return self._type
+
+                    return self.__type
+                elif key is 'data':
+                    return self.get_short_data()
+                elif key is 'state':
+                    if self.__state:
+                        return self.__state[-1]
                 else:
                     if key in self.__data:
                         if self.__data[key]:
@@ -297,7 +305,7 @@ class AbstractItem(QObject):
                         if self.__rated_data[key]:
                             return self.__rated_data[key][-1]
                     else:
-                        raise KeyError("item" + key + "was not found")
+                        raise KeyError("item " + key + "was not found")
 
         return_dict = {}
         # return dict of latest item
@@ -307,7 +315,10 @@ class AbstractItem(QObject):
         for entry in self.__rated_data:
             if self.__rated_data[entry]:
                 return_dict[entry] = self.__rated_data[entry][-1]
-        return_dict["state"] = self.__state[-1]
+        if self.__state:
+            return_dict["state"] = self.__state[-1]
+        else:
+            return_dict["state"] = "state unknown"
         return return_dict
 
 

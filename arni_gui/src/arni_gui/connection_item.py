@@ -83,3 +83,6 @@ class ConnectionItem(AbstractItem):
         """
         #todo: append more items here
         return ["traffic", "dropped_msgs", "period_mean"]
+
+    def get_short_data(self):
+        return "connection_item"

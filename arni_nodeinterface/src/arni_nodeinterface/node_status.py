@@ -1,5 +1,6 @@
 from status import Status
 from collections import namedtuple
+import rospy
 
 statistic_tuple = namedtuple('statistic', ['mean', 'stddev','max'])
 
@@ -94,10 +95,9 @@ class NodeStatus(Status):
         self._stats_dict['node_bandwidth_max'] = node_bandwidth.max
 
     def __calc_drive_stats(self):
-
         node_read = self.calc_stat_tuple(self.__node_read)
         node_write = self.calc_stat_tuple(self.__node_write)
-
+    
         self._stats_dict['node_read_mean'] = node_read.mean
         self._stats_dict['node_read_stddev'] = node_read.stddev
         self._stats_dict['node_read_max'] = node_read.max

@@ -204,7 +204,7 @@ class ROSModel(QAbstractItemModel):
         child_item = index.internalPointer()
         parent_item = child_item.parent()
 
-        if parent_item == self.rootItem:
+        if parent_item == self.__root_item:
             return QModelIndex()
 
         return self.createIndex(parent_item.row(), 0, parent_item)

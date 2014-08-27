@@ -17,11 +17,13 @@ class MetadataStorage:
         last_cleanup = rospy.Time.now()
         sleeptime = rospy.Duration(0.5)
         while not rospy.is_shutdown():
-            if self.auto_cleanup and rospy.Time.now() - last_cleanup >= rospy.Duration(self.cleanup_timer):
+            if rospy.get_param('/arni/storage/auto_cleanup', True) and \
+                    not rospy.Duration(
+                            rospy.get_param('/arni/storage/cleanup_timer', 30)) > rospy.Time.now() - last_cleanup:
                 last_cleanup = rospy.Time.now()
                 self.__clean_up()
-            rospy.sleep(sleeptime)    
-                
+            rospy.sleep(sleeptime)
+
 
     def __clean_up(self):
         """
@@ -79,8 +81,6 @@ class MetadataStorage:
         self.storage = {}
         self.duration = rospy.get_param('/arni/storage/timeout', duration)
         self.timer_running = True
-        self.auto_cleanup = rospy.get_param('/arni/storage/auto_cleanup', True)
-        self.cleanup_timer = rospy.get_param('/arni/storage/cleanup_timer', 30)
         thr = threading.Thread(target=self.__cleanup_timer)
         thr.start()
 
