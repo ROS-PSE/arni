@@ -28,7 +28,7 @@ class AbstractItem(QObject):
         self.__child_items = []
         self.__parent = parent
         self.seuid = seuid
-        self.__type = "type"
+        self._type = "type"
         self.__data_attribute = "data"
         self.__state = []
         # WARNING!!! Child classes have to call the append_data_list method, otherwise will not work!!!
@@ -464,7 +464,7 @@ class AbstractItem(QObject):
         try:
             list_of_time = self.__data["window_stop"]
         except KeyError:
-            print(str(type(self)) + str(self.__type) + " " + self.get_seuid() + " window_stop not found")
+            print(str(type(self)) + str(self._type) + " " + self.get_seuid() + " window_stop not found")
         length = len(list_of_time)
         #print(len(list_of_time))
         #print("first time: " + tm.strftime("%d.%m-%H:%M:%S", tm.localtime((int(str(self.__data["window_end"][0]))/1000000000))))

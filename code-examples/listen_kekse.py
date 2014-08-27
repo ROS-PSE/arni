@@ -9,11 +9,12 @@ def callback(data):
     pass
     
 def listener():
-    rospy.init_node('listen_kekse', anonymous=True)
-    rospy.Subscriber("kekse", String, callback)
+    rospy.init_node('listen_kekse13', anonymous=True)
+    rospy.Subscriber("/kekse13", String, callback)
     # spin() simply keeps python from exiting until this node is stopped
     print("listening..")
     rospy.spin()
 
 
-listener()
+if __name__ == '__main__':
+    listener()

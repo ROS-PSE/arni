@@ -7,8 +7,8 @@ import time
 
 
 def talker():
-    pub = rospy.Publisher('/kekse', String, queue_size=10)
-    rospy.init_node('hufflepuff')
+    pub = rospy.Publisher('/kekse13', String, queue_size=10)
+    rospy.init_node('hufflepuff13')
 
     print "publishing.."
 
