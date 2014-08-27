@@ -1,5 +1,5 @@
 import psutil
-from math import sqrt
+from math import sqrt, ceil
 from collections import namedtuple
 
 
@@ -151,15 +151,15 @@ class Status(object):
         if not slist or all(not i for i in slist):
             return statistic_tuple(0, 0, 0)
         else:
-            maxi = round(max(slist), 2)
-            mean = round((sum(slist) / float(len(slist))), 2)
+            maxi = max(slist)
+            mean = (sum(slist) / float(len(slist)))
             temp_sum = 0
 
             for i in slist:
                 temp_sum += (i - mean) ** 2
             stddev = 0
             if len(slist) > 1:
-                stddev = round(sqrt(float(1) / (len(slist) - 1) * temp_sum), 2)
+                stddev = sqrt(float(1) / (len(slist) - 1) * temp_sum) 
 
             return statistic_tuple(mean, stddev, maxi)
 

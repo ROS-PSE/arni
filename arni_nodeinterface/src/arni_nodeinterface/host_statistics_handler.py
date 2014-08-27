@@ -205,7 +205,6 @@ class HostStatisticsHandler(StatisticsHandler):
             stats = self.__calc_statistics()
             self.__dict_lock.acquire()
             rospy.logdebug('Publishing Host ')
-            rospy.loginfo(stats)
             self.__publish_nodes()
             self.__dict_lock.release()
             self.pub.publish(stats)
