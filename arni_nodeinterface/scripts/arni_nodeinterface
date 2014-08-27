@@ -8,15 +8,17 @@ def main():
 
     # howto ROS_IP ?
     ip = os.getenv('ROS_IP', '127.0.0.1')
-   
-    rospy.init_node("host_manager_%s" %ip.replace('.','_'), log_level=rospy.DEBUG)
+
+    rospy.init_node("host_manager_%s" %
+                    ip.replace('.', '_'), log_level=rospy.DEBUG)
     rospy.sleep(1)
 
     host = HostStatisticsHandler(ip)
 
     try:
         rospy.sleep(1)
-        rospy.Timer(rospy.Duration(host.check_enabled_interval), host.check_enabled)
+        rospy.Timer(
+            rospy.Duration(host.check_enabled_interval), host.check_enabled)
         rospy.Timer(rospy.Duration(host.update_interval), host.measure_status)
         rospy.Timer(
             rospy.Duration(host.publish_interval), host.publish_status)

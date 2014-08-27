@@ -33,14 +33,13 @@ class NodeStatisticsHandler(StatisticsHandler):
         self.__write_base = 0
         self.__read_base = 0
 
-
     def measure_status(self):
         """
         Collects information about the node's current status
         using psutils and rospy.statistics
         Triggered periodically.
         """
-        try:        
+        try:
             # CPU
             self._status.add_cpu_usage(self.__node_process.cpu_percent())
 
@@ -52,8 +51,10 @@ class NodeStatisticsHandler(StatisticsHandler):
             # Disk I/O
             node_io = self.__node_process.io_counters()
 
-            read_rate = (node_io.read_bytes - self.__read_base)  / float(self.update_interval)
-            write_rate = (node_io.write_bytes - self.__write_base) / float(self.update_interval)
+            read_rate = (node_io.read_bytes - self.__read_base) / \
+                float(self.update_interval)
+            write_rate = (
+                node_io.write_bytes - self.__write_base) / float(self.update_interval)
 
             self.__read_base = node_io.read_bytes
             self.__write_base = node_io.write_bytes
@@ -107,10 +108,12 @@ class NodeStatisticsHandler(StatisticsHandler):
         ns.node_ramusage_stddev = stats_dict['ram_usage_stddev']
         ns.node_ramusage_max = stats_dict['ram_usage_max']
 
-        ns.node_message_frequency_mean = stats_dict['node_message_frequency_mean']
+        ns.node_message_frequency_mean = stats_dict[
+            'node_message_frequency_mean']
         ns.node_message_frequency_stddev = stats_dict[
             'node_message_frequency_stddev']
-        ns.node_message_frequency_max = stats_dict['node_message_frequency_max']
+        ns.node_message_frequency_max = stats_dict[
+            'node_message_frequency_max']
 
         ns.node_bandwidth_mean = stats_dict['node_bandwidth_mean']
         ns.node_bandwidth_stddev = stats_dict['node_bandwidth_stddev']
