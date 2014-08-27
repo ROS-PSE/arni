@@ -1,3 +1,4 @@
 <launch>
+  <rosparam command="load" file="$(find arni_processing)/test/mockdata/mock_host_spec2.yaml" ns="/arni/specifications" />
   <test test-name="test_loading_specifications" pkg="arni_processing" type="test_loading_specifications.py" />
 </launch>

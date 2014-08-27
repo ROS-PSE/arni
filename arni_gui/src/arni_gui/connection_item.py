@@ -16,18 +16,19 @@ class ConnectionItem(AbstractItem):
         """
         super(ConnectionItem, self).__init__(seuid, parent)
         self.__parent = parent
-        self.__type = "connection"
+        self._type = "connection"
 
         # add the content
         self._attributes.extend(["dropped_msgs", "traffic",
-                                 "period_mean", "period_stddev", "period_max", "stamp_age_mean", "stamp_age_stddev",
-                                 "stamp_age_max"])
+                                 "period_mean", "period_stddev", "period_max"])
+	#, "stamp_age_mean", "stamp_age_stddev",
+                                 #"stamp_age_max"])
 
         for item in self._attributes:
             self._add_data_list(item)
 
         self._attributes.remove("traffic")
-        self._attributes.append("bandwidth")
+        #self._attributes.append("bandwidth")
 
         self.__rated_attributes = []
         for item in self._attributes:
@@ -66,9 +67,9 @@ class ConnectionItem(AbstractItem):
         content += "period_mean:" + str(data_dict["period_mean"]) + "<br>"
         content += "period_stddev" + str(data_dict["period_stddev"]) + "<br>"
         content += "period_max: " + str(data_dict["period_max"]) + "<br>"
-        content += "stamp_age_mean: " + str(data_dict["stamp_age_mean"]) + "<br>"
-        content += "stamp_age_stddev: " + str(data_dict["stamp_age_stddev"]) + "<br>"
-        content += "stamp_age_max: " + str(data_dict["stamp_age_max"]) + "<br>"
+        #content += "stamp_age_mean: " + str(data_dict["stamp_age_mean"]) + "<br>"
+        #content += "stamp_age_stddev: " + str(data_dict["stamp_age_stddev"]) + "<br>"
+        #content += "stamp_age_max: " + str(data_dict["stamp_age_max"]) + "<br>"
 
         content += "</p>"
         return content

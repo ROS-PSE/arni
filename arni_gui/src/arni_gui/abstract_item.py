@@ -47,7 +47,7 @@ class AbstractItem(QObject):
     def get_seuid(self):
         """
         Returns the seuid of the Abstractitem.
-        
+
         :returns: str
         """
         return self.seuid
@@ -56,7 +56,7 @@ class AbstractItem(QObject):
     def get_state(self):
         """
         Returns the state of the AbstractItem.
-        
+
         :returns: str
         """
         if self.__state:
@@ -67,7 +67,7 @@ class AbstractItem(QObject):
     def _add_data_list(self, name):
         """
         Adds keys to the data_list.
-        
+
         :param name: the key to be added
         :type name: str
         """
@@ -77,7 +77,7 @@ class AbstractItem(QObject):
     def _add_rated_data_list(self, name):
         """
         Adds keys to the rated_data_list.
-        
+
         :param name: the key to be added
         :type name: str
         """
@@ -97,7 +97,7 @@ class AbstractItem(QObject):
     def append_rated_data_dict(self, data):
         """
         Appends data to the rate_data of the AbstractItem.
-        
+
         :param data: the data to append in key value from
         :type data: dict
         """
@@ -220,7 +220,7 @@ class AbstractItem(QObject):
     def child_count(self):
         """
         Returns the number of children from the AbstractItem.
-        
+
         :returns: int
         """
         return len(self.__child_items)
@@ -236,7 +236,7 @@ class AbstractItem(QObject):
     def column_count(self):
         """
         Returns the number of columns.
-        
+
         :returns: int
         """
         # todo: return !not! a concrete number here ?!?!
@@ -266,11 +266,11 @@ class AbstractItem(QObject):
     def row(self):
         """
         Returns the index of the Item.
-        
+
         :returns: int
         """
         if self.__parent:
-            return self.__parent.childItems.index(self)
+            return self.__parent.get_childs().index(self)
 
         return 0
 
@@ -281,7 +281,7 @@ class AbstractItem(QObject):
 
         :param kwargs: the keys to the dict
         :type kwargs: str
-        
+
         :returns: dict or the item
         """
         if kwargs is not None:
@@ -391,7 +391,7 @@ class AbstractItem(QObject):
             # print("length time: " + str(len(return_values["window_end"])) + " length state: " + str(len(return_values["state"])))
         #print("length return values: " + str(len(return_values["window_end"])))
         return return_values
-    
+
         # return_values = []
         # for key in self.__data:
         #     return_values[key] = []
