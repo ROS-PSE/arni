@@ -74,6 +74,7 @@ class NodeStatisticsHandler(StatisticsHandler):
         rospy.loginfo('publishing node %s'%self._id)
         self._status.time_end = rospy.Time.now()
         stats = self.__calc_statistics()
+        rospy.loginfo(stats)
         self.pub.publish(stats)
         self._status.reset()
         self._status.time_start = rospy.Time.now()

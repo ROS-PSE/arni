@@ -361,8 +361,8 @@ class HostStatisticsHandler( StatisticsHandler):
         try:
             code,msg,pid = xmlrpclib.ServerProxy(node_api[2]).getPid('/NODEINFO')
             return pid
-        except socket.Error:
-            rospy.loginfo('Node %s unreachable'%node)
+        except socket.error:
+            rospy.loginfo('Node is unreachable')
             return False
 
     def update_nodes(self):
