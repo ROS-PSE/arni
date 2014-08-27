@@ -2,7 +2,12 @@ from abstract_item import AbstractItem
 from python_qt_binding.QtCore import QObject
 
 from arni_core.host_lookup import HostLookup
+from arni_core.helper import SEUID
+import arni_core.helper as helper
 from arni_msgs.srv import NodeReaction
+
+import rospy
+from rospy import ServiceException
 
 
 
@@ -67,14 +72,15 @@ class NodeItem(AbstractItem):
         try:            
             execute = rospy.ServiceProxy(
                 service_name, NodeReaction)
-            resp = execute(self.__seuid[2:], action, '')
-            rospy.logdebug(
-                "sending command '%s' to node %s returned: %s"
-                % (self.__command, self._node, resp.returnmessage))
+            resp = execute(self.seuid[2:], action, '')
+            #rospy.logdebug(
+                #"sending command '%s' to node %s returned: %s"
+                #% (self.__command, self._node, resp.returnmessage))
+            print resp.returnmessage
         except ServiceException:
             rospy.logdebug(
                 "could not stop node %s, service %s not found"
-                % (self._node, service_name))
+                % (self.seuid, service_name))
 
     def get_detailed_data(self):
         """
