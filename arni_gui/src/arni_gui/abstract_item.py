@@ -498,6 +498,7 @@ class AbstractItem:
                             elif key is "state":
                                 return_values[key] = self.__state[breakpoint:length]
                             else:
+                                print(self._data.keys())
                                 raise IndexError("IndexError! length of the list %s, accessed index %s. length of data at given point %s, key is %s",
                                     length, i, len(self._data[key]), key)
                     # else:
@@ -518,6 +519,9 @@ class AbstractItem:
                 # print("length time: " + str(len(return_values["window_end"])) + " length state: " + str(len(return_values["state"])))
 
         #print("length return values: " + str(len(return_values["window_end"])))
+        #print("returnvalues")
+        #for item in return_values:
+        #    print return_values
         return return_values
 
     # check timestamp

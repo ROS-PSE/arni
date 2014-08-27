@@ -108,7 +108,7 @@ class OverviewWidget(QWidget):
             "connection_counter": None,
             "cpu_usage_max": None,
             "cpu_temp_mean": None,
-            "average_ram_load": None,
+            "ram_usage_mean": None,
             "cpu_usage_mean": None,
             "cpu_temp_max": None,
             "ram_usage_max": None

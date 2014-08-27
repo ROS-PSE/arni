@@ -314,7 +314,8 @@ class ROSModel(QAbstractItemModel):
         for host_item in self.__root_item.get_childs():
             #hostinfo
             connected_hosts += 1
-            data = host_item.get_items_younger_than(Time.now() - Duration(nsecs=UPDATE_FREQUENCY))
+            data = host_item.get_items_younger_than(Time.now() - Duration(nsecs=UPDATE_FREQUENCY), "bandwidth_mean", "cpu_usage_max", "cpu_temp_mean",
+                               "cpu_usage_mean", "cpu_temp_max", "ram_usage_max", "ram_usage_mean")
 
             if host_item.get_state() is "warning" and state is not "error":
                 state = "warning"
@@ -324,17 +325,15 @@ class ROSModel(QAbstractItemModel):
                 state = "unknown"
 
             for key in data:
-                print("key is " + key)
-                if key is not ["bandwidth_mean", "cpu_usage_max", "cpu_temp_mean", "average_ram_load",
-                               "cpu_usage_mean", "cpu_temp_max", "ram_usage_max"]:
-                    break
-                elif key is "bandwidth_mean":
+                #print("key " + key)
+                if key is "bandwidth_mean":
                     for entry in data[key]:
-                        print("bandwidth")
                         data_dict["total_traffic"] += entry
                 else:
                     for entry in data[key]:
+                        print(entry)
                         data_dict[key] += entry
+
             for node_item in host_item.get_childs():
                 #nodeinfo
                 connected_nodes += 1
