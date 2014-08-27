@@ -11,6 +11,7 @@ are needed throughout the whole arni package.
 
 
 class SEUID:
+
     """
     A class providing several actions for a seuid.
     """
@@ -73,7 +74,8 @@ class SEUID:
         fields = ("host", "topic", "subscriber", "publisher", "node")
         if field in fields and hasattr(self, field):
             if getattr(self, field) is None:
-                raise KeyError("[SEUID] this seuid does not contain the field %s" % field)
+                raise KeyError(
+                    "[SEUID] this seuid does not contain the field %s" % field)
                 return None
             else:
                 starts = "htnnn"
@@ -115,7 +117,9 @@ class SEUID:
             check = self.identifier
         if check is None:
             return False
-        p = re.compile('^([nhtc])' + SEUID.DELIMITER + '([A-Za-z0-9/](' + SEUID.DELIMITER + '?[a-zA-Z0-9_/])*)')
+        p = re.compile(
+            '^([nhtc])' + SEUID.DELIMITER + '([A-Za-z0-9/]('
+            + SEUID.DELIMITER + '?[a-zA-Z0-9_/.])*)$')
         m = p.match(check)
         if m is None:
             return False
