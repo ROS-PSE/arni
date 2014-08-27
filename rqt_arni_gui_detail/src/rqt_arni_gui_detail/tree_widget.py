@@ -37,7 +37,7 @@ class TreeWidget(QWidget):
         self.__filter_proxy = ItemFilterProxy(self)
 
         self.__filter_proxy.setSourceModel(self.__model)
-        self.item_tree_view.setModel(self.__filter_proxy)
+        self.item_tree_view.setModel(self.__model)#self.__filter_proxy)
         #self.item_tree_view.setModel(self.__model)
         
         self.__filter_proxy.setDynamicSortFilter(True)
@@ -139,7 +139,7 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
-        print Qt.Checked
+        print activated
         if activated is 2:
             #todo: does this match the right positions?
             self.__filter_proxy.setFilterRegExp(QRegExp("error"))

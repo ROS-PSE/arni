@@ -20,7 +20,7 @@ class AbstractItem(QObject):
         :param *args:
         :type *args: 
         """
-        print(str(type(self)) + str(type(seuid)) + str(type(parent)))
+        #print(str(type(self)) + str(type(seuid)) + str(type(parent)))
         super(AbstractItem, self).__init__(parent)
 
         self.__data = {}
@@ -284,39 +284,47 @@ class AbstractItem(QObject):
 
         :returns: dict or the item
         """
-        if kwargs is not None:
+        return_dict = {}
+        #return_dict["state"] = "state unknown"
+        if kwargs:
             for key in kwargs:
                 if key is 'name':
-                    return self.seuid
+                    return_dict['name'] = self.seuid
                 elif key is 'type':
-                    return self._type
+                    return_dict['type'] = self._type
                 elif key is 'data':
-                    return self.get_short_data()
+                    return_dict['data'] = self.get_short_data()
                 elif key is 'state':
                     if self.__state:
-                        return self.__state[-1]
+                        return_dict['state'] = self.__state[-1]
+                    else:
+                        return_dict["state"] = "state unknown"
                 else:
                     if key in self.__data:
                         if self.__data[key]:
-                            return self.__data[key][-1]
+                            return_dict[key] = self.__data[key][-1]
                     elif key in self.__rated_data:
                         if self.__rated_data[key]:
-                            return self.__rated_data[key][-1]
+                            return_dict[key] = self.__rated_data[key][-1]
                     else:
                         raise KeyError("item " + key + "was not found")
-
-        return_dict = {}
-        # return dict of latest item
-        for entry in self.__data:
-            if self.__data[entry]:
-                return_dict[entry] = self.__data[entry][-1]
-        for entry in self.__rated_data:
-            if self.__rated_data[entry]:
-                return_dict[entry] = self.__rated_data[entry][-1]
-        if self.__state:
-            return_dict["state"] = self.__state[-1]
         else:
-            return_dict["state"] = "state unknown"
+        # return dict of latest item
+            return_dict['name'] = self.seuid
+            return_dict['type'] = self._type
+            return_dict['data'] = self.get_short_data()
+            for entry in self.__data:
+                if self.__data[entry]:
+                    return_dict[entry] = self.__data[entry][-1]
+            for entry in self.__rated_data:
+                if self.__rated_data[entry]:
+                    return_dict[entry] = self.__rated_data[entry][-1]
+            if self.__state:
+                return_dict['state'] = self.__state[-1]
+            else:
+                return_dict['state'] = "state unknown"
+        #print("return_dict")
+        #print(return_dict)
         return return_dict
 
 

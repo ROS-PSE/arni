@@ -218,10 +218,12 @@ class OverviewWidget(QWidget):
 
     def update(self):
         """Updates the Plugin and draws the graphs if draw_graphs is true."""
-        data_dict = self.__model.get_root_item().get_latest_data()
+        data_dict = self.__model.get_root_item().get_latest_data("state")
         #rated_data_dict = self.__model.get_root_item().get_
 
+        #print(data_dict)
         self.__state = data_dict["state"]
+
         # for testing only:
         #self.__state = "warning"
 
