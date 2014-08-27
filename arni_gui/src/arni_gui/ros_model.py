@@ -79,6 +79,8 @@ class ROSModel(QAbstractItemModel):
         self.__seuid_helper = SEUID()
 
 
+
+
     def get_overview_data_since(self, time=None):
         """
         Return the info needed for the OverviewWidget as a dict.
@@ -112,7 +114,7 @@ class ROSModel(QAbstractItemModel):
             elif role != Qt.DisplayRole:
                 return None
 
-            item = index.data()
+            item = index.internalPointer()
             if item is None:
                 raise IndexError("item is None")
             return item.get_latest_data(self.__mapping[index.column()])
@@ -178,8 +180,8 @@ class ROSModel(QAbstractItemModel):
             #todo: internalPointer or data????
             parent_item = parent.data()
 
-        print(parent_item.get_seuid())
-        print("child count: " + str(parent_item.child_count()) + " accesed row: " + str(row))
+        #print(parent_item.get_seuid())
+        #print("child count: " + str(parent_item.child_count()) + " accesed row: " + str(row))
         child_item = parent_item.get_child(row)
         if child_item:
             return self.createIndex(row, column, child_item)
@@ -387,13 +389,13 @@ class ROSModel(QAbstractItemModel):
             data = {}
             for element in item.rated_statistics_entity:
                 if element.statistic_type not in data:
-                    data[element.statistic_type + ".actual_value "] = []
-                    data[element.statistic_type + ".expected_value "] = []
-                    data[element.statistic_type + ".state "] = []
+                    data[element.statistic_type + ".actual_value"] = []
+                    data[element.statistic_type + ".expected_value"] = []
+                    data[element.statistic_type + ".state"] = []
 
-                data[element.statistic_type + ".actual_value "].append(element.actual_value)
-                data[element.statistic_type + ".expected_value "].append(element.expected_value)
-                data[element.statistic_type + ".state "].append(element.state)
+                data[element.statistic_type + ".actual_value"].append(element.actual_value)
+                data[element.statistic_type + ".expected_value"].append(element.expected_value)
+                data[element.statistic_type + ".state"].append(element.state)
 
                 if element.state is not element.OK:
                     data["state"] = "error"
@@ -480,7 +482,7 @@ class ROSModel(QAbstractItemModel):
         :type item: NodeStatistics
         """
         item_seuid = "n" + SEUID_DELIMITER + item.node
-        print(item_seuid)
+        #print(item_seuid)
         if item_seuid not in self.__identifier_dict:
             #create item
             host_seuid = "h" + SEUID_DELIMITER + item.host
@@ -497,7 +499,7 @@ class ROSModel(QAbstractItemModel):
             self.add_log_entry("info", Time.now(), "ROSModel", "Added a new NodeItem with name " + item_seuid)
             host_item.append_child(node_item)
         else:
-            node_item = self.__identifier_dict[item.seuid]
+            node_item = self.__identifier_dict[item_seuid]
 
         node_item.append_data(item)
 

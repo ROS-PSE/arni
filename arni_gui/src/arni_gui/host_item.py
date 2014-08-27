@@ -15,7 +15,7 @@ class HostItem(AbstractItem):
         """
         super(HostItem, self).__init__(seuid, parent)
         self.__parent = parent
-        self.__type = "host"
+        self._type = "host"
 
         #add the content
         self._attributes.extend(["cpu_temp_mean", "cpu_temp_stddev", "cpu_temp_max", "cpu_usage_mean",

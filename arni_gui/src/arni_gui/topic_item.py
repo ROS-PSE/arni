@@ -13,7 +13,7 @@ class TopicItem(AbstractItem):
         """
         super(TopicItem, self).__init__(seuid, parent)
         self.__parent = parent
-        self.__type = "topic"
+        self._type = "topic"
 
         #add the content
         #todo: currently probably only these 4 implemented
@@ -34,6 +34,7 @@ class TopicItem(AbstractItem):
 
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)
+
 
     def execute_action(self, action):
         """

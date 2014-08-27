@@ -20,7 +20,7 @@ class RootItem(AbstractItem):
         self._attributes.extend(["cpu_usage_mean", "cpu_temp_mean", "cpu_usage_max", "cpu_temp_max",
                                         "average_ram_load", "ram_usage_max", "total_traffic", "connected_hosts",
                                         "connected_nodes", "topic_counter", "connection_counter"])
-        self.__type = "root"
+        self._type = "root"
         for item in self._attributes:
             self._add_data_list(item)
 

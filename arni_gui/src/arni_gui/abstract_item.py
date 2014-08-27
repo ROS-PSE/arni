@@ -20,7 +20,7 @@ class AbstractItem(QObject):
         :param *args:
         :type *args: 
         """
-        print(str(type(self)) + str(type(seuid)) + str(type(parent)))
+        #print(str(type(self)) + str(type(seuid)) + str(type(parent)))
         super(AbstractItem, self).__init__(parent)
 
         self.__data = {}
@@ -28,7 +28,7 @@ class AbstractItem(QObject):
         self.__child_items = []
         self.__parent = parent
         self.seuid = seuid
-        self.__type = "type"
+        self._type = "type"
         self.__data_attribute = "data"
         self.__state = []
         # WARNING!!! Child classes have to call the append_data_list method, otherwise will not work!!!
@@ -208,6 +208,8 @@ class AbstractItem(QObject):
                 raise
         if "state" in data:
             if data["state"] is "error":
+                if not self.__state:
+		    self.__state.append(None)
                 self.__state[-1] = "error"
         #if found is not True:
         #    raise UserWarning("No matching time window was found. Could not update the AbstractItem")
@@ -286,7 +288,7 @@ class AbstractItem(QObject):
                 if key is 'name':
                     return self.seuid
                 elif key is 'type':
-                    return self.__type
+                    return self._type
                 else:
                     if key in self.__data:
                         if self.__data[key]:
@@ -369,7 +371,7 @@ class AbstractItem(QObject):
                     for key in return_values:
                         try:
                             return_values[key] = self.__data[key][0:breakpoint]
-                            print("i is " + str(i) +"length: " + str(len(return_values[key])) + " complete length: " + str(len(list_of_time)))
+                            #print("i is " + str(i) +"length: " + str(len(return_values[key])) + " complete length: " + str(len(list_of_time)))
                         except IndexError:
                             print("IndexError! length of the list %s, accessed index %s. length of data at given point"
                                   " %s, key is %s", len(list_of_time), i, len(self.__data[key]), key)
@@ -445,7 +447,7 @@ class AbstractItem(QObject):
         try:
             list_of_time = self.__data["window_stop"]
         except KeyError:
-            print(str(type(self)) + str(self.__type) + " " + self.get_seuid() + " window_stop not found")
+            print(str(type(self)) + str(self._type) + " " + self.get_seuid() + " window_stop not found")
         length = len(list_of_time)
         #print(len(list_of_time))
         #print("first time: " + tm.strftime("%d.%m-%H:%M:%S", tm.localtime((int(str(self.__data["window_end"][0]))/1000000000))))
