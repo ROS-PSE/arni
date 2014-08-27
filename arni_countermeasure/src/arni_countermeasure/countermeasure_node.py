@@ -22,6 +22,8 @@ class CountermeasureNode(object):
 
         rospy.init_node("countermeasure", log_level=rospy.DEBUG)
 
+        self.__enabled = False
+
         self.__init_params()
 
         #: The storage of all incoming rated statistic.
@@ -59,12 +61,13 @@ class CountermeasureNode(object):
         return []
 
     def __callback_evaluate_and_react(self, event):
-        """ Evaluate every constraint and execute reactions 
+        """ Evaluate every constraint and execute reactions
         if seemed necessary by the evaluation.
         """
         try:
-            self.__constraint_handler.evaluate_constraints()
-            self.__constraint_handler.execute_reactions()
+            if self.__enabled:
+                self.__constraint_handler.evaluate_constraints()
+                self.__constraint_handler.execute_reactions()
         except rospy.ROSInterruptException:
             pass
 
@@ -73,11 +76,21 @@ class CountermeasureNode(object):
         while rospy.Time.now() == rospy.Time(0):
             time.sleep(0.01)
 
+        #check periodically for enabled_statistic
+        rospy.Timer(
+            rospy.Duration(
+                rospy.get_param("/arni/check_enabled_interval", 10)),
+            self.__callback_enable)
+
         # evaluate periodically
         rospy.Timer(
             self.__evaluation_period,
             self.__callback_evaluate_and_react)
         rospy.spin()
+
+    def __callback_enable(self, event):
+        """Simple callback to check if statistics are enabled."""
+        self.__enabled = rospy.get_param("/enable_statistics", False)
 
     def __init_params(self):
         """Initializes params on the parameter server,
@@ -87,7 +100,7 @@ class CountermeasureNode(object):
         default = {
             "reaction_autonomy_level": 100,
             "storage_timeout": 10,
-            "evaluation_period": 0.2,
+            "evaluation_period": 1,
             "default/min_reaction_interval": 10,
             "default/reaction_timeout": 30
         }
