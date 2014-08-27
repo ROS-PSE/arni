@@ -47,7 +47,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
             raise UserWarning("None values in filterAcceptsRow")
 
         data = self.sourceModel().data(entries[0])
-        print data
+        #print data
         for i in range(0, 1):
             if self.__show_hosts is True:
                 if data == "host":

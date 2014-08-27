@@ -139,6 +139,7 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
+        print Qt.Checked
         if activated is 2:
             #todo: does this match the right positions?
             self.__filter_proxy.setFilterRegExp(QRegExp("error"))
