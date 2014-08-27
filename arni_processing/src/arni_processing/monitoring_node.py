@@ -27,7 +27,12 @@ class MonitoringNode:
         self.__pub_queue = []
         self.__aggregate = []
         self.__aggregate_start = rospy.Time.now()
+        self.__processing_enabled = rospy.get_param("/enable_statistics", False)
         rospy.Timer(rospy.Duration(5), self.__publish_data)
+        rospy.Timer(rospy.Duration(rospy.get_param("/arni/check_enabled_interval", 10)), self.__update_enabled)
+
+    def __update_enabled(self):
+        self.__processing_enabled = rospy.get_param("/enable_statistics", False)
 
     def receive_data(self, data):
         """
@@ -37,16 +42,17 @@ class MonitoringNode:
 
         :param data: The data received from the topic.
         """
-        try:
-            seuid = SEUID(data)
+        if self.__processing_enabled:
             try:
-                self.__process_data(data, seuid)
-            except Exception as msg:
-                rospy.logerr("an error occured processing the data:\n%s\n%s" % (msg, traceback.format_exc()))
-        except TypeError as msg:
-            rospy.logerr("received invalid message type:\n%s\n%s" % (msg, traceback.format_exc()))
-        except NameError as msg:
-            rospy.logerr("received invalid message type (%s):\n%s\n%s" % (type(data), msg, traceback.format_exc()))
+                seuid = SEUID(data)
+                try:
+                    self.__process_data(data, seuid)
+                except Exception as msg:
+                    rospy.logerr("an error occured processing the data:\n%s\n%s" % (msg, traceback.format_exc()))
+            except TypeError as msg:
+                rospy.logerr("received invalid message type:\n%s\n%s" % (msg, traceback.format_exc()))
+            except NameError as msg:
+                rospy.logerr("received invalid message type (%s):\n%s\n%s" % (type(data), msg, traceback.format_exc()))
 
     def __process_data(self, data, identifier):
         """
