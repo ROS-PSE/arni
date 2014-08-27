@@ -71,7 +71,7 @@ class MetadataStorage:
         """
         self.storage.clear()
 
-    def __init__(self, duration=300000):
+    def __init__(self, duration=300):
         """
         Saves received metadata packages for a given period of time and can provide them on request.
 
