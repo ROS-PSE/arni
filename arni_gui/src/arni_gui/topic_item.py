@@ -11,11 +11,13 @@ class TopicItem(AbstractItem):
         :param parent: the parent-item
         :type parent: AbstractItem
         """
-        super(TopicItem, self).__init__(seuid, parent)
+        AbstractItem.__init__(self, seuid, parent)
+        #super(TopicItem, self).__init__(seuid, parent)
         self.__parent = parent
         self._type = "topic"
 
         #add the content
+        self._attributes = []
         #todo: currently probably only these 4 implemented
         self._attributes.extend(["dropped_msgs", "traffic",
                                  "stamp_age_mean", "stamp_age_max"])

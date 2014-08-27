@@ -47,14 +47,13 @@ Change
 * why are there runtimeerrors when closing the gui. and why are there these threading errors(might it be the timers?)
 * scrolling does not work because of the permanent updates...--> solution: if no data has changed, simply get_detailed_data simply returns None
 * RUNTIME_ERROR BECAUSE ELEMENT HAS BEEN DELETED
+* DAS LOGGEN GEHT AUCH NOCH GAR NICHT!!! Funktioniert vermutlich, es werden aber noch kein daten gepusht.
 
-* gibt immer noch index-fehler, falls ein element abgefragt wird, das keine daten hat!!!
-* TreeWidget: close methoden sync überprüfen
 * SelectionWidget: Services definieren und überprüfen
 
 WiP
 * on close of one widget in detail gui, close the other!
-
+* TreeWidget: close methoden sync überprüfen --> nicht möglich?!?
 
 Done
 * lock updateGraphs --> non reentrant functions, otherwise segmentation faults occur!
@@ -62,6 +61,8 @@ Done
 * make sure there are no more dict["time"] calls, they are invalid
 * reformat the ROSModel to use the seuid helper class --> Helper class returns None values --> no longer using!!!
 * GUI WANTS TO RECEIVE ITEMS THE TOPIC DOES NOT PROVIDE!!!
+* gibt immer noch index-fehler, falls ein element abgefragt wird, das keine daten hat!!!
+
 =======
 * selection.ui from log_tab_tree_widget to log_tab_tree_view.
 * arni_gui_detail: moved __on_item_in_item_tree_view_double_clicked(self, item): from tree_widget to arni_gui_detail to handle the content change of the selection_widget

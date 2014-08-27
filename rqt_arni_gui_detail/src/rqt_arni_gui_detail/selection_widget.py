@@ -99,6 +99,7 @@ class SelectionWidget(QWidget):
         :type selected_item: QModelIndex
         """
         self.__selected_item = index.internalPointer()
+
         self.__on_changed_selected_item(self.__selected_item)
 
 
@@ -184,7 +185,7 @@ class SelectionWidget(QWidget):
                     pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
                                                   'block_red.png'))
                 self.status_light_label.setPixmap(pixmap)
-            print("here")
+            #print("here")
             content = self.__selected_item.get_detailed_data()
 
             self.information_tab_text_browser.setHtml(content)

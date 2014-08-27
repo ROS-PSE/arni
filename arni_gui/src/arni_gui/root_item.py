@@ -5,7 +5,7 @@ from python_qt_binding.QtCore import QObject
 class RootItem(AbstractItem):
     """The RootItem represents the parent of the ROSModel"""
     
-    def __init__(self, seuid, parent=QObject(), *args):
+    def __init__(self, seuid, parent=None, *args):
         """Initializes the TItem.
         
         :param seuid: the seuid of the item
@@ -15,8 +15,9 @@ class RootItem(AbstractItem):
         :param args:
         :type args: str
         """
-        super(RootItem, self).__init__("root", parent)
+        AbstractItem.__init__(self, "root", parent)
         #AbstractItem.__init__(self, "root", parent)
+        self._attributes = []
         self._attributes.extend(["cpu_usage_mean", "cpu_temp_mean", "cpu_usage_max", "cpu_temp_max",
                                         "average_ram_load", "ram_usage_max", "total_traffic", "connected_hosts",
                                         "connected_nodes", "topic_counter", "connection_counter"])
@@ -33,8 +34,6 @@ class RootItem(AbstractItem):
 
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)
-
-        del self._attributes
 
     def get_detailed_data(self):
         """

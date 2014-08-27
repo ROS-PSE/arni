@@ -1,8 +1,8 @@
 from abstract_item import AbstractItem
 
+
 class HostItem(AbstractItem):
     """A HostItem represents a host with all its data."""
-
 
     def __init__(self, seuid, parent=None):
         """
@@ -13,11 +13,13 @@ class HostItem(AbstractItem):
         :param parent: the parent-item
         :type parent: AbstractItem
         """
-        super(HostItem, self).__init__(seuid, parent)
+        AbstractItem.__init__(self, seuid, parent)
+        #super(HostItem, self).__init__(seuid, parent)
         self.__parent = parent
         self._type = "host"
 
-        #add the content
+        self._attributes = []
+        # add the content
         self._attributes.extend(["cpu_temp_mean", "cpu_temp_stddev", "cpu_temp_max", "cpu_usage_mean",
                       "cpu_usage_stddev", "cpu_usage_max", "cpu_usage_core_mean", "cpu_usage_core_stddev",
                       "cpu_usage_core_max", "cpu_temp_core", "cpu_temp_core_mean", "cpu_temp_core_stddev",
@@ -27,8 +29,11 @@ class HostItem(AbstractItem):
                       "message_frequency_max", "bandwidth_mean", "bandwidth_stddev", "bandwidth_max",
                       "drive_name", "drive_free_space", "drive_read", "drive_write"])
 
+        for item in self._attributes:
+            self._add_data_list(item)
 
-
+        #self._attributes.remove("traffic")
+        #self._attributes.append("bandwidth")
 
         self.__rated_attributes = []
         for item in self._attributes:
@@ -36,10 +41,7 @@ class HostItem(AbstractItem):
             self.__rated_attributes.append(item + ".expected_value")
             self.__rated_attributes.append(item + ".state")
 
-        for item in self._attributes:
-            self._add_data_list(item)
-
-        del self._attributes
+       # del self._attributes
 
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)
@@ -65,10 +67,13 @@ class HostItem(AbstractItem):
 
         content = "<p style=\"font-size:15px\">"
 
-        content += "cpu_temp_mean: " + str(data_dict["cpu_temp_mean"]) + "<br>"
-        content += "bandwidth_mean: " + str(data_dict["bandwidth_mean"]) + "<br>"
-        content += "cpu_temp_stddev:" + str(data_dict["cpu_temp_stddev"]) + "<br>"
-        content += "cpu_temp_max" + str(data_dict["cpu_temp_max"]) + "<br>"
+        #content += "cpu_temp_mean: " + str(data_dict["cpu_temp_mean"]) + "<br>"
+        #content += "bandwidth_mean: " + str(data_dict["bandwidth_mean"]) + "<br>"
+        #for entry in data_dict:
+        #    print(entry)
+        #content += "Because of a bug no text is shown here."
+        content += "cpu_temp_stddev: " + str(data_dict["cpu_temp_stddev"]) + "<br>"
+        content += "cpu_temp_max: " + str(data_dict["cpu_temp_max"]) + "<br>"
         content += "cpu_usage_mean: " + str(data_dict["cpu_usage_mean"]) + "<br>"
         content += "cpu_usage_stddev: " + str(data_dict["cpu_usage_stddev"]) + "<br>"
         content += "cpu_usage_max: " + str(data_dict["cpu_usage_max"]) + "<br>"
@@ -78,8 +83,8 @@ class HostItem(AbstractItem):
         content += "gpu_temp_mean: " + str(data_dict["gpu_temp_mean"]) + "<br>"
         content += "gpu_temp_stddev: " + str(data_dict["gpu_temp_stddev"]) + "<br>"
         content += "gpu_temp_max: " + str(data_dict["gpu_temp_max"]) + "<br>"
-        content += "gpu_usage_mean:" + str(data_dict["gpu_usage_mean"]) + "<br>"
-        content += "gpu_usage_stddev" + str(data_dict["gpu_usage_stddev"]) + "<br>"
+        content += "gpu_usage_mean: " + str(data_dict["gpu_usage_mean"]) + "<br>"
+        content += "gpu_usage_stdde: " + str(data_dict["gpu_usage_stddev"]) + "<br>"
         content += "gpu_usage_max: " + str(data_dict["gpu_usage_max"]) + "<br>"
 
         content += "</p>"

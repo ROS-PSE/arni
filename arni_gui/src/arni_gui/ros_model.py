@@ -71,7 +71,7 @@ class ROSModel(QAbstractItemModel):
             2: 'state',
             3: 'data'
         }
-        
+
         rospy.logdebug("Finished model initialization.")
         
         self.__last_time_error_occured = 0
@@ -79,7 +79,7 @@ class ROSModel(QAbstractItemModel):
         self.add_log_entry("error", Time.now(), "ROSModel", "Just testing")
 
         self.__seuid_helper = SEUID()
-        
+
         self.__find_host = HostLookup()
 
         self.__buffer_thread = BufferThread(self)
@@ -121,7 +121,7 @@ class ROSModel(QAbstractItemModel):
             item = index.internalPointer()
             if item is None:
                 raise IndexError("item is None")
-            return item.get_latest_data(self.__mapping[index.column()])
+            return item.get_latest_data(self.__mapping[index.column()])[self.__mapping[index.column()]]
         return None
 
 
@@ -266,14 +266,13 @@ class ROSModel(QAbstractItemModel):
         self.layoutAboutToBeChanged.emit()
         #todo: remove in productional code
         #now = rospy.Time.now()
-
         # in order of their appearance in the treeview for always having valid parents
         for item in host_statistics:
             self.__transform_host_statistics_item(item)
-        
+
         for item in node_statistics:
             self.__transform_node_statistics_item(item)
-            
+
         for item in topic_statistics:
             self.__transform_topic_statistics_item(item)
 
@@ -316,18 +315,22 @@ class ROSModel(QAbstractItemModel):
             #hostinfo
             connected_hosts += 1
             data = host_item.get_items_younger_than(Time.now() - Duration(nsecs=UPDATE_FREQUENCY))
-            #anpassen an host_item!!!!!
+
             if host_item.get_state() is "warning" and state is not "error":
                 state = "warning"
             elif host_item.get_state() is "error":
                 state = "error"
+            elif host_item.get_state is "unknown":
+                state = "unknown"
 
             for key in data:
+                print("key is " + key)
                 if key is not ["bandwidth_mean", "cpu_usage_max", "cpu_temp_mean", "average_ram_load",
                                "cpu_usage_mean", "cpu_temp_max", "ram_usage_max"]:
                     break
                 elif key is "bandwidth_mean":
                     for entry in data[key]:
+                        print("bandwidth")
                         data_dict["total_traffic"] += entry
                 else:
                     for entry in data[key]:
@@ -403,8 +406,10 @@ class ROSModel(QAbstractItemModel):
                 data[element.statistic_type + ".expected_value"].append(element.expected_value)
                 data[element.statistic_type + ".state"].append(element.state)
 
-                if element.state is not element.OK:
+                if element.state is not element.OK and element.state is not element.UNKNOWN:
                     data["state"] = "error"
+                elif element.state is not element.UNKNOWN:
+                    data["state"] = "unknown"
 
             data["window_start"] = item.window_start
             data["window_stop"] = item.window_stop
@@ -429,7 +434,7 @@ class ROSModel(QAbstractItemModel):
         # check if avaiable
         if topic_seuid not in self.__identifier_dict:
             #creating a topic item
-            try: 
+            try:
                 parent = self.__identifier_dict[item.node_pub]
             except KeyError:
                 host_seuid = "h" + SEUID_DELIMITER + self.__find_host.get_host(item.node_pub)
@@ -440,8 +445,8 @@ class ROSModel(QAbstractItemModel):
                     self.__root_item.append_child(host_item)
                     self.add_log_entry("info", Time.now(), "ROSModel", "Added a new HostItem with name " + host_seuid)
                 else:
-                    host_item = self.__identifier_dict[host_seuid] 
-                
+                    host_item = self.__identifier_dict[host_seuid]
+
                 node_seuid = "n" + SEUID_DELIMITER + item.node_pub
                 node_item = None
                 if node_seuid not in self.__identifier_dict:
@@ -450,8 +455,8 @@ class ROSModel(QAbstractItemModel):
                     host_item.append_child(node_item)
                     self.add_log_entry("info", Time.now(), "ROSModel", "Added a new NodeItem with name " + node_seuid)
                 else:
-		    node_item = self.__identifier_dict[node_seuid]             
-                
+		    node_item = self.__identifier_dict[node_seuid]
+
                 parent = self.__identifier_dict["n" + SEUID_DELIMITER + item.node_pub]
             if parent is None:
                 # having a problem, there is no node with the given name
@@ -490,7 +495,7 @@ class ROSModel(QAbstractItemModel):
 
     def __transform_node_statistics_item(self, item):
         """
-        Integrates NodeStatistics in the model by moding its item/s by adding a new dict to the corresponding item. 
+        Integrates NodeStatistics in the model by moding its item/s by adding a new dict to the corresponding item.
 
         :param item: the NodeStatistics item
         :type item: NodeStatistics
@@ -521,7 +526,7 @@ class ROSModel(QAbstractItemModel):
     def __transform_host_statistics_item(self, item):
         """
         Integrates HostStatistics in the model by moding its item/s by adding a new dict to the corresponding item.
-        
+
         :param item: the HostStatistics item
         :type item: HostStatistics
         """
@@ -543,10 +548,10 @@ class ROSModel(QAbstractItemModel):
     def get_item_by_seuid(self, seuid):
         """
         Returns an item according to the given seuid.
-        
+
         :param seuid: the seuid of the wanted item
         :type seuid: str
-        
+
         :returns: AbstractItem
         """
         try:
@@ -564,13 +569,13 @@ class ROSModel(QAbstractItemModel):
     #TODO which one of these tw methods is correct
     def __get_item_by_seuid(self, seuid, current_item):
         """
-        Returns an item according to the given seuid and the currently selected item.            
-        
+        Returns an item according to the given seuid and the currently selected item.
+
         :param seid: the seuid of the wanted item
         :type seuid: str
         :param current_item: the currently selected item
         :type current_item: Abstractitem
-        
+
         :retuns: AbstractItem
         """
         if current_item.get_seuid() == seuid:
@@ -583,7 +588,7 @@ class ROSModel(QAbstractItemModel):
     def get_log_model(self):
         """
         Returns the log_model.
-        
+
         :returns: QStandardItemModel
         """
         return self.__log_model
@@ -591,7 +596,7 @@ class ROSModel(QAbstractItemModel):
 
     def add_log_entry(self, type, date, location, message):
         """
-        Adds a log entry to the log_model.       
+        Adds a log entry to the log_model.
 
         :param type: the type of the log_entry
         :type type: str
@@ -612,8 +617,8 @@ class ROSModel(QAbstractItemModel):
     def get_overview_text(self):
         """
         Returns the overview-data for the overview-widget.
-        
-        :returns: str  
+
+        :returns: str
         """
         return self.__root_item.get_detailed_data()
 
@@ -621,7 +626,7 @@ class ROSModel(QAbstractItemModel):
     def get_root_item(self):
         """
         returns the root item of the ROSModel.
-        
+
         :returns: AbstractItem
         """
         return self.__root_item
