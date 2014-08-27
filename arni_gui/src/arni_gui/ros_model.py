@@ -96,7 +96,7 @@ class ROSModel(QAbstractItemModel):
         return data_dict
 
 
-    def data(self, index, role):
+    def data(self, index, role=Qt.DisplayRole):
         """
         Returns the data of an item at the given index.
 
@@ -113,6 +113,8 @@ class ROSModel(QAbstractItemModel):
                 return None
 
             item = index.data()
+            if item is None:
+                raise IndexError("item is None")
             return item.get_latest_data(self.__mapping[index.column()])
         return None
 
@@ -176,6 +178,8 @@ class ROSModel(QAbstractItemModel):
             #todo: internalPointer or data????
             parent_item = parent.data()
 
+        print(parent_item.get_seuid())
+        print("child count: " + str(parent_item.child_count()) + " accesed row: " + str(row))
         child_item = parent_item.get_child(row)
         if child_item:
             return self.createIndex(row, column, child_item)
@@ -447,6 +451,7 @@ class ROSModel(QAbstractItemModel):
             self.add_log_entry("info", Time.now(), "ROSModel", "Added a new ConnectionItem with name " + connection_seuid)
             self.__identifier_dict[connection_seuid] = connection_item
         elif connection_seuid not in self.__identifier_dict:
+            topic_item = self.__identifier_dict[topic_seuid]
             #creating a new connection item
             connection_item = ConnectionItem(connection_seuid, topic_item)
             topic_item.append_child(connection_item)

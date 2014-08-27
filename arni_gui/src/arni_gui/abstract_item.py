@@ -149,8 +149,8 @@ class AbstractItem(QObject):
         # print("__update_current_state")
         # for i in range(length - len(
         # (self.get_items_younger_than(self.__last_update, "window_end", "state"))["window_end"]), length):
-        print(length)
-        print(len(self.__data["window_stop"]))
+        #print(length)
+        #print(len(self.__data["window_stop"]))
         if self.__state:
             for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5), ))["window_stop"]),
                            length):
@@ -220,12 +220,13 @@ class AbstractItem(QObject):
         
         :returns: int
         """
-        sum = 0
-        for item in self.__child_items:
-            sum += 1
-            sum += item.child_count()
-
-        return sum
+        return len(self.__child_items)
+        # sum = 0
+        # for item in self.__child_items:
+        #     sum += 1
+        #     sum += item.child_count()
+        #
+        # return sum
         # return len(self.child_items)
 
 
@@ -547,7 +548,8 @@ class AbstractItem(QObject):
 
     def get_erroneous_entries(self):
         return_values = {}
-        for entry in self.__data:
+        #todo: USE SOMETHING BETTER THAN SELF.ATTRIBUTES!!!!!
+        for entry in self._attributes:
             if self.__rated_data[entry + ".state"]:
                 #todo: is it guaranteed that __data and __rated_data is synced?
                 if self.__rated_data[entry + ".state"][-1] is not "ok":

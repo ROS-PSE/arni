@@ -17,10 +17,14 @@ class TopicItem(AbstractItem):
 
         #add the content
         #todo: currently probably only these 4 implemented
-        self._attributes.extend(["dropped_msgs", "traffic", "stamp_age_mean", "stamp_age_max"])
+        self._attributes.extend(["dropped_msgs", "traffic",
+                                 "stamp_age_mean", "stamp_age_max"])
 
         for item in self._attributes:
             self._add_data_list(item)
+
+        self._attributes.remove("traffic")
+        self._attributes.append("bandwidth")
 
         self.__rated_attributes = []
         for item in self._attributes:
@@ -28,13 +32,8 @@ class TopicItem(AbstractItem):
             self.__rated_attributes.append(item + ".expected_value")
             self.__rated_attributes.append(item + ".state")
 
-        del self._attributes
-
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)
-#todo: make the append_data methods "intelligent" here? buffer data or similar?
-        #yes, pleaaaaaaaaaaaaaaaaaaaaaase!
-
 
     def execute_action(self, action):
         """
