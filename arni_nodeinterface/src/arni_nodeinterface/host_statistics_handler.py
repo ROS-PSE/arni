@@ -176,7 +176,7 @@ class HostStatisticsHandler( StatisticsHandler):
         stats = self.__calc_statistics()
         self.__dict_lock.acquire()
         rospy.loginfo('publishing host')
-        rospy.loginfo(stats)
+        #rospy.loginfo(stats)
         self.__publish_nodes()
         self.__dict_lock.release()
         self.pub.publish(stats)
@@ -332,8 +332,8 @@ class HostStatisticsHandler( StatisticsHandler):
             if node not in self.__node_list:
                 node_api = rosnode.get_api_uri(rospy.get_master(), node)
                 try:
-                    rospy.loginfo('Getting Nodeinfo %s'%node)
-                    pid = self.node_server_proxy(node_api)
+                    rospy.logdebug('Getting Nodeinfo %s'%node)
+                    pid = self.node_server_proxy(node_api, node)
                     if not pid:
                         continue
                     node_process = psutil.Process(pid)
@@ -349,21 +349,22 @@ class HostStatisticsHandler( StatisticsHandler):
         to_remove = []
         for node_name in self.__node_list:
             if node_name not in nodes:
+                rospy.logdebug('removing %s from host'%node_name)
                 to_remove.append(node_name)
         for node_name in to_remove:
             self.remove_node(node_name)
         self.__dict_lock.release()
 
-        rospy.loginfo([key for key in self.__node_list])
+        rospy.logdebug([key for key in self.__node_list])
 
 
-    def node_server_proxy(self, node_api):
+    def node_server_proxy(self, node_api, node):
         socket.setdefaulttimeout(3)
         try:
             code,msg,pid = xmlrpclib.ServerProxy(node_api[2]).getPid('/NODEINFO')
             return pid
         except socket.error:
-            rospy.loginfo('Node is unreachable')
+            rospy.logdebug('Node %s is unreachable'%node)
             return False
 
     def update_nodes(self):
