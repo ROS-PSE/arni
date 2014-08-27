@@ -79,3 +79,6 @@ class TopicItem(AbstractItem):
         :returns: str[]
         """
         return ["dropped_msgs", "traffic"]
+
+    def get_short_data(self):
+        return "TopicItem"
