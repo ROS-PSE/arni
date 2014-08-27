@@ -13,7 +13,10 @@ class Status(object):
     
 
     def __init__(self, start):
-        
+        """
+        :param start: start of time_window
+        :type start: rospy.Time
+        """        
         #: Cpu usage in percent.
         self._cpu_usage = []        
 

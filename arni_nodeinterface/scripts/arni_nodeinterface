@@ -20,10 +20,9 @@ def main():
         rospy.Timer(rospy.Duration(host.update_interval), host.measure_status)
         rospy.Timer(
             rospy.Duration(host.publish_interval), host.publish_status)
-        rospy.Timer(rospy.Duration(5), host.get_node_info)
+        rospy.Timer(rospy.Duration(host.search_nodes_inv), host.get_node_info)
         while not rospy.is_shutdown():
             rospy.spin()
-        rospy.on_shutdown(host.shut_down_hook)
     except rospy.ROSInterruptException:
         pass
 

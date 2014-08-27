@@ -151,7 +151,7 @@ class HostStatus(Status):
 
     def reset_specific(self):
         """ 
-        Resets the values specific to Host or Nodes
+        Resets the values specific to Host
         """
         del self.__cpu_temp[:]
         for i in self.__cpu_temp_core:

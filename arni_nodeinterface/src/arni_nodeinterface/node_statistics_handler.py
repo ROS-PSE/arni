@@ -73,8 +73,6 @@ class NodeStatisticsHandler(StatisticsHandler):
         """
         Publishes the current status to a topic using ROS's
         publisher-subscriber mechanism. Triggered periodically.
-
-        :topic: Topic to which the data should be published.
         """
         self._status.time_end = rospy.Time.now()
         stats = self.__calc_statistics()
@@ -133,7 +131,8 @@ class NodeStatisticsHandler(StatisticsHandler):
 
     def receive_statistics(self, stats):
         """
-        Receives the statistics published by ROS Topic statistics.
+        Receives the statistics published by ROS Topic statistics
+        and attemps to calculate node net I/O stats with them        
         """
         if self._id in stats.node_pub:
             dur = stats.window_stop - stats.window_start
@@ -170,7 +169,6 @@ class NodeStatisticsHandler(StatisticsHandler):
         return cpu_usage
 
     def get_pid(self):
-
         return self.__node_process.pid
 
     @property

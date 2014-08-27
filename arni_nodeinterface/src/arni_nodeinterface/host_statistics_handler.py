@@ -33,13 +33,19 @@ class HostStatisticsHandler( StatisticsHandler):
     """
     
     def __init__(self, hostid):
-        
+        """
+        Collects resource usage data of host
+        and nodes.
+        :param hostid: ROS_IP of this host
+        :type hostid: string
+        """
         super(HostStatisticsHandler, self).__init__(hostid)
 
         self.__update_interval = 0
         self.__publish_interval = 0
         self.__is_enabled = False
         self.__check_enabled = 0
+        self.__search_nodes_inv = 0
         self.__init_params()
         self.__register_service()        
         self.__lock = threading.Lock()
@@ -65,8 +71,10 @@ class HostStatisticsHandler( StatisticsHandler):
         self.__set_bases()
     
     def __set_bases(self):
-
-
+        """
+        Calculate base stats for I/O at start of the node.
+        Used to calculate difference to get per/s stats.
+        """
         psutil.cpu_percent()
         psutil.cpu_percent(percpu = True)
 
@@ -217,14 +225,10 @@ class HostStatisticsHandler( StatisticsHandler):
         self.__publish_interval =  rospy.get_param('~publish_interval', 10)
         self.__is_enabled  = rospy.get_param('/enable_statistics',False)
         self.__check_enabled = rospy.get_param('/arni/check_enabled_interval',10)
+        self.__search_nodes_inv = rospy.get_param('~search_nodes', 5)
 
         
 
-    def shut_down_hook(self):
-
-        for key in self.__node_list:
-            self.__node_list[key].pub.unregister()
-        self.pub.unregister()
 
 
     def __calc_statistics(self):
@@ -374,10 +378,18 @@ class HostStatisticsHandler( StatisticsHandler):
                 self.remove_node(node_name)
             self.__dict_lock.release()
 
-            #rospy.logdebug([key for key in self.__node_list])
+            rospy.logdebug([key for key in self.__node_list])
 
 
     def node_server_proxy(self, node_api, node):
+        """
+        Use the xmlrpclib Server Proxy to get
+        node- pid
+        :param node_api: API URI used for ServerProxy
+        :type node_api: list
+        :param node:  name of the node
+        :type node: string
+        """
         socket.setdefaulttimeout(1)
         try:
             rospy.logdebug('Node %s at API %s'%(node , node_api))
@@ -397,6 +409,10 @@ class HostStatisticsHandler( StatisticsHandler):
             Thread(target = self.__node_list[node].measure_status).start()
 
     def get_sensors(self):
+        """
+        collects the current temperatur of CPU
+        and each core
+        """
         
         sensors.init()
         added = []
@@ -415,11 +431,18 @@ class HostStatisticsHandler( StatisticsHandler):
                         added.append(feature.label)
         except sensors.SensorsError:
             pass
-        if cpu_temp_c:					
-            self._status.add_cpu_temp_core(cpu_temp_c)
+        if cpu_temp_c :	
+            try:				
+                self._status.add_cpu_temp_core(cpu_temp_c)
+            except IndexError:
+                pass
         sensors.cleanup()
 
     def check_enabled(self, event):
+        """
+        Periodically checks if /enable_statistics is ture
+        if false no data will be collected / published
+        """
         rospy.logdebug('checking enable_statistics == true')
         self.__is_enabled = rospy.get_param('/enable_statistics', False)
         rospy.logdebug('enabled is %s'%self.__is_enabled)
@@ -436,4 +459,7 @@ class HostStatisticsHandler( StatisticsHandler):
     @property
     def check_enabled_interval(self):
         return self.__check_enabled
-
+    
+    @property
+    def search_nodes_inv(self):
+        return self.__search_nodes_inv
