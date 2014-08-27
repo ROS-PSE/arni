@@ -36,9 +36,10 @@ class HostStatisticsHandler( StatisticsHandler):
         
         super(HostStatisticsHandler, self).__init__(hostid)
 
-        self.__update_intervall = 0
-        self.__publish_intervall = 0
-
+        self.__update_interval = 0
+        self.__publish_interval = 0
+        self.__is_enabled = False
+        self.__check_enabled = 0
         self.__init_params()
         self.__register_service()        
         self.__lock = threading.Lock()
@@ -104,27 +105,31 @@ class HostStatisticsHandler( StatisticsHandler):
         Collects information about the host's current status using psutils.
         Triggered periodically.
         """
-        self.__lock.acquire()
-        #update node list
-        self.__dict_lock.acquire()
-        self.update_nodes()
-        self.__dict_lock.release()
+        if not self.__is_enabled:
+            rospy.logdebug('enable_statistics not set')
+            pass
+        if self.__is_enabled:
+            self.__lock.acquire()
+            #update node list
+            self.__dict_lock.acquire()
+            self.update_nodes()
+            self.__dict_lock.release()
+            rospy.logdebug('measuring host status')
+            #CPU 
+            self._status.add_cpu_usage(psutil.cpu_percent())
+            self._status.add_cpu_usage_core(psutil.cpu_percent(percpu = True))
+            #RAM
+            self._status.add_ram_usage(psutil.virtual_memory().percent)
+            #temp
+            
+            self.get_sensors()    
 
-        #CPU 
-        self._status.add_cpu_usage(psutil.cpu_percent())
-        self._status.add_cpu_usage_core(psutil.cpu_percent(percpu = True))
-        #RAM
-        self._status.add_ram_usage(psutil.virtual_memory().percent)
-        #temp
-        
-        self.get_sensors()    
-
-        
-        #Bandwidth and message frequency
-        self.__measure_network_usage()
-        #Disk usage        
-        self.__measure_disk_usage()
-        self.__lock.release()
+            
+            #Bandwidth and message frequency
+            self.__measure_network_usage()
+            #Disk usage        
+            self.__measure_disk_usage()
+            self.__lock.release()
 
 
     def __measure_network_usage(self):
@@ -137,8 +142,8 @@ class HostStatisticsHandler( StatisticsHandler):
             total_bytes = (network_interfaces[key].bytes_sent + network_interfaces[key].bytes_recv) - self.__bandwidth_base[key]
             total_packages = (network_interfaces[key].packets_sent + network_interfaces[key].packets_recv) - self.__msg_freq_base[key]
 
-            bandwidth = total_bytes / self.__update_intervall
-            msg_frequency = total_packages / self.__update_intervall
+            bandwidth = total_bytes / self.__update_interval
+            msg_frequency = total_packages / self.__update_interval
             self._status.add_bandwidth(key, bandwidth)
             self._status.add_msg_frequency(key, msg_frequency)
 
@@ -166,8 +171,8 @@ class HostStatisticsHandler( StatisticsHandler):
                 readb = drive_io[key].read_bytes - self.__disk_read_base[key]
                 writeb = drive_io[key].write_bytes - self.__disk_write_base[key]
 
-                read_rate = readb / self.__update_intervall
-                write_rate = writeb / self.__update_intervall
+                read_rate = readb / self.__update_interval
+                write_rate = writeb / self.__update_interval
                 self._status.add_drive_read(key, read_rate) 
                 self._status.add_drive_write(key, write_rate)
                 ##update base stats for next iteration
@@ -180,16 +185,21 @@ class HostStatisticsHandler( StatisticsHandler):
         Publishes the current status to a topic using ROS's publisher-subscriber mechanism.
         Triggered periodically. 
         """
-        self.__lock.acquire()
-        self._status.time_end = rospy.Time.now()
-        stats = self.__calc_statistics()
-        self.__dict_lock.acquire()
-        self.__publish_nodes()
-        self.__dict_lock.release()
-        self.pub.publish(stats)
-        self._status.reset()
-        self._status.time_start = rospy.Time.now()
-        self.__lock.release()
+        if not self.__is_enabled:
+            rospy.logdebug('enable_statistics not set')
+            pass
+        if self.__is_enabled:
+            self.__lock.acquire()
+            self._status.time_end = rospy.Time.now()
+            stats = self.__calc_statistics()
+            self.__dict_lock.acquire()
+            rospy.logdebug('Publishing Host ')
+            self.__publish_nodes()
+            self.__dict_lock.release()
+            self.pub.publish(stats)
+            self._status.reset()
+            self._status.time_start = rospy.Time.now()
+            self.__lock.release()
 
     def __publish_nodes(self):
         """
@@ -203,15 +213,12 @@ class HostStatisticsHandler( StatisticsHandler):
         """
         Initializes params on the parameter server,
         """
-        self.__update_intervall =  rospy.get_param('~update_intervall', 1)
-        self.__publish_intervall =  rospy.get_param('~publish_intervall', 10)
+        self.__update_interval =  rospy.get_param('~update_interval', 1)
+        self.__publish_interval =  rospy.get_param('~publish_interval', 10)
+        self.__is_enabled  = rospy.get_param('/enable_statistics',False)
+        self.__check_enabled = rospy.get_param('/arni/check_enabled_interval',10)
 
-        #set Topic statistics to same time_window as update_intervall
-        rospy.set_param('/enable_statistics', True )
-        rospy.set_param('/statistics_window_min_elements',
-                        self.__update_intervall )
-        rospy.set_param('/statistics_window_max_elements', 
-                        self.__publish_intervall)
+        
 
     def shut_down_hook(self):
 
@@ -328,41 +335,46 @@ class HostStatisticsHandler( StatisticsHandler):
         Get the list of all Nodes running on the host.
         Update the __node_list
         """ 
-        nodes = []
-        for node_name in rosnode.get_node_names():
-            node_api = rosnode.get_api_uri(rospy.get_master(), node_name, skip_cache = True)
-            if self._id in node_api[2]:
-                nodes.append(node_name)
+        if not self.__is_enabled:
+            rospy.logdebug('enable_statistics not set')            
+            pass
+
+        if self.__is_enabled:
+            nodes = []
+            for node_name in rosnode.get_node_names():
+                node_api = rosnode.get_api_uri(rospy.get_master(), node_name, skip_cache = True)
+                if self._id in node_api[2]:
+                    nodes.append(node_name)
 
 
-        for node in nodes:
-            if node not in self.__node_list:
-                node_api = rosnode.get_api_uri(rospy.get_master(), node, skip_cache = True)
-                try:
-                    rospy.logdebug('Getting Nodeinfo %s'%node)
-                    pid = self.node_server_proxy(node_api, node)
-                    if not pid:
+            for node in nodes:
+                if node not in self.__node_list:
+                    node_api = rosnode.get_api_uri(rospy.get_master(), node, skip_cache = True)
+                    try:
+                        rospy.logdebug('Getting Nodeinfo %s'%node)
+                        pid = self.node_server_proxy(node_api, node)
+                        if not pid:
+                            continue
+                        node_process = psutil.Process(pid)
+                        new_node = NodeStatisticsHandler(self._id, node, node_process)
+                        self.__dict_lock.acquire(True)
+                        self.__node_list[node] = new_node
+                        self.__dict_lock.release()
+                    except psutil.NoSuchProcess:
+                        rospy.loginfo('pid %d does not exit'%pid)
                         continue
-                    node_process = psutil.Process(pid)
-                    new_node = NodeStatisticsHandler(self._id, node, node_process)
-                    self.__dict_lock.acquire(True)
-                    self.__node_list[node] = new_node
-                    self.__dict_lock.release()
-                except psutil.NoSuchProcess:
-                    rospy.loginfo('pid %d does not exit'%pid)
-                    continue
-        
-        self.__dict_lock.acquire()
-        to_remove = []
-        for node_name in self.__node_list:
-            if node_name not in nodes:
-                rospy.logdebug('removing %s from host'%node_name)
-                to_remove.append(node_name)
-        for node_name in to_remove:
-            self.remove_node(node_name)
-        self.__dict_lock.release()
+            
+            self.__dict_lock.acquire()
+            to_remove = []
+            for node_name in self.__node_list:
+                if node_name not in nodes:
+                    rospy.logdebug('removing %s from host'%node_name)
+                    to_remove.append(node_name)
+            for node_name in to_remove:
+                self.remove_node(node_name)
+            self.__dict_lock.release()
 
-        rospy.logdebug([key for key in self.__node_list])
+            #rospy.logdebug([key for key in self.__node_list])
 
 
     def node_server_proxy(self, node_api, node):
@@ -400,13 +412,22 @@ class HostStatisticsHandler( StatisticsHandler):
             pass
         if temp_core: 
             self._status.add_cpu_temp_core(temp_core)
+
+    def check_enabled(self, event):
+        rospy.logdebug('checking enable_statistics == true')
+        self.__is_enabled = rospy.get_param('/enable_statistics', False)
+        rospy.logdebug('enabled is %s'%self.__is_enabled)
        
 
     @property 
-    def update_intervall(self):
-        return self.__update_intervall
+    def update_interval(self):
+        return self.__update_interval
 
     @property 
-    def publish_intervall(self):
-        return self.__publish_intervall
+    def publish_interval(self):
+        return self.__publish_interval
+
+    @property
+    def check_enabled_interval(self):
+        return self.__check_enabled
 

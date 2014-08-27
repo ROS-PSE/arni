@@ -28,7 +28,7 @@ class NodeStatisticsHandler(StatisticsHandler):
 
         self.__node_process = node_process
         self.pub = rospy.Publisher('/statistics_node', NodeStatistics)
-        self.update_intervall = rospy.get_param('~update_intervall', 1)
+        self.update_interval = rospy.get_param('~update_interval', 1)
         self.register_subscriber()
         self.__write_base = 0
         self.__read_base = 0
@@ -52,8 +52,8 @@ class NodeStatisticsHandler(StatisticsHandler):
             # Disk I/O
             node_io = self.__node_process.io_counters()
 
-            read_rate = (node_io.read_bytes - self.__read_base)  / float(self.update_intervall)
-            write_rate = (node_io.write_bytes - self.__write_base) / float(self.update_intervall)
+            read_rate = (node_io.read_bytes - self.__read_base)  / float(self.update_interval)
+            write_rate = (node_io.write_bytes - self.__write_base) / float(self.update_interval)
 
             self.__read_base = node_io.read_bytes
             self.__write_base = node_io.write_bytes
@@ -136,6 +136,7 @@ class NodeStatisticsHandler(StatisticsHandler):
         Receives the statistics published by ROS Topic statistics.
         """
         if self._id in stats.node_pub:
+            rospy.loginfo('Node %s received stats  %s'%(self._id, stats))
             dur = stats.window_stop - stats.window_start
             self._status.add_node_bandwidth(stats.traffic / dur.to_sec())
             self._status.add_node_msg_freq(stats.period_mean.to_sec())

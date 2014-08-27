@@ -16,13 +16,14 @@ def main():
 
     try:
         rospy.sleep(1)
-        rospy.Timer(rospy.Duration(host.update_intervall), host.measure_status)
+        rospy.Timer(rospy.Duration(host.check_enabled_interval), host.check_enabled)
+        rospy.Timer(rospy.Duration(host.update_interval), host.measure_status)
         rospy.Timer(
-            rospy.Duration(host.publish_intervall), host.publish_status)
+            rospy.Duration(host.publish_interval), host.publish_status)
         rospy.Timer(rospy.Duration(5), host.get_node_info)
         while not rospy.is_shutdown():
             rospy.spin()
-        # rospy.on_shutdown(host.shut_down_hook)
+        rospy.on_shutdown(host.shut_down_hook)
     except rospy.ROSInterruptException:
         pass
 
