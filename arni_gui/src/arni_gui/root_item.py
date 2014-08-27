@@ -26,11 +26,15 @@ class RootItem(AbstractItem):
 
         self.__rated_attributes = []
 
-        del self._attributes
+        for item in self._attributes:
+            self.__rated_attributes.append(item + ".actual_value")
+            self.__rated_attributes.append(item + ".expected_value")
+            self.__rated_attributes.append(item + ".state")
 
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)
 
+        del self._attributes
 
     def get_detailed_data(self):
         """

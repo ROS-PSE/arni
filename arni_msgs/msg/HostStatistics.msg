@@ -48,14 +48,14 @@ int32[] message_frequency_max
 
 # bandwith of each network interface
 
-int32[] bandwidth_mean
-int32[] bandwidth_stddev
-int32[] bandwidth_max
+float32[] bandwidth_mean
+float32[] bandwidth_stddev
+float32[] bandwidth_max
 
 # drive  
 string[] drive_name  
 int32[] drive_free_space  
   
 # input output operations on a specific drive
-int32[] drive_read  
-int32[] drive_write  
+float32[] drive_read  
+float32[] drive_write  

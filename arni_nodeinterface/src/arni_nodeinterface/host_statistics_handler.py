@@ -249,13 +249,13 @@ class HostStatisticsHandler( StatisticsHandler):
         hs.ram_usage_max = stats_dict['ram_usage_max']
 
         hs.interface_name = stats_dict['interface_name']
-        hs.message_frequency_mean =  map(int, stats_dict['message_frequency_mean'])
-        hs.message_frequency_stddev = map(int, stats_dict['message_frequency_stddev'])
-        hs.message_frequency_max = map(int, stats_dict['message_frequency_max'])
+        hs.message_frequency_mean =  stats_dict['message_frequency_mean']
+        hs.message_frequency_stddev = stats_dict['message_frequency_stddev']
+        hs.message_frequency_max = stats_dict['message_frequency_max']
 
-        hs.bandwidth_mean =  map(int, stats_dict['bandwidth_mean'])
-        hs.bandwidth_stddev = map(int, stats_dict['bandwidth_stddev'])
-        hs.bandwidth_max = map(int, stats_dict['bandwidth_max'])
+        hs.bandwidth_mean =  stats_dict['bandwidth_mean']
+        hs.bandwidth_stddev = stats_dict['bandwidth_stddev']
+        hs.bandwidth_max = stats_dict['bandwidth_max']
 
         
         hs.drive_name = stats_dict['drive_name']
@@ -332,6 +332,7 @@ class HostStatisticsHandler( StatisticsHandler):
             if node not in self.__node_list:
                 node_api = rosnode.get_api_uri(rospy.get_master(), node)
                 try:
+                    rospy.loginfo('Getting Nodeinfo %s'%node)
                     pid = self.node_server_proxy(node_api)
                     if not pid:
                         continue
@@ -361,8 +362,8 @@ class HostStatisticsHandler( StatisticsHandler):
         try:
             code,msg,pid = xmlrpclib.ServerProxy(node_api[2]).getPid('/NODEINFO')
             return pid
-        except socket.Error:
-            rospy.loginfo('Node %s unreachable'%node)
+        except socket.error:
+            rospy.loginfo('Node is unreachable')
             return False
 
     def update_nodes(self):

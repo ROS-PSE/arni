@@ -15,7 +15,7 @@ class ConnectionItem(AbstractItem):
         :type parent: AbstractItem
         """
         super(ConnectionItem, self).__init__(seuid, parent)
-
+        self.__parent = parent
         self.__type = "connection"
 
         # add the content
