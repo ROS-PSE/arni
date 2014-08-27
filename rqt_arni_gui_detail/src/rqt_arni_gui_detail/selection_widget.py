@@ -120,7 +120,6 @@ class SelectionWidget(QWidget):
         if self.__selected_item is not None:
             self.__selected_item.execute_action("restart")
 
-
     def __on_stop_push_button_clicked(self):
         """Handels the stop button and stops a host or node."""
         if self.__selected_item is not None:

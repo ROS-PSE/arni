@@ -14,7 +14,7 @@ class HostItem(AbstractItem):
         :type parent: AbstractItem
         """
         super(HostItem, self).__init__(seuid, parent)
-
+        self.__parent = parent
         self.__type = "host"
 
         #add the content

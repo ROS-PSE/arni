@@ -16,6 +16,9 @@ class NodeItem(AbstractItem):
         """
         self.__type = "node"
         #add the content
+        super(NodeItem, self).__init__(seuid, parent)
+        self.__parent = parent
+
         self._attributes.extend(["node_cpu_usage_mean", "node_cpu_usage_stddev", "node_cpu_usage_max",
                       "node_cpu_usage_core_mean",
                       "node_cpu_usage_core_stddev", "node_cpu_usage_core_max", "node_gpu_usage_mean", "node_gpu_usage_stddev",
@@ -46,6 +49,10 @@ class NodeItem(AbstractItem):
         :param action: action to be executed
         :type action: RemoteAction
         """
+        #create the name of the service
+        #service_name = "/execute_node_reaction/" +
+        #rospy.wait_for_service(
+
         raise NotImplementedError()
 
 
