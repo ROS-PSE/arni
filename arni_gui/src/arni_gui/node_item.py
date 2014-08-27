@@ -1,6 +1,11 @@
 from abstract_item import AbstractItem
 from python_qt_binding.QtCore import QObject
 
+from arni_core.host_lookup import HostLookup
+from arni_msg.srv import NodeReaction
+
+
+
 class NodeItem(AbstractItem):
     """A NodeItem represents a node with all of its data. It also has a interface to start/stop/restart nodes."""
 
@@ -54,8 +59,16 @@ class NodeItem(AbstractItem):
         #create the name of the service
         #service_name = "/execute_node_reaction/" +
         #rospy.wait_for_service(
-
-        raise NotImplementedError()
+        
+        host_formatted = helper.underscore_ip(self.__parent.get_seuid()[2:])
+        service_name = "/execute_node_reaction/%s" % host_formatted
+        try:            
+            execute = rospy.ServiceProxy(
+                service_name, NodeReaction)
+            resp = execute(self.__seuid[2:], action, '')
+            rospy.logdebug(
+                "sending command '%s' to node %s returned: %s"
+                % (self.__command, self._node, resp.returnmessage))
 
 
     def get_detailed_data(self):
