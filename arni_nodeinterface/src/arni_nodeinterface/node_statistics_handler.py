@@ -136,7 +136,6 @@ class NodeStatisticsHandler(StatisticsHandler):
         Receives the statistics published by ROS Topic statistics.
         """
         if self._id in stats.node_pub:
-            rospy.loginfo('Node %s received stats  %s'%(self._id, stats))
             dur = stats.window_stop - stats.window_start
             self._status.add_node_bandwidth(stats.traffic / dur.to_sec())
             self._status.add_node_msg_freq(stats.period_mean.to_sec())

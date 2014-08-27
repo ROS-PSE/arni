@@ -398,20 +398,26 @@ class HostStatisticsHandler( StatisticsHandler):
 
     def get_sensors(self):
         
-        temp_core = []
         sensors.init()
+        added = []
+        cpu_temp_c = []
         try:
             for chip in sensors.iter_detected_chips():
-                for feature in chip:
-                    if feature.name.startswith(b'temp'):
-                        if feature.label.startswith('Physical') or ('CPU'):
-                            self._status.add_cpu_temp(feature.get_value())
-                        elif feature.label.startswith('Core'):
-                            temp_core.append(feature.get_value())
+                for feature in chip:		
+                    if feature.name.startswith('temp'):			
+                        if ((feature.label.startswith('Physical') or 
+                            feature.label.startswith('CPU')) and 
+                            feature.label not in added):
+                            self._status.add_cpu_temp(feature.get_value())				        
+                        elif (feature.label.startswith('Core') 
+                                and feature.label not in added):
+                            cpu_temp_c.append(feature.get_value())
+                        added.append(feature.label)
         except sensors.SensorsError:
             pass
-        if temp_core: 
-            self._status.add_cpu_temp_core(temp_core)
+        if cpu_temp_c:					
+            self._status.add_cpu_temp_core(cpu_temp_c)
+        sensors.cleanup()
 
     def check_enabled(self, event):
         rospy.logdebug('checking enable_statistics == true')
