@@ -4,6 +4,9 @@ from helper import SEUID_DELIMITER
 import helper
 import re
 
+import rosnode
+import rosgraph
+
 
 class HostLookup(object):
 
@@ -33,7 +36,7 @@ class HostLookup(object):
         # do an call to master if the host is not known yet.
         if not node in self.__node_dict:
             master = rosgraph.Master("")
-            node_api = rosnode.get_api_uri(master, node)
+            node_api = rosnode.get_api_uri(master, node, skip_cache=True)
             # did we get a valid ip?
             if node_api is not None and node_api.startswith("http://"):
                 ip = re.search("http://(.*):", str(node_api)).group(1)
