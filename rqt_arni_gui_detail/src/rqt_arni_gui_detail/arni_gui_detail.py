@@ -100,11 +100,11 @@ class ArniGuiDetail(Plugin):
 
         self.__selection_widget.set_current_tab(0 if tab_value is None else int(tab_value))
         self.__selection_widget.set_range_combo_box_index(0 if combo_box_value is None else int(combo_box_value))
-        self.__tree_widget.show_nodes_check_box.setCheckState(Qt.Checked if show_nodes_check_box is None else int(show_nodes_check_box))
-        self.__tree_widget.show_hosts_check_box.setCheckState(Qt.Checked if show_hosts_check_box is None else int(show_hosts_check_box))
-        self.__tree_widget.show_topics_check_box.setCheckState(Qt.Checked if show_topics_check_box is None else int(show_topics_check_box))
-        self.__tree_widget.show_connections_check_box.setCheckState(Qt.Checked if show_erroneous_check_box is None else int(show_erroneous_check_box))
-        self.__tree_widget.show_erroneous_check_box.setCheckState(Qt.Checked if show_connections_check_box is None else int(show_connections_check_box))
+        self.__tree_widget.show_nodes_check_box.setCheckState(2 if show_nodes_check_box is None else int(show_nodes_check_box))
+        self.__tree_widget.show_hosts_check_box.setCheckState(2 if show_hosts_check_box is None else int(show_hosts_check_box))
+        self.__tree_widget.show_topics_check_box.setCheckState(2 if show_topics_check_box is None else int(show_topics_check_box))
+        self.__tree_widget.show_connections_check_box.setCheckState(2 if show_erroneous_check_box is None else int(show_erroneous_check_box))
+        self.__tree_widget.show_erroneous_check_box.setCheckState(2 if show_connections_check_box is None else int(show_connections_check_box))
         self.__tree_widget.set_relative_font_size(0 if relative_font_size is None else int(relative_font_size))
 
         # def trigger_configuration(self):
