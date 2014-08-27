@@ -39,7 +39,7 @@ class ConnectionItem(AbstractItem):
 
 
     def execute_action(self, action):
-        """Not senseful, throws an exception.
+        """Not senseful
 
         :param action: action to be executed
         :type action: RemoteAction
@@ -60,15 +60,12 @@ class ConnectionItem(AbstractItem):
 
         content += "dropped_msgs: " + str(data_dict["dropped_msgs"]) + "<br>"
         content += "traffic: " + str(data_dict["traffic"]) + "<br>"
-        # content += "connected_nodes:" + str(data_dict["connected_nodes"]) + "<br>"
-        # content += "topic_counter" + str(data_dict["topic_counter"]) + "<br>"
-        # content += "connection_counter: " + str(data_dict["connection_counter"]) + "<br>"
-        # content += "cpu_usage_max: " + str(data_dict["cpu_usage_max"]) + "<br>"
-        # content += "cpu_temp_mean: " + str(data_dict["cpu_temp_mean"]) + "<br>"
-        # content += "average_ram_load: " + str(data_dict["average_ram_load"]) + "<br>"
-        # content += "cpu_usage_mean:" + str(data_dict["cpu_usage_mean"]) + "<br>"
-        # content += "cpu_temp_max: " + str(data_dict["cpu_temp_max"]) + "<br>"
-        # content += "ram_usage_max: " + str(data_dict["ram_usage_max"]) + "<br>"
+        content += "period_mean:" + str(data_dict["period_mean"]) + "<br>"
+        content += "period_stddev" + str(data_dict["period_stddev"]) + "<br>"
+        content += "period_max: " + str(data_dict["period_max"]) + "<br>"
+        content += "stamp_age_mean: " + str(data_dict["stamp_age_mean"]) + "<br>"
+        content += "stamp_age_stddev: " + str(data_dict["stamp_age_stddev"]) + "<br>"
+        content += "stamp_age_max: " + str(data_dict["stamp_age_max"]) + "<br>"
 
         content += "</p>"
         return content
@@ -81,4 +78,4 @@ class ConnectionItem(AbstractItem):
         :returns: str[]
         """
         #todo: append more items here
-        return ["traffic", "dropped_msgs"]
+        return ["traffic", "dropped_msgs", "period_mean"]

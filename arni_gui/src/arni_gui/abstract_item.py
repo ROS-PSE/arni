@@ -125,7 +125,6 @@ class AbstractItem(QObject):
         :param data: the data to append in key value form
         :type data: dict
         """
-
         if "window_stop" not in data:
             data["window_stop"] = Time.now()
         for attribute in self.__data:
@@ -152,11 +151,12 @@ class AbstractItem(QObject):
         # (self.get_items_younger_than(self.__last_update, "window_end", "state"))["window_end"]), length):
         print(length)
         print(len(self.__data["window_stop"]))
-        for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5), ))["window_stop"]),
-                       length):
-            if self.__state[i] == "error":
-                self.__state[-1] = "warning"
-                break
+        if self.__state:
+            for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5), ))["window_stop"]),
+                           length):
+                if self.__state[i] == "error":
+                    self.__state[-1] = "warning"
+                    break
         self.__last_update = Time.now()
 
 
@@ -206,7 +206,9 @@ class AbstractItem(QObject):
             except KeyError:
                 print("An entry found in the object dictionary of the rated data was not found in the given rated data")
                 raise
-
+        if "state" in data:
+            if data["state"] is "error":
+                self.__state[-1] = "error"
         #if found is not True:
         #    raise UserWarning("No matching time window was found. Could not update the AbstractItem")
         self.__update_current_state()

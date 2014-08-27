@@ -27,6 +27,9 @@ class HostItem(AbstractItem):
                       "message_frequency_max", "bandwidth_mean", "bandwidth_stddev", "bandwidth_max",
                       "drive_name", "drive_free_space", "drive_read", "drive_write"])
 
+
+
+
         self.__rated_attributes = []
         for item in self._attributes:
             self.__rated_attributes.append(item + ".actual_value")
@@ -64,15 +67,20 @@ class HostItem(AbstractItem):
 
         content += "cpu_temp_mean: " + str(data_dict["cpu_temp_mean"]) + "<br>"
         content += "bandwidth_mean: " + str(data_dict["bandwidth_mean"]) + "<br>"
-        # content += "connected_nodes:" + str(data_dict["connected_nodes"]) + "<br>"
-        # content += "topic_counter" + str(data_dict["topic_counter"]) + "<br>"
-        # content += "connection_counter: " + str(data_dict["connection_counter"]) + "<br>"
-        # content += "cpu_usage_max: " + str(data_dict["cpu_usage_max"]) + "<br>"
-        # content += "cpu_temp_mean: " + str(data_dict["cpu_temp_mean"]) + "<br>"
-        # content += "average_ram_load: " + str(data_dict["average_ram_load"]) + "<br>"
-        # content += "cpu_usage_mean:" + str(data_dict["cpu_usage_mean"]) + "<br>"
-        # content += "cpu_temp_max: " + str(data_dict["cpu_temp_max"]) + "<br>"
-        # content += "ram_usage_max: " + str(data_dict["ram_usage_max"]) + "<br>"
+        content += "cpu_temp_stddev:" + str(data_dict["cpu_temp_stddev"]) + "<br>"
+        content += "cpu_temp_max" + str(data_dict["cpu_temp_max"]) + "<br>"
+        content += "cpu_usage_mean: " + str(data_dict["cpu_usage_mean"]) + "<br>"
+        content += "cpu_usage_stddev: " + str(data_dict["cpu_usage_stddev"]) + "<br>"
+        content += "cpu_usage_max: " + str(data_dict["cpu_usage_max"]) + "<br>"
+        content += "cpu_usage_core_mean: " + str(data_dict["cpu_usage_core_mean"]) + "<br>"
+        content += "cpu_usage_core_stddev:" + str(data_dict["cpu_usage_core_stddev"]) + "<br>"
+        content += "cpu_temp_core_max: " + str(data_dict["cpu_temp_core_max"]) + "<br>"
+        content += "gpu_temp_mean: " + str(data_dict["gpu_temp_mean"]) + "<br>"
+        content += "gpu_temp_stddev: " + str(data_dict["gpu_temp_stddev"]) + "<br>"
+        content += "gpu_temp_max: " + str(data_dict["gpu_temp_max"]) + "<br>"
+        content += "gpu_usage_mean:" + str(data_dict["gpu_usage_mean"]) + "<br>"
+        content += "gpu_usage_stddev" + str(data_dict["gpu_usage_stddev"]) + "<br>"
+        content += "gpu_usage_max: " + str(data_dict["gpu_usage_max"]) + "<br>"
 
         content += "</p>"
         return content
