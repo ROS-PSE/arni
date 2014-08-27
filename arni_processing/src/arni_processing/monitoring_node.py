@@ -59,14 +59,14 @@ class MonitoringNode:
         :return: RatedStatisticsContainer.
         """
         if str(identifier)[0] == "c":
-            self.__aggregate_data(data)
-        result = self.__specification_handler.compare(data, str(identifier))
+            self.__aggregate_data(data, identifier)
+        result = self.__specification_handler.compare(data, str(identifier)).to_msg_type()
         container = StorageContainer(rospy.Time.now(), str(identifier), data, result)
         self.__metadata_storage.store(container)
-        self.__publish_data(result.to_msg_type(), False)
+        self.__publish_data(result, False)
         return result
 
-    def __aggregate_data(self, data):
+    def __aggregate_data(self, data, identifier):
         """
         Collect topic data and send them to get rated after a while.
 
@@ -77,6 +77,8 @@ class MonitoringNode:
                         rospy.Duration(rospy.get_param("/arni/aggregation_window", 3)):
             res = self.__specification_handler.compare_topic(self.__aggregate)
             for r in res:
+                container = StorageContainer(rospy.Time.now(), str(identifier), data, r)
+                self.__metadata_storage.store(container)
                 self.__publish_data(r, False)
             self.__aggregate = []
             self.__aggregate_start = rospy.Time.now()
@@ -116,13 +118,15 @@ class MonitoringNode:
         for container in data:
             if container.identifier[0] == "h":
                 response.host_statistics.append(container.data_raw)
-                response.rated_host_statistics.append(container.data_rated.to_msg_type())
+                response.rated_host_statistics.append(container.data_rated)
             if container.identifier[0] == "n":
                 response.node_statistics.append(container.data_raw)
-                response.rated_node_statistics.append(container.data_rated.to_msg_type())
+                response.rated_node_statistics.append(container.data_rated)
             if container.identifier[0] == "c":
                 response.topic_statistics.append(container.data_raw)
-                response.rated_topic_statistics.append(container.data_rated.to_msg_type())
+                response.rated_topic_statistics.append(container.data_rated)
+            if container.identifier[0] == "t":
+                response.rated_topic_statistics.append(container.data_rated)
         return response
 
     def listener(self):
