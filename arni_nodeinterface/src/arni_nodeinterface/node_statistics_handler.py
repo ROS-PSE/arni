@@ -30,6 +30,9 @@ class NodeStatisticsHandler(StatisticsHandler):
         self.pub = rospy.Publisher('/statistics_node', NodeStatistics)
         self.update_intervall = rospy.get_param('~update_intervall', 1)
         self.register_subscriber()
+        self.__write_base = 0
+        self.__read_base = 0
+
 
     def measure_status(self):
         """
@@ -50,8 +53,11 @@ class NodeStatisticsHandler(StatisticsHandler):
             # Disk I/O
             node_io = self.__node_process.io_counters()
 
-            read_rate = node_io.read_bytes / self.update_intervall
-            write_rate = node_io.write_bytes / self.update_intervall
+            read_rate = (node_io.read_bytes - self.__read_base)  / float(self.update_intervall)
+            write_rate = (node_io.write_bytes - self.__write_base) / float(self.update_intervall)
+
+            self.__read_base = node_io.read_bytes
+            self.__write_base = node_io.write_bytes
 
             self._status.add_node_io(read_rate, write_rate)
         except psutil.NoSuchProcess:
@@ -71,10 +77,10 @@ class NodeStatisticsHandler(StatisticsHandler):
 
         :topic: Topic to which the data should be published.
         """
-        rospy.loginfo('publishing node %s'%self._id)
+        #rospy.loginfo('publishing node %s'%self._id)
         self._status.time_end = rospy.Time.now()
         stats = self.__calc_statistics()
-        rospy.loginfo(stats)
+        #rospy.loginfo(stats)
         self.pub.publish(stats)
         self._status.reset()
         self._status.time_start = rospy.Time.now()

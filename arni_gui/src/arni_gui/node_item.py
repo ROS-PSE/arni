@@ -14,7 +14,7 @@ class NodeItem(AbstractItem):
         :param parent: the parent-item
         :type parent: AbstractItem
         """
-        self.__type = "node"
+        self._type = "node"
         #add the content
         super(NodeItem, self).__init__(seuid, parent)
         self.__parent = parent

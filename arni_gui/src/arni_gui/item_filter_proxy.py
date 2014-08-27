@@ -19,8 +19,8 @@ class ItemFilterProxy(QSortFilterProxyModel):
         #todo: how will these be set correctly at the initialization of the program?
         self.__show_hosts = True
         self.__show_nodes = True
-        self.__show_connections = False
-        self.__show_topics = False
+        self.__show_connections = True
+        self.__show_topics = True
 
 
     def filterAcceptsRow(self, source_row, source_parent):
@@ -48,27 +48,32 @@ class ItemFilterProxy(QSortFilterProxyModel):
 
         data = self.sourceModel().data(entries[0])
         for i in range(0, 1):
+	    print data
             if self.__show_hosts is True:
-                if data == "Host":
+                if data == "host":
                     correct_type = True
+                    print "ho"
                     break
             if correct_type is False & self.__show_nodes is True:
-                if data == "Node":
+                if data == "node":
                     correct_type = True
+                    print "node"
                     break
             if correct_type is False & self.__show_connections is True:
-                if data == "Connection":
+                if data == "connection":
                     correct_type = True
+                    print "Con"
                     break
             if correct_type is False & self.__show_topics is True:
-                if data == "Topic":
+                if data == "topic":
                     correct_type = True
+                    print "top"
                     break
 
         if correct_type is False:
             return False
         #filters accordings to the filter regex
-        return QSortFilterProxyModel.filterAcceptsRow(source_row, source_parent)
+        return QSortFilterProxyModel.filterAcceptsRow(self, source_row, source_parent)
         #todo: when the this filter accepts the item, call the parent filter
 
 

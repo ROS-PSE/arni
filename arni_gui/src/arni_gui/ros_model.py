@@ -79,6 +79,8 @@ class ROSModel(QAbstractItemModel):
         self.__seuid_helper = SEUID()
 
 
+
+
     def get_overview_data_since(self, time=None):
         """
         Return the info needed for the OverviewWidget as a dict.

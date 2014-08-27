@@ -34,9 +34,13 @@ class TreeWidget(QWidget):
 
 
         self.__filter_proxy = ItemFilterProxy()
-        #self.__filter_proxy.setSourceModel(self.__model)
-        self.item_tree_view.setModel(self.__model)#self.__filter_proxy)
-        #self.__filter_proxy.setDynamicSortFilter(True)
+
+        self.__filter_proxy.setSourceModel(self.__model)
+        self.item_tree_view.setModel(self.__filter_proxy)
+        #self.item_tree_view.setModel(self.__model)
+        
+        self.__filter_proxy.setDynamicSortFilter(True)
+
 
         self.item_tree_view.setRootIsDecorated(True)
         # todo: test: eventually remove this
@@ -79,10 +83,10 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if checkBox is unset
         :type activated: Integer
         """
-        if activated is Qt.Checked:
-            self.__filter_proxy.show_nodes(True)
-        else:
-            self.__filter_proxy.show_nodes(False)
+        #if activated is Qt.Checked:
+           # self.__filter_proxy.show_nodes(True)
+        #else:
+            #self.__filter_proxy.show_nodes(False)
 
 
     def __on_show_hosts_check_box_state_changed(self, activated):
@@ -92,10 +96,10 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
-        if activated is Qt.Checked:
-            self.__filter_proxy.show_hosts(True)
-        else:
-            self.__filter_proxy.show_hosts(False)
+        #if activated is Qt.Checked:
+            #self.__filter_proxy.show_hosts(True)
+        #else:
+            #self.__filter_proxy.show_hosts(False)
 
 
     def __on_show_topics_check_box_state_changed(self, activated):
@@ -104,10 +108,10 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
-        if activated is Qt.Checked:
-            self.__filter_proxy.show_topics(True)
-        else:
-            self.__filter_proxy.show_topics(False)
+        #if activated is Qt.Checked:
+            #self.__filter_proxy.show_topics(True)
+        #else:
+            #self.__filter_proxy.show_topics(False)
 
 
     def __on_show_connections_check_box_state_changed(self, activated):
@@ -117,10 +121,10 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
-        if activated is Qt.Checked:
-            self.__filter_proxy.show_connections(True)
-        else:
-            self.__filter_proxy.show_connections(False)
+        #if activated is Qt.Checked:
+            #self.__filter_proxy.show_connections(True)
+        #else:
+            #self.__filter_proxy.show_connections(False)
 
 
     def __on_show_erroneous_check_box_state_changed(self, activated):
@@ -130,14 +134,14 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
-        if activated is Qt.Checked:
+        #if activated is Qt.Checked:
             #todo: does this match the right positions?
-            self.__filter_proxy.setFilterRegExp(QRegExp("error"))
+            #self.__filter_proxy.setFilterRegExp(QRegExp("error"))
 
 
     def __on_apply_push_button_clicked(self):
         """Filters the content in the box according to the content of the filter_line_edit."""
-        self.__filter_proxy.setFilterRegExp(QRegExp(".*" + self.filter_line_Edit.text() + ".*"))
+        #self.__filter_proxy.setFilterRegExp(QRegExp(".*" + self.filter_line_Edit.text() + ".*"))
 
 
     def __on_minus_push_button_clicked(self):
