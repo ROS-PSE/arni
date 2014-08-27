@@ -95,12 +95,16 @@ class SpecificationHandler:
         # fields.remove(x)
         if identifier[0] == "c":
             fields.append("bandwidth")
+            fields.append("frequency")
         for field in fields:
             if field[0] == "_" or "serialize" in field:
                 continue
             current_obj = {}
             if field == "bandwidth":
                 value = data.traffic / window_len.to_sec()
+            elif field == "frequency":
+                if hasattr(data, "delivered_msgs"):
+                    value = data.delivered_msgs / window_len.to_sec()
             else:
                 value = getattr(data, field)
             try:
@@ -143,6 +147,7 @@ class SpecificationHandler:
                     "window_max": rospy.Time(0),
                     "delivered_msgs": 0,
                     "dropped_msgs": 0,
+                    "frequency": 0,
                     "traffic": 0,
                     "stamp_age_mean": [],
                     "stamp_age_stddev": [],
@@ -158,6 +163,7 @@ class SpecificationHandler:
             if hasattr(message, "delivered_msgs"):
                 delivered_msgs_set = True
                 by_topic[seuid.get_seuid("topic")]["delivered_msgs"] += message.delivered_msgs * scale
+                by_topic[seuid.get_seuid("topic")]["frequency"] += message.delivered_msgs / window_len.to_sec() * scale
             by_topic[seuid.get_seuid("topic")]["dropped_msgs"] += message.dropped_msgs * scale
             by_topic[seuid.get_seuid("topic")]["traffic"] += message.traffic * scale
             by_topic[seuid.get_seuid("topic")]["stamp_age_max"] = max(message.stamp_age_max,
@@ -181,7 +187,7 @@ class SpecificationHandler:
             if delivered_msgs_set:
                 fields.append("delivered_msgs")
                 fields.append("delivered_msgs_per_second")
-            alt_names = {"traffic_per_second": "bandwidth"}
+            alt_names = {"traffic_per_second": "bandwidth", "delivered_msgs_per_second": "frequency"}
             for f in fields:
                 re = RatedStatisticsEntity()
                 re.statistic_type = f
