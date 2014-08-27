@@ -33,7 +33,7 @@ class TreeWidget(QWidget):
         self.setObjectName('TreeWidgetUi')
 
 
-        self.__filter_proxy = ItemFilterProxy()
+        self.__filter_proxy = ItemFilterProxy(self)
 
         self.__filter_proxy.setSourceModel(self.__model)
         self.item_tree_view.setModel(self.__filter_proxy)
@@ -83,10 +83,10 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if checkBox is unset
         :type activated: Integer
         """
-        #if activated is Qt.Checked:
-           # self.__filter_proxy.show_nodes(True)
-        #else:
-            #self.__filter_proxy.show_nodes(False)
+        if activated is 2:
+            self.__filter_proxy.show_nodes(True)
+        else:
+            self.__filter_proxy.show_nodes(False)
 
 
     def __on_show_hosts_check_box_state_changed(self, activated):
@@ -96,10 +96,10 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
-        #if activated is Qt.Checked:
-            #self.__filter_proxy.show_hosts(True)
-        #else:
-            #self.__filter_proxy.show_hosts(False)
+        if activated is 2:
+            self.__filter_proxy.show_hosts(True)
+        else:
+            self.__filter_proxy.show_hosts(False)
 
 
     def __on_show_topics_check_box_state_changed(self, activated):
@@ -108,10 +108,10 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
-        #if activated is Qt.Checked:
-            #self.__filter_proxy.show_topics(True)
-        #else:
-            #self.__filter_proxy.show_topics(False)
+        if activated is 2:
+            self.__filter_proxy.show_topics(True)
+        else:
+            self.__filter_proxy.show_topics(False)
 
 
     def __on_show_connections_check_box_state_changed(self, activated):
@@ -121,10 +121,10 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
-        #if activated is Qt.Checked:
-            #self.__filter_proxy.show_connections(True)
-        #else:
-            #self.__filter_proxy.show_connections(False)
+        if activated is 2:
+            self.__filter_proxy.show_connections(True)
+        else:
+            self.__filter_proxy.show_connections(False)
 
 
     def __on_show_erroneous_check_box_state_changed(self, activated):
@@ -134,9 +134,9 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
-        #if activated is Qt.Checked:
+        if activated is 2:
             #todo: does this match the right positions?
-            #self.__filter_proxy.setFilterRegExp(QRegExp("error"))
+            self.__filter_proxy.setFilterRegExp(QRegExp("error"))
 
 
     def __on_apply_push_button_clicked(self):

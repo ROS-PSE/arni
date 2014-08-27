@@ -291,7 +291,7 @@ class AbstractItem(QObject):
                     return self.seuid
                 elif key is 'type':
 
-                    return self.__type
+                    return self._type
                 elif key is 'data':
                     return self.get_short_data()
                 elif key is 'state':
