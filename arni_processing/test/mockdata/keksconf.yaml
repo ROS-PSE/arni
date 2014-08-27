@@ -2,6 +2,8 @@
     node_message_frequency_mean: [5, 20]
     node_message_frequency_stddev: [0, 2]
     node_cpu_usage_mean: [0, 1]
-- h!192_168_0_14:
+- h!192.168.0.14:
     cpu_usage_mean: [0, 10]
     ram_usage_mean: [43, 60]
+    bandwidth_max: ['15000.0', '0.0', '30000.0']
+    message_frequency_max: [250, 250, 250]
