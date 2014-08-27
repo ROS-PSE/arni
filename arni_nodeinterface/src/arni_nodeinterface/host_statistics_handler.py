@@ -290,7 +290,7 @@ class HostStatisticsHandler( StatisticsHandler):
 
         msg = ''
         if reaction.node not in self.__node_list:
-            return 'spefified Node is not running on this Host'
+            return 'Specified node is not running on this host.'
 
         if reaction.action == 'restart':
             node = self.__node_list[reaction.node]
