@@ -79,7 +79,7 @@ class RatedStatisticsContainer:
         except KeyError:
             r.window_start = r.window_stop = None
         for k in self.keys():
-            if k in ("host", "node", "node_sub", "node_pub", "topic"):
+            if k in ("host", "node", "node_sub", "node_pub", "topic", "window_start", "window_stop"):
                 continue
             re = RatedStatisticsEntity()
             re.statistic_type = k

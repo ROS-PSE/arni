@@ -88,10 +88,10 @@ class SpecificationHandler:
         # rospy.logdebug("[SpecificationHandler][compare] No Specification available for %s" % identifier)
         window_len = data.window_stop - data.window_start
         fields = dir(data)
-        exclude = ("window_start", "window_stop")
-        for x in exclude:
-            if x in fields:
-                fields.remove(x)
+        # exclude = ("window_start", "window_stop")
+        # for x in exclude:
+        # if x in fields:
+        #         fields.remove(x)
         if identifier[0] == "c":
             fields.append("bandwidth")
         for field in fields:
@@ -169,8 +169,8 @@ class SpecificationHandler:
             r.window_stop = data["window_max"]
             window_len = data["window_max"] - data["window_min"]
             r.seuid = topic
-            fields = ("dropped_msgs", "traffic", "traffic_per_second", "stamp_age_max", "stamp_age_mean", "packages",
-                      "packages_per_second")
+            fields = ["dropped_msgs", "traffic", "traffic_per_second", "stamp_age_max", "stamp_age_mean", "packages",
+                      "packages_per_second"]
             fields.remove("traffic")
             alt_names = {"traffic_per_second": "bandwidth"}
             # fields = ("delivered_msgs", "dropped_msgs", "traffic", "stamp_age_max", "stamp_age_mean")
