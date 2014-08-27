@@ -299,9 +299,11 @@ class AbstractItem(QObject):
         return_dict = {}
         # return dict of latest item
         for entry in self.__data:
-            return_dict[entry] = self.__data[entry][-1]
+            if self.__data[entry]:
+                return_dict[entry] = self.__data[entry][-1]
         for entry in self.__rated_data:
-            return_dict[entry] = self.__rated_data[entry][-1]
+            if self.__rated_data[entry]:
+                return_dict[entry] = self.__rated_data[entry][-1]
         return_dict["state"] = self.__state[-1]
         return return_dict
 
@@ -520,25 +522,38 @@ class AbstractItem(QObject):
     # return return_values
 
 
-def execute_action(self, action):
-    """
-    Executes a action on the current item like stop or restart. Calls to this method should be
-    redirected to the remote host on executed there.
-    
-    :param acion: the action which should be executed
-    :type action: RemoteAction
-    """
-    pass
+    def execute_action(self, action):
+        """
+        Executes a action on the current item like stop or restart. Calls to this method should be
+        redirected to the remote host on executed there.
+
+        :param acion: the action which should be executed
+        :type action: RemoteAction
+        """
+        pass
 
 
-def get_detailed_data(self):
-    """
-    Returns detailed description of current state as html text.
+    def get_detailed_data(self):
+        """
+        Returns detailed description of current state as html text.
 
-    :return: str
-    """
-    raise NotImplemented()
+        :return: str
+        """
+        raise NotImplemented()
 
 
-def get_plotable_items(self):
-    raise NotImplemented()
+    def get_plotable_items(self):
+        raise NotImplemented()
+
+    def get_erroneous_entries(self):
+        return_values = {}
+        for entry in self.__data:
+            if self.__rated_data[entry + ".state"]:
+                #todo: is it guaranteed that __data and __rated_data is synced?
+                if self.__rated_data[entry + ".state"][-1] is not "ok":
+                    return_values[entry] = entry
+                    return_values[entry + ".actual_value"] = self.__rated_data[entry + ".actual_value"]
+                    return_values[entry + ".expected_value"] = self.__rated_data[entry + ".expected_value"]
+                    return_values[entry + ".state"] = self.__rated_data[entry + ".state"]
+
+        return return_values
