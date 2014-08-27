@@ -27,6 +27,7 @@ test_spec = [
         }
     }
 ]
+test_spec2 = {}
 
 
 class TestLoadingSpecifications(unittest.TestCase):
@@ -55,6 +56,14 @@ class TestLoadingSpecifications(unittest.TestCase):
         rospy.set_param(self.__namespace, test_spec[0:1])
         sh = SpecificationHandler()
         self.assertEqual(sh.loaded_specifications(), [seuid])
+
+    def test_load_new_specs(self):
+        """
+        Checks if the new specification format loads
+        """
+        rospy.set_param(self.__namespace, test_spec2)
+        sh = SpecificationHandler()
+        self.assertEqual(sh.loaded_specifications(), ['h!192.168.0.17', 'h!127.0.0.1'])
 
     def test_reload_spec(self):
         """
@@ -90,4 +99,6 @@ class TestLoadingSpecifications(unittest.TestCase):
 
 if __name__ == '__main__':
     import rosunit
+
+    test_spec2 = rospy.get_param('/arni/specifications', {})
     rosunit.unitrun(PKG, 'test_loading_specifications', TestLoadingSpecifications)

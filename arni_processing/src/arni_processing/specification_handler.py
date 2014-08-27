@@ -20,7 +20,14 @@ class SpecificationHandler:
         """
         try:
             params = rospy.get_param(self.__namespace)
-            for o in params:
+            if isinstance(params, dict):
+                specifications = []
+                for x in params.values():
+                    for y in x:
+                        specifications.append(y)
+            else:
+                specifications = params
+            for o in specifications:
                 for seuid in o.keys():
                     if SEUID().is_valid(seuid):
                         spec = Specification()
