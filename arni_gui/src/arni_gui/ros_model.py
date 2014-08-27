@@ -175,8 +175,9 @@ class ROSModel(QAbstractItemModel):
         if not parent.isValid():
             parent_item = self.__root_item
         else:
+            #print("das hier ist der name:    " + parent.data() + " internal pointer:   " + str(type(parent.internalPointer())))
             #todo: internalPointer or data????
-            parent_item = parent.data()
+            parent_item = parent.internalPointer()
 
         #print(parent_item.get_seuid())
         #print("child count: " + str(parent_item.child_count()) + " accesed row: " + str(row))
@@ -380,7 +381,8 @@ class ROSModel(QAbstractItemModel):
         # check if avaiable
         if seuid not in self.__identifier_dict:
             #having a problem, item doesn't exist but should not be created here
-            self.add_log_entry("warning", Time.now(), "ROSModel", "Received rated statistics for an item that doesn't exist the database!")
+            #self.add_log_entry("warning", Time.now(), "ROSModel", "Received rated statistics for an item that doesn't exist the database!")
+            pass
         else:
             #update it
             current_item = self.__identifier_dict[seuid]

@@ -270,7 +270,7 @@ class AbstractItem(QObject):
         :returns: int
         """
         if self.__parent:
-            return self.__parent.childItems.index(self)
+            return self.__parent.get_childs().index(self)
 
         return 0
 
