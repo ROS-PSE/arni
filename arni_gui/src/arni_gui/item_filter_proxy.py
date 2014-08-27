@@ -36,13 +36,17 @@ class ItemFilterProxy(QSortFilterProxyModel):
         :returns: bool
         """
         entries = []
+        # why???
         for item in range(0, 4):
-            entries[item] = self.sourceModel().index(source_row, item, source_parent)
+            entries.append(self.sourceModel().index(source_row, item, source_parent))
 
         correct_type = False
 
         #todo:is this correct?
-        data = self.sourceModel.data(entries[0])
+        if entries[0] is None:
+            raise UserWarning("None values in filterAcceptsRow")
+
+        data = self.sourceModel().data(entries[0])
         for i in range(0, 1):
             if self.__show_hosts is True:
                 if data == "Host":

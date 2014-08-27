@@ -24,8 +24,10 @@ class MonitoringNode:
         self.__metadata_storage = MetadataStorage()
         self.__specification_handler = SpecificationHandler()
         self.__publisher = rospy.Publisher('/statistics_rated', arni_msgs.msg.RatedStatistics, queue_size=50)
+        self.__pub_queue = []
         self.__aggregate = []
         self.__aggregate_start = rospy.Time.now()
+        rospy.Timer(rospy.Duration(5), self.__publish_data)
 
     def receive_data(self, data):
         """
@@ -42,9 +44,9 @@ class MonitoringNode:
             except Exception as msg:
                 rospy.logerr("an error occured processing the data:\n%s\n%s" % (msg, traceback.format_exc()))
         except TypeError as msg:
-            rospy.logerr("received invalid message type:\n%s" % traceback.format_exc())
+            rospy.logerr("received invalid message type:\n%s\n%s" % (msg, traceback.format_exc()))
         except NameError as msg:
-            rospy.logerr("received invalid message type (%s):\n%s" % (type(data), traceback.format_exc()))
+            rospy.logerr("received invalid message type (%s):\n%s\n%s" % (type(data), msg, traceback.format_exc()))
 
     def __process_data(self, data, identifier):
         """
@@ -57,35 +59,49 @@ class MonitoringNode:
         :return: RatedStatisticsContainer.
         """
         if str(identifier)[0] == "c":
-            self.__aggregate_data(data, identifier.topic)
+            self.__aggregate_data(data)
         result = self.__specification_handler.compare(data, str(identifier))
         container = StorageContainer(rospy.Time.now(), str(identifier), data, result)
         self.__metadata_storage.store(container)
-        self.__publish_data(result.to_msg_type())
+        self.__publish_data(result.to_msg_type(), False)
         return result
 
-    def __aggregate_data(self, data, seuid):
+    def __aggregate_data(self, data):
+        """
+        Collect topic data and send them to get rated after a while.
+
+        :param data: A statistics message object
+        """
         if self.__aggregate is None or \
                                 rospy.Time.now() - self.__aggregate_start >= \
                         rospy.Duration(rospy.get_param("/arni/aggregation_window", 3)):
             res = self.__specification_handler.compare_topic(self.__aggregate)
             for r in res:
-                self.__publish_data(r)
+                self.__publish_data(r, False)
             self.__aggregate = []
             self.__aggregate_start = rospy.Time.now()
         self.__aggregate.append(data)
 
-    def __publish_data(self, data):
+    def __publish_data(self, data, queue=True):
+        """
+        Pushes a RatedStatistics object to the queue to publish.
+
+        :param data: RatedStatistics object
+        """
+        if queue:
+            self.__pub_queue.append(data)
+        else:
+            self.__publisher.publish(data)
+
+    def __publish_queue(self, event):
         """
         Publishes data to the RatedStatistics topic.
 
-        :param data: The data to be published
-        :type data: RatedStatistics
+        :param event: rospy.TimerEvent
         """
-        try:
+        for data in self.__pub_queue:
             self.__publisher.publish(data)
-        except Exception as msg:
-            rospy.logerr(msg)
+        self.__pub_queue = []
 
     def storage_server(self, request):
         """
@@ -110,6 +126,9 @@ class MonitoringNode:
         return response
 
     def listener(self):
+        """
+        Sets up all necessary subscribers and services.
+        """
         rospy.Subscriber('/statistics', rosgraph_msgs.msg.TopicStatistics, self.receive_data)
         rospy.Subscriber('/statistics_host', arni_msgs.msg.HostStatistics, self.receive_data)
         rospy.Subscriber('/statistics_node', arni_msgs.msg.NodeStatistics, self.receive_data)

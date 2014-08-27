@@ -149,8 +149,8 @@ class AbstractItem(QObject):
         # print("__update_current_state")
         # for i in range(length - len(
         # (self.get_items_younger_than(self.__last_update, "window_end", "state"))["window_end"]), length):
-        print(length)
-        print(len(self.__data["window_stop"]))
+        #print(length)
+        #print(len(self.__data["window_stop"]))
         if self.__state:
             for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5), ))["window_stop"]),
                            length):
@@ -208,6 +208,9 @@ class AbstractItem(QObject):
                 raise
         if "state" in data:
             if data["state"] is "error":
+                if not self.__state:
+                    #todo: this is not good... FIX IT
+                    self.__state.append(None)
                 self.__state[-1] = "error"
         #if found is not True:
         #    raise UserWarning("No matching time window was found. Could not update the AbstractItem")
@@ -220,12 +223,13 @@ class AbstractItem(QObject):
         
         :returns: int
         """
-        sum = 0
-        for item in self.__child_items:
-            sum += 1
-            sum += item.child_count()
-
-        return sum
+        return len(self.__child_items)
+        # sum = 0
+        # for item in self.__child_items:
+        #     sum += 1
+        #     sum += item.child_count()
+        #
+        # return sum
         # return len(self.child_items)
 
 
@@ -286,6 +290,11 @@ class AbstractItem(QObject):
                     return self.seuid
                 elif key is 'type':
                     return self.__type
+                elif key is 'data':
+                    return self.get_short_data()
+                elif key is 'state':
+                    if self.__state:
+                        return self.__state[-1]
                 else:
                     if key in self.__data:
                         if self.__data[key]:
@@ -294,7 +303,7 @@ class AbstractItem(QObject):
                         if self.__rated_data[key]:
                             return self.__rated_data[key][-1]
                     else:
-                        raise KeyError("item" + key + "was not found")
+                        raise KeyError("item " + key + "was not found")
 
         return_dict = {}
         # return dict of latest item
@@ -304,7 +313,10 @@ class AbstractItem(QObject):
         for entry in self.__rated_data:
             if self.__rated_data[entry]:
                 return_dict[entry] = self.__rated_data[entry][-1]
-        return_dict["state"] = self.__state[-1]
+        if self.__state:
+            return_dict["state"] = self.__state[-1]
+        else:
+            return_dict["state"] = "state unknown"
         return return_dict
 
 
@@ -547,7 +559,8 @@ class AbstractItem(QObject):
 
     def get_erroneous_entries(self):
         return_values = {}
-        for entry in self.__data:
+        #todo: USE SOMETHING BETTER THAN SELF.ATTRIBUTES!!!!!
+        for entry in self._attributes:
             if self.__rated_data[entry + ".state"]:
                 #todo: is it guaranteed that __data and __rated_data is synced?
                 if self.__rated_data[entry + ".state"][-1] is not "ok":

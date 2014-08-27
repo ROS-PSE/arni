@@ -84,7 +84,7 @@ class ConstraintHandler(object):
                 # reactions need to be done
                 for reaction in constraint.planned_reaction:
                     if reaction.autonomy_level <= glob_level:
-                        # run reactions parallel since 
+                        # run reactions parallel since
                         # they could take some time
                         thread.start_new_thread(reaction.execute_reaction, ())
                         #reaction.execute_reaction()
@@ -376,8 +376,21 @@ class ConstraintHandler(object):
             return root
         # there can be only one root ;-)
         if len(constraint_dict) == 1:
-            root = ConstraintHandler._traverse_dict(
+            possible_root = ConstraintHandler._traverse_dict(
                 constraint_dict, constraint_dict.keys()[0])
+            # check if it is a list
+            if isinstance(possible_root, list):
+                if len(possible_root) == 1:
+                    root = possible_root[0]
+                else:
+                    rospy.logwarn(
+                        "Parsing the constraint %s was not successful." % name
+                        + " The root of the constraint should be only"
+                        + " one element, but is a list of  %d elements."
+                        % len(possible_root))
+            else:
+                root = possible_root
+
         elif len(constraint_dict) == 0:
             rospy.logdebug(
                 "Constraint '%s'" % name

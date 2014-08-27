@@ -96,7 +96,7 @@ class ROSModel(QAbstractItemModel):
         return data_dict
 
 
-    def data(self, index, role):
+    def data(self, index, role=Qt.DisplayRole):
         """
         Returns the data of an item at the given index.
 
@@ -112,7 +112,9 @@ class ROSModel(QAbstractItemModel):
             elif role != Qt.DisplayRole:
                 return None
 
-            item = index.data()
+            item = index.internalPointer()
+            if item is None:
+                raise IndexError("item is None")
             return item.get_latest_data(self.__mapping[index.column()])
         return None
 
@@ -176,6 +178,8 @@ class ROSModel(QAbstractItemModel):
             #todo: internalPointer or data????
             parent_item = parent.data()
 
+        #print(parent_item.get_seuid())
+        #print("child count: " + str(parent_item.child_count()) + " accesed row: " + str(row))
         child_item = parent_item.get_child(row)
         if child_item:
             return self.createIndex(row, column, child_item)
@@ -198,7 +202,7 @@ class ROSModel(QAbstractItemModel):
         child_item = index.internalPointer()
         parent_item = child_item.parent()
 
-        if parent_item == self.rootItem:
+        if parent_item == self.__root_item:
             return QModelIndex()
 
         return self.createIndex(parent_item.row(), 0, parent_item)
@@ -383,13 +387,13 @@ class ROSModel(QAbstractItemModel):
             data = {}
             for element in item.rated_statistics_entity:
                 if element.statistic_type not in data:
-                    data[element.statistic_type + ".actual_value "] = []
-                    data[element.statistic_type + ".expected_value "] = []
-                    data[element.statistic_type + ".state "] = []
+                    data[element.statistic_type + ".actual_value"] = []
+                    data[element.statistic_type + ".expected_value"] = []
+                    data[element.statistic_type + ".state"] = []
 
-                data[element.statistic_type + ".actual_value "].append(element.actual_value)
-                data[element.statistic_type + ".expected_value "].append(element.expected_value)
-                data[element.statistic_type + ".state "].append(element.state)
+                data[element.statistic_type + ".actual_value"].append(element.actual_value)
+                data[element.statistic_type + ".expected_value"].append(element.expected_value)
+                data[element.statistic_type + ".state"].append(element.state)
 
                 if element.state is not element.OK:
                     data["state"] = "error"
@@ -447,6 +451,7 @@ class ROSModel(QAbstractItemModel):
             self.add_log_entry("info", Time.now(), "ROSModel", "Added a new ConnectionItem with name " + connection_seuid)
             self.__identifier_dict[connection_seuid] = connection_item
         elif connection_seuid not in self.__identifier_dict:
+            topic_item = self.__identifier_dict[topic_seuid]
             #creating a new connection item
             connection_item = ConnectionItem(connection_seuid, topic_item)
             topic_item.append_child(connection_item)
@@ -475,7 +480,7 @@ class ROSModel(QAbstractItemModel):
         :type item: NodeStatistics
         """
         item_seuid = "n" + SEUID_DELIMITER + item.node
-        print(item_seuid)
+        #print(item_seuid)
         if item_seuid not in self.__identifier_dict:
             #create item
             host_seuid = "h" + SEUID_DELIMITER + item.host
@@ -492,7 +497,7 @@ class ROSModel(QAbstractItemModel):
             self.add_log_entry("info", Time.now(), "ROSModel", "Added a new NodeItem with name " + item_seuid)
             host_item.append_child(node_item)
         else:
-            node_item = self.__identifier_dict[item.seuid]
+            node_item = self.__identifier_dict[item_seuid]
 
         node_item.append_data(item)
 

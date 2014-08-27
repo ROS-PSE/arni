@@ -26,6 +26,9 @@ class ConnectionItem(AbstractItem):
         for item in self._attributes:
             self._add_data_list(item)
 
+        self._attributes.remove("traffic")
+        self._attributes.append("bandwidth")
+
         self.__rated_attributes = []
         for item in self._attributes:
             self.__rated_attributes.append(item + ".actual_value")
@@ -79,3 +82,6 @@ class ConnectionItem(AbstractItem):
         """
         #todo: append more items here
         return ["traffic", "dropped_msgs", "period_mean"]
+
+    def get_short_data(self):
+        return "connection_item"
