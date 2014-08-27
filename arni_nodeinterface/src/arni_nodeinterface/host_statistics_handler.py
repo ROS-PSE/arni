@@ -108,7 +108,7 @@ class HostStatisticsHandler( StatisticsHandler):
         self._status.add_ram_usage(psutil.virtual_memory().percent)
         #temp
         
-        #self.get_sensors()    
+        self.get_sensors()    
 
         
         #Bandwidth and message frequency
@@ -387,7 +387,8 @@ class HostStatisticsHandler( StatisticsHandler):
                             temp_core.append(feature.get_value())
         except sensors.SensorsError:
             pass
-        self._status.add_cpu_temp_core(temp_core)
+        if temp_core: 
+            self._status.add_cpu_temp_core(temp_core)
        
 
     @property 

@@ -131,9 +131,9 @@ class Status(object):
     def __calc_gpu_stats(self):
 
         gpu_usage = self.calc_stat_tuple(self._gpu_usage)
-        self._stats_dict['gpu_usage_mean'] = gpu_usage.mean
-        self._stats_dict['gpu_usage_stddev'] = gpu_usage.stddev
-        self._stats_dict['gpu_usage_max'] = gpu_usage.max
+        self._stats_dict['gpu_usage_mean'] = [gpu_usage.mean]
+        self._stats_dict['gpu_usage_stddev'] = [gpu_usage.stddev]
+        self._stats_dict['gpu_usage_max'] = [gpu_usage.max]
 
 
     def __calc_ram_stats(self):

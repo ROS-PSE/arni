@@ -190,9 +190,9 @@ class HostStatus(Status):
         self._stats_dict['cpu_temp_core_stddev'] = [i.stddev for i in cpu_temp_core]
         self._stats_dict['cpu_temp_core_max'] = [i.max for i in cpu_temp_core]
 
-        self._stats_dict['gpu_temp_mean'] = gpu_temp.mean
-        self._stats_dict['gpu_temp_stddev'] = gpu_temp.stddev
-        self._stats_dict['gpu_temp_max'] = gpu_temp.max
+        self._stats_dict['gpu_temp_mean'] = [gpu_temp.mean]
+        self._stats_dict['gpu_temp_stddev'] = [gpu_temp.stddev]
+        self._stats_dict['gpu_temp_max'] = [gpu_temp.max]
 
     def __calc_net_stats(self):
         bandwidth = [self.calc_stat_tuple(self.__bandwidth[key]) 
