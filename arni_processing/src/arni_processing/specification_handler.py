@@ -86,11 +86,22 @@ class SpecificationHandler:
                         specification = self.__specifications[SEUID(identifier).topic]
         # if specification is None:
         # rospy.logdebug("[SpecificationHandler][compare] No Specification available for %s" % identifier)
-        for field in dir(data):
+        window_len = data.window_stop - data.window_start
+        fields = dir(data)
+        # exclude = ("window_start", "window_stop")
+        # for x in exclude:
+        # if x in fields:
+        #         fields.remove(x)
+        if identifier[0] == "c":
+            fields.append("bandwidth")
+        for field in fields:
             if field[0] == "_" or "serialize" in field:
                 continue
             current_obj = {}
-            value = getattr(data, field)
+            if field == "bandwidth":
+                value = data.traffic / window_len.to_sec()
+            else:
+                value = getattr(data, field)
             try:
                 limits = self.__get_limits(specification, field)
             except TypeError:
@@ -158,8 +169,9 @@ class SpecificationHandler:
             r.window_stop = data["window_max"]
             window_len = data["window_max"] - data["window_min"]
             r.seuid = topic
-            fields = ("dropped_msgs", "traffic", "traffic_per_second", "stamp_age_max", "stamp_age_mean", "packages",
-                      "packages_per_second")
+            fields = ["dropped_msgs", "traffic", "traffic_per_second", "stamp_age_max", "stamp_age_mean", "packages",
+                      "packages_per_second"]
+            fields.remove("traffic")
             alt_names = {"traffic_per_second": "bandwidth"}
             # fields = ("delivered_msgs", "dropped_msgs", "traffic", "stamp_age_max", "stamp_age_mean")
             for f in fields:

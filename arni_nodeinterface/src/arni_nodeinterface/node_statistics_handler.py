@@ -28,7 +28,7 @@ class NodeStatisticsHandler(StatisticsHandler):
 
         self.__node_process = node_process
         self.pub = rospy.Publisher('/statistics_node', NodeStatistics)
-        self.update_intervall = rospy.get_param('/update_intervall')
+        self.update_intervall = rospy.get_param('~update_intervall', 1)
         self.register_subscriber()
 
     def measure_status(self):
@@ -122,6 +122,9 @@ class NodeStatisticsHandler(StatisticsHandler):
         ns.node_read_stddev = stats_dict['node_read_stddev']
         ns.node_read_max = stats_dict['node_read_max']
 
+        ns.node_gpu_usage_mean = stats_dict['gpu_usage_mean']
+        ns.node_gpu_usage_stddev = stats_dict['gpu_usage_stddev']
+        ns.node_gpu_usage_max = stats_dict['gpu_usage_max']
         return ns
 
     def receive_statistics(self, stats):
