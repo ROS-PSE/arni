@@ -15,10 +15,13 @@ class MetadataStorage:
 
     def __cleanup_timer(self):
         last_cleanup = rospy.Time.now()
+        sleeptime = rospy.Duration(0.5)
         while not rospy.is_shutdown():
             if self.auto_cleanup and rospy.Time.now() - last_cleanup >= rospy.Duration(self.cleanup_timer):
                 last_cleanup = rospy.Time.now()
                 self.__clean_up()
+            rospy.sleep(sleeptime)    
+                
 
     def __clean_up(self):
         """
