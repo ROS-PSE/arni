@@ -92,3 +92,6 @@ class HostItem(AbstractItem):
         :returns: str[]
         """
         return ["cpu_temp_mean", "bandwidth_mean"]
+
+    def get_short_data(self):
+        return "HostItem"
