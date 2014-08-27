@@ -188,7 +188,7 @@ class OverviewWidget(QWidget):
 
     def __connect_slots(self):
         """Connects the slots."""
-        self.tab_widget.currentChanged.connect(self._Initializes_on_current_tab_changed)
+        self.tab_widget.currentChanged.connect(self.__on_current_tab_changed)
         self.range_combo_box.currentIndexChanged.connect(self.__on_range_combo_box_index_changed)
 
 

@@ -288,9 +288,11 @@ class AbstractItem(QObject):
                     return self.__type
                 else:
                     if key in self.__data:
-                        return self.__data[key][-1]
+                        if self.__data[key]:
+                            return self.__data[key][-1]
                     elif key in self.__rated_data:
-                        return self.__rated_data[key][-1]
+                        if self.__rated_data[key]:
+                            return self.__rated_data[key][-1]
                     else:
                         raise KeyError("item" + key + "was not found")
 
