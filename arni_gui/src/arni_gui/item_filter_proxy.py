@@ -48,26 +48,26 @@ class ItemFilterProxy(QSortFilterProxyModel):
 
         data = self.sourceModel().data(entries[0])
         for i in range(0, 1):
-	    print data
+	    #print data
             if self.__show_hosts is True:
                 if data == "host":
                     correct_type = True
-                    print "ho"
+                    #print "ho"
                     break
             if correct_type is False & self.__show_nodes is True:
                 if data == "node":
                     correct_type = True
-                    print "node"
+                    #print "node"
                     break
             if correct_type is False & self.__show_connections is True:
                 if data == "connection":
                     correct_type = True
-                    print "Con"
+                    #print "Con"
                     break
             if correct_type is False & self.__show_topics is True:
                 if data == "topic":
                     correct_type = True
-                    print "top"
+                    #print "top"
                     break
 
         if correct_type is False:
@@ -89,7 +89,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
         :returns: bool
         """
         #todo:is here more logic needed e.g. do we not only use strings and numeric values?
-        return left < right;
+        return left < right
 
 
     def show_hosts(self, show_hosts):

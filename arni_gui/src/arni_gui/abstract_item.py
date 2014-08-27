@@ -20,7 +20,7 @@ class AbstractItem(QObject):
         :param *args:
         :type *args: 
         """
-        #print(str(type(self)) + str(type(seuid)) + str(type(parent)))
+        print(str(type(self)) + str(type(seuid)) + str(type(parent)))
         super(AbstractItem, self).__init__(parent)
 
         self.__data = {}
@@ -28,7 +28,7 @@ class AbstractItem(QObject):
         self.__child_items = []
         self.__parent = parent
         self.seuid = seuid
-        self._type = "type"
+        self.__type = "type"
         self.__data_attribute = "data"
         self.__state = []
         # WARNING!!! Child classes have to call the append_data_list method, otherwise will not work!!!
@@ -47,7 +47,7 @@ class AbstractItem(QObject):
     def get_seuid(self):
         """
         Returns the seuid of the Abstractitem.
-        
+
         :returns: str
         """
         return self.seuid
@@ -56,7 +56,7 @@ class AbstractItem(QObject):
     def get_state(self):
         """
         Returns the state of the AbstractItem.
-        
+
         :returns: str
         """
         if self.__state:
@@ -67,7 +67,7 @@ class AbstractItem(QObject):
     def _add_data_list(self, name):
         """
         Adds keys to the data_list.
-        
+
         :param name: the key to be added
         :type name: str
         """
@@ -77,7 +77,7 @@ class AbstractItem(QObject):
     def _add_rated_data_list(self, name):
         """
         Adds keys to the rated_data_list.
-        
+
         :param name: the key to be added
         :type name: str
         """
@@ -97,7 +97,7 @@ class AbstractItem(QObject):
     def append_rated_data_dict(self, data):
         """
         Appends data to the rate_data of the AbstractItem.
-        
+
         :param data: the data to append in key value from
         :type data: dict
         """
@@ -209,7 +209,6 @@ class AbstractItem(QObject):
         if "state" in data:
             if data["state"] is "error":
                 if not self.__state:
-
                     #todo: this is not good... FIX IT
                     self.__state.append(None)
                 self.__state[-1] = "error"
@@ -221,7 +220,7 @@ class AbstractItem(QObject):
     def child_count(self):
         """
         Returns the number of children from the AbstractItem.
-        
+
         :returns: int
         """
         return len(self.__child_items)
@@ -237,7 +236,7 @@ class AbstractItem(QObject):
     def column_count(self):
         """
         Returns the number of columns.
-        
+
         :returns: int
         """
         # todo: return !not! a concrete number here ?!?!
@@ -267,7 +266,7 @@ class AbstractItem(QObject):
     def row(self):
         """
         Returns the index of the Item.
-        
+
         :returns: int
         """
         if self.__parent:
@@ -282,7 +281,7 @@ class AbstractItem(QObject):
 
         :param kwargs: the keys to the dict
         :type kwargs: str
-        
+
         :returns: dict or the item
         """
         if kwargs is not None:
@@ -290,7 +289,6 @@ class AbstractItem(QObject):
                 if key is 'name':
                     return self.seuid
                 elif key is 'type':
-
                     return self.__type
                 elif key is 'data':
                     return self.get_short_data()
@@ -382,7 +380,7 @@ class AbstractItem(QObject):
                     for key in return_values:
                         try:
                             return_values[key] = self.__data[key][0:breakpoint]
-                            #print("i is " + str(i) +"length: " + str(len(return_values[key])) + " complete length: " + str(len(list_of_time)))
+                            print("i is " + str(i) +"length: " + str(len(return_values[key])) + " complete length: " + str(len(list_of_time)))
                         except IndexError:
                             print("IndexError! length of the list %s, accessed index %s. length of data at given point"
                                   " %s, key is %s", len(list_of_time), i, len(self.__data[key]), key)
@@ -393,7 +391,7 @@ class AbstractItem(QObject):
             # print("length time: " + str(len(return_values["window_end"])) + " length state: " + str(len(return_values["state"])))
         #print("length return values: " + str(len(return_values["window_end"])))
         return return_values
-    
+
         # return_values = []
         # for key in self.__data:
         #     return_values[key] = []
@@ -458,7 +456,7 @@ class AbstractItem(QObject):
         try:
             list_of_time = self.__data["window_stop"]
         except KeyError:
-            print(str(type(self)) + str(self._type) + " " + self.get_seuid() + " window_stop not found")
+            print(str(type(self)) + str(self.__type) + " " + self.get_seuid() + " window_stop not found")
         length = len(list_of_time)
         #print(len(list_of_time))
         #print("first time: " + tm.strftime("%d.%m-%H:%M:%S", tm.localtime((int(str(self.__data["window_end"][0]))/1000000000))))
