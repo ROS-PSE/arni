@@ -114,15 +114,13 @@ class SpecificationHandler:
                     value = data.delivered_msgs / window_len.to_sec()
             else:
                 value = getattr(data, field)
-            try:
-                limits = self.__get_limits(specification, field)
-            except TypeError:
-                limits = None
-            if isinstance(value, list):
+            limits = self.__get_limits(specification, field)
+            if isinstance(value, (list, tuple)):
                 current_obj["state"] = []
                 current_obj["actual"] = []
                 current_obj["expected"] = []
-                for v in value:
+                for i, v in enumerate(value):
+                    limits = self.__get_limits(specification, field, i)
                     current_obj["actual"].append(v)
                     current_obj["state"].append(self.__compare(v, limits))
                     current_obj["expected"].append(limits)
@@ -215,14 +213,19 @@ class SpecificationHandler:
             result.append(r)
         return result
 
-    def __get_limits(self, specification, field):
+    def __get_limits(self, specification, field, offset=0):
         if specification is None or field is None:
             return None
-        key = "%s_%s" % (specification.seuid, field)
+        key = "%s_%s_%s" % (specification.seuid, field, str(offset))
         if key in self.__limit_cache.keys():
             return self.__limit_cache[key]
         try:
             specs = specification.get(field)[1]
+            if isinstance(specs, list) and len(specs) > 0 and isinstance(specs[0], list):
+                if len(specs) > offset:
+                    specs = specs[offset]
+                else:
+                    return None
             limits = specs[0:2]
             if len(specs) > 2 and specs[2][0].lower() == "r":
                 if limits[1] > 1:
