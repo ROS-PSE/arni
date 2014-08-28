@@ -4,12 +4,13 @@ import rospy
 from rosgraph_msgs.msg import Clock
 import time
 
+
 def talker():
     pub = rospy.Publisher('clock', Clock, queue_size=10)
     rospy.init_node('clock_server', anonymous=True)
-    r = rospy.Rate(2)  # 10hz
+
     print "publishing.."
-    
+
     # how much faster then reallity?
     mult_factor = rospy.get_param("/ctm/clock_mult", 10)
 

@@ -9,8 +9,8 @@
 				<label>Introspection</label>
 				<statustip>Plugins related to introspection</statustip>
 			</group>
-			<label>arni_gui_overview</label>
-			
+			<label>Arni-Overview</label>
+			<icon type="theme">system-help</icon>
 			<statustip>TODO</statustip>
 		</qtgui>
 	</class>

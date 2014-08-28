@@ -9,15 +9,15 @@ class StatisticsHandler(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self):
+    def __init__(self, _id):
 
         super(StatisticsHandler, self).__init__()
 
-        #: ID of the host or node.
-        self._id
+        # ID of the host or node.
+        self._id = _id
 
-        #: Holds information about the current status.
-        self._status
+        # Holds information about the current status.
+        # self._status
 
     @abstractmethod
     def measure_status(self):
@@ -33,6 +33,6 @@ class StatisticsHandler(object):
         Publishes the current stats to the given topic
         using ROS's publisher-subscriber mechanism. 
 
-        :topic: Topic to which the data should be published	
+        :topic: Topic to which the data should be published 
         """
         pass

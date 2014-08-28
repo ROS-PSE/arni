@@ -34,28 +34,29 @@ float32[] gpu_usage_stddev
 float32[] gpu_usage_max
  
 
-# ram  
+# ram usage in percent
 float32 ram_usage_mean
 float32 ram_usage_stddev
 float32 ram_usage_max
   
 # network
-
+# message_frequency measured in packtes/s
 string[] interface_name 
 int32[] message_frequency_mean
 int32[] message_frequency_stddev
 int32[] message_frequency_max
 
 # bandwith of each network interface
+# bytes/s
+float32[] bandwidth_mean
+float32[] bandwidth_stddev
+float32[] bandwidth_max
 
-int32[] bandwidth_mean
-int32[] bandwidth_stddev
-int32[] bandwidth_max
-
-# drive  
+# drive, free_space in Megabytes
 string[] drive_name  
 int32[] drive_free_space  
   
 # input output operations on a specific drive
-int32[] drive_read  
-int32[] drive_write  
+# in bytes/s
+float32[] drive_read  
+float32[] drive_write  

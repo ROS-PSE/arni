@@ -19,8 +19,8 @@ mockSpecs = {}
 
 spec_namespace = '/arni/specifications'
 
-class TestRatingData(unittest.TestCase):
 
+class TestRatingData(unittest.TestCase):
 
     def test_no_data(self):
         sh = SpecificationHandler()

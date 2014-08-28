@@ -3,7 +3,7 @@ arni:
     constraints:
       john:
         constraint:
-          or:
+        - or:
             n!node1: {cpu_usage_mean: high}
             n!node2: {ram_usage_mean: high}
         min_reaction_interval: 5

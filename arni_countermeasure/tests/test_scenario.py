@@ -44,13 +44,13 @@ class TestScenario(unittest.TestCase):
     def test_high_cpu(self):
         """ Test reacting to high cpu."""
 
-        self.create_default_msg("node1", Outcome.HIGH, 10)
+        self.create_default_msg("node1", Outcome.HIGH, 15)
         rospy.Rate(0.1).sleep()
 
         # check if the constrain has been fulfilled
         self.assertIn(
-            "cpu high test1", self.log,
-            "reaction after high cpu did not get executed.")
+            "cpu high test1", self.log)
+        # "reaction after high cpu did not get executed."
 
     def test_high_cpu_too_short(self):
         """ Test for no reaction after having high cpu to short."""
@@ -86,9 +86,9 @@ class TestScenario(unittest.TestCase):
         self.assertNotIn("test4", self.log)
 
     def create_default_msg(self, node, outcome, durotation):
-        """ Create an default message.
+        """ Create an default message for durotation seconds.
         """
-        r = rospy.Rate(10)  # hz
+        r = rospy.Rate(3)  # hz
         begin_time = rospy.Time.now()
 
         while (

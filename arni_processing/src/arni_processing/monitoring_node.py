@@ -1,10 +1,11 @@
 import rospy
+import traceback
 import rosgraph_msgs
 import std_srvs.srv
 from std_srvs.srv import Empty
 import arni_msgs
 from arni_msgs.msg import HostStatistics, NodeStatistics, RatedStatistics
-from arni_msgs.srv import StatisticHistory
+from arni_msgs.srv import StatisticHistory, StatisticHistoryResponse
 from arni_core.helper import *
 from rosgraph_msgs.msg import TopicStatistics
 from metadata_storage import MetadataStorage
@@ -22,7 +23,16 @@ class MonitoringNode:
     def __init__(self):
         self.__metadata_storage = MetadataStorage()
         self.__specification_handler = SpecificationHandler()
-        self.pub = rospy.Publisher('/statistics_rated', arni_msgs.msg.RatedStatistics)
+        self.__publisher = rospy.Publisher('/statistics_rated', arni_msgs.msg.RatedStatistics, queue_size=50)
+        self.__pub_queue = []
+        self.__aggregate = []
+        self.__aggregate_start = rospy.Time.now()
+        self.__processing_enabled = rospy.get_param("/enable_statistics", False)
+        rospy.Timer(rospy.Duration(5), self.__publish_queue)
+        rospy.Timer(rospy.Duration(rospy.get_param("/arni/check_enabled_interval", 10)), self.__update_enabled)
+
+    def __update_enabled(self, event):
+        self.__processing_enabled = rospy.get_param("/enable_statistics", False)
 
     def receive_data(self, data):
         """
@@ -32,16 +42,17 @@ class MonitoringNode:
 
         :param data: The data received from the topic.
         """
-        seuid = ""
-        if hasattr(data, "cpu_temp_mean"):
-            seuid = "h" + SEUID_DELIMITER + data.host
-        elif hasattr(data, "node_cpu_usage_mean"):
-            seuid = "n" + SEUID_DELIMITER + data.node
-        elif hasattr(data, "topic"):
-            seuid = "c" + SEUID_DELIMITER + data.node_sub \
-                    + SEUID_DELIMITER + data.topic \
-                    + SEUID_DELIMITER + data.node_pub
-        self.__process_data(data, seuid)
+        if self.__processing_enabled:
+            try:
+                seuid = SEUID(data)
+                try:
+                    self.__process_data(data, seuid)
+                except Exception as msg:
+                    rospy.logerr("an error occured processing the data:\n%s\n%s" % (msg, traceback.format_exc()))
+            except TypeError as msg:
+                rospy.logerr("received invalid message type:\n%s\n%s" % (msg, traceback.format_exc()))
+            except NameError as msg:
+                rospy.logerr("received invalid message type (%s):\n%s\n%s" % (type(data), msg, traceback.format_exc()))
 
     def __process_data(self, data, identifier):
         """
@@ -53,50 +64,84 @@ class MonitoringNode:
         :type identifier: str
         :return: RatedStatisticsContainer.
         """
-        result = self.__specification_handler.compare(data, identifier)
-        container = StorageContainer()
-        container.data_raw = data
-        container.data_rated = result
-        container.timestamp = rospy.Time.now()
-        container.identifier = identifier
+        if str(identifier)[0] == "c":
+            self.__aggregate_data(data, identifier)
+        result = self.__specification_handler.compare(data, str(identifier)).to_msg_type()
+        container = StorageContainer(rospy.Time.now(), str(identifier), data, result)
         self.__metadata_storage.store(container)
-        self.__publish_data(result.to_msg_type())
+        self.__publish_data(result, False)
         return result
 
-    def __publish_data(self, data):
+    def __aggregate_data(self, data, identifier):
+        """
+        Collect topic data and send them to get rated after a while.
+
+        :param data: A statistics message object
+        """
+        if self.__aggregate is None or \
+                                rospy.Time.now() - self.__aggregate_start >= \
+                        rospy.Duration(rospy.get_param("/arni/aggregation_window", 3)):
+            res = self.__specification_handler.compare_topic(self.__aggregate)
+            for r in res:
+                container = StorageContainer(rospy.Time.now(), str(identifier), data, r)
+                self.__metadata_storage.store(container)
+                self.__publish_data(r, False)
+            self.__aggregate = []
+            self.__aggregate_start = rospy.Time.now()
+        self.__aggregate.append(data)
+
+    def __publish_data(self, data, queue=True):
+        """
+        Pushes a RatedStatistics object to the queue to publish.
+
+        :param data: RatedStatistics object
+        """
+        if queue:
+            self.__pub_queue.append(data)
+        else:
+            self.__publisher.publish(data)
+
+    def __publish_queue(self, event):
         """
         Publishes data to the RatedStatistics topic.
 
-        :param data: The data to be published
-        :type data: RatedStatistics
+        :param event: rospy.TimerEvent
         """
-        self.pub(data)
+        for data in self.__pub_queue:
+            self.__publisher.publish(data)
+        self.__pub_queue = []
 
     def storage_server(self, request):
         """
         Returns StorageContainer objects on request.
 
         :param request: The request containing a timestamp and an identifier.
-        :type request: MetadataStorageRequest.
-        :returns: MetadataStorageResponse
+        :type request: StatisticHistoryRequest.
+        :returns: StatisticHistoryResponse
         """
         data = self.__metadata_storage.get("*", request.timestamp)
-        response = StatisticHistory()
+        response = StatisticHistoryResponse()
         for container in data:
             if container.identifier[0] == "h":
                 response.host_statistics.append(container.data_raw)
-                response.rated_host_statistics.append(container.data_rated.to_msg_type())
+                response.rated_host_statistics.append(container.data_rated)
             if container.identifier[0] == "n":
                 response.node_statistics.append(container.data_raw)
-                response.rated_node_statistics.append(container.data_rated.to_msg_type())
+                response.rated_node_statistics.append(container.data_rated)
             if container.identifier[0] == "c":
                 response.topic_statistics.append(container.data_raw)
-                response.rated_topic_statistics.append(container.data_rated.to_msg_type())
+                response.rated_topic_statistics.append(container.data_rated)
+            if container.identifier[0] == "t":
+                response.rated_topic_statistics.append(container.data_rated)
         return response
 
     def listener(self):
+        """
+        Sets up all necessary subscribers and services.
+        """
         rospy.Subscriber('/statistics', rosgraph_msgs.msg.TopicStatistics, self.receive_data)
         rospy.Subscriber('/statistics_host', arni_msgs.msg.HostStatistics, self.receive_data)
         rospy.Subscriber('/statistics_node', arni_msgs.msg.NodeStatistics, self.receive_data)
         rospy.Service('~reload_specifications', std_srvs.srv.Empty, self.__specification_handler.reload_specifications)
+        rospy.Service('~get_statistic_history', arni_msgs.srv.StatisticHistory, self.storage_server)
         rospy.spin()

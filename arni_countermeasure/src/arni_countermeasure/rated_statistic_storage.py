@@ -65,16 +65,29 @@ class RatedStatisticStorage(object):
         for entity in msg.rated_statistics_entity:
             stat_type = entity.statistic_type
 
-            # its not an array, so treat it differently
-            if len(entity.actual_value) == 1:
-                self.__add_single_outcome(
-                    seuid, stat_type, ord(entity.state[0]), msg.window_stop)
-            else:
-                # split the array in a lot of entries
-                for i in range(len(entity.actual_value)):
+            # check if actual value, state, expected value have the same size
+            if (len(entity.actual_value) == len(entity.state)
+                    and
+                    len(entity.actual_value) == len(entity.expected_value)):
+
+                # its not an array, so treat it differently
+                if len(entity.actual_value) == 1:
                     self.__add_single_outcome(
-                        seuid, "%s_%d" % (stat_type, i), ord(entity.state[i]),
-                        msg.window_stop)
+                        seuid, stat_type,
+                        ord(entity.state[0]), msg.window_stop)
+                else:
+                    # split the array in a lot of entries
+                    for i in range(len(entity.actual_value)):
+                        self.__add_single_outcome(
+                            seuid, "%s_%d" % (stat_type, i),
+                            ord(entity.state[i]),
+                            msg.window_stop)
+            else:
+                rospy.logwarn(
+                    "Inconsistency in received data packet: actual_value, "
+                    + "expected_value, state have to have the same size."
+                    + " Happened in a rated msg  of type %s from %s"
+                    % (stat_type, seuid))
 
     def __add_single_outcome(
             self, seuid, statistic_type, outcome, timestamp):

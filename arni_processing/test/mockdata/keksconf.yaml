@@ -1,0 +1,11 @@
+- n!/hufflepuff:
+    node_message_frequency_mean: [5, 20]
+    node_message_frequency_stddev: [0, 2]
+    node_cpu_usage_mean: [0, 1]
+- t!/kekse:
+    bandwidth: [0, 10]
+- h!192.168.0.17:
+    cpu_usage_mean: [0, 10]
+    ram_usage_mean: [43, 60]
+    bandwidth_max: ['15000.0', '0.0', '30000.0']
+    message_frequency_max: [[0, 250], [0, 50], [0, 300]]

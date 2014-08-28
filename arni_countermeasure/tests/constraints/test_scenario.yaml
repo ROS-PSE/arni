@@ -3,7 +3,7 @@ arni:
     constraints:
       test_high_cpu:
         constraint:
-          or:
+        - or:
             n!node1: {cpu_usage_max: high}
             n!nodex: {ram_usage_mean: high}
         min_reaction_interval: 10
@@ -16,7 +16,7 @@ arni:
             loglevel: info}
       test_high_cpu_too_short:
         constraint:
-          n!node2: {cpu_usage_max: high}
+        - n!node2: {cpu_usage_max: high}
         min_reaction_interval: 10
         reactions: 
           one: {
@@ -25,7 +25,7 @@ arni:
               loglevel: info}
       test_constraint_timeout:
         constraint:
-          n!node3: {cpu_usage_max: low}
+        - n!node3: {cpu_usage_max: low}
         min_reaction_interval: 10
         reaction_timeout: 80
         reactions:
@@ -36,7 +36,7 @@ arni:
             node: node3}
       test_constraint_autonomy_level_too_high:
         constraint:
-          n!node3: {cpu_usage_max: low}
+        - n!node3: {cpu_usage_max: low}
         min_reaction_interval: 10
         reaction_timeout: 80
         reactions:
@@ -50,3 +50,4 @@ arni:
     config:
       reaction_autonomy_level: 50
       storage_timeout: 5
+      evaluation_period: 0.3

@@ -13,6 +13,10 @@ from rospy.timer import Timer
 from rospy.impl.tcpros_service import ServiceProxy
 from rospy.rostime import Duration
 import rospy
+from rospy.service import ServiceException
+
+from helper_functions import UPDATE_FREQUENCY
+
 
 class BufferThread(Thread):
     """
@@ -27,47 +31,63 @@ class BufferThread(Thread):
         :param model: the object of the ROSModel
         :type model: ROSModel
         """
-        Thread.__init__(self)
-        rospy.init_node('arni_gui', log_level=rospy.DEBUG)
+        super(BufferThread, self).__init__()
 
         self.__rated_statistics_buffer_lock = Lock()
         self.__topic_statistics_buffer_lock = Lock()
         self.__node_statistics_buffer_lock = Lock()
         self.__host_statistics_buffer_lock = Lock()
-        self.__model = model
-        self.__timer = Timer(Duration(nsecs=100000000), self.__update_model)
         self.__rated_statistics_buffer = list()
         self.__topic_statistics_buffer = list()
         self.__node_statistics_buffer = list()
         self.__host_statistics_buffer = list()
         self.__running = False
+        self.__model = model
+        self.start()
+        self.__timer = Timer(Duration(nsecs=UPDATE_FREQUENCY), self.__update_model)
 
-    #todo: is this optimal=?
-    def start():
+
+    def __del__(self):
+        """
+        The Destructor of the BufferThread
+        """
+        print("\nDestructor BufferThread\n")
+        self.__timer.stop()
+        del self.__timer
+
+
+    # todo: is this optimal=?
+    def start(self):
         if not self.__running:
             self.__get_history()
             self.__register_subscribers()
 
+
     def __get_history(self):
         """
-        for fetching the history from the monitoring_node
-        :return:
+        For fetching the history from the monitoring_node.
         """
         rospy.logdebug("waiting for service %s", "get_statistic_history")
-        rospy.wait_for_service('get_statistic_history')
-
-        get_statistic_history = rospy.ServiceProxy('get_statistic_history', StatisticHistory)
-
+        #not needed because the monitoring node doesn't have to be running
+        #rospy.wait_for_service('get_statistic_history')
         try:
-            response = get_statistic_history()
-        except rospy.ServiceException as exc:
-            rospy.logdebug(("Service did not process request: " + str(exc)))
-            #todo: what shall we do with that exception?
-            raise
+            get_statistic_history = rospy.ServiceProxy('monitoring_node/get_statistic_history', StatisticHistory)
+            #self.__model.update_model(get_statistic_history.RatedStatistics, get_statistic_history.TopicStatistics, get_statistic_history.HostStatistics, get_statistic_history.NodeStatistics)
+            response = get_statistic_history(rospy.Time(0))
+            a = response.rated_topic_statistics + response.rated_node_statistics + response.rated_host_statistics + response.rated_node_statistics
+            self.__model.update_model(a, response.topic_statistics,
+                                  response.host_statistics, response.node_statistics)
+        except ServiceException as msg:
+	    print "ServiceException"
+	    print msg
+            rospy.logdebug("get_statistic_history is not available, probably monitoring_node is not running. "
+                           "Will continue without the information about the past")
 
 
     def __register_subscribers(self):
-        """Register to the services needed to get fresh data"""
+        """
+        Registers to the services needed to get fresh data.
+        """
         rospy.Subscriber(
             "/statistics_rated", RatedStatistics,
             self.__add_rated_statistics_item)
@@ -80,21 +100,19 @@ class BufferThread(Thread):
         rospy.Subscriber(
             "/statistics_host", HostStatistics,
             self.__add_host_statistics_item)
-
-
-# def start(self):
-#     """
-#     Starts the thread and also the timer for regulary updates of the model. It is ensured via the running attribute that this function cannot be called multiple times.
-#     """
-
-
-    def __update_model(self):
+        
+        
+    def __update_model(self, event):
         """
-        Starts the update of the model. Will be called regulary by the timer. Will first read the data from the *buffer* and add the according data items to the items of the model and afterwards use the *rated_buffer* to add a rating to these entries.
+        Starts the update of the model. 
+        Will be called regulary by the timer, first read the data from the *buffer* and add the according data items to the items of the model,
+        afterwards use the *rated_buffer* to add a rating to these entries.
         """
-        self.model.update_model(self.__rated_statistics_buffer_lock, self.__topic_statistics_buffer, self.__host_statistics_buffer, self.__node_statistics_buffer)
-
-
+        rospy.logdebug('Timer called at ' + str(event.current_real))
+        self.__model.update_model(self.__rated_statistics_buffer, self.__topic_statistics_buffer,
+                                  self.__host_statistics_buffer, self.__node_statistics_buffer)
+        
+        
     def __add_rated_statistics_item(self, item):
         """
         Adds the item to the buffer list. Will be called whenever data from the topics is available.
@@ -103,9 +121,10 @@ class BufferThread(Thread):
         :type item: RatedStatistics
         """
         #todo: are the locks necessary here? e.g. can this be called multiple times by the same subscriber?
-        self.__rated_statistics_buffer_lock.aquire()
+        self.__rated_statistics_buffer_lock.acquire()
         self.__rated_statistics_buffer.append(item)
         self.__rated_statistics_buffer_lock.release()
+
 
     def __add_topic_statistics_item(self, item):
         """
@@ -114,7 +133,7 @@ class BufferThread(Thread):
         :param item: the item which will be added to the buffer
         :type item: TopicStatistics
         """
-        self.__topic_statistics_buffer_lock.aquire()
+        self.__topic_statistics_buffer_lock.acquire()
         self.__topic_statistics_buffer.append(item)
         self.__topic_statistics_buffer_lock.release()
 
@@ -126,7 +145,7 @@ class BufferThread(Thread):
         :param item: the item which will be added to the buffer
         :type item: NodeStatistics
         """
-        self.__node_statistics_buffer_lock.aquire()
+        self.__node_statistics_buffer_lock.acquire()
         self.__node_statistics_buffer.append(item)
         self.__node_statistics_buffer_lock.release()
 
@@ -138,6 +157,6 @@ class BufferThread(Thread):
         :param item: the item which will be added to the buffer
         :type item: HostStatistics
         """
-        self.__host_statistics_buffer_lock.aquire()
+        self.__host_statistics_buffer_lock.acquire()
         self.__host_statistics_buffer.append(item)
         self.__host_statistics_buffer_lock.release()

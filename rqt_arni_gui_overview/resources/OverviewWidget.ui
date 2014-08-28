@@ -60,7 +60,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>graphics/Ampel Zeichen green.png</pixmap>
+          <pixmap>graphics/light_green.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -116,13 +116,13 @@
             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:7.5pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Incoming Traffic: 10 Mb/s&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Amount of connected nodes: 55&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Amount of connected hosts: 35&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Amout of topics: 14&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Average traffic of all hosts: 4 Gb/s&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Average CPU-Load on all hosts: 55%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt;&quot;&gt;Incoming Traffic: 10 Mb/s&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt;&quot;&gt;Amount of connected nodes: 55&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt;&quot;&gt;Amount of connected hosts: 35&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt;&quot;&gt;Amout of topics: 14&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt;&quot;&gt;Average traffic of all hosts: 4 Gb/s&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt;&quot;&gt;Average CPU-Load on all hosts: 55%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
          </item>
@@ -134,62 +134,101 @@ p, li { white-space: pre-wrap; }
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
-          <layout class="QVBoxLayout" name="graphs_tab_vertical_layout">
-           <item>
-            <layout class="QHBoxLayout" name="range_horizontal_layout">
+          <widget class="QScrollArea" name="scrollArea">
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="scrollAreaWidgetContents">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>542</width>
+              <height>347</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout">
              <item>
-              <widget class="QLabel" name="range_label">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                 <horstretch>1</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="text">
-                <string>Range:</string>
-               </property>
-              </widget>
+              <layout class="QVBoxLayout" name="graph_tab_layout">
+               <item>
+                <layout class="QHBoxLayout" name="range_horizontal_layout">
+                 <item>
+                  <widget class="QLabel" name="range_label">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                     <horstretch>1</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>Range:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="range_combo_box">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                     <horstretch>2</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>40</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="baseSize">
+                    <size>
+                     <width>40</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>10 seconds</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>30 Seconds</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>5 minutes</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
              </item>
              <item>
-              <widget class="QComboBox" name="range_combo_box">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                 <horstretch>2</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
+              <widget class="QScrollArea" name="graph_scroll_area">
+               <property name="widgetResizable">
+                <bool>true</bool>
                </property>
-               <property name="minimumSize">
-                <size>
-                 <width>40</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="baseSize">
-                <size>
-                 <width>40</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <item>
-                <property name="text">
-                 <string>10 seconds</string>
+               <widget class="QWidget" name="scrollAreaWidgetContents_2">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>0</y>
+                  <width>522</width>
+                  <height>294</height>
+                 </rect>
                 </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>30 Seconds</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>5 minutes</string>
-                </property>
-               </item>
+               </widget>
               </widget>
              </item>
             </layout>
-           </item>
-          </layout>
+           </widget>
+          </widget>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="graphs_tab_vertical_layout"/>
          </item>
         </layout>
        </widget>
@@ -199,143 +238,7 @@ p, li { white-space: pre-wrap; }
         </attribute>
         <layout class="QHBoxLayout" name="horizontalLayout_5">
          <item>
-          <widget class="QTreeWidget" name="log_tab_tree_widget">
-           <column>
-            <property name="text">
-             <string>Typ</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>Date</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>Location</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>Message</string>
-            </property>
-           </column>
-           <item>
-            <property name="text">
-             <string>Error</string>
-            </property>
-            <property name="background">
-             <brush brushstyle="SolidPattern">
-              <color alpha="130">
-               <red>255</red>
-               <green>0</green>
-               <blue>0</blue>
-              </color>
-             </brush>
-            </property>
-            <property name="text">
-             <string>26.05.2014 - 12:43:12</string>
-            </property>
-            <property name="text">
-             <string>/gazbeo</string>
-            </property>
-            <property name="text">
-             <string>Not responding</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Warning</string>
-            </property>
-            <property name="text">
-             <string>26.05.2014 - 12:40:35</string>
-            </property>
-            <property name="text">
-             <string>/robots/lwr1/safe_cartesian</string>
-            </property>
-            <property name="text">
-             <string>Failed to send message on /robots/lwr1/set_joints</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Error</string>
-            </property>
-            <property name="background">
-             <brush brushstyle="SolidPattern">
-              <color alpha="130">
-               <red>255</red>
-               <green>0</green>
-               <blue>0</blue>
-              </color>
-             </brush>
-            </property>
-            <property name="text">
-             <string>26.05.2014 - 12:40:28</string>
-            </property>
-            <property name="background">
-             <brush brushstyle="NoBrush">
-              <color alpha="0">
-               <red>255</red>
-               <green>0</green>
-               <blue>0</blue>
-              </color>
-             </brush>
-            </property>
-            <property name="text">
-             <string>/gazebo</string>
-            </property>
-            <property name="background">
-             <brush brushstyle="NoBrush">
-              <color alpha="200">
-               <red>0</red>
-               <green>0</green>
-               <blue>0</blue>
-              </color>
-             </brush>
-            </property>
-            <property name="text">
-             <string>Not responding</string>
-            </property>
-            <item>
-             <property name="text">
-              <string>Update</string>
-             </property>
-             <property name="background">
-              <brush brushstyle="SolidPattern">
-               <color alpha="140">
-                <red>0</red>
-                <green>150</green>
-                <blue>0</blue>
-               </color>
-              </brush>
-             </property>
-             <property name="text">
-              <string>26.05.2014 - 12:41:13</string>
-             </property>
-             <property name="text">
-              <string>/gazebo</string>
-             </property>
-             <property name="text">
-              <string>Responds again, normal functionality</string>
-             </property>
-            </item>
-           </item>
-           <item>
-            <property name="text">
-             <string>Information</string>
-            </property>
-            <property name="text">
-             <string>26.05.2014 - 12:38:12</string>
-            </property>
-            <property name="text">
-             <string>/overview_widget</string>
-            </property>
-            <property name="text">
-             <string>Startet this widget</string>
-            </property>
-           </item>
-          </widget>
+          <widget class="QTreeView" name="log_tab_tree_view"/>
          </item>
         </layout>
        </widget>
