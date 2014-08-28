@@ -587,3 +587,11 @@ class AbstractItem:
                     return_values[entry + ".state"] = self.__rated_data[entry + ".state"]
 
         return return_values
+
+
+
+self.delete_old_entries()
+    # delete all entries older than 10 minutes
+
+    # for all element that are older than 1 minute:
+    # if an element has an error state keep this and the first entry who no longer has an error state

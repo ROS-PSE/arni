@@ -38,15 +38,11 @@ Change
 * overview.ui from log_tab_tree_widget to log_tab_tree_view.
 
 ##Big TODOS:
-
-* execute_action not implemented
 * interpolate the data with flowcharts?
 * enter tr() everywhere for internationalisation
-* the units in the overview are missing (maybe also some color if someone is too high)
-* why are sometimes empty values given to the axis?
-* why are there runtimeerrors when closing the gui. and why are there these threading errors(might it be the timers?)
-* scrolling does not work because of the permanent updates...--> solution: if no data has changed, simply get_detailed_data simply returns None
-* RUNTIME_ERROR BECAUSE ELEMENT HAS BEEN DELETED
+* the units in the overview are missing (maybe also some color if someone is too high --> not our )
+* scrolling does not work because of the permanent updates...--> solution: if no data has changed, simply get_detailed_data simply returns None --> or not calling the update so often, every minute should suffice
+
 * DAS LOGGEN GEHT AUCH NOCH GAR NICHT!!! Funktioniert vermutlich, es werden aber noch kein daten gepusht.
 
 * SelectionWidget: Services definieren und überprüfen
@@ -54,14 +50,20 @@ Change
 WiP
 * on close of one widget in detail gui, close the other!
 * TreeWidget: close methoden sync überprüfen --> nicht möglich?!?
+* RUNTIME_ERROR BECAUSE ELEMENT HAS BEEN DELETED --> Timer Fehler oder so... Schwer/nicht behebbar
+* why are sometimes empty values given to the axis? --> for no plausible reason
 
 Done
 * lock updateGraphs --> non reentrant functions, otherwise segmentation faults occur!
+* locking the updateModel from modifying the data while plotting the data in the gui --> shape errors
 * state wird noch nicht regelmäßig im richtigen zeitfesnter aufgerufen!!! führt sicher zu fehlen, muss aber vermtulich allgemein im rahmen der rated datas angepasst werden. 
 * make sure there are no more dict["time"] calls, they are invalid
 * reformat the ROSModel to use the seuid helper class --> Helper class returns None values --> no longer using!!!
+* execute_action not implemented
+* why are there runtimeerrors when closing the gui. and why are there these threading errors(might it be the timers?)
 * GUI WANTS TO RECEIVE ITEMS THE TOPIC DOES NOT PROVIDE!!!
 * gibt immer noch index-fehler, falls ein element abgefragt wird, das keine daten hat!!!
+* reason for wrong return values: *args is never None, so if args is not None will always enter even though args might be empty!!!
 
 =======
 * selection.ui from log_tab_tree_widget to log_tab_tree_view.

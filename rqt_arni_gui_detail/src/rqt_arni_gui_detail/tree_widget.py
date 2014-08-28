@@ -37,7 +37,6 @@ class TreeWidget(QWidget):
         self.__filter_proxy = ItemFilterProxy(self)
 
         self.__filter_proxy.setSourceModel(self.__model)
-        self.item_tree_view.setModel(self.__model)#self.__filter_proxy)
         #self.item_tree_view.setModel(self.__model)
         
         self.__filter_proxy.setDynamicSortFilter(True)
@@ -53,6 +52,7 @@ class TreeWidget(QWidget):
 
         self.__size_delegate = SizeDelegate()
         self.item_tree_view.setItemDelegate(self.__size_delegate)
+        self.item_tree_view.setModel(self.__filter_proxy)
 
         self.__relative_font_size = 0
 
@@ -145,7 +145,7 @@ class TreeWidget(QWidget):
             self.__filter_proxy.setFilterRegExp(QRegExp("error"))
             self.__filter_proxy.setFilterKeyColumn(2)
         else:
-	    self.__filter_proxy.setFilterRegExp(QRegExp(""))
+            self.__filter_proxy.setFilterRegExp(QRegExp(""))
 
 
     def __on_apply_push_button_clicked(self):
