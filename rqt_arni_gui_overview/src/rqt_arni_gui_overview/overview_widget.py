@@ -24,7 +24,12 @@ import time
 
 import numpy as np
 
-import pyqtgraph as pg
+try:
+    import pyqtgraph as pg
+except ImportError as e:
+    print("An error occured trying to import pyqtgraph. Please install pyqtgraph via \"pip install pyqtgraph\".")
+    raise
+
 
 class OverviewWidget(QWidget):
     """The overviewWidget of the ArniGuiOverview-Plugin."""
@@ -299,7 +304,7 @@ class OverviewWidget(QWidget):
                 del temp_content[:]
                 now2 = rospy.Time.now()
 
-                print("shortened length time: " + str(len(x)) + " shortened length data: " + str(len(y)))
+                #print("shortened length time: " + str(len(x)) + " shortened length data: " + str(len(y)))
                 self.__plotted_curves[key].setData(x=x, y=y)
 
                 string = "update_graphs - plot_data took: " + str(int(str(rospy.Time.now() - now2)) / 1000000) + "ms"

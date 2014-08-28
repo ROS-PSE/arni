@@ -1,6 +1,6 @@
 from abstract_item import AbstractItem
 from python_qt_binding.QtGui import QSortFilterProxyModel
-from python_qt_binding.QtCore import QObject, QRegExp
+from python_qt_binding.QtCore import QObject, QRegExp, Qt
 
 class LogFilterProxy(QSortFilterProxyModel):
     """The LogFilterProxy will especially be used to filter the complete log e.g. by a specific node.
@@ -64,6 +64,8 @@ class LogFilterProxy(QSortFilterProxyModel):
         :type item: AbstractItem
         """
         if item is not None:
-            #print("now filtering for " + item.get_seuid())
-            self.setFilterRegExp(QRegExp(".*" + item.get_seuid() + ".*"))
+            #print("now filtering for " + item.get_seuid()) #+ item.get_seuid()
+            print(7)
+            self.setFilterRegExp(QRegExp(".*"))
             self.setFilterKeyColumn(2)
+        print(8)

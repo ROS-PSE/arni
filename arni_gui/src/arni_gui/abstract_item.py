@@ -590,7 +590,7 @@ class AbstractItem:
 
 
 
-self.delete_old_entries()
+#self.delete_old_entries()
     # delete all entries older than 10 minutes
 
     # for all element that are older than 1 minute:

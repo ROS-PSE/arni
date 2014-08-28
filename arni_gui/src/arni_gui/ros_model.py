@@ -76,14 +76,14 @@ class ROSModel(QAbstractItemModel):
         
         self.__last_time_error_occured = 0
         self.add_log_entry("info", Time.now(), "ROSModel", "ROSModel initialization finished")
-        self.add_log_entry("error", Time.now(), "ROSModel", "Just testing")
+        self.add_log_entry("info", Time.now(), "ROSModel", "Just testing")
 
         self.__seuid_helper = SEUID()
 
         self.__find_host = HostLookup()
 
         self.__buffer_thread = BufferThread(self)
-        print "ich hab das rosmodel init"
+        #print "ich hab das rosmodel init"
 
     def get_overview_data_since(self, time=None):
         """

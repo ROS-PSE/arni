@@ -98,9 +98,11 @@ class SelectionWidget(QWidget):
         :param selected_item: the selected item
         :type selected_item: QModelIndex
         """
+        print(1)
         self.__selected_item = index.internalPointer()
-
+        print(2)
         self.__on_changed_selected_item(self.__selected_item)
+        print(3)
 
 
     def __on_current_tab_changed(self, tab):
@@ -149,8 +151,11 @@ class SelectionWidget(QWidget):
         :param index: the index of the selected item
         :type index: QModelIndex
         """
+        print(4)
         self.__log_filter_proxy.filter_by_item(self.__selected_item)
+        print(5)
         self.update()
+        print(6)
 
 
     def update_graphs(self, event):
@@ -194,7 +199,7 @@ class SelectionWidget(QWidget):
             self.current_status_label.setText("Offline")
             self.information_tab_text_browser.setText("Please select an item in the TreeView to get more information"
                                                       " about it")
-            self.__log_filter_proxy.filter_by_item(None)
+            #self.__log_filter_proxy.filter_by_item(None)
 
 
     def __combo_box_index_to_seconds(self, index):

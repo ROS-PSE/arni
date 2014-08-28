@@ -66,6 +66,10 @@ class ArniGuiDetail(Plugin):
         :param item: the double-clicked item
         :type item: QModelIndex
         """
+        print(type(index))
+        print(index.isValid())
+        print(type(index.internalPointer()))
+
         self.__selection_widget.set_selected_item(index)
 
 

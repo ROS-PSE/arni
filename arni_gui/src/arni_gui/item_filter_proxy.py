@@ -1,5 +1,5 @@
 from python_qt_binding.QtGui import QSortFilterProxyModel
-from python_qt_binding.QtCore import QObject
+from python_qt_binding.QtCore import QObject, QModelIndex
 
 
 class ItemFilterProxy(QSortFilterProxyModel):
@@ -35,6 +35,8 @@ class ItemFilterProxy(QSortFilterProxyModel):
 
         :returns: bool
         """
+        assert type(source_row) == int
+        assert type(source_parent) == QModelIndex
         entries = []
         # why???
         for item in range(0, 4):
