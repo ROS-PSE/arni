@@ -41,7 +41,6 @@ Change
 * FINALLY FIX SEGMENTATION FAULT!!!
 * enter tr() everywhere for internationalisation
 * update the texts that ar shown  --- the units in the overview are missing (maybe also some color if someone is too high --> not our )
-* create stylesheet for the size of the text and find out how to use it
 * scrolling does not work because of the permanent updates...--> solution: if no data has changed, simply get_detailed_data simply returns None --> or not calling the update so often, every minute should suffice
 * protect pyqtgraph imports with try/except
 * adapt package.xmls for including pyqtgraph

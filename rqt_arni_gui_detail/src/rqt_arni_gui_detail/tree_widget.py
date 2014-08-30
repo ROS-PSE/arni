@@ -33,14 +33,10 @@ class TreeWidget(QWidget):
         loadUi(ui_file, self)
         self.setObjectName('TreeWidgetUi')
 
-
         self.__filter_proxy = ItemFilterProxy(self)
-
-        self.__filter_proxy.setSourceModel(self.__model)
-        #self.item_tree_view.setModel(self.__model)
-        
-        self.__filter_proxy.setDynamicSortFilter(True)
-
+        self.__filter_proxy.setSourceModel(self.__model)        
+        self.__filter_proxy.setDynamicSortFilter(True)        
+        self.item_tree_view.setModel(self.__filter_proxy)     
 
         self.item_tree_view.setRootIsDecorated(True)
         # todo: test: eventually remove this
@@ -51,8 +47,11 @@ class TreeWidget(QWidget):
         self.__model.layoutChanged.connect(self.update)
 
         self.__size_delegate = SizeDelegate()
-        self.item_tree_view.setItemDelegate(self.__size_delegate)
-        self.item_tree_view.setModel(self.__filter_proxy)
+        self.item_tree_view.setItemDelegate(self.__size_delegate)   
+        
+        self.__font_size = 10
+        self.item_tree_view.setStyleSheet("font-size: %dpt;" % self.__font_size)
+        self.__resize_columns()
 
         self.__relative_font_size = 0
 
@@ -150,19 +149,27 @@ class TreeWidget(QWidget):
 
     def __on_apply_push_button_clicked(self):
         """Filters the content in the box according to the content of the filter_line_edit."""
-        self.__filter_proxy.setFilterRegExp(QRegExp(".*" + self.filter_line_Edit.text() + ".*"))
+        self.__filter_proxy.setFilterRegExp(QRegExp(".*" + self.filter_line_Edit.text() + ".*"))        
 
 
     def __on_minus_push_button_clicked(self):
         """Checks if the minus_push_button is clicked and zoomes out (decrease the size of the font)."""
-        self.__size_delegate.set_smaller_font_size()
-        self.__relative_font_size -= 1
+        #self.__size_delegate.set_smaller_font_size()
+        #self.__relative_font_size -= 1
+        if self.__font_size > 1:
+	    self.__font_size -= 1
+        self.item_tree_view.setStyleSheet("font-size: %dpt;" % self.__font_size)
+        self.__resize_columns()
 
 
     def __on_plus_push_button_clicked(self):
         """Checks if the plus_push_button is clicked and zoomes in (increase the size of the font)."""
-        self.__size_delegate.set_bigger_font_size()
-        self.__relative_font_size += 1
+        #self.__size_delegate.set_bigger_font_size()
+        #self.__relative_font_size += 1
+        
+        self.__font_size += 1
+        self.item_tree_view.setStyleSheet("font-size: %dpt;" % self.__font_size)
+        self.__resize_columns()
 
 
     def get_relative_font_size(self):
@@ -185,4 +192,9 @@ class TreeWidget(QWidget):
                 self.__on_plus_push_button_clicked()
         else:
             for i in range(relative_font_size, 0):
-                self.__on_plus_minus_button_clicked()
+                self.__on_minus_push_button_clicked()                
+    
+    
+    def __resize_columns(self):
+        for i in range (0, self.__filter_proxy.columnCount() - 1):
+	    self.item_tree_view.resizeColumnToContents(i)
