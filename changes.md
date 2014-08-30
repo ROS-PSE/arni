@@ -37,32 +37,45 @@ Change
 * get_erroneous_entries in abstractItem
 * overview.ui from log_tab_tree_widget to log_tab_tree_view.
 
-##Big TODOS:
-* interpolate the data with flowcharts?
+## Big TODOS:
+* FINALLY FIX SEGMENTATION FAULT!!!
 * enter tr() everywhere for internationalisation
-* the units in the overview are missing (maybe also some color if someone is too high --> not our )
+* update the texts that ar shown  --- the units in the overview are missing (maybe also some color if someone is too high --> not our )
+* create stylesheet for the size of the text and find out how to use it
 * scrolling does not work because of the permanent updates...--> solution: if no data has changed, simply get_detailed_data simply returns None --> or not calling the update so often, every minute should suffice
+* protect pyqtgraph imports with try/except
+* adapt package.xmls for including pyqtgraph
+* check host/node etc regularily for timeouts
+* change plotting to use one range_box or maybe two or three if there is enough space :) <--> make this dependent from the available space
+* document everything
+* create to constants for minimum time and maximum number of elements in the model
+* saving the model for only 60 seconds 
+* changing the background of the updateGraphs
+* round the shown data in the gui
 
-* DAS LOGGEN GEHT AUCH NOCH GAR NICHT!!! Funktioniert vermutlich, es werden aber noch kein daten gepusht.
 
-* SelectionWidget: Services definieren und überprüfen
+## Final/Small Improvements
+* interpolate the data with flowcharts or however the method is called
+* hover texts have to be defined
+* in the help button the api docs and the general docu (and our names should be shown)
+* improve the model 
 
-WiP
-* on close of one widget in detail gui, close the other!
-* TreeWidget: close methoden sync überprüfen --> nicht möglich?!?
+## WiP
 * RUNTIME_ERROR BECAUSE ELEMENT HAS BEEN DELETED --> Timer Fehler oder so... Schwer/nicht behebbar
 * why are sometimes empty values given to the axis? --> for no plausible reason
 
-Done
+## Done
+* SelectionWidget: define services and check if working
+* on close of one widget in detail gui, close the other! --> not possible
 * lock updateGraphs --> non reentrant functions, otherwise segmentation faults occur!
 * locking the updateModel from modifying the data while plotting the data in the gui --> shape errors
-* state wird noch nicht regelmäßig im richtigen zeitfesnter aufgerufen!!! führt sicher zu fehlen, muss aber vermtulich allgemein im rahmen der rated datas angepasst werden. 
+* unknown state errors
 * make sure there are no more dict["time"] calls, they are invalid
 * reformat the ROSModel to use the seuid helper class --> Helper class returns None values --> no longer using!!!
 * execute_action not implemented
 * why are there runtimeerrors when closing the gui. and why are there these threading errors(might it be the timers?)
 * GUI WANTS TO RECEIVE ITEMS THE TOPIC DOES NOT PROVIDE!!!
-* gibt immer noch index-fehler, falls ein element abgefragt wird, das keine daten hat!!!
+* fixed index errors when element was None
 * reason for wrong return values: *args is never None, so if args is not None will always enter even though args might be empty!!!
 
 =======
