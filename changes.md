@@ -38,20 +38,19 @@ Change
 * overview.ui from log_tab_tree_widget to log_tab_tree_view.
 
 ## Big TODOS:
-* FINALLY FIX SEGMENTATION FAULT!!!
+
 * enter tr() everywhere for internationalisation
-* update the texts that ar shown  --- the units in the overview are missing (maybe also some color if someone is too high --> not our )
-* scrolling does not work because of the permanent updates...--> solution: if no data has changed, simply get_detailed_data simply returns None --> or not calling the update so often, every minute should suffice
+* update the texts that are shown  --- the units in the overview are missing (maybe also some color if someone is too high --> not our )
 * protect pyqtgraph imports with try/except
 * adapt package.xmls for including pyqtgraph
 * check host/node etc regularily for timeouts
-* change plotting to use one range_box or maybe two or three if there is enough space :) <--> make this dependent from the available space
 * document everything
 * create to constants for minimum time and maximum number of elements in the model
-* saving the model for only 60 seconds 
-* changing the background of the updateGraphs
+* saving the model for only 60 seconds (maybe more, simply try it)
 * round the shown data in the gui
 * drawing the graphs in selectionwidget
+* logging every error message occuring when updating an item
+* log every error message with good text whenever updating the root_item
 
 ## Final/Small Improvements
 * interpolate the data with flowcharts or however the method is called
@@ -59,11 +58,16 @@ Change
 * in the help button the api docs and the general docu (and our names should be shown)
 * improve the model 
 
+
+
 ## WiP
 * RUNTIME_ERROR BECAUSE ELEMENT HAS BEEN DELETED --> Timer Fehler oder so... Schwer/nicht behebbar
 * why are sometimes empty values given to the axis? --> for no plausible reason
+* FINALLY FIX SEGMENTATION FAULT!!! - well at least it doesn't segfault any more^^
 
 ## Done
+* locking the graph view to the views of the other so that the person sees the same range in every view --> done
+* added stop/continue button to graphs so you have time to explore the data
 * SelectionWidget: define services and check if working
 * on close of one widget in detail gui, close the other! --> not possible
 * lock updateGraphs --> non reentrant functions, otherwise segmentation faults occur!
@@ -78,6 +82,10 @@ Change
 * reason for wrong return values: *args is never None, so if args is not None will always enter even though args might be empty!!!
 * moved logging to own class
 * disable action when not a nodeitem is selected
+* changing the background of the updateGraphs
+* change plotting to use one range_box or maybe two or three if there is enough space :) <--> make this dependent from the available space
+* scrolling does not work because of the permanent updates...--> solution: if no data has changed, simply get_detailed_data simply returns None --> or not calling the update so often, every minute should suffice
+
 
 =======
 * selection.ui from log_tab_tree_widget to log_tab_tree_view.

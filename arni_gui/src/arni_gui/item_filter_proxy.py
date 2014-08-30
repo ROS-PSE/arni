@@ -70,7 +70,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
 
         if correct_type is False:
             return False
-	  
+
         #filters accordings to the filter regex
         return QSortFilterProxyModel.filterAcceptsRow(self, source_row, source_parent)
         #todo: when the this filter accepts the item, call the parent filter
