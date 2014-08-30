@@ -198,7 +198,10 @@ class SelectionWidget(QWidget):
                 self.status_light_label.setPixmap(pixmap)
             #print("here")
             content = self.__selected_item.get_detailed_data()
-            self.information_tab_text_browser.setHtml(content)
+            
+            scroll_value = self.information_tab_text_browser.verticalScrollBar().value()
+            self.information_tab_text_browser.setHtml(self.__model.get_overview_text())
+            self.information_tab_text_browser.verticalScrollBar().setSliderPosition(scroll_value)
         else:
             self.host_node_label.setText("No item selected")
             self.current_status_label.setText("Offline")
