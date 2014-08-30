@@ -58,6 +58,7 @@ class ArniGuiOverview(Plugin):
         tab_value = instance_settings.value("tab_widget")
         combo_box_value = instance_settings.value("range_combo_box")
         self.__overview_widget.set_current_tab(0 if tab_value is None else int(tab_value))
+        #self.__overview_widget.__on_current_tab_changed(int(tab_value))
         self.__overview_widget.set_range_combo_box_index(0 if combo_box_value is None else int(combo_box_value))
 
         # def trigger_configuration(self):
