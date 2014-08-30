@@ -66,11 +66,8 @@ class ArniGuiDetail(Plugin):
         :param item: the double-clicked item
         :type item: QModelIndex
         """
-        #print(type(index))
-        #print(index.isValid())
-        #print(type(index.internalPointer()))
 
-        self.__selection_widget.set_selected_item(self.__tree_widget.item_tree_view.itemFromIndex(index))
+        self.__selection_widget.set_selected_item(index.internalPointer())
 
 
     def shutdown_plugin(self):

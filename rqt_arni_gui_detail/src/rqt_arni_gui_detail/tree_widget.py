@@ -10,6 +10,8 @@ from arni_gui.ros_model import ROSModel
 from arni_gui.size_delegate import SizeDelegate
 from arni_gui.item_filter_proxy import ItemFilterProxy
 
+from python_qt_binding.QtGui import QSortFilterProxyModel
+
 
 class TreeWidget(QWidget):
     """The TreeWidget of the ArniGuiDetail-Plugin."""
@@ -33,10 +35,10 @@ class TreeWidget(QWidget):
         loadUi(ui_file, self)
         self.setObjectName('TreeWidgetUi')
 
-        self.__filter_proxy = ItemFilterProxy(self)
+        self.__filter_proxy = ItemFilterProxy()
         self.__filter_proxy.setSourceModel(self.__model)        
         self.__filter_proxy.setDynamicSortFilter(True)        
-        self.item_tree_view.setModel(self.__filter_proxy)     
+        self.item_tree_view.setModel(self.__model)#self.__filter_proxy)
 
         self.item_tree_view.setRootIsDecorated(True)
         # todo: test: eventually remove this

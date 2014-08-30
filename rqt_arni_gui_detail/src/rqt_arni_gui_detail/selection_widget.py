@@ -105,13 +105,7 @@ class SelectionWidget(QWidget):
         :type selected_item: QModelIndex
         """
         self.__selected_item = item
-        #print(1)
-        #self.__selected_item = index.internalPointer()
-        #print(2)
-        #self.__on_changed_selected_item()
-        #print(3)
         self.__log_filter_proxy.filter_by_item(self.__selected_item)
-        #print(5)
         if self.__selected_item is not None:
             if self.__selected_item.can_execute_actions():
                 self.stop_push_button.setEnabled(True)

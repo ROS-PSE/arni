@@ -32,9 +32,9 @@ except ImportError as e:
     raise
 
 class ResizeableGraphicsLayoutWidget(pg.GraphicsLayoutWidget):
-    def set_function(self, function_to_call):
-        #self.widget = widget
+    def __init__(self, function_to_call, parent=None, **kwargs):
         self.function_to_call = function_to_call
+        pg.GraphicsLayoutWidget.__init__(self, parent, **kwargs)
 
     def resizeEvent(self, ev):
         try:
@@ -117,8 +117,7 @@ class OverviewWidget(QWidget):
 
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
-        self.__graph_layout = ResizeableGraphicsLayoutWidget()
-        self.__graph_layout.set_function(self.__on_graph_window_size_changed)
+        self.__graph_layout = ResizeableGraphicsLayoutWidget(self.__on_graph_window_size_changed)
         #self.__multiplotitem = pg.MultiPlotItem()
         #self.__multiplotitem.setCentralWidget(self.__graph_layout)
         self.graph_scroll_area.setWidget(self.__graph_layout)
@@ -128,6 +127,7 @@ class OverviewWidget(QWidget):
         self.__number_of_groups = 1
 
         self.__update_graphs_lock = Lock()
+        self.__first_update_pending = True
 
         self.__graph_dict = {}
         #
@@ -185,7 +185,7 @@ class OverviewWidget(QWidget):
         self.__expected_items_per_group = 0
         self.__graph_layout.clear()
 
-        for key in  self.__plotable_items[min(self.__current_selected_combo_box_index *
+        for key in self.__plotable_items[min(self.__current_selected_combo_box_index *
                                             self.__items_per_group, len(self.__plotable_items)):
                                             min((self.__current_selected_combo_box_index + 1)
                                             * self.__items_per_group, len(self.__plotable_items))]:
@@ -237,6 +237,7 @@ class OverviewWidget(QWidget):
             self.__expected_items_per_group += 1
             #print("create")
             #print(key)
+        self.__first_update_pending = True
         self.__update_graphs_lock.release()
 
     # def updatePlots(self, changed_item):
@@ -394,13 +395,15 @@ class OverviewWidget(QWidget):
     def update_graphs(self, event):
         """Updates and redraws the graphs."""
         self.__update_graphs_lock.acquire()
-        if self.__draw_graphs is True:
-            now = rospy.Time.now()
+        #print("here")
+        #print(self.__draw_graphs)
+        if self.__draw_graphs or self.__first_update_pending:
+            #now = rospy.Time.now()
 
             plotable_items = self.__plotable_items[min(self.__current_selected_combo_box_index *
                                 self.__items_per_group, len(self.__plotable_items)):min((self.__current_selected_combo_box_index + 1)
                                                         * self.__items_per_group, len(self.__plotable_items))]
-            #print(plotable_items)
+            print(plotable_items)
             plotable_data = self.__model.get_root_item().get_items_younger_than(
                 Time.now() - Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)),
                 "window_stop", *plotable_items)
@@ -451,9 +454,9 @@ class OverviewWidget(QWidget):
 
 
                 #because of autoarrange y should not be set again and again
-            string = "update_graphs took: " + str(int(str(rospy.Time.now() - now)) / 1000000) + "ms"
-            self.__logger.log("info",  rospy.Time.now(), "OverviewWidget", string)
-
+            #string = "update_graphs took: " + str(int(str(rospy.Time.now() - now)) / 1000000) + "ms"
+            #self.__logger.log("info",  rospy.Time.now(), "OverviewWidget", string)
+        self.__first_update_pending = False
         self.__update_graphs_lock.release()
 
 
