@@ -255,7 +255,9 @@ class OverviewWidget(QWidget):
             #self.status_light_label.resize(50, 50)
 
         if self.information_tab_text_browser:
+	    scroll_value = self.information_tab_text_browser.verticalScrollBar().value()
             self.information_tab_text_browser.setHtml(self.__model.get_overview_text())
+            self.information_tab_text_browser.verticalScrollBar().setSliderPosition(scroll_value)
 
         #self.update_graphs()
         #todo: currently not needed
