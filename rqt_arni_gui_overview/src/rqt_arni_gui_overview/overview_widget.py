@@ -71,7 +71,10 @@ class OverviewWidget(QWidget):
 
         self.__log_filter_proxy = LogFilterProxy()
 
-        self.__log_model = self.__model.get_log_model()
+        self.__logger = self.__model.get_logger()
+        #self.__log_model = self.__model.get_log_model()
+
+        self.information_tab_text_browser.setStyleSheet("font-size: %dpt;" % 12)
 
         self.__connect_slots()
 
@@ -79,7 +82,7 @@ class OverviewWidget(QWidget):
         self.__log_filter_proxy.setDynamicSortFilter(True)
 
         #set proxy model
-        self.__log_filter_proxy.setSourceModel(self.__log_model)
+        self.__log_filter_proxy.setSourceModel(self.__logger.get_representation())
 
         self.log_tab_tree_view.setModel(self.__log_filter_proxy)
         #todo: should this be false?
@@ -228,6 +231,7 @@ class OverviewWidget(QWidget):
 
         #print(data_dict)
         self.__state = data_dict["state"]
+        #print("view: " + self.__state)
 
         # for testing only:
         #self.__state = "warning"

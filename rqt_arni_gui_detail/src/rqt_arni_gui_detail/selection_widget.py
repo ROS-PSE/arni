@@ -51,14 +51,17 @@ class SelectionWidget(QWidget):
             "bandwith_max": 0,
         }
 
-        self.__log_model = self.__model.get_log_model()
+        self.__logger = self.__model.get_logger()
+        #self.__log_model = self.__model.get_log_model()
         self.__log_filter_proxy = LogFilterProxy()       
         self.__log_filter_proxy.filter_by_item(self.__selected_item)
         self.__log_filter_proxy.setDynamicSortFilter(True)        
-        self.__log_filter_proxy.setSourceModel(self.__log_model)        
+        self.__log_filter_proxy.setSourceModel(self.__logger.get_representation())
         self.log_tab_tree_view.setModel(self.__log_filter_proxy)
         self.__log_delegate = LogDelegate()
         self.log_tab_tree_view.setItemDelegate(self.__log_delegate)
+
+        self.information_tab_text_browser.setStyleSheet("font-size: %dpt;" % 12)
         
         #todo: should this be false?
         self.log_tab_tree_view.setRootIsDecorated(False)
@@ -91,18 +94,19 @@ class SelectionWidget(QWidget):
         self.range_combo_box.currentIndexChanged.connect(self.__on_range_combo_box_index_changed)
 
 
-    def set_selected_item(self, index):
+    def set_selected_item(self, item):
         """
         Sets the selected item.
 
         :param selected_item: the selected item
         :type selected_item: QModelIndex
         """
-        print(1)
-        self.__selected_item = index.internalPointer()
-        print(2)
+        self.__selected_item = item
+        #print(1)
+        #self.__selected_item = index.internalPointer()
+        #print(2)
         self.__on_changed_selected_item(self.__selected_item)
-        print(3)
+        #print(3)
 
 
     def __on_current_tab_changed(self, tab):
@@ -151,11 +155,11 @@ class SelectionWidget(QWidget):
         :param index: the index of the selected item
         :type index: QModelIndex
         """
-        print(4)
+        #print(4)
         self.__log_filter_proxy.filter_by_item(self.__selected_item)
-        print(5)
+        #print(5)
         self.update()
-        print(6)
+        #print(6)
 
 
     def update_graphs(self, event):

@@ -1,19 +1,22 @@
 from abstract_item import AbstractItem
 
+from rospy.rostime import Time
 
 class HostItem(AbstractItem):
     """A HostItem represents a host with all its data."""
 
-    def __init__(self, seuid, parent=None):
+    def __init__(self, logger, seuid, parent=None):
         """
         Initializes the ConnectionItem.
 
         :param seuid: the seuid of the HostItem
         :type list: list
+        :param logger: a logger where to log when special events occur
+        :type logger: ModelLogger
         :param parent: the parent-item
         :type parent: AbstractItem
         """
-        AbstractItem.__init__(self, seuid, parent)
+        AbstractItem.__init__(self, logger, seuid, parent)
         #super(HostItem, self).__init__(seuid, parent)
         self.__parent = parent
         self._type = "host"
@@ -45,6 +48,8 @@ class HostItem(AbstractItem):
 
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)
+
+        self._logger.log("info", Time.now(), seuid, "Created a new HostItem")
 
 
     def execute_action(self, action):
@@ -100,3 +105,11 @@ class HostItem(AbstractItem):
 
     def get_short_data(self):
         return "HostItem"
+
+    def can_execute_actions(self):
+        """
+        This item cannot execute actions, so it returns False
+
+        :return: False
+        """
+        return False

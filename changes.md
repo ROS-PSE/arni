@@ -51,6 +51,7 @@ Change
 * saving the model for only 60 seconds 
 * changing the background of the updateGraphs
 * round the shown data in the gui
+* disable action when not a nodeitem is selected
 
 
 ## Final/Small Improvements
@@ -76,6 +77,7 @@ Change
 * GUI WANTS TO RECEIVE ITEMS THE TOPIC DOES NOT PROVIDE!!!
 * fixed index errors when element was None
 * reason for wrong return values: *args is never None, so if args is not None will always enter even though args might be empty!!!
+* moved logging to own class
 
 =======
 * selection.ui from log_tab_tree_widget to log_tab_tree_view.

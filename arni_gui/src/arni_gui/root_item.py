@@ -5,17 +5,19 @@ from python_qt_binding.QtCore import QObject
 class RootItem(AbstractItem):
     """The RootItem represents the parent of the ROSModel"""
     
-    def __init__(self, seuid, parent=None, *args):
+    def __init__(self, logger, seuid, parent=None, *args):
         """Initializes the TItem.
         
         :param seuid: the seuid of the item
         :type seuid: str
+        :param logger: a logger where to log when special events occur
+        :type logger: ModelLogger
         :param parent: the parent-item
         :type parent: QObject
         :param args:
         :type args: str
         """
-        AbstractItem.__init__(self, "root", parent)
+        AbstractItem.__init__(self, logger, "root", parent)
         #AbstractItem.__init__(self, "root", parent)
         self._attributes = []
         self._attributes.extend(["cpu_usage_mean", "cpu_temp_mean", "cpu_usage_max", "cpu_temp_max",
@@ -35,6 +37,8 @@ class RootItem(AbstractItem):
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)
 
+        #self.logger.log("info", Time.now(), "NodeItem", "Created a new NodeItem with name " + seuid)
+
     def get_detailed_data(self):
         """
         Returns the detailed data of the NodeItem.
@@ -43,7 +47,7 @@ class RootItem(AbstractItem):
         """
         data_dict = self.get_latest_data()
 
-        content = "<p style=\"font-size:15px\">"
+        content = ""#"<p style=\"font-size:15px\">"
 
         content += "total_traffic: " + str(data_dict["total_traffic"]) + "<br>"
         content += "connected_hosts: " + str(data_dict["connected_hosts"]) + "<br>"
@@ -57,7 +61,7 @@ class RootItem(AbstractItem):
         content += "cpu_temp_max: " + str(data_dict["cpu_temp_max"]) + "<br>"
         content += "ram_usage_max: " + str(data_dict["ram_usage_max"]) + "<br>"
 
-        content += "</p>"
+        #content += "</p>"
 
         return content
 
@@ -85,3 +89,11 @@ class RootItem(AbstractItem):
 
     def get_short_data(self):
         return NotImplementedError()
+
+    def can_execute_actions(self):
+        """
+        This item cannot execute actions, so it returns False
+
+        :return: False
+        """
+        return False

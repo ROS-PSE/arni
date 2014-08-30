@@ -1,4 +1,3 @@
-from python_qt_binding.QtGui import QStandardItemModel
 from python_qt_binding.QtCore import QAbstractItemModel
 from python_qt_binding.QtCore import *
 from threading import Lock
@@ -21,6 +20,8 @@ from rosgraph_msgs.msg import TopicStatistics
 from arni_msgs.msg import RatedStatistics
 from arni_msgs.msg import NodeStatistics
 from arni_msgs.msg import HostStatistics
+
+from model_logger import ModelLogger
 
 from arni_core.helper import SEUID, SEUID_DELIMITER
 
@@ -56,15 +57,17 @@ class ROSModel(QAbstractItemModel):
         """
         #rospy.init_node('arni_gui_model', log_level=rospy.DEBUG)
         super(ROSModel, self).__init__(parent)
-        self.__root_item = RootItem("abstract")
+
+        self.__logger = ModelLogger()
+
+        self.__root_item = RootItem(self.__logger, "abstract")
 
         self.__parent = parent
         self.__model_lock = Lock()
 
         self.__identifier_dict = {"root": self.__root_item}
         self.__item_delegate = SizeDelegate()
-        self.__log_model = QStandardItemModel(0, 4, None)
-        self.__log_model.setHorizontalHeaderLabels(["type", "date", "location", "message"])
+
         self.__mapping = {
             0: 'type',
             1: 'name',
@@ -72,11 +75,11 @@ class ROSModel(QAbstractItemModel):
             3: 'data'
         }
 
-        rospy.logdebug("Finished model initialization.")
+        #rospy.logdebug("Finished model initialization.")
         
         self.__last_time_error_occured = 0
-        self.add_log_entry("info", Time.now(), "ROSModel", "ROSModel initialization finished")
-        self.add_log_entry("info", Time.now(), "ROSModel", "Just testing")
+        self.__logger.log("info", Time.now(), "ROSModel", "ROSModel initialization finished")
+        #self.__logger.log("info", Time.now(), "ROSModel", "Just testing")
 
         self.__seuid_helper = SEUID()
 
@@ -321,8 +324,10 @@ class ROSModel(QAbstractItemModel):
                 state = "warning"
             elif host_item.get_state() is "error":
                 state = "error"
-            elif host_item.get_state is "unknown":
-                state = "unknown"
+            # if there is a few unnknown elements the complete state is probably still okay
+            # so this is ignored
+            # elif host_item.get_state() is "unknown":
+            #    state = "unknown"
 
             for key in data:
                 #print("key " + key)
@@ -366,13 +371,14 @@ class ROSModel(QAbstractItemModel):
         data_dict["topic_counter"] = topic_counter
         data_dict["connection_counter"] = connection_counter
         data_dict["state"] = state
+        #print("rosmodel: " + state)
         data_dict["window_end"] = Time.now()
 
         #now give this information to the root :)
         self.__root_item.append_data_dict(data_dict)
 
         #todo: does this work correctly?
-        #self.add_log_entry("info", Time.now(), "ROSModel", "update_model (in ros_model) took: " + str(int(str(rospy.Time.now() - now))/1000000) + " milliseconds")
+        #self.__logger.log("info", Time.now(), "ROSModel", "update_model (in ros_model) took: " + str(int(str(rospy.Time.now() - now))/1000000) + " milliseconds")
 
         self.layoutChanged.emit()
 
@@ -389,7 +395,7 @@ class ROSModel(QAbstractItemModel):
         # check if avaiable
         if seuid not in self.__identifier_dict:
             #having a problem, item doesn't exist but should not be created here
-            #self.add_log_entry("warning", Time.now(), "ROSModel", "Received rated statistics for an item that doesn't exist the database!")
+            #self.__logger.log("warning", Time.now(), "ROSModel", "Received rated statistics for an item that doesn't exist the database!")
             pass
         else:
             #update it
@@ -439,43 +445,43 @@ class ROSModel(QAbstractItemModel):
                 host_seuid = "h" + SEUID_DELIMITER + self.__find_host.get_host(item.node_pub)
                 host_item = None
                 if host_seuid not in self.__identifier_dict:
-                    host_item = HostItem(host_seuid, self.__root_item)
+                    host_item = HostItem(self.__logger, host_seuid, self.__root_item)
                     self.__identifier_dict[host_seuid] = host_item
                     self.__root_item.append_child(host_item)
-                    self.add_log_entry("info", Time.now(), "ROSModel", "Added a new HostItem with name " + host_seuid)
+                    #self.__logger.log("info", Time.now(), "ROSModel", "Added a new HostItem with name " + host_seuid)
                 else:
                     host_item = self.__identifier_dict[host_seuid]
 
                 node_seuid = "n" + SEUID_DELIMITER + item.node_pub
                 node_item = None
                 if node_seuid not in self.__identifier_dict:
-		    node_item = NodeItem(node_seuid, host_item)
+                    node_item = NodeItem(self.__logger, node_seuid, host_item)
                     self.__identifier_dict[node_seuid] = node_item
                     host_item.append_child(node_item)
-                    self.add_log_entry("info", Time.now(), "ROSModel", "Added a new NodeItem with name " + node_seuid)
+                    #self.__logger.log("info", Time.now(), "ROSModel", "Added a new NodeItem with name " + node_seuid)
                 else:
-		    node_item = self.__identifier_dict[node_seuid]
+                    node_item = self.__identifier_dict[node_seuid]
 
                 parent = self.__identifier_dict["n" + SEUID_DELIMITER + item.node_pub]
             if parent is None:
                 # having a problem, there is no node with the given name
                 raise UserWarning("The parent of the given topic statistics item cannot be found.")
 
-            topic_item = TopicItem(topic_seuid, parent)
+            topic_item = TopicItem(self.__logger, topic_seuid, parent)
             parent.append_child(topic_item)
             self.__identifier_dict[topic_seuid] = topic_item
-            self.add_log_entry("info", Time.now(), "ROSModel", "Added a new TopicItem with name " + topic_seuid)
+            #self.__logger.log("info", Time.now(), "ROSModel", "Added a new TopicItem with name " + topic_seuid)
             #creating a connection item
-            connection_item = ConnectionItem(connection_seuid, topic_item)
+            connection_item = ConnectionItem(self.__logger, connection_seuid, topic_item)
             topic_item.append_child(connection_item)
-            self.add_log_entry("info", Time.now(), "ROSModel", "Added a new ConnectionItem with name " + connection_seuid)
+            #self.__logger.log("info", Time.now(), "ROSModel", "Added a new ConnectionItem with name " + connection_seuid)
             self.__identifier_dict[connection_seuid] = connection_item
         elif connection_seuid not in self.__identifier_dict:
             topic_item = self.__identifier_dict[topic_seuid]
             #creating a new connection item
-            connection_item = ConnectionItem(connection_seuid, topic_item)
+            connection_item = ConnectionItem(self.__logger, connection_seuid, topic_item)
             topic_item.append_child(connection_item)
-            self.add_log_entry("info", Time.now(), "ROSModel", "Added a new ConnectionItem with name " + connection_seuid)
+            #self.__logger.log("info", Time.now(), "ROSModel", "Added a new ConnectionItem with name " + connection_seuid)
             self.__identifier_dict[connection_seuid] = connection_item
         else:
             # get topic and connection item
@@ -506,15 +512,15 @@ class ROSModel(QAbstractItemModel):
             host_seuid = "h" + SEUID_DELIMITER + item.host
             host_item = None
             if host_seuid not in self.__identifier_dict:
-                host_item = HostItem(host_seuid, self.__root_item)
+                host_item = HostItem(self.__logger, host_seuid, self.__root_item)
                 self.__identifier_dict[host_seuid] = host_item
                 self.__root_item.append_child(host_item)
-                self.add_log_entry("info", Time.now(), "ROSModel", "Added a new HostItem with name " + host_seuid)
+                #self.__logger.log("info", Time.now(), "ROSModel", "Added a new HostItem with name " + host_seuid)
             else:
                 host_item = self.__identifier_dict[host_seuid]
-            node_item = NodeItem(item_seuid, host_item)
+            node_item = NodeItem(self.__logger, item_seuid, host_item)
             self.__identifier_dict[item_seuid] = node_item
-            self.add_log_entry("info", Time.now(), "ROSModel", "Added a new NodeItem with name " + item_seuid)
+            #self.__logger.log("info", Time.now(), "ROSModel", "Added a new NodeItem with name " + item_seuid)
             host_item.append_child(node_item)
         else:
             node_item = self.__identifier_dict[item_seuid]
@@ -533,10 +539,10 @@ class ROSModel(QAbstractItemModel):
         item_seuid = "h" + SEUID_DELIMITER + item.host
         if item_seuid not in self.__identifier_dict:
             #create item
-            host_item = HostItem(item_seuid, self.__root_item)
+            host_item = HostItem(self.__logger, item_seuid, self.__root_item)
             self.__identifier_dict[item_seuid] = host_item
             self.__root_item.append_child(host_item)
-            self.add_log_entry("info", Time.now(), "ROSModel", "Added a new HostItem with name " + item_seuid)
+            #self.__logger.log("info", Time.now(), "ROSModel", "Added a new HostItem with name " + item_seuid)
         else:
             host_item = self.__identifier_dict[item_seuid]
 
@@ -592,26 +598,8 @@ class ROSModel(QAbstractItemModel):
         """
         return self.__log_model
 
-
-    def add_log_entry(self, type, date, location, message):
-        """
-        Adds a log entry to the log_model.
-
-        :param type: the type of the log_entry
-        :type type: str
-        :param date: the time of the log_entry
-        :type date: Time
-        :param location: the location, were the fault/info/... occured
-        :type location: str
-        :param message: the message of the log_entry
-        :type message: str
-        """
-        self.__log_model.insertRow(0)
-        self.__log_model.setData(self.__log_model.index(0, 0), str(type))
-        self.__log_model.setData(self.__log_model.index(0, 1), time.strftime("%d.%m-%H:%M:%S", time.localtime(int(str(date)) / 1000000000)))
-        self.__log_model.setData(self.__log_model.index(0, 2), str(location))
-        self.__log_model.setData(self.__log_model.index(0, 3), str(message))
-
+    def get_logger(self):
+        return self.__logger
 
     def get_overview_text(self):
         """

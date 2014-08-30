@@ -1,21 +1,24 @@
 from abstract_item import AbstractItem
 
+from rospy.rostime import Time
 
 class ConnectionItem(AbstractItem):
     """A ConnectionItem reresents the connection between a publisher and a subscriber and the topic they are publishing / listening on"""
 
-    def __init__(self, seuid, parent=None):
+    def __init__(self, logger, seuid, parent=None):
         """Initializes the ConnectionItem.
         
         :param seuid: the seuid of the item
         :type seuid: str
+        :param logger: a logger where to log when special events occur
+        :type logger: ModelLogger
         :param type: the type of the item
         :type type: str
         :param parent: the parent-item
         :type parent: AbstractItem
         """
-        AbstractItem.__init__(self, seuid, parent)
-        #super(ConnectionItem, self).__init__(seuid, parent)
+        AbstractItem.__init__(self, logger, seuid, parent)
+        # super(ConnectionItem, self).__init__(seuid, parent)
         self.__parent = parent
         self._type = "connection"
 
@@ -23,8 +26,8 @@ class ConnectionItem(AbstractItem):
         # add the content
         self._attributes.extend(["dropped_msgs", "traffic",
                                  "period_mean", "period_stddev", "period_max"])
-	#, "stamp_age_mean", "stamp_age_stddev",
-                                 #"stamp_age_max"])
+        #, "stamp_age_mean", "stamp_age_stddev",
+        #"stamp_age_max"])
 
         for item in self._attributes:
             self._add_data_list(item)
@@ -38,10 +41,12 @@ class ConnectionItem(AbstractItem):
             self.__rated_attributes.append(item + ".expected_value")
             self.__rated_attributes.append(item + ".state")
 
-       # del self._attributes
+            # del self._attributes
 
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)
+
+        self._logger.log("info", Time.now(), seuid, "Created a new ConnectionItem")
 
 
     def execute_action(self, action):
@@ -62,18 +67,18 @@ class ConnectionItem(AbstractItem):
         # todo: fill the content sensefully!
         data_dict = self.get_latest_data()
 
-        content = "<p style=\"font-size:15px\">"
+        content = ""  # "<p>"
 
         content += "dropped_msgs: " + str(data_dict["dropped_msgs"]) + "<br>"
         content += "traffic: " + str(data_dict["traffic"]) + "<br>"
         content += "period_mean: " + str(data_dict["period_mean"]) + "<br>"
         content += "period_stddev: " + str(data_dict["period_stddev"]) + "<br>"
         content += "period_max: " + str(data_dict["period_max"]) + "<br>"
-        #content += "stamp_age_mean: " + str(data_dict["stamp_age_mean"]) + "<br>"
+        # content += "stamp_age_mean: " + str(data_dict["stamp_age_mean"]) + "<br>"
         #content += "stamp_age_stddev: " + str(data_dict["stamp_age_stddev"]) + "<br>"
         #content += "stamp_age_max: " + str(data_dict["stamp_age_max"]) + "<br>"
 
-        content += "</p>"
+        #content += "</p>"
         return content
 
 
@@ -83,8 +88,16 @@ class ConnectionItem(AbstractItem):
         
         :returns: str[]
         """
-        #todo: append more items here
+        # todo: append more items here
         return ["traffic", "dropped_msgs", "period_mean"]
 
     def get_short_data(self):
         return "connection_item"
+
+    def can_execute_actions(self):
+        """
+        This item cannot execute actions, so it returns False
+
+        :return: False
+        """
+        return False

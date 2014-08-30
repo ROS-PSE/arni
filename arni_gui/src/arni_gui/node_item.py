@@ -6,6 +6,8 @@ from arni_core.helper import SEUID
 import arni_core.helper as helper
 from arni_msgs.srv import NodeReaction
 
+from rospy.rostime import Time
+
 import rospy
 from rospy import ServiceException
 
@@ -15,17 +17,19 @@ class NodeItem(AbstractItem):
     """A NodeItem represents a node with all of its data. It also has a interface to start/stop/restart nodes."""
 
 
-    def __init__(self, seuid, parent=None):
+    def __init__(self, logger, seuid, parent=None):
         """
         Initializes the NodeItem.
         
         :param seuid: the seuid of the item
         :type seuid: str
+        :param logger: a logger where to log when special events occur
+        :type logger: ModelLogger
         :param parent: the parent-item
         :type parent: AbstractItem
         """
         #add the content
-        AbstractItem.__init__(self, seuid, parent)
+        AbstractItem.__init__(self, logger, seuid, parent)
         #super(NodeItem, self).__init__(seuid, parent)
         self._type = "node"
         self.__parent = parent
@@ -54,6 +58,8 @@ class NodeItem(AbstractItem):
 
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)
+
+        self._logger.log("info", Time.now(), seuid, "Created a new NodeItem")
 
 
     def execute_action(self, action):
@@ -119,3 +125,11 @@ class NodeItem(AbstractItem):
 
     def get_short_data(self):
         return "NodeItem"
+
+    def can_execute_actions(self):
+        """
+        This item can execute actions, so it returns True
+
+        :return: True
+        """
+        return True

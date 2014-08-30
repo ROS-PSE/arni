@@ -10,11 +10,13 @@ class AbstractItem:
     INTERNAL: WARNING! Whenever the key-values at the beginning are not set right, the oddest things may occur!
     """
 
-    def __init__(self, seuid, parent=None, *args):
+    def __init__(self, logger, seuid, parent=None, *args):
         """Initializes the AbstractItem.
         
         :param seuid: the seuid of the AbsractItem
         :type seuid: str
+        :param logger: a logger where to log when special events occur
+        :type logger: ModelLogger
         :param parent: the parent-item
         :type parent: AbstractItem
         :param *args:
@@ -23,6 +25,7 @@ class AbstractItem:
         #print(str(type(self)) + str(type(seuid)) + str(type(parent)))
         #super(AbstractItem, self).__init__(parent)
 
+        self._logger = logger
         self._data = {}
         self.__rated_data = {}
         self.__child_items = []
@@ -115,7 +118,7 @@ class AbstractItem:
         else:
             self.__state.append(data["ok"])
 
-        self.__update_current_state()
+        self._update_current_state()
 
 
     def append_data_dict(self, data):
@@ -137,11 +140,11 @@ class AbstractItem:
         if "state" in data:
             self.__state.append(data["state"])
         else:
-            self.__state.append(data["ok"])
-        self.__update_current_state()
+            self.__state.append("unknown")
+        self._update_current_state()
 
 
-    def __update_current_state(self):
+    def _update_current_state(self):
         """
         This method udates the current state of the AbstractItem.
         """
@@ -152,11 +155,13 @@ class AbstractItem:
         #print(length)
         #print(len(self.__data["window_stop"]))
         if self.__state:
-            for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5), ))["window_stop"]),
-                           length):
-                if self.__state[i] == "error":
-                    self.__state[-1] = "warning"
-                    break
+            if self.__state[-1] is not "error" and self.__state[-1] is not "warning" and self.__state[-1] is not "unknown":
+                for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5), ))["window_stop"]),
+                               length):
+                    if self.__state[i] == "error":
+                        #print("state set to: warning")
+                        self.__state[-1] = "warning"
+                        break
         self.__last_update = Time.now()
 
 
@@ -176,7 +181,7 @@ class AbstractItem:
                 raise
 
         self.__state.append("ok")
-        self.__update_current_state()
+        self._update_current_state()
 
 
     def update_rated_data(self, data):
@@ -214,7 +219,7 @@ class AbstractItem:
                 self.__state[-1] = "error"
         #if found is not True:
         #    raise UserWarning("No matching time window was found. Could not update the AbstractItem")
-        self.__update_current_state()
+        self._update_current_state()
 
 
     def child_count(self):

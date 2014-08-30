@@ -76,10 +76,10 @@ class BufferThread(Thread):
             response = get_statistic_history(rospy.Time(0))
             a = response.rated_topic_statistics + response.rated_node_statistics + response.rated_host_statistics + response.rated_node_statistics
             self.__model.update_model(a, response.topic_statistics,
-                                  response.host_statistics, response.node_statistics)
+                                        response.host_statistics, response.node_statistics)
         except ServiceException as msg:
-	    print "ServiceException"
-	    print msg
+            print "ServiceException"
+            print msg
             rospy.logdebug("get_statistic_history is not available, probably monitoring_node is not running. "
                            "Will continue without the information about the past")
 
