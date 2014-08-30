@@ -100,6 +100,8 @@ class OverviewWidget(QWidget):
         self.__current_combo_box_index = 0
         self.__last_update = rospy.Time.now()
 
+        pg.setConfigOption('background', 'w')
+        pg.setConfigOption('foreground', 'k')
         self.__graph_layout = pg.GraphicsLayoutWidget()
         #self.__multiplotitem = pg.MultiPlotItem()
         #self.__multiplotitem.setCentralWidget(self.__graph_layout)
@@ -108,19 +110,7 @@ class OverviewWidget(QWidget):
         self.__update_graphs_lock = Lock()
 
 
-        self.__graph_dict = {
-            "total_traffic": None,
-            "connected_hosts": None,
-            "connected_nodes": None,
-            "topic_counter": None,
-            "connection_counter": None,
-            "cpu_usage_max": None,
-            "cpu_temp_mean": None,
-            "ram_usage_mean": None,
-            "cpu_usage_mean": None,
-            "cpu_temp_max": None,
-            "ram_usage_max": None
-        }
+        self.__graph_dict = {}
         #
         # self.__maximum_values = {
         #     "total_traffic": 10,
@@ -154,8 +144,8 @@ class OverviewWidget(QWidget):
         #self.__graph_widget = QWidget()
         #self.__graph_widget.setLayout(self.__graph_layout)
         #self.graph_scroll_area.setWidget(self.__graph_widget)
-        self.__graph_layout.resize(self.__graph_layout.maximumWidth(), len(self.__graph_dict) * 200)
-        self.graph_scroll_area.resize(self.graph_scroll_area.maximumWidth(), len(self.__graph_dict) * 200)
+        self.__graph_layout.setMinimumSize(self.__graph_layout.maximumWidth(), 3 * 200)
+        #self.graph_scroll_area.resize(self.graph_scroll_area.maximumWidth(), len(self.__graph_dict) * 200)
         #self.__graph_widget.setSizePolicy(QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum))
 
         self.__plotted_curves = {}
@@ -174,15 +164,47 @@ class OverviewWidget(QWidget):
 
     def create_graphs(self):
         """Creates the graphs for the plot."""
+
+        first_iteration = True
+        first_view = None
+        i = 0
+
         for key in self.__model.get_root_item().get_plotable_items():
             #y=np.arrange(0, self.__maximum_values[key], 2)
-            date_axis = DateAxis(orientation="bottom")
-            values_axis = pg.AxisItem(orientation="left")
-            #values_axis.setHeight(h=400)
-            #vb = CustomViewBox()
-            #plot_widget = pg.PlotWidget()
-            plot_widget = self.__graph_layout.addPlot(title=key, axisItems={'bottom': date_axis, "left": values_axis})
-            plot_widget.resize(plot_widget.maximumWidth(), 250)
+            plot_widget = None
+            if first_iteration:
+                first_iteration = False
+                date_axis = DateAxis(orientation="bottom")
+                #values_axis = pg.AxisItem(orientation="left")
+                #values_axis.setHeight(h=400)
+                #vb = CustomViewBox()
+                #plot_widget = pg.PlotWidget()
+                first_view = pg.ViewBox()
+                #fist_view.setBackgroundColor(color=(0, 0, 0, 100))
+
+                plot_widget = self.__graph_layout.addPlot(title=key, axisItems={'bottom': date_axis}, )#, viewBox=first_view)
+            else:
+
+                date_axis = DateAxis(orientation="bottom")
+                #values_axis = pg.AxisItem(orientation="left")
+                #values_axis.setHeight(h=400)
+                #vb = CustomViewBox()
+                #plot_widget = pg.PlotWidget()
+                view_box = pg.ViewBox()
+                #view_box.setBackgroundColor(color=(0, 0, 0, 100))
+                # , 'left': values_axis
+                plot_widget = self.__graph_layout.addPlot(title=key, viewBox=view_box, axisItems={'bottom': date_axis})
+                view_box.setXLink(first_view)
+                #print(view_box.viewRect())
+
+            #localUpdatePlots = lambda: self.updatePlots(plot_widget)
+            #plot_widget.sigXRangeChanged.connect(localUpdatePlots)
+            # has no effect:
+            #plot_widget.resize(plot_widget.maximumWidth(), 250)
+
+            #performance enhancements when only a short range of the plot is shown
+            #plot_widget.setClipToView(clip=True)
+            plot_widget.setYRange(-1, 1)
             self.__graph_dict[key] = plot_widget
             self.__graph_layout.nextRow()
             plot_widget = self.__graph_dict[key]
@@ -191,7 +213,20 @@ class OverviewWidget(QWidget):
             plot_widget.enableAutoRange('xy', True)
             x = np.array([1])
             y = np.array([int(str(Time.now()))/1000000000])
-            self.__plotted_curves[key] = plot_widget.plot(x=x, y=y, fillLevel=0)
+            self.__plotted_curves[key] = plot_widget.plot(x=x, y=y, fillLevel=0, brush=(50, 50, 200, 100),
+                                                          pen=(255, 0, 0))
+
+    # def updatePlots(self, changed_item):
+    #     """
+    #     Updates the range of the plots.
+    #
+    #     :param changed_item:
+    #     :return:
+    #     """
+    #     new_x_range = changed_item.viewRange()[0]
+    #     for entry in self.__graph_dict.values():
+    #         if entry is not changed_item:
+    #             entry.setXRange(min=new_x_range[0], max=new_x_range[1])
 
 
     def __connect_slots(self):
@@ -312,7 +347,7 @@ class OverviewWidget(QWidget):
                 self.__plotted_curves[key].setData(x=x, y=y)
 
                 string = "update_graphs - plot_data took: " + str(int(str(rospy.Time.now() - now2)) / 1000000) + "ms"
-                self.__model.add_log_entry("info",  rospy.Time.now(), "OverviewWidget", string)
+                self.__logger.log("info",  rospy.Time.now(), "OverviewWidget", string)
 
 
 
@@ -320,7 +355,7 @@ class OverviewWidget(QWidget):
 
                 #because of autoarrange y should not be set again and again
             string = "update_graphs took: " + str(int(str(rospy.Time.now() - now)) / 1000000) + "ms"
-            self.__model.add_log_entry("info",  rospy.Time.now(), "OverviewWidget", string)
+            self.__logger.log("info",  rospy.Time.now(), "OverviewWidget", string)
 
         self.__update_graphs_lock.release()
 

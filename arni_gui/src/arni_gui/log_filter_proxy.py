@@ -66,6 +66,6 @@ class LogFilterProxy(QSortFilterProxyModel):
         if item is not None:
             #print("now filtering for " + item.get_seuid()) #+ item.get_seuid()
             print(7)
-            self.setFilterRegExp(QRegExp(".*"))
+            self.setFilterRegExp(QRegExp(".*" + item.get_seuid() + ".*"))
             self.setFilterKeyColumn(2)
         print(8)

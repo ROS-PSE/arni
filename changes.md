@@ -51,8 +51,7 @@ Change
 * saving the model for only 60 seconds 
 * changing the background of the updateGraphs
 * round the shown data in the gui
-* disable action when not a nodeitem is selected
-
+* drawing the graphs in selectionwidget
 
 ## Final/Small Improvements
 * interpolate the data with flowcharts or however the method is called
@@ -78,6 +77,7 @@ Change
 * fixed index errors when element was None
 * reason for wrong return values: *args is never None, so if args is not None will always enter even though args might be empty!!!
 * moved logging to own class
+* disable action when not a nodeitem is selected
 
 =======
 * selection.ui from log_tab_tree_widget to log_tab_tree_view.

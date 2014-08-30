@@ -36,6 +36,7 @@ class SelectionWidget(QWidget):
 
         self.__selected_item = None
 
+
         self.__draw_graphs = True
         self.__current_combo_box_index = 0
 
@@ -70,10 +71,12 @@ class SelectionWidget(QWidget):
         self.log_tab_tree_view.setSortingEnabled(True)
         self.log_tab_tree_view.sortByColumn(1, Qt.AscendingOrder)
 
+        self.set_selected_item(self.__selected_item)
         self.__model.layoutChanged.connect(self.update)
 
         self.__state = "ok"
         self.__previous_state = "ok"
+
         # pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
         #                                       'light_red.png'))
         # self.status_light_label.setPixmap(pixmap)
@@ -105,8 +108,18 @@ class SelectionWidget(QWidget):
         #print(1)
         #self.__selected_item = index.internalPointer()
         #print(2)
-        self.__on_changed_selected_item(self.__selected_item)
+        #self.__on_changed_selected_item()
         #print(3)
+        self.__log_filter_proxy.filter_by_item(self.__selected_item)
+        #print(5)
+        if self.__selected_item is not None:
+            if self.__selected_item.can_execute_actions():
+                self.stop_push_button.setEnabled(True)
+                self.restart_push_button.setEnabled(True)
+            else:
+                self.stop_push_button.setEnabled(False)
+                self.restart_push_button.setEnabled(False)
+        self.update()
 
 
     def __on_current_tab_changed(self, tab):
@@ -148,18 +161,13 @@ class SelectionWidget(QWidget):
         self.__current_combo_box_index = index
 
 
-    def __on_changed_selected_item(self, index):
-        """
-        Handels the change of the selected item.
-
-        :param index: the index of the selected item
-        :type index: QModelIndex
-        """
-        #print(4)
-        self.__log_filter_proxy.filter_by_item(self.__selected_item)
-        #print(5)
-        self.update()
-        #print(6)
+    # def __on_changed_selected_item(self):
+    #     """
+    #     Handels the change of the selected item.
+    #     """
+    #     #print(4)
+    #
+    #     #print(6)
 
 
     def update_graphs(self, event):
@@ -196,7 +204,6 @@ class SelectionWidget(QWidget):
                 self.status_light_label.setPixmap(pixmap)
             #print("here")
             content = self.__selected_item.get_detailed_data()
-
             self.information_tab_text_browser.setHtml(content)
         else:
             self.host_node_label.setText("No item selected")
