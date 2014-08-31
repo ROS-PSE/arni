@@ -200,7 +200,7 @@ class SelectionWidget(QWidget):
             content = self.__selected_item.get_detailed_data()
             
             scroll_value = self.information_tab_text_browser.verticalScrollBar().value()
-            self.information_tab_text_browser.setHtml(self.__model.get_overview_text())
+            self.information_tab_text_browser.setHtml(content)
             self.information_tab_text_browser.verticalScrollBar().setSliderPosition(scroll_value)
         else:
             self.host_node_label.setText("No item selected")
