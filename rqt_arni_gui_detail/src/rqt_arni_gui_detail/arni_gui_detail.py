@@ -66,8 +66,8 @@ class ArniGuiDetail(Plugin):
         :param item: the double-clicked item
         :type item: QModelIndex
         """
-
-        self.__selection_widget.set_selected_item(index.internalPointer())
+        # the index comes from the proxy_model so it
+        self.__selection_widget.set_selected_item(index)
 
 
     def shutdown_plugin(self):

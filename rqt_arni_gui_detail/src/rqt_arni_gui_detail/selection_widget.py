@@ -104,23 +104,29 @@ class SelectionWidget(QWidget):
         self.range_combo_box.currentIndexChanged.connect(self.__on_range_combo_box_index_changed)
 
 
-    def set_selected_item(self, item):
+    def set_selected_item(self, index):
         """
         Sets the selected item.
 
         :param selected_item: the selected item
         :type selected_item: QModelIndex
         """
-        self.__selected_item = item
-        self.__log_filter_proxy.filter_by_item(self.__selected_item)
-        if self.__selected_item is not None:
-            if self.__selected_item.can_execute_actions():
-                self.stop_push_button.setEnabled(True)
-                self.restart_push_button.setEnabled(True)
-            else:
-                self.stop_push_button.setEnabled(False)
-                self.restart_push_button.setEnabled(False)
-        self.update()
+        #self.__selected_item = item
+        if index is not None:
+            src_index = index.model().mapToSource(index)
+            self.__selected_item = src_index.internalPointer()
+            print(type(self.__selected_item))
+            print(self.__selected_item.get_seuid())
+            #raise NotImplementedError()
+            self.__log_filter_proxy.filter_by_item(self.__selected_item)
+            if self.__selected_item is not None:
+                if self.__selected_item.can_execute_actions():
+                    self.stop_push_button.setEnabled(True)
+                    self.restart_push_button.setEnabled(True)
+                else:
+                    self.stop_push_button.setEnabled(False)
+                    self.restart_push_button.setEnabled(False)
+            self.update()
 
 
     def __on_current_tab_changed(self, tab):
