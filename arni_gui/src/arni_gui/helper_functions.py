@@ -1,8 +1,20 @@
 from python_qt_binding.QtGui import QBrush, QColor
 
 # define constants
-# update frequency of the model in nsecs
+"""
+update frequency of the model in nsecs
+"""
 UPDATE_FREQUENCY = 1000000000
+"""
+The maximal amount of entries allowed in the model (for not crashing it).
+Entries are the data_entries in the childs of the model
+"""
+#todo: apapt to a good number by trial and failure :)
+MAXIMUM_AMOUNT_OF_ENTRIES = 10000
+"""
+The minimum time that should be recorded in the model.
+"""
+MINIMUM_RECORDING_TIME = 100
 
 
 def choose_brush(index):
@@ -23,3 +35,13 @@ def choose_brush(index):
         return QColor(255, 0, 0)
 
     return None
+
+
+def prepare_number_for_representation(number):
+    if number is None:
+        return "unknown"
+    #if type(number) is float:
+    return str(round(number, 2))
+    #else:
+    #    print(type(number))
+    #    return str(round(float(number), 2))

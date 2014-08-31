@@ -173,6 +173,7 @@ class OverviewWidget(QWidget):
 
     def __del__(self):
         """Destructor of the widget."""
+        self.__draw_graphs = False
         self.__timer.stop()
         del self.__timer
 
@@ -403,7 +404,7 @@ class OverviewWidget(QWidget):
             plotable_items = self.__plotable_items[min(self.__current_selected_combo_box_index *
                                 self.__items_per_group, len(self.__plotable_items)):min((self.__current_selected_combo_box_index + 1)
                                                         * self.__items_per_group, len(self.__plotable_items))]
-            print(plotable_items)
+            #print(plotable_items)
             plotable_data = self.__model.get_root_item().get_items_younger_than(
                 Time.now() - Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)),
                 "window_stop", *plotable_items)

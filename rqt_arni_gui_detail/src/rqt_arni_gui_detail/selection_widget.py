@@ -13,6 +13,13 @@ from arni_gui.ros_model import ROSModel
 from arni_gui.log_filter_proxy import LogFilterProxy
 from arni_gui.log_delegate import LogDelegate
 
+try:
+    import pyqtgraph as pg
+except ImportError as e:
+    print("An error occured trying to import pyqtgraph. Please install pyqtgraph via \"pip install pyqtgraph\".")
+    raise
+
+
 class SelectionWidget(QWidget):
     """The SelectionWidget of the ArniGuiDetail-Plugin."""
     

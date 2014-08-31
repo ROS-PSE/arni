@@ -3,6 +3,8 @@ from python_qt_binding.QtCore import QObject
 
 from threading import Lock
 
+import time as tm
+
 
 class AbstractItem:
     """ 
@@ -22,9 +24,6 @@ class AbstractItem:
         :param *args:
         :type *args: 
         """
-        #print(str(type(self)) + str(type(seuid)) + str(type(parent)))
-        #super(AbstractItem, self).__init__(parent)
-
         self._logger = logger
         self._data = {}
         self.__rated_data = {}
@@ -34,9 +33,6 @@ class AbstractItem:
         self._type = "type"
         self.__data_attribute = "data"
         self.__state = []
-        # WARNING!!! Child classes have to call the append_data_list method, otherwise will not work!!!
-        #self._attributes = []
-        #self._attributes.extend(args)
         self.__last_update = Time.now()
         self.__creation_time = Time.now()
 
@@ -44,6 +40,9 @@ class AbstractItem:
         self._add_data_list("window_stop")
         self._add_rated_data_list("window_start")
         self._add_rated_data_list("window_stop")
+
+        self.__length_of_data = 0
+        self.__length_of_rated_data = 0
 
 
     def get_seuid(self):
@@ -65,7 +64,6 @@ class AbstractItem:
             return self.__state[-1]
 
 
-
     def _add_data_list(self, name):
         """
         Adds keys to the data_list.
@@ -73,7 +71,7 @@ class AbstractItem:
         :param name: the key to be added
         :type name: str
         """
-        #print("added " + name)
+        # print("added " + name)
         self._data[name] = []
 
 
@@ -108,16 +106,16 @@ class AbstractItem:
             data["window_stop"] = Time.now()
         for attribute in self.__rated_data:
             if attribute in data:
-                self._data[attribute].append(data[attribute])
+                self.__rated_data[attribute].append(data[attribute])
             else:
                 # todo: is there something better than None in this case? like "" ?
-                self._data[attribute].append(None)
+                self.__rated_data[attribute].append(None)
 
         if "state" in data:
             self.__state.append(data["state"])
         else:
             self.__state.append(data["ok"])
-
+        self.__length_of_rated_data += 1
         self._update_current_state()
 
 
@@ -134,13 +132,12 @@ class AbstractItem:
             if attribute in data:
                 self._data[attribute].append(data[attribute])
             else:
-                # todo: is there something better than None in this case? like "" ?
-
                 self._data[attribute].append(None)
         if "state" in data:
             self.__state.append(data["state"])
         else:
             self.__state.append("unknown")
+        self.__length_of_data += 1
         self._update_current_state()
 
 
@@ -149,23 +146,17 @@ class AbstractItem:
         This method udates the current state of the AbstractItem.
         """
         length = len(self.__state)
-        # print("__update_current_state")
-        # for i in range(length - len(
-        # (self.get_items_younger_than(self.__last_update, "window_end", "state"))["window_end"]), length):
-        #print(length)
-        #print(len(self.__data["window_stop"]))
         if self.__state:
-            if self.__state[-1] is not "error" and self.__state[-1] is not "warning" and self.__state[-1] is not "unknown":
-                for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5), ))["window_stop"]),
-                               length):
+            if self.__state[-1] is not "error" and self.__state[-1] is not "warning" \
+                    and self.__state[-1] is not "unknown":
+                for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5), "window_stop"))["window_stop"]), length):
                     if self.__state[i] == "error":
-                        #print("state set to: warning")
                         self.__state[-1] = "warning"
                         break
         self.__last_update = Time.now()
 
 
-    #TODO append_data or append_data_dict is correct
+    # TODO append_data or append_data_dict is correct
     def append_data(self, data):
         """
         Appends data to the data of the AbstractItem.
@@ -180,7 +171,9 @@ class AbstractItem:
                 print("KeyError occurred when trying to access %s", attribute)
                 raise
 
-        self.__state.append("ok")
+        #todo: is the state sensefull here? I THINK NOT!!!
+        self.__state.append("unknown")
+        self.__length_of_data += 1
         self._update_current_state()
 
 
@@ -194,31 +187,21 @@ class AbstractItem:
         :param window_stop: the time of window_stop
         :type window_stop: Time
         """
-        # found = False
-        # # todo: are these all bad cases?
-        # for current in range(0, len(self.__data["window_start"])):
-        #     if window_stop < self.__data["window_start"][current]:
-        #         continue
-        #     if window_start > self.__data["window_stop"][current]:
-        #         continue
-        #     found = True
-
-        #todo: WHAT HAPPENS TO STATE AND WHY IS IT NEVER USED
-
         for entry in self.__rated_data:
             try:
                 self.__rated_data[entry].append(data[entry])
             except KeyError:
                 print("An entry found in the object dictionary of the rated data was not found in the given rated data")
                 raise
-        if "state" in data:
-            if data["state"] is "error":
-                if not self.__state:
-                    #todo: this is not good... FIX IT
-                    self.__state.append(None)
-                self.__state[-1] = "error"
-        #if found is not True:
-        #    raise UserWarning("No matching time window was found. Could not update the AbstractItem")
+        if self.__state:
+            if "state" in data:
+                self.__state[-1] = data["state"]
+            else:
+                self.__state[-1] = "unknown"
+        else:
+            #todo: now there is one entry too much in self.__state... is that a problem?
+            self.__state.append("unknown")
+        self.__length_of_rated_data += 1
         self._update_current_state()
 
 
@@ -229,13 +212,6 @@ class AbstractItem:
         :returns: int
         """
         return len(self.__child_items)
-        # sum = 0
-        # for item in self.__child_items:
-        #     sum += 1
-        #     sum += item.child_count()
-        #
-        # return sum
-        # return len(self.child_items)
 
 
     def column_count(self):
@@ -280,6 +256,10 @@ class AbstractItem:
         return 0
 
 
+    def get_amount_of_entries(self):
+        return self.__length_of_data
+
+
     def get_latest_data(self, *kwargs):
         """
         Returns the latest dict of the data_list or the item of the dict with the given key.
@@ -290,7 +270,6 @@ class AbstractItem:
         :returns: dict or the item
         """
         return_dict = {}
-        #return_dict["state"] = "state unknown"
         if kwargs:
             for key in kwargs:
                 if key is 'name':
@@ -314,7 +293,6 @@ class AbstractItem:
                     else:
                         raise KeyError("item " + key + "was not found")
         else:
-        # return dict of latest item
             return_dict['name'] = self.seuid
             return_dict['type'] = self._type
             return_dict['data'] = self.get_short_data()
@@ -322,18 +300,16 @@ class AbstractItem:
                 if self._data[entry]:
                     return_dict[entry] = self._data[entry][-1]
                 else:
-                    return_dict[entry] = "Currently no value avaiable"
+                    return_dict[entry] = "Currently no value available"
             for entry in self.__rated_data:
                 if self.__rated_data[entry]:
                     return_dict[entry] = self.__rated_data[entry][-1]
                 else:
-                    return_dict[entry] = "Currently no value avaiable"
+                    return_dict[entry] = "Currently no value available"
             if self.__state:
                 return_dict['state'] = self.__state[-1]
             else:
-                return_dict['state'] = "state unknown"
-        #print("return_dict")
-        #print(return_dict)
+                return_dict['state'] = "unknown"
         return return_dict
 
 
@@ -345,12 +321,10 @@ class AbstractItem:
         """
         return self.__parent
 
-
-    # todo: what are the following 3 methods for and how can they be done better?
-    #todo: UPDATE!!!! CURRENTLY NOT WORKING
-    def get_items_older_than(self, time, *args):
+    def get_items_older_than(self, time):
         """
         Returns all items which are older than time.
+        Warning: Method assumes data is sorted by time if this is not true will return too few or too much data.
 
         :param time: the upper bound in seconds
         :type time: rospy.Time
@@ -359,69 +333,33 @@ class AbstractItem:
 
         :returns: dict of lists
         """
-        # todo: method assumes the data comes in sorted by time. if this is not the case, this method will not work!
-        #print("info" + " AbstractItem" + " duration of time:" + str(int(str(Time.now() - time))/1000000) + " milliseconds")
-        #now = Time.now()
         return_values = {}
-        #todo: adapt to args
-        if args is not None:
-            for key in args:
-                return_values[key] = []
-            if "window_stop" not in args:
-                return_values["window_stop"] = []
-        else:
-            for key in self._data:
-                return_values[key] = []
+        #for key in self._data:
+        #    return_values[key] = []
+
         breakpoint = 0
-
+        list_of_time = None
         list_of_time = self._data["window_stop"]
-        #print(len(list_of_time))
-        #print("first time: " + tm.strftime("%d.%m-%H:%M:%S", tm.localtime((int(str(list_of_time[0]))/1000000000))))
-        #print("last time: " + tm.strftime("%d.%m-%H:%M:%S", tm.localtime((int(str(time))/1000000000))))
-        #print("for")
+        return_values["window_stop"] = []
+        length = len(list_of_time)
 
-        if list_of_time[len(list_of_time)-1] < time:
-            #print("here")
-            for key in return_values:
-                return_values[key] = self._data[key]
-        else:
-            for i in range(0, len(list_of_time), -1):
-                #print(i)
-                #print(len(list_of_time))
-                #print(int(str(list_of_time[i]))-int(str(time)))
-                if list_of_time[i] > time:
-                    breakpoint = i - 1
-                    # i + 1 was the first hit
-                    #print("entered")
-                    #if args is None:
-                    for key in return_values:
-                        try:
-                            return_values[key] = self._data[key][0:breakpoint]
-                            print("i is " + str(i) +"length: " + str(len(return_values[key])) + " complete length: " + str(len(list_of_time)))
-                        except IndexError:
-                            print("IndexError! length of the list %s, accessed index %s. length of data at given point"
-                                  " %s, key is %s", len(list_of_time), i, len(self._data[key]), key)
-                            raise
-                    break
+        if length is not 0:
+            if list_of_time[-1] < time:
+                for key in return_values:
+                    return_values[key] = self._data[key]
+            else:
+                i = length - 1
+                while i > 0 and list_of_time[i] > time:
+                    i -= 1
+                breakpoint = i
+                for key in self._data:
+                    return_values[key] = self._data[key][0:breakpoint]
+                #todo: currently this is not right for rated data... FIX!!! --> probably move this to another function!
+                #for key in self.__rated_data:
+                #    return_values[key] = self.__rated_data[key][0:breakpoint]
+                return_values["state"] = self.__state[breakpoint:length]
 
-            # now shrink the time itself
-            # print("length time: " + str(len(return_values["window_end"])) + " length state: " + str(len(return_values["state"])))
-        #print("length return values: " + str(len(return_values["window_end"])))
         return return_values
-
-        # return_values = []
-        # for key in self.__data:
-        #     return_values[key] = []
-        #
-        # list_of_time = self.__data["window_stop"]
-        # for i in range(0, len(list_of_time)):
-        #     # check timestamp
-        #     #end_time = Time.now() - Duration(nsecs=time)
-        #     if list_of_time[i] < time:
-        #         #return_values.append()
-        #         for key in self.__data:
-        #             return_values[key].append(self.__data[key][i])
-        # return return_values
 
 
     def delete_items_older_than(self, time):
@@ -432,128 +370,85 @@ class AbstractItem:
         :type time: rospy.Time
         """
         list_of_time = self._data["window_stop"]
-        while list_of_time[0] < time:
-            for key in self._data:
-                del self._data[key][0]
+        #print("length of time_list before: " + str(len(list_of_time)) + " length self._length etc: " + str(self.__length_of_data))
+        if len(list_of_time) is not 0:
+            length = len(list_of_time)
+            i = 0
+            entries_to_delete = self.get_items_older_than(time)
 
-                # for i in range(0, len(list_of_time)):
-                # # check timestamp
-                #     #end_time = Time.now() - Duration(nsecs=time)
-                #     if list_of_time[i] < time:
-                #         #return_values.append()
-                #         for key in self.__data:
-                #             del self.__data[key][i]
+            i += len(entries_to_delete["window_stop"])
+            #todo: this trusts in the fact that all entries older than a time are in a row.. is that assumption correct?
+            for j in range(0, len(entries_to_delete["window_stop"])):
+                for value in self._data.values():
+                    del value[0]
+                del self.__state[0]
+
+            self.__length_of_data -= i
+            #print("could delete " + str(len(entries_to_delete["window_stop"])) + "entries")
+            # while length > 0 and list_of_time[0] < time:
+            #     i += 1
+            #     length -= 1
+            #     for key in self._data:
+            #         del self._data[key][0]
+            #     self.__length_of_data -= 1
+            #print("deleted " + str(i) + " entries")
+            #print("length of time_list: " + str(len(list_of_time)))
+        #if len(list_of_time) is not 0:
+        #    print(self.seuid)
+        #    print("last entry has age " + tm.strftime("%d.%m-%H:%M:%S", tm.localtime(int(str(list_of_time[0])) / 1000000000)) + " seconds")
+        #    print("second last entry has age " + tm.strftime("%d.%m-%H:%M:%S", tm.localtime(int(str(list_of_time[1])) / 1000000000)) + " seconds")
 
 
     def get_items_younger_than(self, time, *args):
         """
-        Returns all items which are younger than time.
+        Returns all entries that are younger than time either in all keys of self._data or if args not empty in
+        all key corresponding to args.
+        Warning: Method assumes data is sorted by time if this is not true will return too few or too much data.
 
         :param time: the lower bound in seconds
         :type time: rospy.Time
-
+        :param kwargs: the keys to the dict
+        :type kwargs: str
         :returns: dict of lists
         """
-        #  todo: method assumes the data comes in sorted by time. if this is not the case, this method will not work!
-        #print("info" + " AbstractItem" + " duration of time:" + str(int(str(Time.now() - time))/1000000) + " milliseconds")
-        #now = Time.now()
         return_values = {}
-        #todo: adapt to args
         if args:
             for key in args:
-                return_values[key] = []
+                return_values[key] = None
             if "window_stop" not in args:
-                return_values["window_stop"] = []
+                return_values["window_stop"] = None
         else:
             for key in self._data:
-                #print("younger " + key)
-                return_values[key] = []
-        breakpoint = 0
+                return_values[key] = None
+            for key in self.__rated_data:
+                return_values[key] = None
 
+        breakpoint = 0
         list_of_time = None
-        try:
-            list_of_time = self._data["window_stop"]
-        except KeyError:
-            print(str(type(self)) + str(self._type) + " " + self.get_seuid() + " window_stop not found")
+        list_of_time = self._data["window_stop"]
         length = len(list_of_time)
-        #print(len(list_of_time))
-        #print("first time: " + tm.strftime("%d.%m-%H:%M:%S", tm.localtime((int(str(self.__data["window_end"][0]))/1000000000))))
-        #print("last time: " + tm.strftime("%d.%m-%H:%M:%S", tm.localtime((int(str(self.__data["window_end"][-1]))/1000000000))))
-        #print("for"
+
         if length is not 0:
             if list_of_time[0] >= time:
                 for key in return_values:
                     return_values[key] = self._data[key]
             else:
                 for i in range(length - 1, -1, -1):
-                    #print(i)
-                    #print(len(list_of_time))
-                    #print(int(str(list_of_time[i]))-int(str(time)))
                     if list_of_time[i] < time:
                         breakpoint = i + 1
-                        # i + 1 was the first hit
-                        #print("entered")
-                        #if args is None:
                         for key in return_values:
                             if key in self._data:
                                 return_values[key] = self._data[key][breakpoint:length]
-                                #print("i is " + str(i) +"length: " + str(len(return_values[key])) + " complete length: " + str(len(list_of_time)))
                             elif key in self.__rated_data:
                                 return_values[key] = self.__rated_data[key][breakpoint:length]
                             elif key is "state":
                                 return_values[key] = self.__state[breakpoint:length]
                             else:
-                                print(self._data.keys())
-                                raise IndexError("IndexError! length of the list %s, accessed index %s. length of data at given point %s, key is %s",
-                                    length, i, len(self._data[key]), key)
-                    # else:
-                    #     for entry in args:
-                    #         try:
-                    #             #todo [i:len(list_of_time)] is this the right window?
-                    #             return_values[entry] = self.__data[entry][breakpoint:len(list_of_time)]
-                    #             #print("i is " + str(i) + "key: " + entry + " length: " + str(len(return_values[entry])) + " complete length: " + str(len(list_of_time)))
-                    #         except IndexError:
-                    #             print(
-                    #                 "IndexError! length of the list %s, accessed index %s. length of data at given point %s, key is %s",
-                    #                 len(list_of_time), i, len(self.__data[entry]), entry)
-                    #             raise
+                                raise IndexError("IndexError! length of the list %s, accessed index %s. length of data"
+                                                 " at given point %s, key is %s", length, i, len(self._data[key]), key)
                         break
 
-                # now shrink the time itself
-
-                # print("length time: " + str(len(return_values["window_end"])) + " length state: " + str(len(return_values["state"])))
-
-        #print("length return values: " + str(len(return_values["window_end"])))
-        #print("returnvalues")
-        #for item in return_values:
-        #    print return_values
         return return_values
-
-    # check timestamp
-    #start_time = Time.now() - Duration(nsecs=time)
-    # if list_of_time[i] > time:
-    #     for key in self.__data:
-    #         try:
-    #             return_values[key].append(self.__data[key][i])
-    #         except IndexError:
-    #             print("IndexError! length of the list %s,assert(len(return_values) == len(return_values[""])) accessed index %s. length of data at given point %s, key is %s",
-    #                   len(list_of_time), i, len(self.__data[key]), key)
-    #             raise
-    #print("info" + " AbstractItem" + " get_items_younger_than took: " + str(int(str(Time.now() - now))/1000000) + " milliseconds")
-
-    # list_of_time = self.__data["window_stop"]
-    # for i in range(0, len(list_of_time) - 1):
-    #     # check timestamp
-    #     #start_time = Time.now() - Duration(nsecs=time)
-    #     if list_of_time[i] > time:
-    #         for key in self.__data:
-    #             try:
-    #                 return_values[key].append(self.__data[key][i])
-    #             except IndexError:
-    #                 print("IndexError! length of the list %s, accessed index %s. length of data at given point %s, key is %s",
-    #                       len(list_of_time), i, len(self.__data[key]), key)
-    #                 raise
-    # return return_values
 
 
     def execute_action(self, action):
@@ -594,8 +489,7 @@ class AbstractItem:
         return return_values
 
 
-
-#self.delete_old_entries()
+    #self.delete_old_entries()
     # delete all entries older than 10 minutes
 
     # for all element that are older than 1 minute:

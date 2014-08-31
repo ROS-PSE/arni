@@ -38,7 +38,7 @@ class TreeWidget(QWidget):
         self.__filter_proxy = ItemFilterProxy()
         self.__filter_proxy.setSourceModel(self.__model)        
         self.__filter_proxy.setDynamicSortFilter(True)        
-        self.item_tree_view.setModel(self.__model)#self.__filter_proxy)
+        self.item_tree_view.setModel(self.__filter_proxy)
 
         self.item_tree_view.setRootIsDecorated(True)
         # todo: test: eventually remove this

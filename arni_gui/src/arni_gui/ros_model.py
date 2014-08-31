@@ -27,7 +27,7 @@ from arni_core.helper import SEUID, SEUID_DELIMITER
 
 import time
 
-from helper_functions import UPDATE_FREQUENCY
+from helper_functions import UPDATE_FREQUENCY, MAXIMUM_AMOUNT_OF_ENTRIES, MINIMUM_RECORDING_TIME
 
 from buffer_thread import *
 
@@ -60,7 +60,7 @@ class ROSModel(QAbstractItemModel):
 
         self.__logger = ModelLogger()
 
-        self.__root_item = RootItem(self.__logger, "abstract")
+        self.__root_item = RootItem(self.__logger, "abstract", self)
 
         self.__parent = parent
         self.__model_lock = Lock()
@@ -266,9 +266,28 @@ class ROSModel(QAbstractItemModel):
         :param host_statistics: the host_statistics buffer
         :type host_statistics: list
         """
+        #print("update startet: " + time.strftime("%d.%m-%H:%M:%S", time.localtime(int(str(rospy.Time.now())) / 1000000000)) + " seconds")
         self.layoutAboutToBeChanged.emit()
-        #todo: remove in productional code
-        #now = rospy.Time.now()
+
+        amount_of_entries = 0
+        for item in self.__identifier_dict.values():
+            if item is not self.__root_item:
+                #print("item has " + str(item.get_amount_of_entries()))
+                amount_of_entries += item.get_amount_of_entries()
+
+        # enables "intellgent" updates when there are only few elements in the model so that most of the history is kept
+        # maybe use something loglike for the range
+        for i in range(5, 0, -1):
+        #    print(str(amount_of_entries) + "   " + str(MAXIMUM_AMOUNT_OF_ENTRIES))
+            if amount_of_entries > MAXIMUM_AMOUNT_OF_ENTRIES:
+                #print(str(amount_of_entries) + "   " + str(MAXIMUM_AMOUNT_OF_ENTRIES))
+                for item in self.__identifier_dict.values():
+                    if item is not self.__root_item:
+                        item.delete_items_older_than(Time.now() - Duration(secs=i * MINIMUM_RECORDING_TIME))
+
+        if self.__root_item.get_amount_of_entries() > MAXIMUM_AMOUNT_OF_ENTRIES:
+            self.__root_item.delete_items_older_than(Time.now() - Duration(secs=360))
+
         # in order of their appearance in the treeview for always having valid parents
         for item in host_statistics:
             self.__transform_host_statistics_item(item)
@@ -292,7 +311,7 @@ class ROSModel(QAbstractItemModel):
             "connection_counter": 0,
             "cpu_usage_max": 0,
             "cpu_temp_mean": 0,
-            "average_ram_load": 0,
+            "ram_usage_mean": 0,
             "cpu_usage_mean": 0,
             "cpu_temp_max": 0,
             "ram_usage_max": 0,
@@ -316,10 +335,12 @@ class ROSModel(QAbstractItemModel):
         #generate the general information
         for host_item in self.__root_item.get_childs():
             #hostinfo
+            #print("hostinfo")
             connected_hosts += 1
-            data = host_item.get_items_younger_than(Time.now() - Duration(nsecs=UPDATE_FREQUENCY), "bandwidth_mean", "cpu_usage_max", "cpu_temp_mean",
-                               "cpu_usage_mean", "cpu_temp_max", "ram_usage_max", "ram_usage_mean")
-
+            #data =  host_item.get_items_younger_than(Time.now() - Duration(nsecs=UPDATE_FREQUENCY), "bandwidth_mean", "cpu_usage_max", "cpu_temp_mean", "cpu_usage_mean", "cpu_temp_max", "ram_usage_max", "ram_usage_mean")
+            #if not data["bandwidth_mean"]:
+            data = host_item.get_latest_data("bandwidth_mean", "cpu_usage_max", "cpu_temp_mean", "cpu_usage_mean", "cpu_temp_max", "ram_usage_max", "ram_usage_mean")
+            #print(data)
             if host_item.get_state() is "warning" and state is not "error":
                 state = "warning"
             elif host_item.get_state() is "error":
@@ -330,14 +351,20 @@ class ROSModel(QAbstractItemModel):
             #    state = "unknown"
 
             for key in data:
-                #print("key " + key)
-                if key is "bandwidth_mean":
-                    for entry in data[key]:
-                        data_dict["total_traffic"] += entry
-                else:
-                    for entry in data[key]:
-                        print(entry)
-                        data_dict[key] += entry
+                #print("here")
+                if data[key]:
+                #    print("here")
+                    if key is "bandwidth_mean":
+                        for entry in data[key]:
+                            data_dict["total_traffic"] += entry
+                    elif key is "cpu_temp_max" or key is "cpu_temp_mean":
+                        # very unprobably the temp might be 0 then the programm is not showing this value!
+                        if data[key] is not 0:
+                            data_dict[key] += data[key]
+                    else:
+                        #for entry in data[key]:
+                            #print(entry)
+                        data_dict[key] += data[key]
 
             for node_item in host_item.get_childs():
                 #nodeinfo
@@ -371,13 +398,10 @@ class ROSModel(QAbstractItemModel):
         data_dict["topic_counter"] = topic_counter
         data_dict["connection_counter"] = connection_counter
         data_dict["state"] = state
-        #print("rosmodel: " + state)
         data_dict["window_end"] = Time.now()
 
         #now give this information to the root :)
         self.__root_item.append_data_dict(data_dict)
-
-        #todo: does this work correctly?
         #self.__logger.log("info", Time.now(), "ROSModel", "update_model (in ros_model) took: " + str(int(str(rospy.Time.now() - now))/1000000) + " milliseconds")
 
         self.layoutChanged.emit()
@@ -535,6 +559,7 @@ class ROSModel(QAbstractItemModel):
         :param item: the HostStatistics item
         :type item: HostStatistics
         """
+        print("got host data")
         host_item = None
         item_seuid = "h" + SEUID_DELIMITER + item.host
         if item_seuid not in self.__identifier_dict:

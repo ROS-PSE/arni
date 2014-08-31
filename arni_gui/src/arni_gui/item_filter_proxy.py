@@ -75,8 +75,8 @@ class ItemFilterProxy(QSortFilterProxyModel):
         return QSortFilterProxyModel.filterAcceptsRow(self, source_row, source_parent)
         #todo: when the this filter accepts the item, call the parent filter
 
-    def index(self, row, column, parent):
-        QSortFilterProxyModel.index(self, row, column, parent)
+  #  def index(self, row, column, parent):
+     #   QSortFilterProxyModel.index(self, row, column, parent)
 
     def lessThan(self, left, right):
         """

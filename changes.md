@@ -41,50 +41,60 @@ Change
 
 * enter tr() everywhere for internationalisation
 * update the texts that are shown  --- the units in the overview are missing (maybe also some color if someone is too high --> not our )
-* protect pyqtgraph imports with try/except
-* adapt package.xmls for including pyqtgraph
-* check host/node etc regularily for timeouts
-* document everything
-* create to constants for minimum time and maximum number of elements in the model
-* saving the model for only 60 seconds (maybe more, simply try it)
-* round the shown data in the gui
-* drawing the graphs in selectionwidget
+* check host/node etc regularily for timeouts --> get_time_of_last_update() --> im model regelmäßig abfragen und nach 65 sekunden löschen
+* round the shown data in the gui --> round(number, 2)
+* drawing the graphs in selectionwidget --> copy and paste
 * logging every error message occuring when updating an item
 * log every error message with good text whenever updating the root_item
+* remove all the todos and code comments everywhere
+* race conditions in overviewWidget on_graph_window_resized or similar whenever the resize method is called to fast...
+
+* delete items older than currently does **NOT** erase rated data!!! 
+* from some data in the overview widget the mean has to be calculated (or e.g. display the data from the last minute or something!!!)
+* one and the same
+*  * after some time the overview widget does not show any data any more...
+*  * host_statistics arrives in the gui only at the beginning --> then nothing comes any longer!!!
 
 ## Final/Small Improvements
 * interpolate the data with flowcharts or however the method is called
 * hover texts have to be defined
 * in the help button the api docs and the general docu (and our names should be shown)
-* improve the model 
-
+* improve the model
 
 
 ## WiP
-* RUNTIME_ERROR BECAUSE ELEMENT HAS BEEN DELETED --> Timer Fehler oder so... Schwer/nicht behebbar
-* why are sometimes empty values given to the axis? --> for no plausible reason
-* FINALLY FIX SEGMENTATION FAULT!!! - well at least it doesn't segfault any more^^
+* [mh]saving the model for only 60 seconds (maybe more, simply try it) --> seems to work --> keep testing this feature!!!
+* [sk]/[mh]document everything
+* [mh]RUNTIME_ERROR BECAUSE ELEMENT HAS BEEN DELETED --> Timer Fehler oder so... Schwer/nicht behebbar
+* [mh]why are sometimes empty values given to the axis? --> for no plausible reason
+* [mh]FINALLY FIX SEGMENTATION FAULT!!! - well at least it doesn't segfault any more^^
+* [mh]disable action when not a nodeitem is selected --> check!
+* [mh]get overview widget to work --> still the bug with host items remains, don't know why
 
 ## Done
-* locking the graph view to the views of the other so that the person sees the same range in every view --> done
-* added stop/continue button to graphs so you have time to explore the data
-* SelectionWidget: define services and check if working
-* on close of one widget in detail gui, close the other! --> not possible
-* lock updateGraphs --> non reentrant functions, otherwise segmentation faults occur!
-* locking the updateModel from modifying the data while plotting the data in the gui --> shape errors
-* unknown state errors
-* make sure there are no more dict["time"] calls, they are invalid
-* reformat the ROSModel to use the seuid helper class --> Helper class returns None values --> no longer using!!!
-* execute_action not implemented
-* why are there runtimeerrors when closing the gui. and why are there these threading errors(might it be the timers?)
-* GUI WANTS TO RECEIVE ITEMS THE TOPIC DOES NOT PROVIDE!!!
-* fixed index errors when element was None
-* reason for wrong return values: *args is never None, so if args is not None will always enter even though args might be empty!!!
-* moved logging to own class
-* disable action when not a nodeitem is selected
-* changing the background of the updateGraphs
-* change plotting to use one range_box or maybe two or three if there is enough space :) <--> make this dependent from the available space
-* scrolling does not work because of the permanent updates...--> solution: if no data has changed, simply get_detailed_data simply returns None --> or not calling the update so often, every minute should suffice
+
+* [mh]adapt package.xmls for including pyqtgraph
+* [mh]create to constants for minimum time and maximum number of elements in the model
+* [mh]protect pyqtgraph imports with try/except
+* [mh]locking the graph view to the views of the other so that the person sees the same range in every view --> done
+* [mh]added stop/continue button to graphs so you have time to explore the data
+* [sk]SelectionWidget: define services and check if working
+* [mh]on close of one widget in detail gui, close the other! --> not possible
+* [mh]lock updateGraphs --> non reentrant functions, otherwise segmentation faults occur!
+* [mh]locking the updateModel from modifying the data while plotting the data in the gui --> shape errors
+* [mh]unknown state errors
+* [mh]make sure there are no more dict["time"] calls, they are invalid
+* [mh]reformat the ROSModel to use the seuid helper class --> Helper class returns None values --> no longer using!!! --> wrongly used, maybe try another time!
+* [sk]execute_action not implemented
+* [mh]why are there runtimeerrors when closing the gui. and why are there these threading errors(might it be the timers?)
+* [mh]GUI WANTS TO RECEIVE ITEMS THE TOPIC DOES NOT PROVIDE!!!
+* [mh]fixed index errors when element was None
+* [mh]reason for wrong return values: *args is never None, so if args is not None will always enter even though args might be empty!!!
+* [mh]moved logging to own class
+
+* [mh]changing the background of the updateGraphs
+* [mh]change plotting to use one range_box or maybe two or three if there is enough space :) <--> make this dependent from the available space
+* [sk]scrolling does not work because of the permanent updates...--> solution: if no data has changed, simply get_detailed_data simply returns None --> or not calling the update so often, every minute should suffice --> found better solution by simply asking the scrollbar
 
 
 =======
