@@ -4,11 +4,10 @@
   <version>0.0.0</version>
   <description>The rqt_arni_gui_detail package</description>
 
-  <maintainer email="virtubuntu@todo.todo">virtubuntu</maintainer>
+  <maintainer email="matthiashadlich@yahoo.de">Matthias Hadlich</maintainer>
+  <maintainer email="sebastian.kneipp@gmx.net">Sebastian Kneipp</maintainer>
 
-
-  <license>TODO</license>
-
+  <license>BSD</license>
 
   <buildtool_depend>catkin</buildtool_depend>
  

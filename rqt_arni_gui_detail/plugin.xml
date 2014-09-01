@@ -2,7 +2,7 @@
 <library path="src">
 	<class name ="arni_gui_detail" type="rqt_arni_gui_detail.arni_gui_detail.ArniGuiDetail" base_class_type="rqt_gui_py::Plugin">
 		<description>
-			TODO
+			The ArniGuiDetail-Plugin gives detailed information about actual connected hosts/nodes/topics/connections.
 		</description>
 		<qtgui>
 			<group>
@@ -11,7 +11,7 @@
 			</group>
 			<label>Arni-Detail</label>
 			<icon type="theme">system-help</icon>
-			<statustip>TODO</statustip>
+			<statustip>A Python GUI plugin which provides information about actual connected hosts/nodes/topics/connections.</statustip>
 		</qtgui>
 	</class>
 </library>
