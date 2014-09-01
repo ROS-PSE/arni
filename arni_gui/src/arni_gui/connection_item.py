@@ -117,3 +117,5 @@ class ConnectionItem(AbstractItem):
                     QTranslator.translate("stamp_age_mean") + " " +  data_dict["stamp_age_mean"]
             return content
 
+    def _get_list_items(self):
+        return []

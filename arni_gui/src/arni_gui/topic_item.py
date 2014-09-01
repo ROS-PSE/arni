@@ -99,3 +99,6 @@ class TopicItem(AbstractItem):
         :return: False
         """
         return False
+
+    def _get_list_items(self):
+        return []

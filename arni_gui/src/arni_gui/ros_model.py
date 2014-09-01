@@ -362,15 +362,18 @@ class ROSModel(QAbstractItemModel):
                 #    print("here")
                     if key is "bandwidth_mean":
                         for entry in data[key]:
-                            data_dict["total_traffic"] += entry
+                            if type(entry) is not unicode:
+                                if entry is not 0:
+                                    data_dict["total_traffic"] += entry
                     elif key is "cpu_temp_max" or key is "cpu_temp_mean":
                         # very unprobably the temp might be 0 then the programm is not showing this value!
-                        if data[key] is not 0:
-                            data_dict[key] += data[key]
+                        if type(data[key]) is not unicode:
+                            if data[key] is not 0:
+                                data_dict[key] += data[key]
                     else:
-                        #for entry in data[key]:
-                            #print(entry)
-                        data_dict[key] += data[key]
+                        if type(data[key]) is not unicode:
+                            if data[key] is not 0:
+                                data_dict[key] += data[key]
 
             for node_item in host_item.get_childs():
                 #nodeinfo

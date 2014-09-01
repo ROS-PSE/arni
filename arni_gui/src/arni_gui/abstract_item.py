@@ -307,6 +307,11 @@ class AbstractItem(QObject):
                     if key in self._data:
                         if self._data[key]:
                             return_dict[key] = self._data[key][-1]
+                        else:
+                            if key in self._get_list_items():
+                                return_dict[key] = [self.tr("Currently no value available")]
+                            else:
+                                return_dict[key] = self.tr("Currently no value available")
                     elif key in self.__rated_data:
                         if self.__rated_data[key]:
                             return_dict[key] = self.__rated_data[key][-1]
@@ -320,12 +325,15 @@ class AbstractItem(QObject):
                 if self._data[entry]:
                     return_dict[entry] = self._data[entry][-1]
                 else:
-                    return_dict[entry] = "Currently no value available"
+                    if entry in self._get_list_items():
+                        return_dict[entry] = [self.tr("Currently no value available")]
+                    else:
+                        return_dict[entry] = self.tr("Currently no value available")
             for entry in self.__rated_data:
                 if self.__rated_data[entry]:
                     return_dict[entry] = self.__rated_data[entry][-1]
                 else:
-                    return_dict[entry] = "Currently no value available"
+                    return_dict[entry] = self.tr("Currently no value available")
             if self.__state:
                 return_dict['state'] = self.__state[-1]
             else:
@@ -502,21 +510,18 @@ class AbstractItem(QObject):
                 if self.__rated_data[entry + ".state"]:
                     #todo: should probably only be error, countercheck this please :)
                     for i in range(0, len(self.__rated_data[entry + ".state"][-1])):
-                        if self.__rated_data[entry + ".state"][-1][i] is "error":
-                            content += QTranslator.translate("AbstractItem", entry) +\
-                                       QTranslator.translate("AbstractItem", "actual_value") +\
-                                       " <strong class=\"erroroneous_entry\">" + prepare_number_for_representation(
-                                       self.__rated_data[entry + ".actual_value"][i]) + "</strong>" + \
-                                       QTranslator.translate("AbstractItem", entry + "_unit")
-                            content += QTranslator.translate("AbstractItem", entry) +\
-                                       QTranslator.translate("AbstractItem", "expected_value") +\
-                                       " <strong class=\"erroroneous_entry\">" + prepare_number_for_representation(
-                                       self.__rated_data[entry + ".expected_value"][i]) + "</strong>" + \
-                                       QTranslator.translate("AbstractItem", entry + "_unit")
-                            content += QTranslator.translate("AbstractItem", entry) +\
-                                       QTranslator.translate("AbstractItem", "state") +\
-                                       " <strong class=\"erroroneous_entry\">" + prepare_number_for_representation(
-                                       self.__rated_data[entry + ".state"][i]) + "</strong>"
+                        if self.__rated_data[entry + ".state"][-1][i] is "high" or self.__rated_data[entry + ".state"][-1][i] is "low":
+                            content += self.tr(entry) +\
+                                       self.tr("actual_value") +\
+                                       " <div class=\"erroroneous_entry\">" + self.__rated_data[entry + ".actual_value"][i] + "</div>" + \
+                                       self.tr(entry + "_unit")
+                            content += self.tr(entry) +\
+                                       self.tr("expected_value") +\
+                                       " <div class=\"erroroneous_entry\">" + self.__rated_data[entry + ".expected_value"][i] + "</div>" + \
+                                       self.tr(entry + "_unit")
+                            content += self.tr(entry) +\
+                                       self.tr("state") +\
+                                       " <div class=\"erroroneous_entry\">" + self.__rated_data[entry + ".state"][i] + "</div>"
 
         content += "</p>"
         return content

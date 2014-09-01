@@ -173,3 +173,7 @@ class NodeItem(AbstractItem):
         :return: True
         """
         return True
+
+    def _get_list_items(self):
+        return ["node_cpu_usage_core_mean", "node_cpu_usage_core_stddev", "node_cpu_usage_core_max",
+                "node_gpu_usage_mean", "node_gpu_usage_stddev", "node_gpu_usage_max"]

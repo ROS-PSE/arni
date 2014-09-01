@@ -164,3 +164,12 @@ class HostItem(AbstractItem):
 
     def get_short_data(self):
         return "HostItem"
+
+    def _get_list_items(self):
+        return ["cpu_usage_core_mean", "cpu_usage_core_stddev",
+                "cpu_usage_core_max", "cpu_temp_core", "cpu_temp_core_mean", "cpu_temp_core_stddev",
+                "cpu_temp_core_max", "gpu_temp_mean", "gpu_temp_stddev", "gpu_temp_max", "gpu_usage_mean",
+                "gpu_usage_stddev", "gpu_usage_max", "interface_name", "message_frequency_mean",
+                "message_frequency_stddev",
+                "message_frequency_max", "bandwidth_mean", "bandwidth_stddev", "bandwidth_max",
+                "drive_name", "drive_free_space", "drive_read", "drive_write"]
