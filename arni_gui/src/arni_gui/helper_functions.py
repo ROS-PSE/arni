@@ -48,7 +48,8 @@ def prepare_number_for_representation(number):
     """
     if number is None:
         return "unknown"
-    #if type(number) is float:
+    if type(number) is str or type(number) is unicode:
+        return number
     return str(round(number, 2))
     #else:
     #    print(type(number))

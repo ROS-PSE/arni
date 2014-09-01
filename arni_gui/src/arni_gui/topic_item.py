@@ -3,6 +3,7 @@ from rospy.rostime import Time
 from python_qt_binding.QtCore import QTranslator
 
 from abstract_item import AbstractItem
+from helper_functions import prepare_number_for_representation
 
 
 class TopicItem(AbstractItem):
@@ -68,9 +69,9 @@ class TopicItem(AbstractItem):
 
         content = "<p class=\"detailed_data\">"
 
-        content += self.tr("dropped_msgs") + ": " + str(data_dict["dropped_msgs"]) \
+        content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) \
                    + " " + self.tr("traffic") + " <br>"
-        content += self.tr("traffic") + ": " + str(data_dict["traffic"]) \
+        content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) \
                    + " " + self.tr("traffic_unit") + " <br>"
         content += self.tr("stamp_age_mean") + ": " + str(data_dict["stamp_age_mean"]) \
                    + " " + self.tr("stamp_age_mean_unit") + " <br>"

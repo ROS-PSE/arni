@@ -52,19 +52,19 @@ class RootItem(AbstractItem):
 
         content = "<p class=\"detailed_data_overview\">"
 
-        content += "total_traffic: " + prepare_number_for_representation(data_dict["total_traffic"]) + "<br>"
-        content += "connected_hosts: " + str(data_dict["connected_hosts"]) + "<br>"
-        content += "connected_nodes: " + str(data_dict["connected_nodes"]) + "<br>"
-        content += "topic_counter: " + str(data_dict["topic_counter"]) + "<br>"
-        content += "connection_counter: " + str(data_dict["connection_counter"]) + "<br>"
-        content += "cpu_usage_max: " + prepare_number_for_representation(data_dict["cpu_usage_max"]) + "<br>"
-        content += "cpu_temp_mean: " + ("unknown" if prepare_number_for_representation(data_dict["cpu_temp_mean"]) is 0
-                                        else prepare_number_for_representation(data_dict["cpu_temp_mean"])) + "<br>"
-        content += "ram_usage_mean: " + prepare_number_for_representation(data_dict["ram_usage_mean"]) + "<br>"
-        content += "cpu_usage_mean: " + prepare_number_for_representation(data_dict["cpu_usage_mean"]) + "<br>"
-        content += "cpu_temp_max: " + ("unknown" if prepare_number_for_representation(data_dict["cpu_temp_max"]) is 0
-                                       else prepare_number_for_representation(data_dict["cpu_temp_max"])) + "<br>"
-        content += "ram_usage_max: " + prepare_number_for_representation(data_dict["ram_usage_max"]) + "<br>"
+        content += self.tr("total_traffic") + ": " + prepare_number_for_representation(data_dict["total_traffic"]) + " " + self.tr("bandwidth_mean_unit") + " <br>"
+        content += self.tr("connected_hosts") + ": " + ": " + str(data_dict["connected_hosts"]) + "<br>"
+        content += self.tr("connected_nodes") + ": " + str(data_dict["connected_nodes"]) + "<br>"
+        content += self.tr("topic_counter") + ": " + str(data_dict["topic_counter"]) + "<br>"
+        content += self.tr("connection_counter") + ": " + str(data_dict["connection_counter"]) + "<br>"
+        content += self.tr("cpu_usage_max") + ": " + prepare_number_for_representation(data_dict["cpu_usage_max"]) + " " + self.tr("cpu_usage_max_unit") + " <br>"
+        content += self.tr("cpu_temp_mean") + ": " + ("unknown" if prepare_number_for_representation(data_dict["cpu_temp_mean"]) is 0
+                                        else prepare_number_for_representation(data_dict["cpu_temp_mean"])) + " " + self.tr("cpu_temp_mean_unit") + " <br>"
+        content += self.tr("ram_usage_mean") + ": " + prepare_number_for_representation(data_dict["ram_usage_mean"]) + " " + self.tr("ram_usage_mean_unit") + " <br>"
+        content += self.tr("cpu_usage_mean") + ": " + prepare_number_for_representation(data_dict["cpu_usage_mean"]) + " " + self.tr("cpu_usage_mean_unit") + " <br>"
+        content += self.tr("cpu_temp_max") + ": " + ("unknown" if prepare_number_for_representation(data_dict["cpu_temp_max"]) is 0
+                                       else prepare_number_for_representation(data_dict["cpu_temp_max"])) + " " + self.tr("cpu_temp_max_unit") + " <br>"
+        content += self.tr("ram_usage_max") + ": " + prepare_number_for_representation(data_dict["ram_usage_max"]) + " " + self.tr("ram_usage_max_unit") + " <br>"
 
         #content += "</p>"
 

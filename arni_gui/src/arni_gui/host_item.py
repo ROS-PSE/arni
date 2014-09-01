@@ -3,6 +3,7 @@ from rospy.rostime import Time
 from python_qt_binding.QtCore import QTranslator
 
 from abstract_item import AbstractItem
+from helper_functions import prepare_number_for_representation
 
 class HostItem(AbstractItem):
     """A HostItem represents a host with all its data."""
@@ -121,7 +122,7 @@ class HostItem(AbstractItem):
                        + " " + self.tr("gpu_usage_max_unit") + " <br>"
 
         for i in range(0, len(data_dict["interface_name"])):
-            content += str(data_dict["interface_name"]) + "<br>"
+            content += str(data_dict["interface_name"][i]) + "<br>"
             content += self.tr("message_frequency_mean") + ": " + str(data_dict["message_frequency_mean"][i]) \
                        + " " + self.tr("message_frequency_mean_unit") + " <br>"
             content += self.tr("message_frequency_stddev") + ": " + str(data_dict["message_frequency_stddev"][i]) \

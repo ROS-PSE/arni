@@ -9,6 +9,7 @@ from arni_core.host_lookup import HostLookup
 from arni_core.helper import SEUID
 import arni_core.helper as helper
 from arni_msgs.srv import NodeReaction
+from helper_functions import prepare_number_for_representation
 
 
 class NodeItem(AbstractItem):
@@ -98,57 +99,57 @@ class NodeItem(AbstractItem):
         content = "<p class=\"detailed_data\">"
 
 
-        content += self.tr("node_cpu_usage_mean") + ": " + str(data_dict["node_cpu_usage_mean"]) \
-                   + " " + self.tr("node_cpu_usage_mean_unit") + " <br>"
-        content += self.tr("node_cpu_usage_stddev") + ": " + str(data_dict["node_cpu_usage_stddev"]) \
+        content += self.tr("node_cpu_usage_mean") + ": " + prepare_number_for_representation(
+            data_dict["node_cpu_usage_mean"]) + " " + self.tr("node_cpu_usage_mean_unit") + " <br>"
+        content += self.tr("node_cpu_usage_stddev") + ": " + prepare_number_for_representation(data_dict["node_cpu_usage_stddev"]) \
                    + " " + self.tr("node_cpu_usage_stddev_unit") + " <br>"
-        content += self.tr("node_cpu_usage_max") + ": " + str(data_dict["node_cpu_usage_max"]) \
+        content += self.tr("node_cpu_usage_max") + ": " + prepare_number_for_representation(data_dict["node_cpu_usage_max"]) \
                    + " " + self.tr("node_cpu_usage_max_unit") + " <br>"
         for i in range(0, len(data_dict["node_cpu_usage_core_mean"])):
             content += self.tr("core" + str(i + 1)) + "<br>"
-            content += self.tr("node_cpu_usage_core_mean") + ": " + str(data_dict["node_cpu_usage_core_mean"][i]) \
+            content += self.tr("node_cpu_usage_core_mean") + ": " + prepare_number_for_representation(data_dict["node_cpu_usage_core_mean"][i]) \
                        + " " + self.tr("node_cpu_usage_core_mean_unit") + " <br>"
-            content += self.tr("node_cpu_usage_core_stddev") + ": " + str(data_dict["node_cpu_usage_core_stddev"][i]) \
+            content += self.tr("node_cpu_usage_core_stddev") + ": " + prepare_number_for_representation(data_dict["node_cpu_usage_core_stddev"][i]) \
                        + " " + self.tr("node_cpu_usage_core_stddev_unit") + " <br>"
-            content += self.tr("node_cpu_usage_core_max") + ": " + str(data_dict["node_cpu_usage_core_max"][i]) \
+            content += self.tr("node_cpu_usage_core_max") + ": " + prepare_number_for_representation(data_dict["node_cpu_usage_core_max"][i]) \
                        + " " + self.tr("node_cpu_usage_core_max_unit") + " <br>"
         for i in range(0, len(data_dict["node_gpu_usage_mean"])):
-            content += self.tr("node_gpu_usage_mean") + ": " + str(data_dict["node_gpu_usage_mean"][i]) \
+            content += self.tr("node_gpu_usage_mean") + ": " + prepare_number_for_representation(data_dict["node_gpu_usage_mean"][i]) \
                        + " " + self.tr("node_gpu_usage_mean_unit") + " <br>"
-            content += self.tr("node_gpu_usage_stddev") + ": " + str(data_dict["node_gpu_usage_stddev"][i]) \
+            content += self.tr("node_gpu_usage_stddev") + ": " + prepare_number_for_representation(data_dict["node_gpu_usage_stddev"][i]) \
                        + " " + self.tr("node_gpu_usage_stddev_unit") + " <br>"
-            content += self.tr("node_gpu_usage_max") + ": " + str(data_dict["node_gpu_usage_max"][i]) \
+            content += self.tr("node_gpu_usage_max") + ": " + prepare_number_for_representation(data_dict["node_gpu_usage_max"][i]) \
                        + " " + self.tr("node_gpu_usage_max_unit") + " <br>"
 
-        content += self.tr("node_ramusage_mean") + ": " + str(data_dict["node_ramusage_mean"]) \
+        content += self.tr("node_ramusage_mean") + ": " + prepare_number_for_representation(data_dict["node_ramusage_mean"]) \
                    + " " + self.tr("node_ramusage_mean_unit") + " <br>"
-        content += self.tr("node_ramusage_stddev") + ": " + str(data_dict["node_ramusage_stddev"]) \
+        content += self.tr("node_ramusage_stddev") + ": " + prepare_number_for_representation(data_dict["node_ramusage_stddev"]) \
                    + " " + self.tr("node_ramusage_stddev_unit") + " <br>"
-        content += self.tr("node_ramusage_max") + ": " + str(data_dict["node_ramusage_max"]) \
+        content += self.tr("node_ramusage_max") + ": " + prepare_number_for_representation(data_dict["node_ramusage_max"]) \
                    + " " + self.tr("node_ramusage_max_unit") + " <br>"
-        content += self.tr("node_message_frequency_mean") + ": " + str(data_dict["node_message_frequency_mean"]) \
+        content += self.tr("node_message_frequency_mean") + ": " + prepare_number_for_representation(data_dict["node_message_frequency_mean"]) \
                    + " " + self.tr("node_message_frequency_mean_unit") + " <br>"
-        content += self.tr("node_message_frequency_stddev") + ": " + str(data_dict["node_message_frequency_stddev"]) \
+        content += self.tr("node_message_frequency_stddev") + ": " + prepare_number_for_representation(data_dict["node_message_frequency_stddev"]) \
                    + " " + self.tr("node_message_frequency_stddev_unit") + " <br>"
-        content += self.tr("node_message_frequency_max") + ": " + str(data_dict["node_message_frequency_max"]) \
+        content += self.tr("node_message_frequency_max") + ": " + prepare_number_for_representation(data_dict["node_message_frequency_max"]) \
                    + " " + self.tr("node_message_frequency_max_unit") + " <br>"
-        content += self.tr("node_bandwidth_mean") + ": " + str(data_dict["node_bandwidth_mean"]) \
+        content += self.tr("node_bandwidth_mean") + ": " + prepare_number_for_representation(data_dict["node_bandwidth_mean"]) \
                    + " " + self.tr("node_bandwidth_mean_unit") + " <br>"
-        content += self.tr("node_bandwidth_stddev") + ": " + str(data_dict["node_bandwidth_stddev"]) \
+        content += self.tr("node_bandwidth_stddev") + ": " + prepare_number_for_representation(data_dict["node_bandwidth_stddev"]) \
                    + " " + self.tr("node_bandwidth_stddev_unit") + " <br>"
-        content += self.tr("node_bandwidth_max") + ": " + str(data_dict["node_bandwidth_max"]) \
+        content += self.tr("node_bandwidth_max") + ": " + prepare_number_for_representation(data_dict["node_bandwidth_max"]) \
                    + " " + self.tr("node_bandwidth_max_unit") + " <br>"
-        content += self.tr("node_write_mean") + ": " + str(data_dict["node_write_mean"]) \
+        content += self.tr("node_write_mean") + ": " + prepare_number_for_representation(data_dict["node_write_mean"]) \
                    + " " + self.tr("node_write_mean_unit") + " <br>"
-        content += self.tr("node_write_stddev") + ": " + str(data_dict["node_write_stddev"]) \
+        content += self.tr("node_write_stddev") + ": " + prepare_number_for_representation(data_dict["node_write_stddev"]) \
                    + " " + self.tr("node_write_stddev_unit") + " <br>"
-        content += self.tr("node_write_max") + ": " + str(data_dict["node_write_max"]) \
+        content += self.tr("node_write_max") + ": " + prepare_number_for_representation(data_dict["node_write_max"]) \
                    + " " + self.tr("node_write_max_unit") + " <br>"
-        content += self.tr("node_read_mean") + ": " + str(data_dict["node_read_mean"]) \
+        content += self.tr("node_read_mean") + ": " + prepare_number_for_representation(data_dict["node_read_mean"]) \
                    + " " + self.tr("node_read_mean_unit") + " <br>"
-        content += self.tr("node_read_stddev") + ": " + str(data_dict["node_read_stddev"]) \
+        content += self.tr("node_read_stddev") + ": " + prepare_number_for_representation(data_dict["node_read_stddev"]) \
                    + " " + self.tr("node_read_stddev_unit") + " <br>"
-        content += self.tr("node_read_max") + ": " + str(data_dict["node_read_max"]) \
+        content += self.tr("node_read_max") + ": " + prepare_number_for_representation(data_dict["node_read_max"]) \
                    + " " + self.tr("node_read_max_unit") + " <br>"
 
         content += "</p>"
