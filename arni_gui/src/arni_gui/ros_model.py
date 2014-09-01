@@ -1,5 +1,6 @@
 from python_qt_binding.QtCore import QAbstractItemModel, QModelIndex
 from python_qt_binding.QtCore import QTranslator, Qt
+from python_qt_binding.QtGui import qApp
 
 from threading import Lock
 from size_delegate import SizeDelegate
@@ -28,7 +29,10 @@ from arni_core.helper import SEUID, SEUID_DELIMITER
 
 import time
 
-from helper_functions import UPDATE_FREQUENCY, MAXIMUM_AMOUNT_OF_ENTRIES, MINIMUM_RECORDING_TIME, topic_statistics_state_to_string
+from helper_functions import UPDATE_FREQUENCY, MAXIMUM_AMOUNT_OF_ENTRIES, MINIMUM_RECORDING_TIME, topic_statistics_state_to_string, find_qm_files
+
+import rospkg
+import os
 
 from buffer_thread import *
 
@@ -60,6 +64,15 @@ class ROSModel(QAbstractItemModel):
         self.__logger = ModelLogger()
 
         self._translator = QTranslator()
+        # internationalize everything including the 2 plugins
+        self.rp = rospkg.RosPack()
+        directory = os.path.join(self.rp.get_path('arni_gui'), 'translations')
+        files = find_qm_files(directory)
+        translator = self.get_translator()
+        #todo: make this more intelligent
+        print("chose translation " + files[0])
+        translator.load(files[0])
+        qApp.installTranslator(translator)
         # self._translator.load("language")
 
         self.__root_item = RootItem(self.__logger, "abstract", self)

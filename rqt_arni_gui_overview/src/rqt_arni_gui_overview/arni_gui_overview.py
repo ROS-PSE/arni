@@ -9,10 +9,6 @@ from python_qt_binding.QtGui import QWidget, qApp
 
 from rqt_gui_py.plugin import Plugin
 
-from arni_gui.helper_functions import find_qm_files
-
-from arni_gui.ros_model import ROSModel
-
 
 class ArniGuiOverview(Plugin):
     """
@@ -41,14 +37,6 @@ class ArniGuiOverview(Plugin):
         if not args.quiet:
             print 'arguments: ', args
             print 'unknowns: ', unknowns
-
-        # internationalize the gui
-        self.rp = rospkg.RosPack()
-        directory = os.path.join(self.rp.get_path('arni_gui'), 'translations')
-        files = find_qm_files(directory)
-        translator = ROSModel().get_translator()
-        #todo: make this more intelligent
-        translator.load(files[0])
 
         self.__overview_widget = OverviewWidget()
         context.add_widget(self.__overview_widget)

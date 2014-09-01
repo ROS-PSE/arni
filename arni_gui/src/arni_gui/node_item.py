@@ -1,5 +1,6 @@
 from rospy.rostime import Time
 from rospy import ServiceException
+import rospy
 
 from python_qt_binding.QtCore import QObject
 from python_qt_binding.QtCore import QTranslator
@@ -179,7 +180,17 @@ class NodeItem(AbstractItem):
         
         :returns: str[]
         """
-        return ["node_cpu_usage_mean", "node_bandwidth_mean"]
+        return ["node_cpu_usage_mean", "node_cpu_usage_stddev", "node_cpu_usage_max",
+                                 "node_cpu_usage_core_mean",
+                                 "node_cpu_usage_core_stddev", "node_cpu_usage_core_max", "node_gpu_usage_mean",
+                                 "node_gpu_usage_stddev",
+                                 "node_gpu_usage_max", "node_ramusage_mean", "node_ramusage_stddev",
+                                 "node_ramusage_max",
+                                 "node_message_frequency_mean", "node_message_frequency_stddev",
+                                 "node_message_frequency_max", "node_bandwidth_mean", "node_bandwidth_stddev",
+                                 "node_bandwidth_max", "node_write_mean", "node_write_stddev", "node_write_max",
+                                 "node_read_mean",
+                                 "node_read_stddev", "node_read_max"]
 
 
     def get_short_data(self):

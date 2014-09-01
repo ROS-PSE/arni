@@ -1,6 +1,12 @@
 import os
+from threading import Lock
+import math
+
 import rospy
 import rospkg
+
+from rospy.rostime import Time, Duration
+from rospy.timer import Timer
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtGui import QTabWidget, QWidget
@@ -9,18 +15,12 @@ from python_qt_binding import QtCore
 from python_qt_binding.QtCore import QRegExp
 from python_qt_binding.QtGui import QPixmap, QLabel, QVBoxLayout, QSizePolicy
 
-from rospy.rostime import Time, Duration
-from rospy.timer import Timer
-
 from arni_gui.ros_model import ROSModel
 from arni_gui.log_filter_proxy import LogFilterProxy
 from arni_gui.log_delegate import LogDelegate
-from threading import Lock
+from arni_gui.helper_functions import ResizeableGraphicsLayoutWidget
 
-from date_axis import DateAxis
-
-import time
-import math
+from arni_gui.helper_functions import DateAxis
 
 import numpy as np
 
@@ -29,19 +29,6 @@ try:
 except ImportError as e:
     print("An error occured trying to import pyqtgraph. Please install pyqtgraph via \"pip install pyqtgraph\".")
     raise
-
-class ResizeableGraphicsLayoutWidget(pg.GraphicsLayoutWidget):
-    def __init__(self, function_to_call, parent=None, **kwargs):
-        self.function_to_call = function_to_call
-        pg.GraphicsLayoutWidget.__init__(self, parent, **kwargs)
-
-    def resizeEvent(self, ev):
-        try:
-            self.function_to_call()
-        except AttributeError:
-            #only occurs when widget is resized before the set_function method is called
-            pass
-        pg.GraphicsLayoutWidget.resizeEvent(self, ev)
 
 
 class OverviewWidget(QWidget):
@@ -133,9 +120,6 @@ class OverviewWidget(QWidget):
         self.__plotted_curves = {}
         self.create_graphs()
 
-        #todo: make a first, special update at the beginning (might be that there is fresh data)
-        #todo: separate from the layoutChanged signal --> own timer!
-        #self.update_graphs(None)
         self.__timer = Timer(Duration(secs=1.0), self.update_graphs)
 
 
@@ -208,23 +192,27 @@ class OverviewWidget(QWidget):
     def __on_graph_window_size_changed(self):
         # getting the size
         size = self.__graph_layout.size()
-        self.__items_per_group = (size.height() - 100) / 200 + 1
-        self.__number_of_groups = int(math.ceil(len(self.__plotable_items) / float(self.__items_per_group)))
-        # change the groups in the widget
-        self.selected_combo_box.clear()
-        for group in range(0, self.__number_of_groups):
-            list = self.__plotable_items[min(group *
-                                self.__items_per_group, len(self.__plotable_items)):min((group + 1)
-                                                        * self.__items_per_group, len(self.__plotable_items))]
-            content = ""
-            for i in range(0, len(list) - 1):
-                content += self.tr(list[i])
-                content += ", "
-            content += list[len(list) - 1]
-            self.selected_combo_box.addItem(content)
-        # redraw
-        self.create_graphs()
-        self.update_graphs(None)
+        items_per_group = (size.height() - 100) / 200 + 1
+        if items_per_group is not self.__items_per_group:
+            self.__graph_layout.set_blocked(True)
+            self.__items_per_group = items_per_group
+            self.__number_of_groups = int(math.ceil(len(self.__plotable_items) / float(self.__items_per_group)))
+            # change the groups in the widget
+            self.selected_combo_box.clear()
+            for group in range(0, self.__number_of_groups):
+                list = self.__plotable_items[min(group *
+                                    self.__items_per_group, len(self.__plotable_items)):min((group + 1)
+                                                            * self.__items_per_group, len(self.__plotable_items))]
+                content = ""
+                for i in range(0, len(list) - 1):
+                    content += self.tr(list[i])
+                    content += ", "
+                content += list[len(list) - 1]
+                self.selected_combo_box.addItem(content)
+            # redraw
+            self.create_graphs()
+            self.update_graphs(None)
+            self.__graph_layout.set_blocked(False)
 
 
     def __on_selected_combo_box_index_changed(self, index):

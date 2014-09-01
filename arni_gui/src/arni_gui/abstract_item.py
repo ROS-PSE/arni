@@ -422,7 +422,11 @@ class AbstractItem(QObject):
         if length is not 0:
             if list_of_time[0] >= time:
                 for key in return_values:
-                    return_values[key] = self._data[key]
+                    try:
+                        return_values[key] = self._data[key]
+                    except KeyError:
+                        print(self._data)
+                        raise
             else:
                 for i in range(length - 1, -1, -1):
                     if list_of_time[i] < time:

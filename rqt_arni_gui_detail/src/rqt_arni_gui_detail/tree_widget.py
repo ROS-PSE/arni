@@ -61,8 +61,6 @@ class TreeWidget(QWidget):
 
         self.__relative_font_size = 0
 
-        
-
         self.show_nodes_check_box.setText(self.tr("Show Nodes"))
         self.show_hosts_check_box.setText(self.tr("Show Hosts"))
         self.show_topics_check_box.setText(self.tr("Show Topics"))
@@ -214,3 +212,5 @@ class TreeWidget(QWidget):
         """
         for i in range(0, self.__filter_proxy.columnCount() - 1):
             self.item_tree_view.resizeColumnToContents(i)
+        size = self.item_tree_view.columnWidth(1)
+        self.item_tree_view.setColumnWidth(1, size/2 if size > 120 else 160)
