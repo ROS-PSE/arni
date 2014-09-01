@@ -9,7 +9,7 @@ def callback(data):
 
 
 def listener():
-    rospy.init_node('mole', anonymous=True)
+    rospy.init_node('mole')
     rospy.Subscriber("once_upon_1984", String, callback)
     print("listening..")
     rospy.spin()
