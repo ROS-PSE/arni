@@ -56,11 +56,12 @@ class TreeWidget(QWidget):
 
         self.__font_size = 10
         self.item_tree_view.setStyleSheet("font-size: %dpt;" % self.__font_size)
+        self.item_tree_view.expandAll()
         self.__resize_columns()
 
         self.__relative_font_size = 0
 
-        self.item_tree_view.expandAll()
+        
 
         self.show_nodes_check_box.setText(self.tr("Show Nodes"))
         self.show_hosts_check_box.setText(self.tr("Show Hosts"))
