@@ -10,7 +10,7 @@
 				<statustip>Plugins related to introspection</statustip>
 			</group>
 			<label>Arni-Overview</label>
-			<icon type="theme">system-help</icon>
+			<icon type="theme">utilities-system-monitor</icon>
 			<statustip>A Python GUI plugin to provide general information about the ROS-Network.</statustip>
 		</qtgui>
 	</class>
