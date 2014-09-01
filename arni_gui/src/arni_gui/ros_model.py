@@ -1,4 +1,4 @@
-from python_qt_binding.QtCore import QAbstractItemModel
+from python_qt_binding.QtCore import QAbstractItemModel, QModelIndex
 from python_qt_binding.QtCore import QTranslator, Qt
 from threading import Lock
 from size_delegate import SizeDelegate
