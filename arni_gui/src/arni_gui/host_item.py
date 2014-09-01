@@ -73,76 +73,76 @@ class HostItem(AbstractItem):
 
         content += self.get_erroneous_entries()
 
-        content += self.tr("cpu_usage_mean") + ": " + str(data_dict["cpu_usage_mean"]) \
+        content += self.tr("cpu_usage_mean") + ": " + prepare_number_for_representation(data_dict["cpu_usage_mean"]) \
                    + " " + self.tr("cpu_usage_mean_unit") + " <br>"
-        content += self.tr("cpu_usage_stddev") + ": " + str(data_dict["cpu_usage_stddev"]) \
+        content += self.tr("cpu_usage_stddev") + ": " + prepare_number_for_representation(data_dict["cpu_usage_stddev"]) \
                    + " " + self.tr("cpu_usage_stddev_unit") + " <br>"
-        content += self.tr("cpu_usage_max") + ": " + str(data_dict["cpu_usage_max"]) \
+        content += self.tr("cpu_usage_max") + ": " + prepare_number_for_representation(data_dict["cpu_usage_max"]) \
                    + " " + self.tr("cpu_usage_max_unit") + " <br>"
-        content += self.tr("cpu_temp_mean") + ": " + str(data_dict["cpu_temp_mean"]) \
+        content += self.tr("cpu_temp_mean") + ": " + prepare_number_for_representation(data_dict["cpu_temp_mean"]) \
                    + " " + self.tr("cpu_temp_mean_unit") + " <br>"
-        content += self.tr("cpu_temp_stddev") + ": " + str(data_dict["cpu_temp_stddev"]) \
+        content += self.tr("cpu_temp_stddev") + ": " + prepare_number_for_representation(data_dict["cpu_temp_stddev"]) \
                    + " " + self.tr("cpu_temp_stddev_unit") + " <br>"
-        content += self.tr("cpu_temp_max") + ": " + str(data_dict["cpu_temp_max"]) \
+        content += self.tr("cpu_temp_max") + ": " + prepare_number_for_representation(data_dict["cpu_temp_max"]) \
                    + " " + self.tr("cpu_temp_max_unit") + " <br>"
-        content += self.tr("ram_usage_mean") + ": " + str(data_dict["ram_usage_mean"]) \
+        content += self.tr("ram_usage_mean") + ": " + prepare_number_for_representation(data_dict["ram_usage_mean"]) \
                    + " " + self.tr("ram_usage_mean_unit") + " <br>"
-        content += self.tr("ram_usage_stddev") + ": " + str(data_dict["ram_usage_stddev"]) \
+        content += self.tr("ram_usage_stddev") + ": " + prepare_number_for_representation(data_dict["ram_usage_stddev"]) \
                    + " " + self.tr("ram_usage_stddev_unit") + " <br>"
-        content += self.tr("ram_usage_max") + ": " + str(data_dict["ram_usage_max"]) \
+        content += self.tr("ram_usage_max") + ": " + prepare_number_for_representation(data_dict["ram_usage_max"]) \
                    + " " + self.tr("ram_usage_max_unit") + " <br>"
 
         for i in range(0, len(data_dict["cpu_usage_core_mean"])):
             content += self.tr("core" + str(i + 1)) + "<br>"
-            content += self.tr("cpu_usage_core_mean") + ": " + str(data_dict["cpu_usage_core_mean"][i]) \
+            content += self.tr("cpu_usage_core_mean") + ": " + prepare_number_for_representation(data_dict["cpu_usage_core_mean"][i]) \
                        + " " + self.tr("cpu_usage_core_mean_unit") + " <br>"
-            content += self.tr("cpu_usage_core_stddev") + ": " + str(data_dict["cpu_usage_core_stddev"][i]) \
+            content += self.tr("cpu_usage_core_stddev") + ": " + prepare_number_for_representation(data_dict["cpu_usage_core_stddev"][i]) \
                        + " " + self.tr("cpu_usage_core_stddev_unit") + " <br>"
-            content += self.tr("cpu_usage_core_max") + ": " + str(data_dict["cpu_usage_core_max"][i]) \
+            content += self.tr("cpu_usage_core_max") + ": " + prepare_number_for_representation(data_dict["cpu_usage_core_max"][i]) \
                        + " " + self.tr("cpu_usage_core_max_unit") + " <br>"
-            content += self.tr("cpu_temp_core_mean") + ": " + str(data_dict["cpu_temp_core_mean"][i]) \
+            content += self.tr("cpu_temp_core_mean") + ": " + prepare_number_for_representation(data_dict["cpu_temp_core_mean"][i]) \
                        + " " + self.tr("cpu_temp_core_mean_unit") + " <br>"
-            content += self.tr("cpu_temp_core_stddev") + ": " + str(data_dict["cpu_temp_core_stddev"][i]) \
+            content += self.tr("cpu_temp_core_stddev") + ": " + prepare_number_for_representation(data_dict["cpu_temp_core_stddev"][i]) \
                        + " " + self.tr("cpu_temp_core_stddev_unit") + " <br>"
-            content += self.tr("cpu_temp_core_max") + ": " + str(data_dict["cpu_temp_core_max"][i]) \
+            content += self.tr("cpu_temp_core_max") + ": " + prepare_number_for_representation(data_dict["cpu_temp_core_max"][i]) \
                        + " " + self.tr("cpu_temp_core_max_unit") + " <br>"
 
         for i in range(0, len(data_dict["gpu_usage_mean"])):
-            content += self.tr("gpu_temp_mean") + ": " + str(data_dict["gpu_temp_mean"][i]) \
+            content += self.tr("gpu_temp_mean") + ": " + prepare_number_for_representation(data_dict["gpu_temp_mean"][i]) \
                        + " " + self.tr("gpu_temp_mean_unit") + " <br>"
-            content += self.tr("gpu_temp_stddev") + ": " + str(data_dict["gpu_temp_stddev"][i]) \
+            content += self.tr("gpu_temp_stddev") + ": " + prepare_number_for_representation(data_dict["gpu_temp_stddev"][i]) \
                        + " " + self.tr("gpu_temp_stddev_unit") + " <br>"
-            content += self.tr("gpu_temp_max") + ": " + str(data_dict["gpu_temp_max"][i]) \
+            content += self.tr("gpu_temp_max") + ": " + prepare_number_for_representation(data_dict["gpu_temp_max"][i]) \
                        + " " + self.tr("gpu_temp_max_unit") + " <br>"
-            content += self.tr("gpu_usage_mean") + ": " + str(data_dict["gpu_usage_mean"][i]) \
+            content += self.tr("gpu_usage_mean") + ": " + prepare_number_for_representation(data_dict["gpu_usage_mean"][i]) \
                        + " " + self.tr("gpu_usage_mean_unit") + " <br>"
-            content += self.tr("gpu_usage_stddev") + ": " + str(data_dict["gpu_usage_stddev"][i]) \
+            content += self.tr("gpu_usage_stddev") + ": " + prepare_number_for_representation(data_dict["gpu_usage_stddev"][i]) \
                        + " " + self.tr("gpu_usage_stddev_unit") + " <br>"
-            content += self.tr("gpu_usage_max") + ": " + str(data_dict["gpu_usage_max"][i]) \
+            content += self.tr("gpu_usage_max") + ": " + prepare_number_for_representation(data_dict["gpu_usage_max"][i]) \
                        + " " + self.tr("gpu_usage_max_unit") + " <br>"
 
         for i in range(0, len(data_dict["interface_name"])):
             content += str(data_dict["interface_name"][i]) + "<br>"
-            content += self.tr("message_frequency_mean") + ": " + str(data_dict["message_frequency_mean"][i]) \
+            content += self.tr("message_frequency_mean") + ": " + prepare_number_for_representation(data_dict["message_frequency_mean"][i]) \
                        + " " + self.tr("message_frequency_mean_unit") + " <br>"
-            content += self.tr("message_frequency_stddev") + ": " + str(data_dict["message_frequency_stddev"][i]) \
+            content += self.tr("message_frequency_stddev") + ": " + prepare_number_for_representation(data_dict["message_frequency_stddev"][i]) \
                        + " " + self.tr("message_frequency_stddev_unit") + " <br>"
-            content += self.tr("message_frequency_max") + ": " + str(data_dict["message_frequency_max"][i]) \
+            content += self.tr("message_frequency_max") + ": " + prepare_number_for_representation(data_dict["message_frequency_max"][i]) \
                        + " " + self.tr("message_frequency_max_unit") + " <br>"
-            content += self.tr("bandwidth_mean") + ": " + str(data_dict["bandwidth_mean"][i]) \
+            content += self.tr("bandwidth_mean") + ": " + prepare_number_for_representation(data_dict["bandwidth_mean"][i]) \
                        + " " + self.tr("bandwidth_mean_unit") + " <br>"
-            content += self.tr("bandwidth_stddev") + ": " + str(data_dict["bandwidth_stddev"][i]) \
+            content += self.tr("bandwidth_stddev") + ": " + prepare_number_for_representation(data_dict["bandwidth_stddev"][i]) \
                        + " " + self.tr("bandwidth_stddev_unit") + " <br>"
-            content += self.tr("bandwidth_max") + ": " + str(data_dict["bandwidth_max"][i]) \
+            content += self.tr("bandwidth_max") + ": " + prepare_number_for_representation(data_dict["bandwidth_max"][i]) \
                        + " " + self.tr("bandwidth_max_unit") + " <br>"
 
         for i in range(0, len(data_dict["drive_name"])):
             content += data_dict["drive_name"][i] + " <br>"
-            content += self.tr("drive_free_space") + ": " + str(data_dict["drive_free_space"][i]) \
+            content += self.tr("drive_free_space") + ": " + prepare_number_for_representation(data_dict["drive_free_space"][i]) \
                        + " " + self.tr("drive_free_space_unit") + " <br>"
-            content += self.tr("drive_read") + ": " + str(data_dict["drive_read"][i]) \
+            content += self.tr("drive_read") + ": " + prepare_number_for_representation(data_dict["drive_read"][i]) \
                        + " " + self.tr("drive_read_unit") + " <br>"
-            content += self.tr("drive_write") + ": " + str(data_dict["drive_write"][i]) \
+            content += self.tr("drive_write") + ": " + prepare_number_for_representation(data_dict["drive_write"][i]) \
                        + " " + self.tr("drive_write_unit") + " <br>"
         content += "</p>"
         

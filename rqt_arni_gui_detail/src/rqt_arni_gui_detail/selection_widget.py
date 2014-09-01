@@ -218,7 +218,12 @@ class SelectionWidget(QWidget):
                         self.current_status_label.setText(self.tr("online"))
                         self.host_node_label.setText(self.tr("Current status: warning"))
                         pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
-                                                      'block_red.png'))
+                                                      'block_orange.png'))
+		    elif self.__state == "unknown":
+		        self.current_status_label.setText("unkown")
+                        self.host_node_label.setText("Current status: unkown")
+                        pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
+                                                      'block_grey.png'))
                     else:
                         self.host_node_label.setText(self.tr("Current status: error"))
                         pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
