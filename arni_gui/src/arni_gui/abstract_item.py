@@ -3,10 +3,11 @@ import time as tm
 
 from rospy.rostime import Duration, Time
 
-from python_qt_binding.QtCore import QTranslator
+from python_qt_binding.QtCore import QTranslator, QObject
 
+from helper_functions import prepare_number_for_representation
 
-class AbstractItem:
+class AbstractItem(QObject):
     """ 
     Provides a unified interface to access the items of the model.
     INTERNAL: WARNING! Whenever the key-values at the beginning are not set right, the oddest things may occur!
@@ -23,8 +24,14 @@ class AbstractItem:
         :param parent: the parent-item
         :type parent: AbstractItem
         """
+        super(AbstractItem, self).__init__(parent)
         self._logger = logger
         self._data = {}
+        """
+        __rated_data is dict containing the rated data. state, window_start and window_end are simply lists
+         with the corresponding entries. Any other values typically is a list containing lists which however contain the
+         values. This is equivalent to the representation in the RatedStatistics/Entity.
+        """
         self.__rated_data = {}
         self.__child_items = []
         self.__parent = parent
@@ -94,30 +101,30 @@ class AbstractItem:
         """
         self.__child_items.append(child)
 
-
-    def append_rated_data_dict(self, data):
-        """
-        Appends data to the rate_data of the AbstractItem.
-
-        :param data: the data to append in key value from
-        :type data: dict
-        :raises KeyError: if an entry is in the global rated data dictionary but not found in the given dictionary
-        """
-        if "window_stop" not in data:
-            data["window_stop"] = Time.now()
-        for attribute in self.__rated_data:
-            if attribute in data:
-                self.__rated_data[attribute].append(data[attribute])
-            else:
-                # todo: is there something better than None in this case? like "" ?
-                self.__rated_data[attribute].append(None)
-
-        if "state" in data:
-            self.__state.append(data["state"])
-        else:
-            self.__state.append(data["ok"])
-        self.__length_of_rated_data += 1
-        self._update_current_state()
+#todo: not needed and wrong!
+    # def append_rated_data_dict(self, data):
+    #     """
+    #     Appends data to the rate_data of the AbstractItem.
+    #
+    #     :param data: the data to append in key value from
+    #     :type data: dict
+    #     :raises KeyError: if an entry is in the global rated data dictionary but not found in the given dictionary
+    #     """
+    #     if "window_stop" not in data:
+    #         data["window_stop"] = Time.now()
+    #     for attribute in self.__rated_data:
+    #         if attribute in data:
+    #             self.__rated_data[attribute].append(data[attribute])
+    #         else:
+    #             # todo: is there something better than None in this case? like "" ?
+    #             self.__rated_data[attribute].append(None)
+    #
+    #     if "state" in data:
+    #         self.__state.append(data["state"])
+    #     else:
+    #         self.__state.append(data["ok"])
+    #     self.__length_of_rated_data += 1
+    #     self._update_current_state()
 
 
     def append_data_dict(self, data):
@@ -197,11 +204,11 @@ class AbstractItem:
         if self.__state:
             if "state" in data:
                 self.__state[-1] = data["state"]
-            else:
-                self.__state[-1] = "unknown"
         else:
             #todo: now there is one entry too much in self.__state... is that a problem?
             self.__state.append("unknown")
+            if "state" in data:
+                self.__state[-1] = data["state"]
         self.__length_of_rated_data += 1
         self._update_current_state()
 
@@ -289,8 +296,8 @@ class AbstractItem:
                     return_dict['name'] = self.seuid
                 elif key is 'type':
                     return_dict['type'] = self._type
-                elif key is 'data':
-                    return_dict['data'] = self.get_short_data()
+                #elif key is 'data':
+                    #return_dict['data'] = self.get_short_data()
                 elif key is 'state':
                     if self.__state:
                         return_dict['state'] = self.__state[-1]
@@ -308,7 +315,7 @@ class AbstractItem:
         else:
             return_dict['name'] = self.seuid
             return_dict['type'] = self._type
-            return_dict['data'] = self.get_short_data()
+            #return_dict['data'] = self.get_short_data()
             for entry in self._data:
                 if self._data[entry]:
                     return_dict[entry] = self._data[entry][-1]
@@ -482,17 +489,37 @@ class AbstractItem:
 
 #todo: has to be updated, the rated_values can also be lists!!!
     def get_erroneous_entries(self):
-        return_values = {}
-        for entry in self._attributes:
-            if self.__rated_data[entry + ".state"]:
-                #todo: is it guaranteed that __data and __rated_data is synced?
-                if self.__rated_data[entry + ".state"][-1] is not "ok":
-                    return_values[entry] = entry
-                    return_values[entry + ".actual_value"] = self.__rated_data[entry + ".actual_value"]
-                    return_values[entry + ".expected_value"] = self.__rated_data[entry + ".expected_value"]
-                    return_values[entry + ".state"] = self.__rated_data[entry + ".state"]
+        """
+        Returns the erroneous entries as a html string
 
-        return return_values
+        :return: an html string containing the erroneous entries yet preformatted
+        :rtype: str
+        """
+        content = "<p class=\"get_erroneous_entries\">"
+        return_values = {}
+        if self.__state is not "ok":
+            for entry in self._attributes:
+                if self.__rated_data[entry + ".state"]:
+                    #todo: should probably only be error, countercheck this please :)
+                    for i in range(0, len(self.__rated_data[entry + ".state"][-1])):
+                        if self.__rated_data[entry + ".state"][-1][i] is "error":
+                            content += QTranslator.translate("AbstractItem", entry) +\
+                                       QTranslator.translate("AbstractItem", "actual_value") +\
+                                       " <strong class=\"erroroneous_entry\">" + prepare_number_for_representation(
+                                       self.__rated_data[entry + ".actual_value"][i]) + "</strong>" + \
+                                       QTranslator.translate("AbstractItem", entry + "_unit")
+                            content += QTranslator.translate("AbstractItem", entry) +\
+                                       QTranslator.translate("AbstractItem", "expected_value") +\
+                                       " <strong class=\"erroroneous_entry\">" + prepare_number_for_representation(
+                                       self.__rated_data[entry + ".expected_value"][i]) + "</strong>" + \
+                                       QTranslator.translate("AbstractItem", entry + "_unit")
+                            content += QTranslator.translate("AbstractItem", entry) +\
+                                       QTranslator.translate("AbstractItem", "state") +\
+                                       " <strong class=\"erroroneous_entry\">" + prepare_number_for_representation(
+                                       self.__rated_data[entry + ".state"][i]) + "</strong>"
+
+        content += "</p>"
+        return content
 
     def can_execute_actions(self):
         """
@@ -501,3 +528,6 @@ class AbstractItem:
         :return: False
         """
         return False
+
+    def get_short_data(self):
+        raise NotImplementedError()

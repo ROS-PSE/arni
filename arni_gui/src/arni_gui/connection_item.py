@@ -74,22 +74,22 @@ class ConnectionItem(AbstractItem):
 
         #todo: add rated data here if wrong!!!
 
-        content += QTranslator.translate("AbstractItem", "dropped_msgs") + ": " + str(data_dict["dropped_msgs"]) + " " \
-                   + QTranslator.translate("AbstractItem", "dropped_msgs_unit") + " <br>"
-        content += QTranslator.translate("AbstractItem", "traffic") + ": " + str(data_dict["traffic"]) + " " \
-                   + QTranslator.translate("AbstractItem", "traffic_unit") + " <br>"
-        content += QTranslator.translate("AbstractItem", "period_mean") + ": " + str(data_dict["period_mean"]) \
-                   + " " + QTranslator.translate("AbstractItem", "period_mean_unit") + " <br>"
-        content += QTranslator.translate("AbstractItem", "period_stddev") + ": " + str(data_dict["period_stddev"]) \
-                   + " " + QTranslator.translate("AbstractItem", "period_stddev_unit") + " <br>"
-        content += QTranslator.translate("AbstractItem", "period_max") + ": " + str(data_dict["period_max"]) + " " \
-                   + QTranslator.translate("AbstractItem", "period_max_unit") + " <br>"
-        content += QTranslator.translate("AbstractItem", "stamp_age_mean") + ": " + str(data_dict["stamp_age_mean"]) \
-                   + " " + QTranslator.translate("AbstractItem", "stamp_age_mean_unit") + " <br>"
-        content += QTranslator.translate("AbstractItem", "stamp_age_stddev") + ": " + str(data_dict["stamp_age_stddev"]) \
-                   + " " + QTranslator.translate("AbstractItem", "stamp_age_stddev_unit") + " <br>"
-        content += QTranslator.translate("AbstractItem", "stamp_age_max") + ": " + str(data_dict["stamp_age_max"]) \
-                   + " " + QTranslator.translate("AbstractItem", "stamp_age_max_unit") + " <br>"
+        content += self.tr("dropped_msgs") + ": " + str(data_dict["dropped_msgs"]) + " " \
+                   + self.tr("dropped_msgs_unit") + " <br>"
+        content += self.tr("traffic") + ": " + str(data_dict["traffic"]) + " " \
+                   + self.tr("traffic_unit") + " <br>"
+        content += self.tr("period_mean") + ": " + str(data_dict["period_mean"]) \
+                   + " " + self.tr("period_mean_unit") + " <br>"
+        content += self.tr("period_stddev") + ": " + str(data_dict["period_stddev"]) \
+                   + " " + self.tr("period_stddev_unit") + " <br>"
+        content += self.tr("period_max") + ": " + str(data_dict["period_max"]) + " " \
+                   + self.tr("period_max_unit") + " <br>"
+        content += self.tr("stamp_age_mean") + ": " + str(data_dict["stamp_age_mean"]) \
+                   + " " + self.tr("stamp_age_mean_unit") + " <br>"
+        content += self.tr("stamp_age_stddev") + ": " + str(data_dict["stamp_age_stddev"]) \
+                   + " " + self.tr("stamp_age_stddev_unit") + " <br>"
+        content += self.tr("stamp_age_max") + ": " + str(data_dict["stamp_age_max"]) \
+                   + " " + self.tr("stamp_age_max_unit") + " <br>"
 
         content += "</p>"
         return content
@@ -105,5 +105,15 @@ class ConnectionItem(AbstractItem):
                 "stamp_age_stddev", "stamp_age_max"]
 
     def get_short_data(self):
-        return "connection_item"
+        data_dict = self.get_latest_data()
+
+        content = ""
+        if data_dict["state"] is not "ok":
+            pass
+        else:
+            content += QTranslator.translate("traffic") + " " +  data_dict["traffic"] + \
+                   QTranslator.translate("dropped_msgs") + " " +  data_dict["dropped_msgs"] + \
+                    QTranslator.translate("period_mean") + " " +  data_dict["period_mean"] + \
+                    QTranslator.translate("stamp_age_mean") + " " +  data_dict["stamp_age_mean"]
+            return content
 

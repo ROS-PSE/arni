@@ -1,6 +1,8 @@
 from python_qt_binding.QtGui import QBrush, QColor
 from python_qt_binding import QtCore
 
+from arni_msgs.msg import RatedStatistics
+
 # define constants
 """
 update frequency of the model in nsecs
@@ -65,3 +67,15 @@ def find_qm_files(translation_directory):
     fileNames = [trans_dir.filePath(p) for p in fileNames]
 
     return fileNames
+
+
+def topic_statistics_state_to_string(element):
+    if element.state is not None:
+        if element.state is element.OK:
+            return "ok"
+        elif element.state is element.HIGH:
+            return "high"
+        elif element.state is element.LOW:
+            return "low"
+        elif element.state is element.UNKNOWN:
+            return "unknown"

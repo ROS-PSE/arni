@@ -1,5 +1,6 @@
 from python_qt_binding.QtCore import QAbstractItemModel, QModelIndex
 from python_qt_binding.QtCore import QTranslator, Qt
+
 from threading import Lock
 from size_delegate import SizeDelegate
 from abstract_item import AbstractItem
@@ -27,7 +28,7 @@ from arni_core.helper import SEUID, SEUID_DELIMITER
 
 import time
 
-from helper_functions import UPDATE_FREQUENCY, MAXIMUM_AMOUNT_OF_ENTRIES, MINIMUM_RECORDING_TIME
+from helper_functions import UPDATE_FREQUENCY, MAXIMUM_AMOUNT_OF_ENTRIES, MINIMUM_RECORDING_TIME, topic_statistics_state_to_string
 
 from buffer_thread import *
 
@@ -127,6 +128,8 @@ class ROSModel(QAbstractItemModel):
             item = index.internalPointer()
             if item is None:
                 raise IndexError("item is None")
+            if self.__mapping[index.column()] is "data":
+                return item.get_short_data()
             return item.get_latest_data(self.__mapping[index.column()])[self.__mapping[index.column()]]
         return None
 
@@ -434,14 +437,17 @@ class ROSModel(QAbstractItemModel):
                     data[element.statistic_type + ".expected_value"] = []
                     data[element.statistic_type + ".state"] = []
 
+
                 data[element.statistic_type + ".actual_value"].append(element.actual_value)
                 data[element.statistic_type + ".expected_value"].append(element.expected_value)
-                data[element.statistic_type + ".state"].append(element.state)
+                data[element.statistic_type + ".state"].append(topic_statistics_state_to_string(element))
 
-                if element.state is not element.OK and element.state is not element.UNKNOWN:
-                    data["state"] = "error"
-                elif element.state is not element.UNKNOWN:
-                    data["state"] = "unknown"
+                for i in range(0, len(element.state)):
+                    #todo: not working!!!
+                    if element.state[i] is not element.OK and element.state is not element.UNKNOWN:
+                        data["state"] = "error"
+                    elif element.state[i] is element.UNKNOWN and data["state"] is not "error":
+                        data["state"] = "unknown"
 
             data["window_start"] = item.window_start
             data["window_stop"] = item.window_stop

@@ -68,14 +68,14 @@ class TopicItem(AbstractItem):
 
         content = "<p class=\"detailed_data\">"
 
-        content += QTranslator.translate("AbstractItem", "dropped_msgs") + ": " + str(data_dict["dropped_msgs"]) \
-                   + " " + QTranslator.translate("AbstractItem", "traffic") + " <br>"
-        content += QTranslator.translate("AbstractItem", "traffic") + ": " + str(data_dict["traffic"]) \
-                   + " " + QTranslator.translate("AbstractItem", "traffic_unit") + " <br>"
-        content += QTranslator.translate("AbstractItem", "stamp_age_mean") + ": " + str(data_dict["stamp_age_mean"]) \
-                   + " " + QTranslator.translate("AbstractItem", "stamp_age_mean_unit") + " <br>"
-        content += QTranslator.translate("AbstractItem", "stamp_age_max") + ": " + str(data_dict["stamp_age_max"]) \
-                   + " " + QTranslator.translate("AbstractItem", "stamp_age_max_unit") + " <br>"
+        content += self.tr("dropped_msgs") + ": " + str(data_dict["dropped_msgs"]) \
+                   + " " + self.tr("traffic") + " <br>"
+        content += self.tr("traffic") + ": " + str(data_dict["traffic"]) \
+                   + " " + self.tr("traffic_unit") + " <br>"
+        content += self.tr("stamp_age_mean") + ": " + str(data_dict["stamp_age_mean"]) \
+                   + " " + self.tr("stamp_age_mean_unit") + " <br>"
+        content += self.tr("stamp_age_max") + ": " + str(data_dict["stamp_age_max"]) \
+                   + " " + self.tr("stamp_age_max_unit") + " <br>"
 
         content += "</p>"
         return content

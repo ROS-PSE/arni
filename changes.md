@@ -48,7 +48,10 @@ Change
 * race conditions in overviewWidget on_graph_window_resized or similar whenever the resize method is called to fast...
 * add licence data to every file
 * delete items older than currently does **NOT** erase rated data!!! 
-* from some data in the overview widget the mean has to be calculated (or e.g. display the data from the last minute or something!!!)
+* from some data in the overview widget the mean has to be calculated (or e.g. display the data from the last minute or something!!!)#
+* SHORT_DATA CANNOT BE RECEIVED VIA GET_LATEST_DATA --> FIX
+* translation root_item
+* the storage of the data in node_item is somehow erroneous --> Fix!
 
 ## !others work!
 * one and the same
@@ -99,6 +102,7 @@ Change
 * [mh]changing the background of the updateGraphs
 * [mh]change plotting to use one range_box or maybe two or three if there is enough space :) <--> make this dependent from the available space
 * [sk]scrolling does not work because of the permanent updates...--> solution: if no data has changed, simply get_detailed_data simply returns None --> or not calling the update so often, every minute should suffice --> found better solution by simply asking the scrollbar
+* [mh]fixed never ending recursion
 
 
 =======
