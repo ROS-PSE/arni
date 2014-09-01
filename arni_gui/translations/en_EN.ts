@@ -2,59 +2,59 @@
 <!DOCTYPE TS><TS version="1.1">
 <context>
     <name></name>
+</context>
+<context>
+    <name>AbstractItem</name>
     <message>
-        <location filename="src/arni_gui/abstract_item.py" line="337"/>
+        <location filename="src/arni_gui/abstract_item.py" line="317"/>
         <source>Currently no value available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/abstract_item.py" line="516"/>
+        <location filename="src/arni_gui/abstract_item.py" line="493"/>
         <source>actual_value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/abstract_item.py" line="520"/>
+        <location filename="src/arni_gui/abstract_item.py" line="497"/>
         <source>expected_value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/abstract_item.py" line="524"/>
+        <location filename="src/arni_gui/abstract_item.py" line="501"/>
         <source>state</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>AbstractItem</name>
-</context>
-<context>
     <name>ConnectionItem</name>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="78"/>
+        <location filename="src/arni_gui/connection_item.py" line="124"/>
         <source>dropped_msgs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="79"/>
+        <location filename="src/arni_gui/connection_item.py" line="126"/>
         <source>dropped_msgs_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="80"/>
+        <location filename="src/arni_gui/connection_item.py" line="127"/>
         <source>traffic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="81"/>
+        <location filename="src/arni_gui/connection_item.py" line="128"/>
         <source>traffic_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="82"/>
+        <location filename="src/arni_gui/connection_item.py" line="129"/>
         <source>period_mean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="83"/>
+        <location filename="src/arni_gui/connection_item.py" line="130"/>
         <source>period_mean_unit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -79,12 +79,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="88"/>
+        <location filename="src/arni_gui/connection_item.py" line="131"/>
         <source>stamp_age_mean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="89"/>
+        <location filename="src/arni_gui/connection_item.py" line="134"/>
         <source>stamp_age_mean_unit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -112,62 +112,62 @@
 <context>
     <name>HostItem</name>
     <message>
-        <location filename="src/arni_gui/host_item.py" line="78"/>
+        <location filename="src/arni_gui/host_item.py" line="84"/>
         <source>cpu_temp_stddev</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/host_item.py" line="79"/>
+        <location filename="src/arni_gui/host_item.py" line="85"/>
         <source>cpu_temp_stddev_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/host_item.py" line="80"/>
+        <location filename="src/arni_gui/host_item.py" line="86"/>
         <source>cpu_temp_max</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/host_item.py" line="81"/>
+        <location filename="src/arni_gui/host_item.py" line="87"/>
         <source>cpu_temp_max_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/host_item.py" line="82"/>
+        <location filename="src/arni_gui/host_item.py" line="183"/>
         <source>cpu_usage_mean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/host_item.py" line="83"/>
+        <location filename="src/arni_gui/host_item.py" line="184"/>
         <source>cpu_usage_mean_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/host_item.py" line="84"/>
+        <location filename="src/arni_gui/host_item.py" line="78"/>
         <source>cpu_usage_stddev</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/host_item.py" line="85"/>
+        <location filename="src/arni_gui/host_item.py" line="79"/>
         <source>cpu_usage_stddev_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/host_item.py" line="86"/>
+        <location filename="src/arni_gui/host_item.py" line="80"/>
         <source>cpu_usage_max</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/host_item.py" line="87"/>
+        <location filename="src/arni_gui/host_item.py" line="81"/>
         <source>cpu_usage_max_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/host_item.py" line="88"/>
+        <location filename="src/arni_gui/host_item.py" line="187"/>
         <source>ram_usage_mean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/host_item.py" line="89"/>
+        <location filename="src/arni_gui/host_item.py" line="190"/>
         <source>ram_usage_mean_unit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -406,383 +406,605 @@
         <source>drive_write_unit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="src/arni_gui/host_item.py" line="185"/>
+        <source>cpu_temp_mean</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/arni_gui/host_item.py" line="186"/>
+        <source>cpu_temp_mean_unit</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>NodeItem</name>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="102"/>
+        <location filename="src/arni_gui/node_item.py" line="200"/>
         <source>node_cpu_usage_mean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="103"/>
+        <location filename="src/arni_gui/node_item.py" line="201"/>
         <source>node_cpu_usage_mean_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="104"/>
+        <location filename="src/arni_gui/node_item.py" line="100"/>
         <source>node_cpu_usage_stddev</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="105"/>
+        <location filename="src/arni_gui/node_item.py" line="102"/>
         <source>node_cpu_usage_stddev_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="106"/>
+        <location filename="src/arni_gui/node_item.py" line="103"/>
         <source>node_cpu_usage_max</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="107"/>
+        <location filename="src/arni_gui/node_item.py" line="105"/>
         <source>node_cpu_usage_max_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="109"/>
+        <location filename="src/arni_gui/node_item.py" line="117"/>
         <source>core</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="110"/>
+        <location filename="src/arni_gui/node_item.py" line="118"/>
         <source>node_cpu_usage_core_mean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="111"/>
+        <location filename="src/arni_gui/node_item.py" line="120"/>
         <source>node_cpu_usage_core_mean_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="112"/>
+        <location filename="src/arni_gui/node_item.py" line="121"/>
         <source>node_cpu_usage_core_stddev</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="113"/>
+        <location filename="src/arni_gui/node_item.py" line="123"/>
         <source>node_cpu_usage_core_stddev_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="114"/>
+        <location filename="src/arni_gui/node_item.py" line="124"/>
         <source>node_cpu_usage_core_max</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="115"/>
+        <location filename="src/arni_gui/node_item.py" line="126"/>
         <source>node_cpu_usage_core_max_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="117"/>
+        <location filename="src/arni_gui/node_item.py" line="129"/>
         <source>node_gpu_usage_mean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="118"/>
+        <location filename="src/arni_gui/node_item.py" line="131"/>
         <source>node_gpu_usage_mean_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="119"/>
+        <location filename="src/arni_gui/node_item.py" line="132"/>
         <source>node_gpu_usage_stddev</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="120"/>
+        <location filename="src/arni_gui/node_item.py" line="134"/>
         <source>node_gpu_usage_stddev_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="121"/>
+        <location filename="src/arni_gui/node_item.py" line="135"/>
         <source>node_gpu_usage_max</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="122"/>
+        <location filename="src/arni_gui/node_item.py" line="137"/>
         <source>node_gpu_usage_max_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="124"/>
+        <location filename="src/arni_gui/node_item.py" line="202"/>
         <source>node_ramusage_mean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="125"/>
+        <location filename="src/arni_gui/node_item.py" line="204"/>
         <source>node_ramusage_mean_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="126"/>
+        <location filename="src/arni_gui/node_item.py" line="109"/>
         <source>node_ramusage_stddev</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="127"/>
+        <location filename="src/arni_gui/node_item.py" line="111"/>
         <source>node_ramusage_stddev_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="128"/>
+        <location filename="src/arni_gui/node_item.py" line="112"/>
         <source>node_ramusage_max</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="129"/>
+        <location filename="src/arni_gui/node_item.py" line="114"/>
         <source>node_ramusage_max_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="130"/>
+        <location filename="src/arni_gui/node_item.py" line="205"/>
         <source>node_message_frequency_mean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="131"/>
+        <location filename="src/arni_gui/node_item.py" line="207"/>
         <source>node_message_frequency_mean_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="132"/>
+        <location filename="src/arni_gui/node_item.py" line="143"/>
         <source>node_message_frequency_stddev</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="133"/>
+        <location filename="src/arni_gui/node_item.py" line="145"/>
         <source>node_message_frequency_stddev_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="134"/>
+        <location filename="src/arni_gui/node_item.py" line="146"/>
         <source>node_message_frequency_max</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="135"/>
+        <location filename="src/arni_gui/node_item.py" line="148"/>
         <source>node_message_frequency_max_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="136"/>
+        <location filename="src/arni_gui/node_item.py" line="208"/>
         <source>node_bandwidth_mean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="137"/>
+        <location filename="src/arni_gui/node_item.py" line="212"/>
         <source>node_bandwidth_mean_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="138"/>
+        <location filename="src/arni_gui/node_item.py" line="152"/>
         <source>node_bandwidth_stddev</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="139"/>
+        <location filename="src/arni_gui/node_item.py" line="154"/>
         <source>node_bandwidth_stddev_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="140"/>
+        <location filename="src/arni_gui/node_item.py" line="155"/>
         <source>node_bandwidth_max</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="141"/>
+        <location filename="src/arni_gui/node_item.py" line="157"/>
         <source>node_bandwidth_max_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="142"/>
+        <location filename="src/arni_gui/node_item.py" line="158"/>
         <source>node_write_mean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="143"/>
+        <location filename="src/arni_gui/node_item.py" line="159"/>
         <source>node_write_mean_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="144"/>
+        <location filename="src/arni_gui/node_item.py" line="160"/>
         <source>node_write_stddev</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="145"/>
+        <location filename="src/arni_gui/node_item.py" line="162"/>
         <source>node_write_stddev_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="146"/>
+        <location filename="src/arni_gui/node_item.py" line="163"/>
         <source>node_write_max</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="147"/>
+        <location filename="src/arni_gui/node_item.py" line="164"/>
         <source>node_write_max_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="148"/>
+        <location filename="src/arni_gui/node_item.py" line="165"/>
         <source>node_read_mean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="149"/>
+        <location filename="src/arni_gui/node_item.py" line="166"/>
         <source>node_read_mean_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="150"/>
+        <location filename="src/arni_gui/node_item.py" line="167"/>
         <source>node_read_stddev</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="151"/>
+        <location filename="src/arni_gui/node_item.py" line="168"/>
         <source>node_read_stddev_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="152"/>
+        <location filename="src/arni_gui/node_item.py" line="169"/>
         <source>node_read_max</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/node_item.py" line="153"/>
+        <location filename="src/arni_gui/node_item.py" line="170"/>
         <source>node_read_max_unit</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>OverviewWidget</name>
+    <message>
+        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="87"/>
+        <source>Seconds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="90"/>
+        <source>Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="91"/>
+        <source>Graphs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="92"/>
+        <source>Log</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="94"/>
+        <source>Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="95"/>
+        <source>Range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="250"/>
+        <source>Continue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="253"/>
+        <source>Pause</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="293"/>
+        <source>Current status: Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="297"/>
+        <source>Current status: Warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="301"/>
+        <source>Current status: Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ROSModel</name>
+    <message>
+        <location filename="src/arni_gui/ros_model.py" line="165"/>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/arni_gui/ros_model.py" line="167"/>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/arni_gui/ros_model.py" line="169"/>
+        <source>State</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/arni_gui/ros_model.py" line="171"/>
+        <source>Data</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>RootItem</name>
     <message>
-        <location filename="src/arni_gui/root_item.py" line="55"/>
+        <location filename="src/arni_gui/root_item.py" line="57"/>
         <source>total_traffic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/root_item.py" line="55"/>
+        <location filename="src/arni_gui/root_item.py" line="57"/>
         <source>bandwidth_mean_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/root_item.py" line="56"/>
+        <location filename="src/arni_gui/root_item.py" line="58"/>
         <source>connected_hosts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/root_item.py" line="57"/>
+        <location filename="src/arni_gui/root_item.py" line="59"/>
         <source>connected_nodes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/root_item.py" line="58"/>
+        <location filename="src/arni_gui/root_item.py" line="60"/>
         <source>topic_counter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/root_item.py" line="59"/>
+        <location filename="src/arni_gui/root_item.py" line="61"/>
         <source>connection_counter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/root_item.py" line="60"/>
+        <location filename="src/arni_gui/root_item.py" line="62"/>
         <source>cpu_usage_max</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/root_item.py" line="60"/>
+        <location filename="src/arni_gui/root_item.py" line="62"/>
         <source>cpu_usage_max_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/root_item.py" line="61"/>
+        <location filename="src/arni_gui/root_item.py" line="63"/>
         <source>cpu_temp_mean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/root_item.py" line="62"/>
+        <location filename="src/arni_gui/root_item.py" line="64"/>
         <source>cpu_temp_mean_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/root_item.py" line="63"/>
+        <location filename="src/arni_gui/root_item.py" line="65"/>
         <source>ram_usage_mean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/root_item.py" line="63"/>
+        <location filename="src/arni_gui/root_item.py" line="65"/>
         <source>ram_usage_mean_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/root_item.py" line="64"/>
+        <location filename="src/arni_gui/root_item.py" line="66"/>
         <source>cpu_usage_mean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/root_item.py" line="64"/>
+        <location filename="src/arni_gui/root_item.py" line="66"/>
         <source>cpu_usage_mean_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/root_item.py" line="65"/>
+        <location filename="src/arni_gui/root_item.py" line="67"/>
         <source>cpu_temp_max</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/root_item.py" line="66"/>
+        <location filename="src/arni_gui/root_item.py" line="68"/>
         <source>cpu_temp_max_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/root_item.py" line="67"/>
+        <location filename="src/arni_gui/root_item.py" line="69"/>
         <source>ram_usage_max</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/root_item.py" line="67"/>
+        <location filename="src/arni_gui/root_item.py" line="69"/>
         <source>ram_usage_max_unit</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SelectionWidget</name>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="84"/>
+        <source>Seconds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="87"/>
+        <source>Information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="88"/>
+        <source>Graphs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="89"/>
+        <source>Log</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="90"/>
+        <source>Actions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="92"/>
+        <source>Stop Node</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="93"/>
+        <source>Restart Node</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="97"/>
+        <source>Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="98"/>
+        <source>Range</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="218"/>
+        <source>online</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="214"/>
+        <source>Current Status: Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="219"/>
+        <source>Current Status: Warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="223"/>
+        <source>unkown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="224"/>
+        <source>Current Status: Unkown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="228"/>
+        <source>Current Status: Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="238"/>
+        <source>No item selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="239"/>
+        <source>Offline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="241"/>
+        <source>Please select an item in the TreeView to get more information about it</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>TopicItem</name>
     <message>
-        <location filename="src/arni_gui/topic_item.py" line="72"/>
+        <location filename="src/arni_gui/topic_item.py" line="111"/>
         <source>dropped_msgs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/topic_item.py" line="74"/>
+        <location filename="src/arni_gui/topic_item.py" line="114"/>
         <source>traffic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/topic_item.py" line="75"/>
+        <location filename="src/arni_gui/topic_item.py" line="115"/>
         <source>traffic_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/topic_item.py" line="76"/>
+        <location filename="src/arni_gui/topic_item.py" line="118"/>
         <source>stamp_age_mean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/topic_item.py" line="77"/>
+        <location filename="src/arni_gui/topic_item.py" line="121"/>
         <source>stamp_age_mean_unit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/topic_item.py" line="78"/>
+        <location filename="src/arni_gui/topic_item.py" line="81"/>
         <source>stamp_age_max</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="src/arni_gui/topic_item.py" line="79"/>
+        <location filename="src/arni_gui/topic_item.py" line="82"/>
         <source>stamp_age_max_unit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/arni_gui/topic_item.py" line="113"/>
+        <source>dropped_msgs_unit</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TreeWidget</name>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/tree_widget.py" line="65"/>
+        <source>Show Nodes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/tree_widget.py" line="66"/>
+        <source>Show Hosts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/tree_widget.py" line="67"/>
+        <source>Show Topics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/tree_widget.py" line="68"/>
+        <source>Show Connections</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/tree_widget.py" line="69"/>
+        <source>Only Erroneous</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/tree_widget.py" line="70"/>
+        <source>Apply</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
