@@ -9,18 +9,19 @@ time window_start
 time window_stop
 
 #CPU
-
+# usage for whole cpu in percent
 float32 node_cpu_usage_mean
 float32 node_cpu_usage_stddev
 float32 node_cpu_usage_max
 
+#usage per core in percent
 float32[] node_cpu_usage_core_mean
 float32[] node_cpu_usage_core_stddev
 float32[] node_cpu_usage_core_max
 
 
-#GPU 
-
+#GPU, placeholder not implemented
+# usage in percent
 float32[] node_gpu_usage_mean
 float32[] node_gpu_usage_stddev
 float32[] node_gpu_usage_max
@@ -31,11 +32,12 @@ float32 node_ramusage_stddev
 float32 node_ramusage_max
   
 # network load of the node
-# period between messages published
+# period, in seconds, between messages published
 float32 node_message_frequency_mean
 float32 node_message_frequency_stddev
 float32 node_message_frequency_max
-# bytes/ s
+
+# bandwidth in bytes/ s
 float32 node_bandwidth_mean
 float32 node_bandwidth_stddev
 float32 node_bandwidth_max

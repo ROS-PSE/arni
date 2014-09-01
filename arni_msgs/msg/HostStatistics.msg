@@ -5,30 +5,35 @@ string host
 time window_start
 time window_stop
 
-# cpu  
+# cpu 
+# temp for whole cpu in celsius 
 float32 cpu_temp_mean
 float32 cpu_temp_stddev
 float32 cpu_temp_max
 
+# usage for whole cpu in percent
 float32 cpu_usage_mean
 float32 cpu_usage_stddev
 float32 cpu_usage_max
 
+# temp per core, in celsius
 float32[] cpu_usage_core_mean
 float32[] cpu_usage_core_stddev
 float32[] cpu_usage_core_max
 
+#cpu usage per core in percent
 float32[] cpu_temp_core  
 float32[] cpu_temp_core_mean
 float32[] cpu_temp_core_stddev
 float32[] cpu_temp_core_max
 
 
-# gpu
+# gpu, placeholder not implemented
+# temp in °C
 float32[] gpu_temp_mean
 float32[] gpu_temp_stddev
 float32[] gpu_temp_max
-
+#usage in percent
 float32[] gpu_usage_mean
 float32[] gpu_usage_stddev
 float32[] gpu_usage_max
