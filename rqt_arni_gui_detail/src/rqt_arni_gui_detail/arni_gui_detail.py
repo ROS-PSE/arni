@@ -15,10 +15,14 @@ from arni_gui.ros_model import ROSModel
 
 
 class ArniGuiDetail(Plugin):
-    """The ArniGuiDetail-Plugin"""
+    """
+    The ArniGuiDetail-Plugin
+    """
     
     def __init__(self, context):
-        """Initializes the Plugin"""
+        """
+        Initializes the Plugin
+        """
         
         super(ArniGuiDetail, self).__init__(context)
         self.setObjectName('arni_gui_detail')
@@ -39,7 +43,6 @@ class ArniGuiDetail(Plugin):
         self.__model = ROSModel()
 
         self.__selection_widget = SelectionWidget(self.__model)
-        #self.__selection_widget.set_selected_item(None)
         context.add_widget(self.__selection_widget)
 
         self.__tree_widget = TreeWidget(self.__model, self.__selection_widget)
@@ -48,18 +51,16 @@ class ArniGuiDetail(Plugin):
         self.__tree_widget.show_erroneous_check_box.setCheckState(0)
 
         self.__selection_widget.connect_slots()
-        #self.__selection_widget.destroyed.connect(self.__tree_widget.close)
-        #self.__tree_widget.destroyed.connect(self.__selection_widget.close)
         
         #: is handeld here for the widget communication
-        #todo: changed to clicked!
         self.__tree_widget.item_tree_view.clicked.connect(self.__on_item_in_item_tree_view_clicked)
+
 
     def __on_item_in_item_tree_view_clicked(self, index):
         """
-        Handels the double-click action and opens the clicked item in the SelectionWidget
+        Handels the click action and opens the clicked item in the SelectionWidget
 
-        :param item: the double-clicked item
+        :param item: the clicked item
         :type item: QModelIndex
         """
         # the index comes from the proxy_model so it has to be converted but not here
@@ -103,9 +104,3 @@ class ArniGuiDetail(Plugin):
         self.__tree_widget.show_connections_check_box.setCheckState(2 if show_connections_check_box is None else int(show_connections_check_box))
         self.__tree_widget.show_erroneous_check_box.setCheckState(2 if show_erroneous_check_box is None else int(show_erroneous_check_box))
         self.__tree_widget.set_relative_font_size(0 if relative_font_size is None else int(relative_font_size))
-
-        # def trigger_configuration(self):
-        # Comment in to signal that the plugin has a way to configure
-        # This will enable a setting button (gear icon) in each dock widget title bar
-        # Usually used to open a modal configuration dialog
-

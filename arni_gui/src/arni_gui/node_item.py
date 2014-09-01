@@ -13,8 +13,9 @@ from helper_functions import prepare_number_for_representation
 
 
 class NodeItem(AbstractItem):
-    """A NodeItem represents a node with all of its data. It also has a interface to start/stop/restart nodes."""
-
+    """
+    A NodeItem represents a node with all of its data. It also has a interface to start/stop/restart nodes.
+    """
 
     def __init__(self, logger, seuid, parent=None):
         """
@@ -27,9 +28,7 @@ class NodeItem(AbstractItem):
         :param parent: the parent-item
         :type parent: AbstractItem
         """
-        #add the content
         AbstractItem.__init__(self, logger, seuid, parent)
-        #super(NodeItem, self).__init__(seuid, parent)
         self._type = "node"
         self.__parent = parent
 
@@ -67,44 +66,36 @@ class NodeItem(AbstractItem):
 
         :param action: action to be executed
         :type action: RemoteAction
-        """
-        #create the name of the service
-        #service_name = "/execute_node_reaction/" +
-        #rospy.wait_for_service(
-        
+        """        
         host_formatted = helper.underscore_ip(self.__parent.get_seuid()[2:])
         service_name = "/execute_node_reaction/%s" % host_formatted
         try:            
             execute = rospy.ServiceProxy(
                 service_name, NodeReaction)
             resp = execute(self.seuid[2:], action, '')
-            #rospy.logdebug(
-                #"sending command '%s' to node %s returned: %s"
-                #% (self.__command, self._node, resp.returnmessage))
-            print resp.returnmessage
         except ServiceException:
-            rospy.logdebug(
-                "could not stop node %s, service %s not found"
+	    self._logger.log("error", Time.now(), seuid, "could not stop node %s, service %s not found"
                 % (self.seuid, service_name))
+	    
 
     def get_detailed_data(self):
         """
         Returns the detailed data of the NodeItem.
         
-        :returns: str
+        :returns: detailed data
+        :rtype: str
         """
         #todo: fill the content sensefully!
         data_dict = self.get_latest_data()
 
         content = "<p class=\"detailed_data\">"
-
-
         content += self.tr("node_cpu_usage_mean") + ": " + prepare_number_for_representation(
             data_dict["node_cpu_usage_mean"]) + " " + self.tr("node_cpu_usage_mean_unit") + " <br>"
         content += self.tr("node_cpu_usage_stddev") + ": " + prepare_number_for_representation(data_dict["node_cpu_usage_stddev"]) \
                    + " " + self.tr("node_cpu_usage_stddev_unit") + " <br>"
         content += self.tr("node_cpu_usage_max") + ": " + prepare_number_for_representation(data_dict["node_cpu_usage_max"]) \
                    + " " + self.tr("node_cpu_usage_max_unit") + " <br>"
+		 
         for i in range(0, len(data_dict["node_cpu_usage_core_mean"])):
             content += self.tr("core" + str(i + 1)) + "<br>"
             content += self.tr("node_cpu_usage_core_mean") + ": " + prepare_number_for_representation(data_dict["node_cpu_usage_core_mean"][i]) \
@@ -113,6 +104,7 @@ class NodeItem(AbstractItem):
                        + " " + self.tr("node_cpu_usage_core_stddev_unit") + " <br>"
             content += self.tr("node_cpu_usage_core_max") + ": " + prepare_number_for_representation(data_dict["node_cpu_usage_core_max"][i]) \
                        + " " + self.tr("node_cpu_usage_core_max_unit") + " <br>"
+		     
         for i in range(0, len(data_dict["node_gpu_usage_mean"])):
             content += self.tr("node_gpu_usage_mean") + ": " + prepare_number_for_representation(data_dict["node_gpu_usage_mean"][i]) \
                        + " " + self.tr("node_gpu_usage_mean_unit") + " <br>"
@@ -151,8 +143,8 @@ class NodeItem(AbstractItem):
                    + " " + self.tr("node_read_stddev_unit") + " <br>"
         content += self.tr("node_read_max") + ": " + prepare_number_for_representation(data_dict["node_read_max"]) \
                    + " " + self.tr("node_read_max_unit") + " <br>"
-
         content += "</p>"
+        
         return content
 
 
@@ -164,8 +156,16 @@ class NodeItem(AbstractItem):
         """
         return ["node_cpu_usage_mean", "node_bandwidth_mean"]
 
+
     def get_short_data(self):
+        """
+        Returns a shortend version of the item data.
+        
+        :returns: data of the item
+        :rtype: str
+        """
         return "NodeItem"
+
 
     def can_execute_actions(self):
         """

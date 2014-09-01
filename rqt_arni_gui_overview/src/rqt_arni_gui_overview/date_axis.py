@@ -9,8 +9,6 @@ class DateAxis(pg.AxisItem):
 
         strns = []
         rng = max(values)-min(values)
-        #if rng < 120:
-        #    return pg.AxisItem.tickStrings(self, values, scale, spacing)
         if rng < 3600*24:
             string = '%H:%M:%S'
             label1 = '%b %d -'
@@ -29,7 +27,6 @@ class DateAxis(pg.AxisItem):
             label2 = ''
         for x in values:
             try:
-                #print("\n" + string + "\n")
                 strns.append(time.strftime(string, time.localtime(x)))
             except ValueError:  ## Windows can't handle dates before 1970
                 strns.append('')
@@ -37,5 +34,4 @@ class DateAxis(pg.AxisItem):
             label = time.strftime(label1, time.localtime(min(values)))+time.strftime(label2, time.localtime(max(values)))
         except ValueError:
             label = ''
-        #self.setLabel(text=label)
         return strns

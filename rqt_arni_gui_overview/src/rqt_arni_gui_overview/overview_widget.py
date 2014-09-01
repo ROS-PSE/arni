@@ -5,7 +5,6 @@ import rospkg
 from python_qt_binding import loadUi
 from python_qt_binding.QtGui import QTabWidget, QWidget
 from python_qt_binding.QtCore import QObject, Qt
-#from python_qt_binding.QtCore import *
 from python_qt_binding import QtCore
 from python_qt_binding.QtCore import QRegExp
 from python_qt_binding.QtGui import QPixmap, QLabel, QVBoxLayout, QSizePolicy
@@ -46,19 +45,21 @@ class ResizeableGraphicsLayoutWidget(pg.GraphicsLayoutWidget):
 
 
 class OverviewWidget(QWidget):
-    """The overviewWidget of the ArniGuiOverview-Plugin."""
+    """
+    The overviewWidget of the ArniGuiOverview-Plugin.
+    """
     
     def __init__(self):
-        """Initializes the widget."""
+        """
+        Initializes the widget.
+        """
         super(OverviewWidget, self).__init__()
-        #self.setObjectName('overview_widget')
 
         # Get path to UI file which is a sibling of this file
         self.rp = rospkg.RosPack()
         ui_file = os.path.join(self.rp.get_path('rqt_arni_gui_overview'), 'resources', 'OverviewWidget.ui')
         # Extend the widget with all attributes and children from UI file
         loadUi(ui_file, self)
-        #self.setObjectName('SelectionWidgetUi')
 
         self.__draw_graphs = False
 
@@ -66,34 +67,17 @@ class OverviewWidget(QWidget):
         self.log_tab_tree_view.setItemDelegate(self.__log_delegate)
 
         self.__last_update = rospy.Time.now()
-
-        # self.__overview_dict = {
-        #     "total_traffic": 0,
-        #     "connected_hosts": 0,
-        #     "connected_nodes": 0,
-        #     "topic_counter": 0,
-        #     "connection_counter": 0,
-        #     "cpu_usage_max": 0,
-        #     "cpu_temp_mean": 0,
-        #     "average_ram_load": 0,
-        #     "cpu_usage_mean": 0,
-        #     "cpu_temp_max": 0,
-        #     "ram_usage_max": 0
-        # }
-
+        
         self.__model = ROSModel()
 
         self.__log_filter_proxy = LogFilterProxy()
 
         self.__logger = self.__model.get_logger()
-        #self.__log_model = self.__model.get_log_model()
-        #self.__style_string = "font-size: %dpt;\n" % 12
         self.__style_string = ".detailed_data_overview {\n" \
                                "    font-size: 13\n;" \
                                "}\n"
 
         self.information_tab_text_browser.setStyleSheet(self.__style_string)
-
 
         self.__log_filter_proxy.filter_by_item(None)
         self.__log_filter_proxy.setDynamicSortFilter(True)
@@ -102,15 +86,12 @@ class OverviewWidget(QWidget):
         self.__log_filter_proxy.setSourceModel(self.__logger.get_representation())
 
         self.log_tab_tree_view.setModel(self.__log_filter_proxy)
-        #todo: should this be false?
         self.log_tab_tree_view.setRootIsDecorated(True)
-        # todo: test: eventually remove this
         self.log_tab_tree_view.setAlternatingRowColors(True)
         self.log_tab_tree_view.setSortingEnabled(True)
         self.log_tab_tree_view.sortByColumn(1, Qt.AscendingOrder)
 
         self.__connect_slots()
-
 
         self.__state = "ok"
         self.__previous_state = "ok"
@@ -122,8 +103,6 @@ class OverviewWidget(QWidget):
         pg.setConfigOption('background', 'w')
         pg.setConfigOption('foreground', 'k')
         self.__graph_layout = ResizeableGraphicsLayoutWidget(self.__on_graph_window_size_changed)
-        #self.__multiplotitem = pg.MultiPlotItem()
-        #self.__multiplotitem.setCentralWidget(self.__graph_layout)
         self.graph_scroll_area.setWidget(self.__graph_layout)
         self.__plotable_items = self.__model.get_root_item().get_plotable_items()
         self.__items_per_group = 1
@@ -134,37 +113,6 @@ class OverviewWidget(QWidget):
         self.__first_update_pending = True
 
         self.__graph_dict = {}
-        #
-        # self.__maximum_values = {
-        #     "total_traffic": 10,
-        #     "connected_hosts": 10,
-        #     "connected_nodes": 10,
-        #     "topic_counter": 10,
-        #     "connection_counter": 10,
-        #     "cpu_usage_max": 100,
-        #     "cpu_temp_mean": 50,
-        #     "average_ram_load": 100,
-        #     "cpu_usage_mean": 100,
-        #     "cpu_temp_max": 90,
-        #     "ram_usage_max": 100
-        # }
-        #
-        # self.__values_dict = {
-        #     "total_traffic": None,
-        #     "connected_hosts": None,
-        #     "connected_nodes": None,
-        #     "topic_counter": None,
-        #     "connection_counter": None,
-        #     "cpu_usage_max": None,
-        #     "cpu_temp_mean": None,
-        #     "average_ram_load": None,
-        #     "cpu_usage_mean": None,
-        #     "cpu_temp_max": None,
-        #     "ram_usage_max": None
-        # }
-
-        #self.graph_scroll_area.resize(self.graph_scroll_area.maximumWidth(), len(self.__graph_dict) * 200)
-        #self.__graph_widget.setSizePolicy(QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum))
 
         self.__plotted_curves = {}
         self.create_graphs()
@@ -176,13 +124,17 @@ class OverviewWidget(QWidget):
 
 
     def __del__(self):
-        """Destructor of the widget."""
+        """
+        Destructor of the widget.
+        """
         self.__draw_graphs = False
         self.__timer.stop()
         del self.__timer
 
     def create_graphs(self):
-        """Creates the graphs for the plot."""
+        """
+        Creates the graphs for the plot.
+        """
         self.__update_graphs_lock.acquire()
         first_iteration = True
         first_view = None
@@ -194,37 +146,19 @@ class OverviewWidget(QWidget):
                                             self.__items_per_group, len(self.__plotable_items)):
                                             min((self.__current_selected_combo_box_index + 1)
                                             * self.__items_per_group, len(self.__plotable_items))]:
-            #y=np.arrange(0, self.__maximum_values[key], 2)
             plot_widget = None
             if first_iteration:
                 first_iteration = False
                 date_axis = DateAxis(orientation="bottom")
-                #values_axis = pg.AxisItem(orientation="left")
-                #values_axis.setHeight(h=400)
-                #vb = CustomViewBox()
-                #plot_widget = pg.PlotWidget()
                 first_view = pg.ViewBox()
-                #fist_view.setBackgroundColor(color=(0, 0, 0, 100))
 
                 plot_widget = self.__graph_layout.addPlot(title=key, axisItems={'bottom': date_axis}, viewBox=first_view)
             else:
 
                 date_axis = DateAxis(orientation="bottom")
-                #values_axis = pg.AxisItem(orientation="left")
-                #values_axis.setHeight(h=400)
-                #vb = CustomViewBox()
-                #plot_widget = pg.PlotWidget()
                 view_box = pg.ViewBox()
-                #view_box.setBackgroundColor(color=(0, 0, 0, 100))
-                # , 'left': values_axis
                 plot_widget = self.__graph_layout.addPlot(title=key, viewBox=view_box, axisItems={'bottom': date_axis})
                 view_box.setXLink(first_view)
-                #print(view_box.viewRect())qt
-
-            #localUpdatePlots = lambda: self.updatePlots(plot_widget)
-            #plot_widget.sigXRangeChanged.connect(localUpdatePlots)
-            # has no effect:
-            #plot_widget.resize(plot_widget.maximumWidth(), 250)
 
             #performance enhancements when only a short range of the plot is shown
             #plot_widget.setClipToView(clip=True)
@@ -240,53 +174,29 @@ class OverviewWidget(QWidget):
             self.__plotted_curves[key] = plot_widget.plot(x=x, y=y, fillLevel=0, brush=(50, 50, 200, 100),
                                                           pen=(255, 0, 0))
             self.__expected_items_per_group += 1
-            #print("create")
-            #print(key)
         self.__first_update_pending = True
         self.__update_graphs_lock.release()
 
-    # def updatePlots(self, changed_item):
-    #     """
-    #     Updates the range of the plots.
-    #
-    #     :param changed_item:
-    #     :return:
-    #     """
-    #     new_x_range = changed_item.viewRange()[0]
-    #     for entry in self.__graph_dict.values():
-    #         if entry is not changed_item:
-    #             entry.setXRange(min=new_x_range[0], max=new_x_range[1])
-
 
     def __connect_slots(self):
-        """Connects the slots."""
+        """
+        Connects the slots.
+        """
         self.tab_widget.currentChanged.connect(self.__on_current_tab_changed)
         self.range_combo_box.currentIndexChanged.connect(self.__on_range_combo_box_index_changed)
         self.__model.layoutChanged.connect(self.update)
-        #pause_graph_drawing = lambda: self.__draw_graphs = (False if self.__draw_graphs else True)
         self.pause_button.clicked.connect(self.__on_pause_button_clicked)
         self.selected_combo_box.currentIndexChanged.connect(self.__on_selected_combo_box_index_changed)
 
+
     def __on_graph_window_size_changed(self):
-        #print("resized widget!")
         # getting the size
         size = self.__graph_layout.size()
-        #print("height: " + str(size.height()))
         self.__items_per_group = (size.height() - 100) / 200 + 1
-        #print(self.__items_per_group)
-        #self.__graph_layout.setMinimumSize(self.__graph_layout.maximumWidth(), self.__items_per_group * 200)
-        # regroup graph drawing groups
-        #print("plot: " +  str(len(self.__plotable_items)) + " itemspergroup: " + str(self.__items_per_group))
-        #print(math.ceil(len(self.__plotable_items) / self.__items_per_group))
         self.__number_of_groups = int(math.ceil(len(self.__plotable_items) / float(self.__items_per_group)))
         # change the groups in the widget
         self.selected_combo_box.clear()
-        #print(self.__number_of_groups)
         for group in range(0, self.__number_of_groups):
-            #print(self.__number_of_groups)
-            #print("borders: ")
-            #print(self.__current_selected_combo_box_index * self.__items_per_group)
-            #print((self.__current_selected_combo_box_index + 1) * self.__items_per_group)
             list = self.__plotable_items[min(group *
                                 self.__items_per_group, len(self.__plotable_items)):min((group + 1)
                                                         * self.__items_per_group, len(self.__plotable_items))]
@@ -295,14 +205,11 @@ class OverviewWidget(QWidget):
                 content += list[i]
                 content += ", "
             content += list[len(list) - 1]
-            #print(list)
-            #print(content)
             self.selected_combo_box.addItem(content)
         # redraw
-        #print("now creating")
         self.create_graphs()
-        #print("now updating")
         self.update_graphs(None)
+
 
     def __on_selected_combo_box_index_changed(self, index):
         """
@@ -316,6 +223,7 @@ class OverviewWidget(QWidget):
             self.create_graphs()
             self.update_graphs(None)
 
+
     def __on_pause_button_clicked(self):
         """
         To be called whenever the pause button is clicked. Stops the graphs from updating until the pause button
@@ -328,6 +236,7 @@ class OverviewWidget(QWidget):
             self.__draw_graphs = True
             self.pause_button.setText("pause")
 
+
     def __on_current_tab_changed(self, tab):
         """
         The Plugin wants to get notified when the tab changed so it can e.g. draw the graphs.
@@ -335,12 +244,10 @@ class OverviewWidget(QWidget):
         :param tab: the index of the selected tab
         :type tab: int
         """
-        #print("new tab is " + str(tab))
         if tab is 1:
             if self.pause_button.text() is not "continue":
                 self.__draw_graphs = True
             else:
-                #print("enter")
                 self.__draw_graphs = False
         else:
             self.__draw_graphs = False
@@ -353,21 +260,16 @@ class OverviewWidget(QWidget):
         :param index: the index of the selected range
         :type index: int
         """
-        #print("current_combo_box index changed\n")
         self.__current_range_combo_box_index = index
 
 
     def update(self):
-        """Updates the Plugin and draws the graphs if draw_graphs is true."""
+        """
+        Updates the Plugin and draws the graphs if draw_graphs is true.
+        """
         data_dict = self.__model.get_root_item().get_latest_data("state")
-        #rated_data_dict = self.__model.get_root_item().get_
-
-        #print(data_dict)
+        
         self.__state = data_dict["state"]
-        #print("view: " + self.__state)
-
-        # for testing only:
-        #self.__state = "warning"
 
         if self.__previous_state is not self.__state:
             self.__previous_state = self.__state
@@ -384,83 +286,52 @@ class OverviewWidget(QWidget):
                 pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_overview'), 'resources/graphics',
                                               'light_red.png'))
             self.status_light_label.setPixmap(pixmap)
-            #self.status_light_label.setMask(pixmap.mask())
-            #self.status_light_label.resize(50, 50)
 
         if self.information_tab_text_browser:
             scroll_value = self.information_tab_text_browser.verticalScrollBar().value()
             self.information_tab_text_browser.setHtml(self.__model.get_overview_text())
             self.information_tab_text_browser.verticalScrollBar().setSliderPosition(scroll_value)
 
-        #self.update_graphs()
         #todo: currently not needed
         self.__last_update = rospy.Time.now()
 
 
     def update_graphs(self, event):
-        """Updates and redraws the graphs."""
+        """
+        Updates and redraws the graphs.
+        """
         self.__update_graphs_lock.acquire()
-        #print("here")
-        #print(self.__draw_graphs)
         if self.__draw_graphs or self.__first_update_pending:
-            #now = rospy.Time.now()
 
             plotable_items = self.__plotable_items[min(self.__current_selected_combo_box_index *
                                 self.__items_per_group, len(self.__plotable_items)):min((self.__current_selected_combo_box_index + 1)
                                                         * self.__items_per_group, len(self.__plotable_items))]
-            #print(plotable_items)
             plotable_data = self.__model.get_root_item().get_items_younger_than(
                 Time.now() - Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)),
                 "window_stop", *plotable_items)
             temp_time = []
             temp_content = []
 
-            #x = None
             modulo = (len(plotable_data["window_stop"]) / 200) + 1
 
             length = len(plotable_data["window_stop"])
             for i in range(0, length, modulo):
                 # now having maximally 100 items to plot :)
                 temp_time.append(int(str(plotable_data["window_stop"][i]))/1000000000)
-                    #print("time" + time.strftime("%d.%m-%H:%M:%S", time.localtime(int(str(item))/1000000000)) + "ms actual time: " + time.strftime("%d.%m-%H:%M:%S", time.localtime(int(str(Time.now()))/1000000000))+ "ms")
             x = np.array(temp_time)
-                #del temp_time[:]
 
 
             for key in plotable_items:
-                #print("length time: " + str(length) + " length data: " + str(len(plotable_data[key])))
                 for i in range(0, length, modulo):
                     temp_content.append(plotable_data[key][i])
                 #todo: does this also work, when ints are inputed (or None values^^). is f8 needed here?
                 #print("length content before:" + str(len(temp_content)))
                 #print(key + "   y   ")
                 y = np.array(temp_content)
-                #print("length content after:" + str(len(temp_content)))
-                # if len(x) is not len(y):
-                #     print("another time: length time: " + str(len(plotable_data["window_stop"])) + " length data: " + str(len(plotable_data[key])))
-                #     print(temp_time)
-                #     print(temp_content)
-                #     print("computed values\n")
-                #     print(x)
-                #     print(y)
-                #print(len(temp_time))
-                #print(len(temp_content))
                 del temp_content[:]
-                #now2 = rospy.Time.now()
 
-                #print("shortened length time: " + str(len(x)) + " shortened length data: " + str(len(y)))
                 self.__plotted_curves[key].setData(x=x, y=y)
-
-                #string = "update_graphs - plot_data took: " + str(int(str(rospy.Time.now() - now2)) / 1000000) + "ms"
-                #self.__logger.log("info",  rospy.Time.now(), "OverviewWidget", string)
-
-
-
-
-
-                #because of autoarrange y should not be set again and again
-            #string = "update_graphs took: " + str(int(str(rospy.Time.now() - now)) / 1000000) + "ms"
-            #self.__logger.log("info",  rospy.Time.now(), "OverviewWidget", string)
+                
         self.__first_update_pending = False
         self.__update_graphs_lock.release()
 
@@ -472,7 +343,8 @@ class OverviewWidget(QWidget):
         :param index: the index of teh combo-box
         :type index: int
         
-        :returns: int
+        :returns: the seconds of the selected index 
+        :rtype: int
         """
         if self.__current_range_combo_box_index == 0:
             return 10
@@ -486,13 +358,15 @@ class OverviewWidget(QWidget):
         """
         Returns the current tab.
         
-        :returns: int
+        :returns: the current tab 
+        :rtype: int
         """
         return self.tab_widget.currentIndex()
 
 
     def set_current_tab(self, index=0):
-        """Sets the default tab.
+        """
+        Sets the default tab.
         
         :param index: the index of the tab
         :type index: int
@@ -509,7 +383,8 @@ class OverviewWidget(QWidget):
         """
         Returns the index of the combo-box.
         
-        :returns: int
+        :returns: the index 
+        :rtype: int
         """
         return self.range_combo_box.currentIndex()
 
@@ -524,4 +399,3 @@ class OverviewWidget(QWidget):
         if index is None:
             index = 0
         self.range_combo_box.setCurrentIndex(index)
-

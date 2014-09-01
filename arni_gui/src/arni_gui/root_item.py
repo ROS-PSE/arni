@@ -6,10 +6,13 @@ from helper_functions import prepare_number_for_representation
 
 
 class RootItem(AbstractItem):
-    """The RootItem represents the parent of the ROSModel"""
+    """
+    The RootItem represents the parent of the ROSModel
+    """
     
     def __init__(self, logger, seuid, parent=None, *args):
-        """Initializes the TItem.
+        """
+        Initializes the TItem.
         
         :param seuid: the seuid of the item
         :type seuid: str
@@ -21,17 +24,16 @@ class RootItem(AbstractItem):
         :type args: str
         """
         AbstractItem.__init__(self, logger, "root", parent)
-        #AbstractItem.__init__(self, "root", parent)
         self._attributes = []
         self._attributes.extend(["cpu_usage_mean", "cpu_temp_mean", "cpu_usage_max", "cpu_temp_max",
                                         "ram_usage_mean", "ram_usage_max", "total_traffic", "connected_hosts",
                                         "connected_nodes", "topic_counter", "connection_counter"])
         self._type = "root"
+        
         for item in self._attributes:
             self._add_data_list(item)
 
         self.__rated_attributes = []
-
         for item in self._attributes:
             self.__rated_attributes.append(item + ".actual_value")
             self.__rated_attributes.append(item + ".expected_value")
@@ -39,14 +41,14 @@ class RootItem(AbstractItem):
 
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)
-
-        #self.logger.log("info", Time.now(), "NodeItem", "Created a new NodeItem with name " + seuid)
+            
 
     def get_detailed_data(self):
         """
-        Returns the detailed data of the NodeItem.
+        Returns the detailed data of the RootItem.
         
-        :returns: str
+        :returns: detailed data
+        :rtype: str
         """
         data_dict = self.get_latest_data()
 
@@ -65,9 +67,8 @@ class RootItem(AbstractItem):
         content += self.tr("cpu_temp_max") + ": " + ("unknown" if prepare_number_for_representation(data_dict["cpu_temp_max"]) is 0
                                        else prepare_number_for_representation(data_dict["cpu_temp_max"])) + " " + self.tr("cpu_temp_max_unit") + " <br>"
         content += self.tr("ram_usage_max") + ": " + prepare_number_for_representation(data_dict["ram_usage_max"]) + " " + self.tr("ram_usage_max_unit") + " <br>"
-
         #content += "</p>"
-
+        
         return content
 
 
@@ -94,8 +95,10 @@ class RootItem(AbstractItem):
                 "total_traffic": "%"
                 }
 
+
     def get_short_data(self):
         return NotImplementedError()
+
 
     def can_execute_actions(self):
         """

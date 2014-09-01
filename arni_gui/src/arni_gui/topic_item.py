@@ -7,7 +7,9 @@ from helper_functions import prepare_number_for_representation
 
 
 class TopicItem(AbstractItem):
-    """A TopicItem represents a specific topic which contains many connections and has attributes like the number of sent messages."""
+    """
+    A TopicItem represents a specific topic which contains many connections and has attributes like the number of sent messages.
+    """
 
     def __init__(self, logger, seuid, parent=None):
         """Initializes the TopicItem.
@@ -20,11 +22,9 @@ class TopicItem(AbstractItem):
         :type parent: AbstractItem
         """
         AbstractItem.__init__(self, logger, seuid, parent)
-        #super(TopicItem, self).__init__(seuid, parent)
         self.__parent = parent
         self._type = "topic"
 
-        #add the content
         self._attributes = []
         #todo: currently probably only these 4 implemented
         self._attributes.extend(["dropped_msgs", "traffic",
@@ -50,7 +50,7 @@ class TopicItem(AbstractItem):
 
     def execute_action(self, action):
         """
-        Not senseful, throws an exception.
+        Not senseful, Topics cannot execute actions.
 
         :param action: action to be executed
         :type action: RemoteAction
@@ -60,9 +60,10 @@ class TopicItem(AbstractItem):
 
     def get_detailed_data(self):
         """
-        Returns the detailed data of the TopicItem.
+        Returns the detailed data of the HostItem.
         
-        :returns: str
+        :returns: detailed data
+        :rtype: str
         """
         #todo: fill the content sensefully!
         data_dict = self.get_latest_data()
@@ -91,6 +92,12 @@ class TopicItem(AbstractItem):
         return ["dropped_msgs", "traffic", "stamp_age_mean", "stamp_age_max"]
 
     def get_short_data(self):
+        """
+        Returns a shortend version of the item data.
+        
+        :returns: data of the item
+        :rtype: str
+        """
         return "TopicItem"
 
     def can_execute_actions(self):

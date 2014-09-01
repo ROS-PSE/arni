@@ -14,7 +14,9 @@ from python_qt_binding.QtGui import QSortFilterProxyModel
 
 
 class TreeWidget(QWidget):
-    """The TreeWidget of the ArniGuiDetail-Plugin."""
+    """
+    The TreeWidget of the ArniGuiDetail-Plugin.
+    """
     
     def __init__(self, model, selection_widget):
         """
@@ -22,6 +24,8 @@ class TreeWidget(QWidget):
         
         :param model: the model of the widget
         :type model: ROSModel
+        :param selection_widget: the selection_widget
+        :type selection_widget: QWidget
         """
         super(TreeWidget, self).__init__()
         self.setObjectName('treewidget')
@@ -41,7 +45,6 @@ class TreeWidget(QWidget):
         self.item_tree_view.setModel(self.__filter_proxy)
 
         self.item_tree_view.setRootIsDecorated(True)
-        # todo: test: eventually remove this
         self.item_tree_view.setAlternatingRowColors(True)
         self.item_tree_view.setSortingEnabled(True)
         self.item_tree_view.sortByColumn(1, Qt.AscendingOrder)
@@ -78,8 +81,6 @@ class TreeWidget(QWidget):
         self.minus_push_button.clicked.connect(self.__on_minus_push_button_clicked)
         #: plus_push_button
         self.plus_push_button.clicked.connect(self.__on_plus_push_button_clicked)
-
-        #self.item_tree_view.clicked.connect(self.__selection_widget.set_selected_item)
      
 
     def __on_show_nodes_check_box_state_changed(self, activated):
@@ -109,7 +110,8 @@ class TreeWidget(QWidget):
 
 
     def __on_show_topics_check_box_state_changed(self, activated):
-        """Displays or delete the topics in the box wether the checkBox is set or unset.
+        """
+        Displays or delete the topics in the box wether the checkBox is set or unset.
 
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
@@ -140,7 +142,6 @@ class TreeWidget(QWidget):
         :param activated: 2 if checkBox is set, 0 if check is unset
         :type activated: Integer
         """
-        print activated
         if activated is 2:
             #todo: does this match the right positions?
             self.__filter_proxy.setFilterRegExp(QRegExp("error"))
@@ -150,14 +151,16 @@ class TreeWidget(QWidget):
 
 
     def __on_apply_push_button_clicked(self):
-        """Filters the content in the box according to the content of the filter_line_edit."""
+        """
+        Filters the content in the box according to the content of the filter_line_edit.
+        """
         self.__filter_proxy.setFilterRegExp(QRegExp(".*" + self.filter_line_Edit.text() + ".*"))        
 
 
     def __on_minus_push_button_clicked(self):
-        """Checks if the minus_push_button is clicked and zoomes out (decrease the size of the font)."""
-        #self.__size_delegate.set_smaller_font_size()
-        #self.__relative_font_size -= 1
+        """
+        Checks if the minus_push_button is clicked and zoomes out (decrease the size of the font).
+        """
         if self.__font_size > 1:
 	    self.__font_size -= 1
         self.item_tree_view.setStyleSheet("font-size: %dpt;" % self.__font_size)
@@ -165,10 +168,9 @@ class TreeWidget(QWidget):
 
 
     def __on_plus_push_button_clicked(self):
-        """Checks if the plus_push_button is clicked and zoomes in (increase the size of the font)."""
-        #self.__size_delegate.set_bigger_font_size()
-        #self.__relative_font_size += 1
-        
+        """
+        Checks if the plus_push_button is clicked and zoomes in (increase the size of the font).
+        """        
         self.__font_size += 1
         self.item_tree_view.setStyleSheet("font-size: %dpt;" % self.__font_size)
         self.__resize_columns()
@@ -178,9 +180,11 @@ class TreeWidget(QWidget):
         """
         Returns the ralitve font size.
         
-        :returns int
+        :returns: the relative font size 
+        :rtype: int
         """
         return self.__relative_font_size
+
 
     def set_relative_font_size(self, relative_font_size):
         """
@@ -198,5 +202,8 @@ class TreeWidget(QWidget):
     
     
     def __resize_columns(self):
+        """
+        Resizes the columns according to their content
+        """
         for i in range (0, self.__filter_proxy.columnCount() - 1):
 	    self.item_tree_view.resizeColumnToContents(i)

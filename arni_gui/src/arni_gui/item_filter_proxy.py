@@ -3,8 +3,9 @@ from python_qt_binding.QtCore import QObject, QModelIndex
 
 
 class ItemFilterProxy(QSortFilterProxyModel):
-    """The ItemFilterProxy which is a QSortFilterProxyModel helps to filter the data going to the view so the user only
-     sees what he wants to see (which he can modified by telling the view)."""
+    """
+    The ItemFilterProxy which is a QSortFilterProxyModel helps to filter the data going to the view so the user only sees what he wants to see (which he can modified by telling the view).
+     """
 
     # todo: will call to setFilterRegEx be redirected to the parent automatically?
 
@@ -33,23 +34,20 @@ class ItemFilterProxy(QSortFilterProxyModel):
         :param source_parent: the source of the parent
         :type source_parent: QModelIndex
 
-        :returns: bool
+        :returns: True if the row should be shown
+        :rtype: bool
         """
-        #assert type(source_row) == int
-        #assert type(source_parent) == QModelIndex
         entries = []
-        # why???
+        
         for item in range(0, 4):
             entries.append(self.sourceModel().index(source_row, item, source_parent))
 
         correct_type = False
 
-        #todo:is this correct?
         if entries[0] is None:
             raise UserWarning("None values in filterAcceptsRow")
 
         data = self.sourceModel().data(entries[0])
-        #print data
         for i in range(0, 1):
             if self.__show_hosts is True:
                 if data == "host":
@@ -73,10 +71,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
 
         #filters accordings to the filter regex
         return QSortFilterProxyModel.filterAcceptsRow(self, source_row, source_parent)
-        #todo: when the this filter accepts the item, call the parent filter
-
-  #  def index(self, row, column, parent):
-     #   QSortFilterProxyModel.index(self, row, column, parent)
+      
 
     def lessThan(self, left, right):
         """
@@ -89,7 +84,6 @@ class ItemFilterProxy(QSortFilterProxyModel):
 
         :returns: bool
         """
-        #todo:is here more logic needed e.g. do we not only use strings and numeric values?
         return left < right
 
 
@@ -101,7 +95,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
         :type show_hosts: bool
         """
         self.__show_hosts = show_hosts
-        print str(self.__show_hosts) + " host"
+        
 
     def show_nodes(self, show_nodes):
         """
@@ -111,8 +105,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
         :type show_nodes: bool
         """
         self.__show_nodes = show_nodes
-        print str(self.__show_nodes) + " node"
-
+        
 
     def show_connections(self, show_connections):
         """
@@ -122,7 +115,6 @@ class ItemFilterProxy(QSortFilterProxyModel):
         :type show_connections: bool
         """
         self.__show_connections = show_connections
-        print str(self.__show_connections) + " connections"
 
 
     def show_topics(self, show_topics):
@@ -133,4 +125,3 @@ class ItemFilterProxy(QSortFilterProxyModel):
         :type show_topics: bool
         """
         self.__show_topics = show_topics
-        print str(self.__show_topics) + " topics"

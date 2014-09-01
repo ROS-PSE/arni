@@ -1,17 +1,14 @@
-"""
-Would probably already work.
-The todos should be fixed earlier or later.
-"""
 from python_qt_binding.QtGui import QStyledItemDelegate, QFont, QBrush, QColor
 from helper_functions import choose_brush
 from python_qt_binding.QtCore import QObject, QSize
 
 class SizeDelegate(QStyledItemDelegate):
-    """Makes it possible to change the background-color of a cell in the Model."""
+    """
+    Makes it possible to change the background-color of a cell in the Model.
+    """
     
     def __init__(self, parent=None):
         super(SizeDelegate, self).__init__(parent)
-        #QStyledItemDelegate.__init__(parent)
         self.__current_font_size = 10
    
      

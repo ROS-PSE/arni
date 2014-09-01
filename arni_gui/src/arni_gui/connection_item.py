@@ -7,10 +7,13 @@ from helper_functions import prepare_number_for_representation
 
 
 class ConnectionItem(AbstractItem):
-    """A ConnectionItem reresents the connection between a publisher and a subscriber and the topic they are publishing / listening on"""
+    """
+    A ConnectionItem reresents the connection between a publisher and a subscriber and the topic they are publishing / listening on
+    """
 
     def __init__(self, logger, seuid, parent=None):
-        """Initializes the ConnectionItem.
+        """
+        Initializes the ConnectionItem.
         
         :param seuid: the seuid of the item
         :type seuid: str
@@ -22,12 +25,10 @@ class ConnectionItem(AbstractItem):
         :type parent: AbstractItem
         """
         AbstractItem.__init__(self, logger, seuid, parent)
-        # super(ConnectionItem, self).__init__(seuid, parent)
         self.__parent = parent
         self._type = "connection"
 
         self._attributes = []
-        # add the content
         self._attributes.extend(["dropped_msgs", "traffic",
                                  "period_mean", "period_stddev", "period_max", "stamp_age_mean",
                                  "stamp_age_stddev", "stamp_age_max"])
@@ -45,8 +46,6 @@ class ConnectionItem(AbstractItem):
             self.__rated_attributes.append(item + ".expected_value")
             self.__rated_attributes.append(item + ".state")
 
-            # del self._attributes
-
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)
 
@@ -54,7 +53,8 @@ class ConnectionItem(AbstractItem):
 
 
     def execute_action(self, action):
-        """Not senseful
+        """
+        Not senseful, Connection cannot execute actions.
 
         :param action: action to be executed
         :type action: RemoteAction
@@ -72,9 +72,7 @@ class ConnectionItem(AbstractItem):
         data_dict = self.get_latest_data()
 
         content = "<p class=\"detailed_data\">"
-
         #todo: add rated data here if wrong!!!
-
         content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) + " " \
                    + self.tr("dropped_msgs_unit") + " <br>"
         content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) + " " \
@@ -91,8 +89,8 @@ class ConnectionItem(AbstractItem):
                    + " " + self.tr("stamp_age_stddev_unit") + " <br>"
         content += self.tr("stamp_age_max") + ": " + str(data_dict["stamp_age_max"]) \
                    + " " + self.tr("stamp_age_max_unit") + " <br>"
-
         content += "</p>"
+        
         return content
 
 
@@ -105,7 +103,14 @@ class ConnectionItem(AbstractItem):
         return ["dropped_msgs", "traffic", "period_mean", "period_stddev", "period_max", "stamp_age_mean",
                 "stamp_age_stddev", "stamp_age_max"]
 
+
     def get_short_data(self):
+        """
+        Returns a shortend version of the item data.
+        
+        :returns: data of the item
+        :rtype: str
+        """
         data_dict = self.get_latest_data()
 
         content = ""
@@ -116,6 +121,7 @@ class ConnectionItem(AbstractItem):
                    QTranslator.translate("dropped_msgs") + " " +  data_dict["dropped_msgs"] + \
                     QTranslator.translate("period_mean") + " " +  data_dict["period_mean"] + \
                     QTranslator.translate("stamp_age_mean") + " " +  data_dict["stamp_age_mean"]
+		  
             return content
 
     def _get_list_items(self):

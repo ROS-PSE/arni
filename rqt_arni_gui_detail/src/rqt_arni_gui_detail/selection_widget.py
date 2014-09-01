@@ -21,7 +21,9 @@ except ImportError as e:
 
 
 class SelectionWidget(QWidget):
-    """The SelectionWidget of the ArniGuiDetail-Plugin."""
+    """
+    The SelectionWidget of the ArniGuiDetail-Plugin.
+    """
     
     def __init__(self, model):
         """
@@ -60,7 +62,6 @@ class SelectionWidget(QWidget):
         }
 
         self.__logger = self.__model.get_logger()
-        #self.__log_model = self.__model.get_log_model()
         self.__log_filter_proxy = LogFilterProxy()       
         self.__log_filter_proxy.filter_by_item(self.__selected_item)
         self.__log_filter_proxy.setDynamicSortFilter(True)        
@@ -71,9 +72,7 @@ class SelectionWidget(QWidget):
 
         self.information_tab_text_browser.setStyleSheet("font-size: %dpt;" % 12)
         
-        #todo: should this be false?
         self.log_tab_tree_view.setRootIsDecorated(False)
-        # todo: test: eventually remove this
         self.log_tab_tree_view.setAlternatingRowColors(True)
         self.log_tab_tree_view.setSortingEnabled(True)
         self.log_tab_tree_view.sortByColumn(1, Qt.AscendingOrder)
@@ -85,10 +84,7 @@ class SelectionWidget(QWidget):
         self.__previous_state = "ok"
 
         self.__deleted = False
-
-        # pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
-        #                                       'light_red.png'))
-        # self.status_light_label.setPixmap(pixmap)
+        
         self.__timer = Timer(Duration(secs=2), self.update_graphs)
         
 
@@ -96,7 +92,9 @@ class SelectionWidget(QWidget):
             self.__deleted = True
 
     def connect_slots(self):
-        """Connects the slots"""
+        """
+        Connects the slots.
+        """
         # : tab_widget
         self.tab_widget.currentChanged.connect(self.__on_current_tab_changed)
         #: restart_push_button
@@ -113,16 +111,12 @@ class SelectionWidget(QWidget):
         """
         Sets the selected item.
 
-        :param selected_item: the selected item
+        :param index: the index of the selected item
         :type selected_item: QModelIndex
         """
-        #self.__selected_item = item
         if index is not None:
             src_index = index.model().mapToSource(index)
             self.__selected_item = src_index.internalPointer()
-            print(type(self.__selected_item))
-            print(self.__selected_item.get_seuid())
-            #raise NotImplementedError()
             self.__log_filter_proxy.filter_by_item(self.__selected_item)
             if self.__selected_item is not None:
                 if self.__selected_item.can_execute_actions():
@@ -148,19 +142,17 @@ class SelectionWidget(QWidget):
 
 
     def __on_restart_push_button_clicked(self):
-        """Handels the restart button and restarts a host or node."""
+        """
+        Handels the restart button and restarts a host or node.
+        """
         if self.__selected_item is not None:
             self.__selected_item.execute_action("restart")
+
 
     def __on_stop_push_button_clicked(self):
         """Handels the stop button and stops a host or node."""
         if self.__selected_item is not None:
             self.__selected_item.execute_action("stop")
-
-    # def __on_start_push_button_clicked(self):
-    #     """Handels the start button and starts a host or node.
-    #     """
-    #     pass
 
 
     def __on_range_combo_box_index_changed(self, index):
@@ -173,24 +165,17 @@ class SelectionWidget(QWidget):
         self.__current_combo_box_index = index
 
 
-    # def __on_changed_selected_item(self):
-    #     """
-    #     Handels the change of the selected item.
-    #     """
-    #     #print(4)
-    #
-    #     #print(6)
-
-
     def update_graphs(self, event):
-        """Updates the graph plot."""
+        """
+        Updates the graph plot.
+        """
         pass
       
     
     def update(self):
-        """Updates the widget."""
-        #data_dict = self.__model.data(self.__selected_item, 0)
-
+        """
+        Updates the widget.
+        """
         if not self.__deleted:
 
             if self.__selected_item is not None:
@@ -209,14 +194,11 @@ class SelectionWidget(QWidget):
                         self.host_node_label.setText("Current status: warning")
                         pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
                                                       'block_red.png'))
-                    #     pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
-                    #                                   'light_orange.png'))
                     else:
                         self.host_node_label.setText("Current status: error")
                         pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
                                                       'block_red.png'))
                     self.status_light_label.setPixmap(pixmap)
-                #print("here")
                 content = self.__selected_item.get_detailed_data()
 
                 scroll_value = self.information_tab_text_browser.verticalScrollBar().value()
@@ -227,7 +209,6 @@ class SelectionWidget(QWidget):
                 self.current_status_label.setText("Offline")
                 self.information_tab_text_browser.setText("Please select an item in the TreeView to get more information"
                                                           " about it")
-            #self.__log_filter_proxy.filter_by_item(None)
 
 
     def __combo_box_index_to_seconds(self, index):
@@ -237,7 +218,8 @@ class SelectionWidget(QWidget):
         :param index: the index of teh combo-box
         :type index: int
         
-        :returns: int
+        :returns: the seconds of the selected index 
+        :rtype: int
         """
         if self.__current_combo_box_index == 0:
             return 10
@@ -251,13 +233,15 @@ class SelectionWidget(QWidget):
         """
         Returns the current tab.
         
-        :returns: int
+        :returns: the current tab 
+        :rtype: int
         """
         return self.tab_widget.currentIndex()
 
 
     def set_current_tab(self, index=0):
-        """Sets the default tab.
+        """
+        Sets the default tab.
         
         :param index: the index of the tab
         :type index: int
@@ -271,7 +255,8 @@ class SelectionWidget(QWidget):
         """
         Returns the index of the combo-box.
         
-        :returns: int
+        :returns: the index
+        :rtype: int
         """
         return self.range_combo_box.currentIndex()
 
