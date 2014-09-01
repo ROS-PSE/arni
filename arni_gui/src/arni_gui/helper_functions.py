@@ -5,6 +5,8 @@ from arni_msgs.msg import RatedStatistics
 
 # define constants
 
+import struct
+
 """
 update frequency of the model in nsecs
 """
@@ -72,15 +74,18 @@ def find_qm_files(translation_directory):
     return fileNames
 
 
-def topic_statistics_state_to_string(element):
-    """Converts the state type from int to string.
+def topic_statistics_state_to_string(element, state):
     """
-    if element.state is not None:
-        if element.state is element.OK:
+    Converts the state type from int to string.
+    """
+    if state is not None:
+        number = struct.unpack('B', state)[0]
+        if number is element.OK:
             return "ok"
-        elif element.state is element.HIGH:
+        elif number is element.HIGH:
             return "high"
-        elif element.state is element.LOW:
+        elif number is element.LOW:
             return "low"
-        elif element.state is element.UNKNOWN:
+        elif number is element.UNKNOWN:
             return "unknown"
+    raise TypeError("the state of the element is None or not known")

@@ -70,6 +70,8 @@ class TopicItem(AbstractItem):
 
         content = "<p class=\"detailed_data\">"
 
+        content += self.get_erroneous_entries()
+
         content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) \
                    + " " + self.tr("traffic") + " <br>"
         content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) \
@@ -98,7 +100,26 @@ class TopicItem(AbstractItem):
         :returns: data of the item
         :rtype: str
         """
-        return "TopicItem"
+        data_dict = self.get_latest_data()
+
+        content = ""
+        if data_dict["state"] is not "ok":
+            #todo: print the wrong data here
+            content += "something is wrong"
+            pass
+        else:
+            content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(
+                data_dict["dropped_msgs"]) + " " \
+                       + self.tr("dropped_msgs_unit") + " - "
+            content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) + " " \
+                       + self.tr("traffic_unit") + " - "
+            #content += self.tr("period_mean") + ": " + str(data_dict["period_mean"]) \
+            #           + " " + self.tr("period_mean_unit") + "  - "
+            content += self.tr("stamp_age_mean") + ": " + str(data_dict["stamp_age_mean"]) \
+                       + " " + self.tr("stamp_age_mean_unit")
+
+        return content
+
 
     def can_execute_actions(self):
         """

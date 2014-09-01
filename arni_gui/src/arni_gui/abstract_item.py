@@ -282,7 +282,7 @@ class AbstractItem(QObject):
                     if self.__state:
                         return_dict['state'] = self.__state[-1]
                     else:
-                        return_dict["state"] = "state unknown"
+                        return_dict["state"] = "unknown"
                 else:
                     if key in self._data:
                         if self._data[key]:
@@ -472,7 +472,6 @@ class AbstractItem(QObject):
         raise NotImplementedError()
 
 
-#todo: has to be updated, the rated_values can also be lists!!!
     def get_erroneous_entries(self):
         """
         Returns the erroneous entries as a html string
@@ -482,25 +481,25 @@ class AbstractItem(QObject):
         """
         content = "<p class=\"get_erroneous_entries\">"
         return_values = {}
-        
-        if self.__state is not "ok":
-            for entry in self._attributes:
-                if self.__rated_data[entry + ".state"]:
-                    #todo: should probably only be error, countercheck this please :)
-                    #todo: high and low
-                    for i in range(0, len(self.__rated_data[entry + ".state"][-1])):
-                        if self.__rated_data[entry + ".state"][-1][i] is "high" or self.__rated_data[entry + ".state"][-1][i] is "low":
-                            content += self.tr(entry) +\
-                                       self.tr("actual_value") +\
-                                       " <div class=\"erroroneous_entry\">" + self.__rated_data[entry + ".actual_value"][i] + "</div>" + \
-                                       self.tr(entry + "_unit")
-                            content += self.tr(entry) +\
-                                       self.tr("expected_value") +\
-                                       " <div class=\"erroroneous_entry\">" + self.__rated_data[entry + ".expected_value"][i] + "</div>" + \
-                                       self.tr(entry + "_unit")
-                            content += self.tr(entry) +\
-                                       self.tr("state") +\
-                                       " <div class=\"erroroneous_entry\">" + self.__rated_data[entry + ".state"][i] + "</div>"
+
+        if self.__state:
+            if self.__state[-1] is not "ok" and self.__state[-1] is not "unknown":
+                for entry in self._attributes:
+                    if self.__rated_data[entry + ".state"]:
+                        for i in range(0, len(self.__rated_data[entry + ".state"][-1])):
+                            if self.__rated_data[entry + ".state"][-1][i] is "high" or self.__rated_data[entry + ".state"][-1][i] is "low":
+                                content += self.tr(entry) +\
+                                           self.tr("actual_value") +\
+                                           " <div class=\"erroroneous_entry\">" + self.__rated_data[entry + ".actual_value"][i] + "</div>" + \
+                                           self.tr(entry + "_unit")
+                                content += self.tr(entry) +\
+                                           self.tr("expected_value") +\
+                                           " <div class=\"erroroneous_entry\">" + self.__rated_data[entry + ".expected_value"][i] + "</div>" + \
+                                           self.tr(entry + "_unit")
+                                content += self.tr(entry) +\
+                                           self.tr("state") +\
+                                           " <div class=\"erroroneous_entry\">" + self.__rated_data[entry + ".state"][i] + "</div>"
+                content += "<br>"
         content += "</p>"
         return content
 

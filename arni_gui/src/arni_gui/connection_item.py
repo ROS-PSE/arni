@@ -36,7 +36,7 @@ class ConnectionItem(AbstractItem):
         for item in self._attributes:
             self._add_data_list(item)
 
-        #todo: do these really not get any rating?!?
+        # todo: do these really not get any rating?!?
         for element in ["traffic", "stamp_age_mean", "stamp_age_stddev", "stamp_age_max"]:
             self._attributes.remove(element)
 
@@ -72,7 +72,9 @@ class ConnectionItem(AbstractItem):
         data_dict = self.get_latest_data()
 
         content = "<p class=\"detailed_data\">"
-        #todo: add rated data here if wrong!!!
+
+        content += self.get_erroneous_entries()
+
         content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) + " " \
                    + self.tr("dropped_msgs_unit") + " <br>"
         content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) + " " \
@@ -90,7 +92,7 @@ class ConnectionItem(AbstractItem):
         content += self.tr("stamp_age_max") + ": " + str(data_dict["stamp_age_max"]) \
                    + " " + self.tr("stamp_age_max_unit") + " <br>"
         content += "</p>"
-        
+
         return content
 
 
@@ -115,14 +117,21 @@ class ConnectionItem(AbstractItem):
 
         content = ""
         if data_dict["state"] is not "ok":
+            #todo: print the wrong data here
+            content += "something is wrong"
             pass
         else:
-            content += QTranslator.translate("traffic") + " " +  data_dict["traffic"] + \
-                   QTranslator.translate("dropped_msgs") + " " +  data_dict["dropped_msgs"] + \
-                    QTranslator.translate("period_mean") + " " +  data_dict["period_mean"] + \
-                    QTranslator.translate("stamp_age_mean") + " " +  data_dict["stamp_age_mean"]
-		  
-            return content
+            content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(
+                data_dict["dropped_msgs"]) + " " \
+                       + self.tr("dropped_msgs_unit") + " - "
+            content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) + " " \
+                       + self.tr("traffic_unit") + " - "
+            content += self.tr("period_mean") + ": " + str(data_dict["period_mean"]) \
+                       + " " + self.tr("period_mean_unit") + "  - "
+            content += self.tr("stamp_age_mean") + ": " + str(data_dict["stamp_age_mean"]) \
+                       + " " + self.tr("stamp_age_mean_unit")
+
+        return content
 
     def _get_list_items(self):
         return []

@@ -46,11 +46,8 @@ Change
 * log every error message with good text whenever updating the root_item
 * remove all the todos and code comments everywhere
 * race conditions in overviewWidget on_graph_window_resized or similar whenever the resize method is called to fast...
-* add licence data to every file
 * delete items older than currently does **NOT** erase rated data!!! 
-* from some data in the overview widget the mean has to be calculated (or e.g. display the data from the last minute or something!!!)#
-* SHORT_DATA CANNOT BE RECEIVED VIA GET_LATEST_DATA --> FIX
-* translation root_item
+* from some data in the overview widget the mean has to be calculated (or e.g. display the data from the last minute or something!!!)
 * the storage of the data in node_item is somehow erroneous --> Fix!
 
 ## !others work!
@@ -59,13 +56,14 @@ Change
 *  * host_statistics arrives in the gui only at the beginning --> then nothing comes any longer!!!
 * CPU_TEMP_CORE IS UNNECESSARY AND SHOULD BE REMOVED BEFORE PUBLISHING!!!
 * update get_erroneous_entries for supporting the new format of the rated data
-* topic aggregation not yet working!!! --> get the algorithm from matthias and build it in :)
+* topic aggregation not yet working!!! --> get the algorithm from matthias and build it in :) --> 
 
 ## Final/Small Improvements
 * interpolate the data with flowcharts or however the method is called
 * hover texts have to be defined
 * in the help button the api docs and the general docu (and our names should be shown)
 * improve the model
+* add licence data to every file
 
 
 ## WiP
@@ -76,8 +74,10 @@ Change
 * [mh]RUNTIME_ERROR BECAUSE ELEMENT HAS BEEN DELETED --> Timer Fehler oder so... Schwer/nicht behebbar
 * [mh]why are sometimes empty values given to the axis? --> for no plausible reason
 * [mh]get overview widget to work --> still the bug with host items remains, don't know why
+* [mh]SHORT_DATA CANNOT BE RECEIVED VIA GET_LATEST_DATA --> FIX --> works at many positions
 
 ## Done
+* [mh]translation root_item
 * [mh]disable action when not a nodeitem is selected --> check
 * [mh]FINALLY FIX SEGMENTATION FAULT!!! - well at least it doesn't segfault any more^^
 * [mh]adapt package.xmls for including pyqtgraph

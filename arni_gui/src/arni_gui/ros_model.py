@@ -410,22 +410,21 @@ class ROSModel(QAbstractItemModel):
             #update it
             current_item = self.__identifier_dict[seuid]
             data = {}
+            data["state"] = "ok"
             for element in item.rated_statistics_entity:
                 if element.statistic_type not in data:
                     data[element.statistic_type + ".actual_value"] = []
                     data[element.statistic_type + ".expected_value"] = []
                     data[element.statistic_type + ".state"] = []
 
-
                 data[element.statistic_type + ".actual_value"].append(element.actual_value)
                 data[element.statistic_type + ".expected_value"].append(element.expected_value)
-                data[element.statistic_type + ".state"].append(topic_statistics_state_to_string(element))
-
                 for i in range(0, len(element.state)):
-                    #todo: not working!!!
-                    if element.state[i] is not element.OK and element.state is not element.UNKNOWN:
+                    state = topic_statistics_state_to_string(element, element.state[i])
+                    data[element.statistic_type + ".state"].append(state)
+                    if state is not "ok" and state is not "unknown":
                         data["state"] = "error"
-                    elif element.state[i] is element.UNKNOWN and data["state"] is not "error":
+                    elif data["state"] is not "error" and state is "unknown":
                         data["state"] = "unknown"
 
             data["window_start"] = item.window_start
@@ -537,7 +536,7 @@ class ROSModel(QAbstractItemModel):
         :param item: the HostStatistics item
         :type item: HostStatistics
         """
-        print("got host data")
+        #print("got host data")
         host_item = None
         item_seuid = "h" + SEUID_DELIMITER + item.host
         if item_seuid not in self.__identifier_dict:

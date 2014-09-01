@@ -67,20 +67,24 @@ class HostItem(AbstractItem):
         :returns: detailed data
         :rtype: str
         """
-        #todo: fill the content sensefully!
         data_dict = self.get_latest_data()
 
         content = "<p class=\"detailed_data\">"
-        content += self.tr("cpu_temp_stddev") + ": " + str(data_dict["cpu_temp_stddev"]) \
-                   + " " + self.tr("cpu_temp_stddev_unit") + " <br>"
-        content += self.tr("cpu_temp_max") + ": " + str(data_dict["cpu_temp_max"]) \
-                   + " " + self.tr("cpu_temp_max_unit") + " <br>"
+
+        content += self.get_erroneous_entries()
+
         content += self.tr("cpu_usage_mean") + ": " + str(data_dict["cpu_usage_mean"]) \
                    + " " + self.tr("cpu_usage_mean_unit") + " <br>"
         content += self.tr("cpu_usage_stddev") + ": " + str(data_dict["cpu_usage_stddev"]) \
                    + " " + self.tr("cpu_usage_stddev_unit") + " <br>"
         content += self.tr("cpu_usage_max") + ": " + str(data_dict["cpu_usage_max"]) \
                    + " " + self.tr("cpu_usage_max_unit") + " <br>"
+        content += self.tr("cpu_temp_mean") + ": " + str(data_dict["cpu_temp_mean"]) \
+                   + " " + self.tr("cpu_temp_mean_unit") + " <br>"
+        content += self.tr("cpu_temp_stddev") + ": " + str(data_dict["cpu_temp_stddev"]) \
+                   + " " + self.tr("cpu_temp_stddev_unit") + " <br>"
+        content += self.tr("cpu_temp_max") + ": " + str(data_dict["cpu_temp_max"]) \
+                   + " " + self.tr("cpu_temp_max_unit") + " <br>"
         content += self.tr("ram_usage_mean") + ": " + str(data_dict["ram_usage_mean"]) \
                    + " " + self.tr("ram_usage_mean_unit") + " <br>"
         content += self.tr("ram_usage_stddev") + ": " + str(data_dict["ram_usage_stddev"]) \
@@ -164,11 +168,27 @@ class HostItem(AbstractItem):
     def get_short_data(self):
         """
         Returns a shortend version of the item data.
-        
+
         :returns: data of the item
         :rtype: str
         """
-        return "HostItem"
+        data_dict = self.get_latest_data()
+
+        content = ""
+        if data_dict["state"] is not "ok":
+            #todo: print the wrong data here
+            content += "something is wrong"
+            pass
+        else:
+            content += self.tr("cpu_usage_mean") + ": " + str(data_dict["cpu_usage_mean"]) \
+                   + " " + self.tr("cpu_usage_mean_unit") + " - "
+            content += self.tr("cpu_temp_mean") + ": " + str(data_dict["cpu_temp_mean"]) \
+                   + " " + self.tr("cpu_temp_mean_unit") + " - "
+            content += self.tr("ram_usage_mean") + ": " + str(data_dict["ram_usage_mean"]) \
+                   + " " + self.tr("ram_usage_mean_unit")
+
+        return content
+
 
     def _get_list_items(self):
         return ["cpu_usage_core_mean", "cpu_usage_core_stddev",
