@@ -70,7 +70,32 @@ class SelectionWidget(QWidget):
         self.__log_delegate = LogDelegate()
         self.log_tab_tree_view.setItemDelegate(self.__log_delegate)
 
-        self.information_tab_text_browser.setStyleSheet("font-size: %dpt;" % 12)
+        self.__style_string = ".detailed_data {\n" \
+                               "    font-size: 12\n;" \
+                               "}\n"
+        self.__style_string = ".erroneous_entry {\n" \
+                               "    color: red\n;" \
+                               "}\n"
+
+        self.information_tab_text_browser.setStyleSheet(self.__style_string)
+
+        self.range_combo_box.addItem("10 " + self.tr("Seconds"))
+        self.range_combo_box.addItem("30 " + self.tr("Seconds"))
+        self.range_combo_box.addItem("60 " + self.tr("Seconds"))
+        self.range_combo_box.setCurrentIndex(0)
+
+        self.tab_widget.setTabText(0, self.tr("Information"))
+        self.tab_widget.setTabText(1, self.tr("Graphs"))
+        self.tab_widget.setTabText(2, self.tr("Log"))
+        self.tab_widget.setTabText(3, self.tr("Actions"))
+
+        self.stop_push_button.setText(self.tr("Stop Node"))
+        self.restart_push_button.setText(self.tr("Restart Node"))
+        self.stop_push_button.setEnabled(False)
+        self.restart_push_button.setEnabled(False)
+
+        self.selected_label.setText(self.tr("Selected") + ":")
+        self.range_label.setText(self.tr("Range") + ":")
         
         self.log_tab_tree_view.setRootIsDecorated(False)
         self.log_tab_tree_view.setAlternatingRowColors(True)
@@ -185,17 +210,17 @@ class SelectionWidget(QWidget):
                 if self.__previous_state is not self.__state:
                     self.__previous_state = self.__state
                     if self.__state == "ok":
-                        self.current_status_label.setText("online")
-                        self.host_node_label.setText("Current status: ok")
+                        self.current_status_label.setText(self.tr("online"))
+                        self.host_node_label.setText(self.tr("Current status: ok"))
                         pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
                                                       'block_green.png'))
                     elif self.__state == "warning":
-                        self.current_status_label.setText("online")
-                        self.host_node_label.setText("Current status: warning")
+                        self.current_status_label.setText(self.tr("online"))
+                        self.host_node_label.setText(self.tr("Current status: warning"))
                         pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
                                                       'block_red.png'))
                     else:
-                        self.host_node_label.setText("Current status: error")
+                        self.host_node_label.setText(self.tr("Current status: error"))
                         pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
                                                       'block_red.png'))
                     self.status_light_label.setPixmap(pixmap)
@@ -205,10 +230,10 @@ class SelectionWidget(QWidget):
                 self.information_tab_text_browser.setHtml(content)
                 self.information_tab_text_browser.verticalScrollBar().setSliderPosition(scroll_value)
             else:
-                self.host_node_label.setText("No item selected")
-                self.current_status_label.setText("Offline")
-                self.information_tab_text_browser.setText("Please select an item in the TreeView to get more information"
-                                                          " about it")
+                self.host_node_label.setText(self.tr("No item selected"))
+                self.current_status_label.setText(self.tr("Offline"))
+                self.information_tab_text_browser.setText(self.tr("Please select an item in the TreeView to get more information"
+                                                          " about it"))
 
 
     def __combo_box_index_to_seconds(self, index):

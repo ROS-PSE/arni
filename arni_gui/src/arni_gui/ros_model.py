@@ -160,10 +160,14 @@ class ROSModel(QAbstractItemModel):
         :rtype: QVariant
         """
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return {'type': ' type',
-                    'name': ' name',
-                    'state': ' state',
-                    'data': ' data'}[self.__mapping[section]]
+            if section is 0:
+                return " " + self.tr('Type')
+            elif section is 1:
+                return " " + self.tr('Name')
+            elif section is 2:
+                return " " + self.tr('State')
+            else:
+                return " " + self.tr('Data')
         return None
 
 

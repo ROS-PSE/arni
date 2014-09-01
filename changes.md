@@ -40,15 +40,13 @@ Change
 ## Big TODOS:
 * give the translatable items to somebody so that he can translate these items
 * update the texts that are shown  --- the units in the overview are missing (maybe also some color if someone is too high --> not our )
-* check host/node etc regularily for timeouts --> get_time_of_last_update() --> im model regelmäßig abfragen und nach 65 sekunden löschen
 * drawing the graphs in selectionwidget --> copy and paste
 * logging every error message occuring when updating an item
 * log every error message with good text whenever updating the root_item
-* remove all the todos and code comments everywhere
 * race conditions in overviewWidget on_graph_window_resized or similar whenever the resize method is called to fast...
 * delete items older than currently does **NOT** erase rated data!!! 
 * from some data in the overview widget the mean has to be calculated (or e.g. display the data from the last minute or something!!!)
-* the storage of the data in node_item is somehow erroneous --> Fix!
+
 
 ## !others work!
 * one and the same
@@ -64,9 +62,13 @@ Change
 * in the help button the api docs and the general docu (and our names should be shown)
 * improve the model
 * add licence data to every file
+* check host/node etc regularily for timeouts --> get_time_of_last_update() --> im model regelmäßig abfragen und nach 65 sekunden löschen
+* shrink the graphics to smaller size
 
 
 ## WiP
+* [sk] / [mh]remove all the todos and code comments everywhere
+* [mh]the storage of the data in node_item is somehow erroneous --> Fix!
 * [mh]round the shown data in the gui --> round(number, 2) --> started but not finished yet
 * [mh]enter tr() everywhere for internationalisation --> still missing: the widget itself and the actual_values etc
 * [mh]saving the model for only 60 seconds (maybe more, simply try it) --> seems to work --> keep testing this feature!!!

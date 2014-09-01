@@ -17,7 +17,7 @@ class TreeWidget(QWidget):
     """
     The TreeWidget of the ArniGuiDetail-Plugin.
     """
-    
+
     def __init__(self, model, selection_widget):
         """
         Initializes the widget.
@@ -40,8 +40,8 @@ class TreeWidget(QWidget):
         self.setObjectName('TreeWidgetUi')
 
         self.__filter_proxy = ItemFilterProxy()
-        self.__filter_proxy.setSourceModel(self.__model)        
-        self.__filter_proxy.setDynamicSortFilter(True)        
+        self.__filter_proxy.setSourceModel(self.__model)
+        self.__filter_proxy.setDynamicSortFilter(True)
         self.item_tree_view.setModel(self.__filter_proxy)
 
         self.item_tree_view.setRootIsDecorated(True)
@@ -52,8 +52,8 @@ class TreeWidget(QWidget):
         self.__model.layoutChanged.connect(self.update)
 
         self.__size_delegate = SizeDelegate()
-        self.item_tree_view.setItemDelegate(self.__size_delegate)   
-        
+        self.item_tree_view.setItemDelegate(self.__size_delegate)
+
         self.__font_size = 10
         self.item_tree_view.setStyleSheet("font-size: %dpt;" % self.__font_size)
         self.__resize_columns()
@@ -62,12 +62,19 @@ class TreeWidget(QWidget):
 
         self.item_tree_view.expandAll()
 
+        self.show_nodes_check_box.setText(self.tr("Show Nodes"))
+        self.show_hosts_check_box.setText(self.tr("Show Hosts"))
+        self.show_topics_check_box.setText(self.tr("Show Topics"))
+        self.show_connections_check_box.setText(self.tr("Show Connections"))
+        self.show_erroneous_check_box.setText(self.tr("Only Erroneous"))
+        self.apply_push_button.setText(self.tr("Apply"))
+
 
     def connect_slots(self):
         """Connects the slots."""
         # : show_nodes_check_box
         self.show_nodes_check_box.stateChanged.connect(self.__on_show_nodes_check_box_state_changed)
-        #: show_hosts_check_box
+        # : show_hosts_check_box
         self.show_hosts_check_box.stateChanged.connect(self.__on_show_hosts_check_box_state_changed)
         #: show_topics_check_box
         self.show_topics_check_box.stateChanged.connect(self.__on_show_topics_check_box_state_changed)
@@ -81,7 +88,7 @@ class TreeWidget(QWidget):
         self.minus_push_button.clicked.connect(self.__on_minus_push_button_clicked)
         #: plus_push_button
         self.plus_push_button.clicked.connect(self.__on_plus_push_button_clicked)
-     
+
 
     def __on_show_nodes_check_box_state_changed(self, activated):
         """
@@ -143,7 +150,6 @@ class TreeWidget(QWidget):
         :type activated: Integer
         """
         if activated is 2:
-            #todo: does this match the right positions?
             self.__filter_proxy.setFilterRegExp(QRegExp("error"))
             self.__filter_proxy.setFilterKeyColumn(2)
         else:
@@ -154,7 +160,7 @@ class TreeWidget(QWidget):
         """
         Filters the content in the box according to the content of the filter_line_edit.
         """
-        self.__filter_proxy.setFilterRegExp(QRegExp(".*" + self.filter_line_Edit.text() + ".*"))        
+        self.__filter_proxy.setFilterRegExp(QRegExp(".*" + self.filter_line_Edit.text() + ".*"))
 
 
     def __on_minus_push_button_clicked(self):
@@ -162,15 +168,15 @@ class TreeWidget(QWidget):
         Checks if the minus_push_button is clicked and zoomes out (decrease the size of the font).
         """
         if self.__font_size > 1:
-	    self.__font_size -= 1
-        self.item_tree_view.setStyleSheet("font-size: %dpt;" % self.__font_size)
-        self.__resize_columns()
+            self.__font_size -= 1
+            self.item_tree_view.setStyleSheet("font-size: %dpt;" % self.__font_size)
+            self.__resize_columns()
 
 
     def __on_plus_push_button_clicked(self):
         """
         Checks if the plus_push_button is clicked and zoomes in (increase the size of the font).
-        """        
+        """
         self.__font_size += 1
         self.item_tree_view.setStyleSheet("font-size: %dpt;" % self.__font_size)
         self.__resize_columns()
@@ -179,8 +185,8 @@ class TreeWidget(QWidget):
     def get_relative_font_size(self):
         """
         Returns the ralitve font size.
-        
-        :returns: the relative font size 
+
+        :returns: the relative font size
         :rtype: int
         """
         return self.__relative_font_size
@@ -189,7 +195,7 @@ class TreeWidget(QWidget):
     def set_relative_font_size(self, relative_font_size):
         """
         Sets the relative font size.
-        
+
         :param relative_font_size: the actual relative font size
         :type relative_font_size: int
         """
@@ -198,12 +204,12 @@ class TreeWidget(QWidget):
                 self.__on_plus_push_button_clicked()
         else:
             for i in range(relative_font_size, 0):
-                self.__on_minus_push_button_clicked()                
-    
-    
+                self.__on_minus_push_button_clicked()
+
+
     def __resize_columns(self):
         """
         Resizes the columns according to their content
         """
-        for i in range (0, self.__filter_proxy.columnCount() - 1):
-	    self.item_tree_view.resizeColumnToContents(i)
+        for i in range(0, self.__filter_proxy.columnCount() - 1):
+            self.item_tree_view.resizeColumnToContents(i)

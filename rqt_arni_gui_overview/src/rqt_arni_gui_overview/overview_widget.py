@@ -79,6 +79,22 @@ class OverviewWidget(QWidget):
 
         self.information_tab_text_browser.setStyleSheet(self.__style_string)
 
+        self.range_combo_box.clear()
+        #todo: are these in the right order?
+        self.range_combo_box.addItem("10 " + self.tr("Seconds"))
+        self.range_combo_box.addItem("30 " + self.tr("Seconds"))
+        #todo: adapt time!!!
+        self.range_combo_box.addItem("60 " + self.tr("Seconds"))
+        self.range_combo_box.setCurrentIndex(0)
+
+        self.tab_widget.setTabText(0, self.tr("Information"))
+        self.tab_widget.setTabText(1, self.tr("Graphs"))
+        self.tab_widget.setTabText(2, self.tr("Log"))
+
+        self.selected_label.setText(self.tr("Selected") + ":")
+        self.range_label.setText(self.tr("Range") + ":")
+
+
         self.__log_filter_proxy.filter_by_item(None)
         self.__log_filter_proxy.setDynamicSortFilter(True)
 
@@ -152,12 +168,12 @@ class OverviewWidget(QWidget):
                 date_axis = DateAxis(orientation="bottom")
                 first_view = pg.ViewBox()
 
-                plot_widget = self.__graph_layout.addPlot(title=key, axisItems={'bottom': date_axis}, viewBox=first_view)
+                plot_widget = self.__graph_layout.addPlot(title=self.tr(key), axisItems={'bottom': date_axis}, viewBox=first_view)
             else:
 
                 date_axis = DateAxis(orientation="bottom")
                 view_box = pg.ViewBox()
-                plot_widget = self.__graph_layout.addPlot(title=key, viewBox=view_box, axisItems={'bottom': date_axis})
+                plot_widget = self.__graph_layout.addPlot(title=self.tr(key), viewBox=view_box, axisItems={'bottom': date_axis})
                 view_box.setXLink(first_view)
 
             #performance enhancements when only a short range of the plot is shown
@@ -202,7 +218,7 @@ class OverviewWidget(QWidget):
                                                         * self.__items_per_group, len(self.__plotable_items))]
             content = ""
             for i in range(0, len(list) - 1):
-                content += list[i]
+                content += self.tr(list[i])
                 content += ", "
             content += list[len(list) - 1]
             self.selected_combo_box.addItem(content)
@@ -231,10 +247,10 @@ class OverviewWidget(QWidget):
         """
         if self.__draw_graphs:
             self.__draw_graphs = False
-            self.pause_button.setText("continue")
+            self.pause_button.setText(self.tr("Continue"))
         else:
             self.__draw_graphs = True
-            self.pause_button.setText("pause")
+            self.pause_button.setText(self.tr("Pause"))
 
 
     def __on_current_tab_changed(self, tab):
@@ -245,7 +261,7 @@ class OverviewWidget(QWidget):
         :type tab: int
         """
         if tab is 1:
-            if self.pause_button.text() is not "continue":
+            if self.pause_button.text() is not "Continue":
                 self.__draw_graphs = True
             else:
                 self.__draw_graphs = False
@@ -274,15 +290,15 @@ class OverviewWidget(QWidget):
         if self.__previous_state is not self.__state:
             self.__previous_state = self.__state
             if self.__state == "ok":
-                self.status_text_line_edit.setText("Current status: ok")
+                self.status_text_line_edit.setText(self.tr("Current status: Ok"))
                 pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_overview'), 'resources/graphics',
                                               'light_green.png'))
             elif self.__state == "warning":
-                self.status_text_line_edit.setText("Current status: warning")
+                self.status_text_line_edit.setText(self.tr("Current status: Warning"))
                 pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_overview'), 'resources/graphics',
                                               'light_orange.png'))
             else:
-                self.status_text_line_edit.setText("Current status: error")
+                self.status_text_line_edit.setText(self.tr("Current status: Error"))
                 pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_overview'), 'resources/graphics',
                                               'light_red.png'))
             self.status_light_label.setPixmap(pixmap)
@@ -351,7 +367,7 @@ class OverviewWidget(QWidget):
         elif self.__current_range_combo_box_index == 1:
             return 30
         else:
-            return 300
+            return 60
 
 
     def get_current_tab(self):

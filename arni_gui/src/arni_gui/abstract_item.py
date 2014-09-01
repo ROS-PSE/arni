@@ -490,15 +490,15 @@ class AbstractItem(QObject):
                             if self.__rated_data[entry + ".state"][-1][i] is "high" or self.__rated_data[entry + ".state"][-1][i] is "low":
                                 content += self.tr(entry) +\
                                            self.tr("actual_value") +\
-                                           " <div class=\"erroroneous_entry\">" + self.__rated_data[entry + ".actual_value"][i] + "</div>" + \
+                                           " <div class=\"erroneous_entry\">" + self.__rated_data[entry + ".actual_value"][i] + "</div>" + \
                                            self.tr(entry + "_unit")
                                 content += self.tr(entry) +\
                                            self.tr("expected_value") +\
-                                           " <div class=\"erroroneous_entry\">" + self.__rated_data[entry + ".expected_value"][i] + "</div>" + \
+                                           " <div class=\"erroneous_entry\">" + self.__rated_data[entry + ".expected_value"][i] + "</div>" + \
                                            self.tr(entry + "_unit")
                                 content += self.tr(entry) +\
                                            self.tr("state") +\
-                                           " <div class=\"erroroneous_entry\">" + self.__rated_data[entry + ".state"][i] + "</div>"
+                                           " <div class=\"erroneous_entry\">" + self.__rated_data[entry + ".state"][i] + "</div>"
                 content += "<br>"
         content += "</p>"
         return content
