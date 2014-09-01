@@ -38,8 +38,6 @@ class ArniGuiDetail(Plugin):
 
         self.__model = ROSModel()
 
-
-        #TODO init the selection widget with an given entry from the tree_widget or find another solution for the start of the plugin
         self.__selection_widget = SelectionWidget(self.__model)
         #self.__selection_widget.set_selected_item(None)
         context.add_widget(self.__selection_widget)
@@ -50,25 +48,22 @@ class ArniGuiDetail(Plugin):
         self.__tree_widget.show_erroneous_check_box.setCheckState(0)
 
         self.__selection_widget.connect_slots()
-        #todo: does this work as expected?
-        self.__selection_widget.destroyed.connect(self.__tree_widget.close)
-        self.__tree_widget.destroyed.connect(self.__selection_widget.close)
+        #self.__selection_widget.destroyed.connect(self.__tree_widget.close)
+        #self.__tree_widget.destroyed.connect(self.__selection_widget.close)
         
         #: is handeld here for the widget communication
         #todo: changed to clicked!
-        self.__tree_widget.item_tree_view.clicked.connect(self.__on_item_in_item_tree_view_double_clicked)
+        self.__tree_widget.item_tree_view.clicked.connect(self.__on_item_in_item_tree_view_clicked)
 
-
-    def __on_item_in_item_tree_view_double_clicked(self, index):
+    def __on_item_in_item_tree_view_clicked(self, index):
         """
         Handels the double-click action and opens the clicked item in the SelectionWidget
 
         :param item: the double-clicked item
         :type item: QModelIndex
         """
-        # the index comes from the proxy_model so it
+        # the index comes from the proxy_model so it has to be converted but not here
         self.__selection_widget.set_selected_item(index)
-
 
     def shutdown_plugin(self):
         # TODO unregister all publishers here

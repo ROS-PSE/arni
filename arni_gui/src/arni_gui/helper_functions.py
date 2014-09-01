@@ -1,4 +1,5 @@
 from python_qt_binding.QtGui import QBrush, QColor
+from python_qt_binding import QtCore
 
 # define constants
 """
@@ -38,6 +39,11 @@ def choose_brush(index):
 
 
 def prepare_number_for_representation(number):
+    """
+
+    :param number:
+    :return:
+    """
     if number is None:
         return "unknown"
     #if type(number) is float:
@@ -45,3 +51,17 @@ def prepare_number_for_representation(number):
     #else:
     #    print(type(number))
     #    return str(round(float(number), 2))
+
+
+def find_qm_files(translation_directory):
+    """
+
+    :param translation_directory:
+    :return:
+    """
+    trans_dir = QtCore.QDir(translation_directory)
+    fileNames = trans_dir.entryList(["*.qm"], QtCore.QDir.Files, QtCore.QDir.Name)
+
+    fileNames = [trans_dir.filePath(p) for p in fileNames]
+
+    return fileNames

@@ -1,6 +1,9 @@
+from rospy.rostime import Time
+
+from python_qt_binding.QtCore import QTranslator
+
 from abstract_item import AbstractItem
 
-from rospy.rostime import Time
 
 class ConnectionItem(AbstractItem):
     """A ConnectionItem reresents the connection between a publisher and a subscriber and the topic they are publishing / listening on"""
@@ -25,15 +28,15 @@ class ConnectionItem(AbstractItem):
         self._attributes = []
         # add the content
         self._attributes.extend(["dropped_msgs", "traffic",
-                                 "period_mean", "period_stddev", "period_max"])
-        #, "stamp_age_mean", "stamp_age_stddev",
-        #"stamp_age_max"])
+                                 "period_mean", "period_stddev", "period_max", "stamp_age_mean",
+                                 "stamp_age_stddev", "stamp_age_max"])
 
         for item in self._attributes:
             self._add_data_list(item)
 
-        self._attributes.remove("traffic")
-        #self._attributes.append("bandwidth")
+        #todo: do these really not get any rating?!?
+        for element in ["traffic", "stamp_age_mean", "stamp_age_stddev", "stamp_age_max"]:
+            self._attributes.remove(element)
 
         self.__rated_attributes = []
         for item in self._attributes:
@@ -67,18 +70,28 @@ class ConnectionItem(AbstractItem):
         # todo: fill the content sensefully!
         data_dict = self.get_latest_data()
 
-        content = ""  # "<p>"
+        content = "<p class=\"detailed_data\">"
 
-        content += "dropped_msgs: " + str(data_dict["dropped_msgs"]) + "<br>"
-        content += "traffic: " + str(data_dict["traffic"]) + "<br>"
-        content += "period_mean: " + str(data_dict["period_mean"]) + "<br>"
-        content += "period_stddev: " + str(data_dict["period_stddev"]) + "<br>"
-        content += "period_max: " + str(data_dict["period_max"]) + "<br>"
-        # content += "stamp_age_mean: " + str(data_dict["stamp_age_mean"]) + "<br>"
-        #content += "stamp_age_stddev: " + str(data_dict["stamp_age_stddev"]) + "<br>"
-        #content += "stamp_age_max: " + str(data_dict["stamp_age_max"]) + "<br>"
+        #todo: add rated data here if wrong!!!
 
-        #content += "</p>"
+        content += QTranslator.translate("AbstractItem", "dropped_msgs") + ": " + str(data_dict["dropped_msgs"]) + " " \
+                   + QTranslator.translate("AbstractItem", "dropped_msgs_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "traffic") + ": " + str(data_dict["traffic"]) + " " \
+                   + QTranslator.translate("AbstractItem", "traffic_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "period_mean") + ": " + str(data_dict["period_mean"]) \
+                   + " " + QTranslator.translate("AbstractItem", "period_mean_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "period_stddev") + ": " + str(data_dict["period_stddev"]) \
+                   + " " + QTranslator.translate("AbstractItem", "period_stddev_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "period_max") + ": " + str(data_dict["period_max"]) + " " \
+                   + QTranslator.translate("AbstractItem", "period_max_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "stamp_age_mean") + ": " + str(data_dict["stamp_age_mean"]) \
+                   + " " + QTranslator.translate("AbstractItem", "stamp_age_mean_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "stamp_age_stddev") + ": " + str(data_dict["stamp_age_stddev"]) \
+                   + " " + QTranslator.translate("AbstractItem", "stamp_age_stddev_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "stamp_age_max") + ": " + str(data_dict["stamp_age_max"]) \
+                   + " " + QTranslator.translate("AbstractItem", "stamp_age_max_unit") + " <br>"
+
+        content += "</p>"
         return content
 
 
@@ -88,16 +101,9 @@ class ConnectionItem(AbstractItem):
         
         :returns: str[]
         """
-        # todo: append more items here
-        return ["traffic", "dropped_msgs", "period_mean"]
+        return ["dropped_msgs", "traffic", "period_mean", "period_stddev", "period_max", "stamp_age_mean",
+                "stamp_age_stddev", "stamp_age_max"]
 
     def get_short_data(self):
         return "connection_item"
 
-    def can_execute_actions(self):
-        """
-        This item cannot execute actions, so it returns False
-
-        :return: False
-        """
-        return False

@@ -1,8 +1,8 @@
+from python_qt_binding.QtCore import QObject
+from python_qt_binding.QtCore import QTranslator
+
 from abstract_item import AbstractItem
 from helper_functions import prepare_number_for_representation
-
-from python_qt_binding.QtCore import QObject
-
 
 
 class RootItem(AbstractItem):
@@ -50,18 +50,20 @@ class RootItem(AbstractItem):
         """
         data_dict = self.get_latest_data()
 
-        content = ""#"<p style=\"font-size:15px\">"
+        content = "<p class=\"detailed_data_overview\">"
 
         content += "total_traffic: " + prepare_number_for_representation(data_dict["total_traffic"]) + "<br>"
-        content += "connected_hosts: " + prepare_number_for_representation(data_dict["connected_hosts"]) + "<br>"
-        content += "connected_nodes: " + prepare_number_for_representation(data_dict["connected_nodes"]) + "<br>"
-        content += "topic_counter: " + prepare_number_for_representation(data_dict["topic_counter"]) + "<br>"
-        content += "connection_counter: " + prepare_number_for_representation(data_dict["connection_counter"]) + "<br>"
+        content += "connected_hosts: " + str(data_dict["connected_hosts"]) + "<br>"
+        content += "connected_nodes: " + str(data_dict["connected_nodes"]) + "<br>"
+        content += "topic_counter: " + str(data_dict["topic_counter"]) + "<br>"
+        content += "connection_counter: " + str(data_dict["connection_counter"]) + "<br>"
         content += "cpu_usage_max: " + prepare_number_for_representation(data_dict["cpu_usage_max"]) + "<br>"
-        content += "cpu_temp_mean: " + ("unknown" if prepare_number_for_representation(data_dict["cpu_temp_mean"]) is 0 else prepare_number_for_representation(data_dict["cpu_temp_mean"])) + "<br>"
+        content += "cpu_temp_mean: " + ("unknown" if prepare_number_for_representation(data_dict["cpu_temp_mean"]) is 0
+                                        else prepare_number_for_representation(data_dict["cpu_temp_mean"])) + "<br>"
         content += "ram_usage_mean: " + prepare_number_for_representation(data_dict["ram_usage_mean"]) + "<br>"
         content += "cpu_usage_mean: " + prepare_number_for_representation(data_dict["cpu_usage_mean"]) + "<br>"
-        content += "cpu_temp_max: " + ("unknown" if prepare_number_for_representation(data_dict["cpu_temp_max"]) is 0 else prepare_number_for_representation(data_dict["cpu_temp_max"])) + "<br>"
+        content += "cpu_temp_max: " + ("unknown" if prepare_number_for_representation(data_dict["cpu_temp_max"]) is 0
+                                       else prepare_number_for_representation(data_dict["cpu_temp_max"])) + "<br>"
         content += "ram_usage_max: " + prepare_number_for_representation(data_dict["ram_usage_max"]) + "<br>"
 
         #content += "</p>"
@@ -76,7 +78,7 @@ class RootItem(AbstractItem):
         :returns: str[]
         """
         return ["cpu_usage_mean", "cpu_temp_mean", "cpu_usage_max", "cpu_temp_max",
-                "average_ram_load", "ram_usage_max", "total_traffic", "connected_hosts",
+                "ram_usage_mean", "ram_usage_max", "total_traffic", "connected_hosts",
                 "connected_nodes", "topic_counter", "connection_counter"]
 
 

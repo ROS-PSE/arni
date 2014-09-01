@@ -84,11 +84,16 @@ class SelectionWidget(QWidget):
         self.__state = "ok"
         self.__previous_state = "ok"
 
+        self.__deleted = False
+
         # pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
         #                                       'light_red.png'))
         # self.status_light_label.setPixmap(pixmap)
         self.__timer = Timer(Duration(secs=2), self.update_graphs)
         
+
+        def __del__(self):
+            self.__deleted = True
 
     def connect_slots(self):
         """Connects the slots"""
@@ -186,40 +191,42 @@ class SelectionWidget(QWidget):
         """Updates the widget."""
         #data_dict = self.__model.data(self.__selected_item, 0)
 
-        if self.__selected_item is not None:
-            data_dict = self.__selected_item.get_latest_data()
-            self.__state = data_dict["state"]
+        if not self.__deleted:
 
-            if self.__previous_state is not self.__state:
-                self.__previous_state = self.__state
-                if self.__state == "ok":
-                    self.current_status_label.setText("online")
-                    self.host_node_label.setText("Current status: ok")
-                    pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
-                                                  'block_green.png'))
-                elif self.__state == "warning":
-                    self.current_status_label.setText("online")
-                    self.host_node_label.setText("Current status: warning")
-                    pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
-                                                  'block_red.png'))
-                #     pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
-                #                                   'light_orange.png'))
-                else:
-                    self.host_node_label.setText("Current status: error")
-                    pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
-                                                  'block_red.png'))
-                self.status_light_label.setPixmap(pixmap)
-            #print("here")
-            content = self.__selected_item.get_detailed_data()
-            
-            scroll_value = self.information_tab_text_browser.verticalScrollBar().value()
-            self.information_tab_text_browser.setHtml(content)
-            self.information_tab_text_browser.verticalScrollBar().setSliderPosition(scroll_value)
-        else:
-            self.host_node_label.setText("No item selected")
-            self.current_status_label.setText("Offline")
-            self.information_tab_text_browser.setText("Please select an item in the TreeView to get more information"
-                                                      " about it")
+            if self.__selected_item is not None:
+                data_dict = self.__selected_item.get_latest_data()
+                self.__state = data_dict["state"]
+
+                if self.__previous_state is not self.__state:
+                    self.__previous_state = self.__state
+                    if self.__state == "ok":
+                        self.current_status_label.setText("online")
+                        self.host_node_label.setText("Current status: ok")
+                        pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
+                                                      'block_green.png'))
+                    elif self.__state == "warning":
+                        self.current_status_label.setText("online")
+                        self.host_node_label.setText("Current status: warning")
+                        pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
+                                                      'block_red.png'))
+                    #     pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
+                    #                                   'light_orange.png'))
+                    else:
+                        self.host_node_label.setText("Current status: error")
+                        pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
+                                                      'block_red.png'))
+                    self.status_light_label.setPixmap(pixmap)
+                #print("here")
+                content = self.__selected_item.get_detailed_data()
+
+                scroll_value = self.information_tab_text_browser.verticalScrollBar().value()
+                self.information_tab_text_browser.setHtml(content)
+                self.information_tab_text_browser.verticalScrollBar().setSliderPosition(scroll_value)
+            else:
+                self.host_node_label.setText("No item selected")
+                self.current_status_label.setText("Offline")
+                self.information_tab_text_browser.setText("Please select an item in the TreeView to get more information"
+                                                          " about it")
             #self.__log_filter_proxy.filter_by_item(None)
 
 

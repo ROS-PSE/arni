@@ -1,9 +1,9 @@
-from rospy.rostime import Duration, Time
-from python_qt_binding.QtCore import QObject
-
 from threading import Lock
-
 import time as tm
+
+from rospy.rostime import Duration, Time
+
+from python_qt_binding.QtCore import QTranslator
 
 
 class AbstractItem:
@@ -12,17 +12,16 @@ class AbstractItem:
     INTERNAL: WARNING! Whenever the key-values at the beginning are not set right, the oddest things may occur!
     """
 
-    def __init__(self, logger, seuid, parent=None, *args):
-        """Initializes the AbstractItem.
+    def __init__(self, logger, seuid, parent=None):
+        """
+        Initializes the AbstractItem.
         
-        :param seuid: the seuid of the AbsractItem
+        :param seuid: the seuid of the AbstractItem
         :type seuid: str
         :param logger: a logger where to log when special events occur
         :type logger: ModelLogger
         :param parent: the parent-item
         :type parent: AbstractItem
-        :param *args:
-        :type *args: 
         """
         self._logger = logger
         self._data = {}
@@ -56,9 +55,10 @@ class AbstractItem:
 
     def get_state(self):
         """
-        Returns the state of the AbstractItem.
+        Returns the state as a string.
 
-        :returns: str
+        :returns: state of the item
+        :rtype: str
         """
         if self.__state:
             return self.__state[-1]
@@ -101,6 +101,7 @@ class AbstractItem:
 
         :param data: the data to append in key value from
         :type data: dict
+        :raises KeyError: if an entry is in the global rated data dictionary but not found in the given dictionary
         """
         if "window_stop" not in data:
             data["window_stop"] = Time.now()
@@ -125,6 +126,7 @@ class AbstractItem:
 
         :param data: the data to append in key value form
         :type data: dict
+        :raises KeyError: if an entry is in the global data dictionary but not found in the given dictionary
         """
         if "window_stop" not in data:
             data["window_stop"] = Time.now()
@@ -143,7 +145,7 @@ class AbstractItem:
 
     def _update_current_state(self):
         """
-        This method udates the current state of the AbstractItem.
+        This method updates the current state of the AbstractItem.
         """
         length = len(self.__state)
         if self.__state:
@@ -162,7 +164,8 @@ class AbstractItem:
         Appends data to the data of the AbstractItem.
 
         :param data: the data to append in key value form
-        :type data: dict
+        :type data: one of the different message types names TopicStatistics, HostStatistics or NodeStatistics
+        :raises KeyError: if an entry is in the rated dictionary but not found in the message
         """
         for attribute in self._data:
             try:
@@ -178,14 +181,12 @@ class AbstractItem:
 
 
     def update_rated_data(self, data):
-        """Appends data to the rated_data of the AbstractItem.
+        """
+        Appends data to the rated_data of the AbstractItem.
 
         :param data: the data to append in key value form
         :type data: dict
-        :param window_start: the time of window_start
-        :type window_start: Time
-        :param window_stop: the time of window_stop
-        :type window_stop: Time
+        :raises KeyError: if an entry is in the rated dictionary but not found in the message
         """
         for entry in self.__rated_data:
             try:
@@ -218,16 +219,17 @@ class AbstractItem:
         """
         Returns the number of columns.
 
-        :returns: int
+        :returns: the number of columns
+        :rtype: int
         """
-        # todo: return !not! a concrete number here ?!?!
         return 4
 
     def get_childs(self):
         """
         Returns a list with all children.
 
-        :returns: list
+        :returns: list of children
+        :rtype: list
         """
         return self.__child_items
 
@@ -239,7 +241,8 @@ class AbstractItem:
         :param row: the index of the row
         :type row: int
 
-        :returns: AbstractItem
+        :returns: the child at the position row
+        :rtype: AbstractItem
         """
         return self.__child_items[row]
 
@@ -248,7 +251,8 @@ class AbstractItem:
         """
         Returns the index of the Item.
 
-        :returns: int
+        :returns: the index of the Item
+        :rtype: int
         """
         if self.__parent:
             return self.__parent.get_childs().index(self)
@@ -257,21 +261,30 @@ class AbstractItem:
 
 
     def get_amount_of_entries(self):
+        """
+        Returns the amount of entries in the data part of the item
+
+        :return: amount of entries
+        :rtype: int
+        """
         return self.__length_of_data
 
 
-    def get_latest_data(self, *kwargs):
+    def get_latest_data(self, *args):
         """
         Returns the latest dict of the data_list or the item of the dict with the given key.
 
         :param kwargs: the keys to the dict
         :type kwargs: str
 
-        :returns: dict or the item
+        :returns: dict of the item
+        :rtype: dict
+        :raises KeyError: if an element in args cannot be found in any of the dictionaries (data vs rated data) or
+        attributes (namely name, type, data and state)
         """
         return_dict = {}
-        if kwargs:
-            for key in kwargs:
+        if args:
+            for key in args:
                 if key is 'name':
                     return_dict['name'] = self.seuid
                 elif key is 'type':
@@ -317,7 +330,8 @@ class AbstractItem:
         """
         Returns the parent of this or None if there is no parent.
 
-        :returns: AbstractItem
+        :returns: parent
+        :rtype: AbstractItem
         """
         return self.__parent
 
@@ -328,17 +342,15 @@ class AbstractItem:
 
         :param time: the upper bound in seconds
         :type time: rospy.Time
-        :param kwargs: the keys to the dict
-        :type kwargs: str
 
-        :returns: dict of lists
+        :returns: dict of lists with the data
+        :rtype: dict
         """
         return_values = {}
         #for key in self._data:
         #    return_values[key] = []
 
         breakpoint = 0
-        list_of_time = None
         list_of_time = self._data["window_stop"]
         return_values["window_stop"] = []
         length = len(list_of_time)
@@ -370,33 +382,19 @@ class AbstractItem:
         :type time: rospy.Time
         """
         list_of_time = self._data["window_stop"]
-        #print("length of time_list before: " + str(len(list_of_time)) + " length self._length etc: " + str(self.__length_of_data))
         if len(list_of_time) is not 0:
-            length = len(list_of_time)
+            #length = len(list_of_time)
             i = 0
             entries_to_delete = self.get_items_older_than(time)
 
             i += len(entries_to_delete["window_stop"])
-            #todo: this trusts in the fact that all entries older than a time are in a row.. is that assumption correct?
             for j in range(0, len(entries_to_delete["window_stop"])):
                 for value in self._data.values():
                     del value[0]
                 del self.__state[0]
 
             self.__length_of_data -= i
-            #print("could delete " + str(len(entries_to_delete["window_stop"])) + "entries")
-            # while length > 0 and list_of_time[0] < time:
-            #     i += 1
-            #     length -= 1
-            #     for key in self._data:
-            #         del self._data[key][0]
-            #     self.__length_of_data -= 1
-            #print("deleted " + str(i) + " entries")
-            #print("length of time_list: " + str(len(list_of_time)))
-        #if len(list_of_time) is not 0:
-        #    print(self.seuid)
-        #    print("last entry has age " + tm.strftime("%d.%m-%H:%M:%S", tm.localtime(int(str(list_of_time[0])) / 1000000000)) + " seconds")
-        #    print("second last entry has age " + tm.strftime("%d.%m-%H:%M:%S", tm.localtime(int(str(list_of_time[1])) / 1000000000)) + " seconds")
+
 
 
     def get_items_younger_than(self, time, *args):
@@ -410,6 +408,9 @@ class AbstractItem:
         :param kwargs: the keys to the dict
         :type kwargs: str
         :returns: dict of lists
+        :rtype: dict
+
+        :raises KeyError: if an element in args cannot be found in any of the dictionaries (data vs rated data)
         """
         return_values = {}
         if args:
@@ -424,7 +425,6 @@ class AbstractItem:
                 return_values[key] = None
 
         breakpoint = 0
-        list_of_time = None
         list_of_time = self._data["window_stop"]
         length = len(list_of_time)
 
@@ -464,19 +464,25 @@ class AbstractItem:
 
     def get_detailed_data(self):
         """
-        Returns detailed description of current state as html text.
+        Returns detailed description of current state as html text. Has to be implemented in subclasses.
 
         :return: str
         """
-        raise NotImplemented()
+        raise NotImplementedError()
 
 
     def get_plotable_items(self):
-        raise NotImplemented()
+        """
+        Returns the plotable entries in the item. Has to be implemented in subclasses.
 
+        :return: list of the items(str)
+        :rtype: list
+        """
+        raise NotImplementedError()
+
+#todo: has to be updated, the rated_values can also be lists!!!
     def get_erroneous_entries(self):
         return_values = {}
-        #todo: USE SOMETHING BETTER THAN SELF.ATTRIBUTES!!!!!
         for entry in self._attributes:
             if self.__rated_data[entry + ".state"]:
                 #todo: is it guaranteed that __data and __rated_data is synced?
@@ -488,9 +494,10 @@ class AbstractItem:
 
         return return_values
 
+    def can_execute_actions(self):
+        """
+        This item cannot execute actions
 
-    #self.delete_old_entries()
-    # delete all entries older than 10 minutes
-
-    # for all element that are older than 1 minute:
-    # if an element has an error state keep this and the first entry who no longer has an error state
+        :return: False
+        """
+        return False

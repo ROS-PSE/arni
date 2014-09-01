@@ -1,0 +1,2 @@
+SOURCES = src/arni_gui/helper_functions.py src/arni_gui/log_filter_proxy.py src/arni_gui/ros_model.py src/arni_gui/host_item.py src/arni_gui/model_logger.py src/arni_gui/size_delegate.py src/arni_gui/abstract_item.py src/arni_gui/__init__.py src/arni_gui/node_item.py src/arni_gui/topic_item.py src/arni_gui/buffer_thread.py src/arni_gui/item_filter_proxy.py src/arni_gui/remote_action.py src/arni_gui/connection_item.py src/arni_gui/log_delegate.py src/arni_gui/root_item.py
+TRANSLATIONS = translations/en_EN.ts

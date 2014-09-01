@@ -38,22 +38,25 @@ Change
 * overview.ui from log_tab_tree_widget to log_tab_tree_view.
 
 ## Big TODOS:
-
-* enter tr() everywhere for internationalisation
+* give the translatable items to somebody so that he can translate these items
 * update the texts that are shown  --- the units in the overview are missing (maybe also some color if someone is too high --> not our )
 * check host/node etc regularily for timeouts --> get_time_of_last_update() --> im model regelmäßig abfragen und nach 65 sekunden löschen
-* round the shown data in the gui --> round(number, 2)
 * drawing the graphs in selectionwidget --> copy and paste
 * logging every error message occuring when updating an item
 * log every error message with good text whenever updating the root_item
 * remove all the todos and code comments everywhere
 * race conditions in overviewWidget on_graph_window_resized or similar whenever the resize method is called to fast...
-
+* add licence data to every file
 * delete items older than currently does **NOT** erase rated data!!! 
 * from some data in the overview widget the mean has to be calculated (or e.g. display the data from the last minute or something!!!)
+
+## !others work!
 * one and the same
 *  * after some time the overview widget does not show any data any more...
 *  * host_statistics arrives in the gui only at the beginning --> then nothing comes any longer!!!
+* CPU_TEMP_CORE IS UNNECESSARY AND SHOULD BE REMOVED BEFORE PUBLISHING!!!
+* update get_erroneous_entries for supporting the new format of the rated data
+* topic aggregation not yet working!!! --> get the algorithm from matthias and build it in :)
 
 ## Final/Small Improvements
 * interpolate the data with flowcharts or however the method is called
@@ -63,16 +66,17 @@ Change
 
 
 ## WiP
+* [mh]round the shown data in the gui --> round(number, 2) --> started but not finished yet
+* [mh]enter tr() everywhere for internationalisation --> still missing: the widget itself and the actual_values etc
 * [mh]saving the model for only 60 seconds (maybe more, simply try it) --> seems to work --> keep testing this feature!!!
 * [sk]/[mh]document everything
 * [mh]RUNTIME_ERROR BECAUSE ELEMENT HAS BEEN DELETED --> Timer Fehler oder so... Schwer/nicht behebbar
 * [mh]why are sometimes empty values given to the axis? --> for no plausible reason
-* [mh]FINALLY FIX SEGMENTATION FAULT!!! - well at least it doesn't segfault any more^^
-* [mh]disable action when not a nodeitem is selected --> check!
 * [mh]get overview widget to work --> still the bug with host items remains, don't know why
 
 ## Done
-
+* [mh]disable action when not a nodeitem is selected --> check
+* [mh]FINALLY FIX SEGMENTATION FAULT!!! - well at least it doesn't segfault any more^^
 * [mh]adapt package.xmls for including pyqtgraph
 * [mh]create to constants for minimum time and maximum number of elements in the model
 * [mh]protect pyqtgraph imports with try/except

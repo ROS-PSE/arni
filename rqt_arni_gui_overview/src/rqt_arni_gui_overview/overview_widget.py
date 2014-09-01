@@ -87,8 +87,12 @@ class OverviewWidget(QWidget):
 
         self.__logger = self.__model.get_logger()
         #self.__log_model = self.__model.get_log_model()
+        #self.__style_string = "font-size: %dpt;\n" % 12
+        self.__style_string = ".detailed_data_overview {\n" \
+                               "    font-size: 13\n;" \
+                               "}\n"
 
-        self.information_tab_text_browser.setStyleSheet("font-size: %dpt;" % 12)
+        self.information_tab_text_browser.setStyleSheet(self.__style_string)
 
 
         self.__log_filter_proxy.filter_by_item(None)

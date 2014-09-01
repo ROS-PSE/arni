@@ -1,6 +1,8 @@
-from abstract_item import AbstractItem
-
 from rospy.rostime import Time
+
+from python_qt_binding.QtCore import QTranslator
+
+from abstract_item import AbstractItem
 
 class HostItem(AbstractItem):
     """A HostItem represents a host with all its data."""
@@ -70,27 +72,77 @@ class HostItem(AbstractItem):
         #todo: fill the content sensefully!
         data_dict = self.get_latest_data()
 
-        content = "<p style=\"font-size:15px\">"
+        content = "<p class=\"detailed_data\">"
 
-        #content += "cpu_temp_mean: " + str(data_dict["cpu_temp_mean"]) + "<br>"
-        #content += "bandwidth_mean: " + str(data_dict["bandwidth_mean"]) + "<br>"
-        #for entry in data_dict:
-        #    print(entry)
-        #content += "Because of a bug no text is shown here."
-        content += "cpu_temp_stddev: " + str(data_dict["cpu_temp_stddev"]) + "<br>"
-        content += "cpu_temp_max: " + str(data_dict["cpu_temp_max"]) + "<br>"
-        content += "cpu_usage_mean: " + str(data_dict["cpu_usage_mean"]) + "<br>"
-        content += "cpu_usage_stddev: " + str(data_dict["cpu_usage_stddev"]) + "<br>"
-        content += "cpu_usage_max: " + str(data_dict["cpu_usage_max"]) + "<br>"
-        content += "cpu_usage_core_mean: " + str(data_dict["cpu_usage_core_mean"]) + "<br>"
-        content += "cpu_usage_core_stddev:" + str(data_dict["cpu_usage_core_stddev"]) + "<br>"
-        content += "cpu_temp_core_max: " + str(data_dict["cpu_temp_core_max"]) + "<br>"
-        content += "gpu_temp_mean: " + str(data_dict["gpu_temp_mean"]) + "<br>"
-        content += "gpu_temp_stddev: " + str(data_dict["gpu_temp_stddev"]) + "<br>"
-        content += "gpu_temp_max: " + str(data_dict["gpu_temp_max"]) + "<br>"
-        content += "gpu_usage_mean: " + str(data_dict["gpu_usage_mean"]) + "<br>"
-        content += "gpu_usage_stdde: " + str(data_dict["gpu_usage_stddev"]) + "<br>"
-        content += "gpu_usage_max: " + str(data_dict["gpu_usage_max"]) + "<br>"
+        content += QTranslator.translate("AbstractItem", "cpu_temp_stddev") + ": " + str(data_dict["cpu_temp_stddev"]) \
+                   + " " + QTranslator.translate("AbstractItem", "cpu_temp_stddev_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "cpu_temp_max") + ": " + str(data_dict["cpu_temp_max"]) \
+                   + " " + QTranslator.translate("AbstractItem", "cpu_temp_max_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "cpu_usage_mean") + ": " + str(data_dict["cpu_usage_mean"]) \
+                   + " " + QTranslator.translate("AbstractItem", "cpu_usage_mean_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "cpu_usage_stddev") + ": " + str(data_dict["cpu_usage_stddev"]) \
+                   + " " + QTranslator.translate("AbstractItem", "cpu_usage_stddev_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "cpu_usage_max") + ": " + str(data_dict["cpu_usage_max"]) \
+                   + " " + QTranslator.translate("AbstractItem", "cpu_usage_max_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "ram_usage_mean") + ": " + str(data_dict["ram_usage_mean"]) \
+                   + " " + QTranslator.translate("AbstractItem", "ram_usage_mean_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "ram_usage_stddev") + ": " + str(data_dict["ram_usage_stddev"]) \
+                   + " " + QTranslator.translate("AbstractItem", "ram_usage_stddev_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "ram_usage_max") + ": " + str(data_dict["ram_usage_max"]) \
+                   + " " + QTranslator.translate("AbstractItem", "ram_usage_max_unit") + " <br>"
+
+        for i in range(0, len(data_dict["cpu_usage_core_mean"])):
+            content += QTranslator.translate("AbstractItem", "core" + str(i + 1)) + "<br>"
+            content += QTranslator.translate("AbstractItem", "cpu_usage_core_mean") + ": " + str(data_dict["cpu_usage_core_mean"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "cpu_usage_core_mean_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "cpu_usage_core_stddev") + ": " + str(data_dict["cpu_usage_core_stddev"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "cpu_usage_core_stddev_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "cpu_usage_core_max") + ": " + str(data_dict["cpu_usage_core_max"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "cpu_usage_core_max_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "cpu_temp_core_mean") + ": " + str(data_dict["cpu_temp_core_mean"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "cpu_temp_core_mean_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "cpu_temp_core_stddev") + ": " + str(data_dict["cpu_temp_core_stddev"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "cpu_temp_core_stddev_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "cpu_temp_core_max") + ": " + str(data_dict["cpu_temp_core_max"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "cpu_temp_core_max_unit") + " <br>"
+
+        for i in range(0, len(data_dict["gpu_usage_mean"])):
+            content += QTranslator.translate("AbstractItem", "gpu_temp_mean") + ": " + str(data_dict["gpu_temp_mean"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "gpu_temp_mean_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "gpu_temp_stddev") + ": " + str(data_dict["gpu_temp_stddev"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "gpu_temp_stddev_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "gpu_temp_max") + ": " + str(data_dict["gpu_temp_max"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "gpu_temp_max_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "gpu_usage_mean") + ": " + str(data_dict["gpu_usage_mean"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "gpu_usage_mean_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "gpu_usage_stddev") + ": " + str(data_dict["gpu_usage_stddev"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "gpu_usage_stddev_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "gpu_usage_max") + ": " + str(data_dict["gpu_usage_max"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "gpu_usage_max_unit") + " <br>"
+
+        for i in range(0, len(data_dict["interface_name"])):
+            content += str(data_dict["interface_name"]) + "<br>"
+            content += QTranslator.translate("AbstractItem", "message_frequency_mean") + ": " + str(data_dict["message_frequency_mean"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "message_frequency_mean_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "message_frequency_stddev") + ": " + str(data_dict["message_frequency_stddev"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "message_frequency_stddev_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "message_frequency_max") + ": " + str(data_dict["message_frequency_max"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "message_frequency_max_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "bandwidth_mean") + ": " + str(data_dict["bandwidth_mean"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "bandwidth_mean_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "bandwidth_stddev") + ": " + str(data_dict["bandwidth_stddev"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "bandwidth_stddev_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "bandwidth_max") + ": " + str(data_dict["bandwidth_max"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "bandwidth_max_unit") + " <br>"
+
+        for i in range(0, len(data_dict["drive_name"])):
+            content += data_dict["drive_name"] + " <br>"
+            content += QTranslator.translate("AbstractItem", "drive_free_space") + ": " + str(data_dict["drive_free_space"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "drive_free_space_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "drive_read") + ": " + str(data_dict["drive_read"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "drive_read_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "drive_write") + ": " + str(data_dict["drive_write"][i]) \
+                       + " " + QTranslator.translate("AbstractItem", "drive_write_unit") + " <br>"
 
         content += "</p>"
         return content
@@ -101,15 +153,14 @@ class HostItem(AbstractItem):
         
         :returns: str[]
         """
-        return ["cpu_temp_mean", "bandwidth_mean"]
+        return ["cpu_temp_mean", "cpu_temp_stddev", "cpu_temp_max", "cpu_usage_mean",
+                      "cpu_usage_stddev", "cpu_usage_max", "cpu_usage_core_mean", "cpu_usage_core_stddev",
+                      "cpu_usage_core_max", "cpu_temp_core", "cpu_temp_core_mean", "cpu_temp_core_stddev",
+                      "cpu_temp_core_max", "gpu_temp_mean", "gpu_temp_stddev", "gpu_temp_max", "gpu_usage_mean",
+                      "gpu_usage_stddev", "gpu_usage_max", "ram_usage_mean", "ram_usage_stddev", "ram_usage_max",
+                      "interface_name", "message_frequency_mean", "message_frequency_stddev",
+                      "message_frequency_max", "bandwidth_mean", "bandwidth_stddev", "bandwidth_max",
+                      "drive_name", "drive_free_space", "drive_read", "drive_write"]
 
     def get_short_data(self):
         return "HostItem"
-
-    def can_execute_actions(self):
-        """
-        This item cannot execute actions, so it returns False
-
-        :return: False
-        """
-        return False

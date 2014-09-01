@@ -1,5 +1,5 @@
 from python_qt_binding.QtCore import QAbstractItemModel
-from python_qt_binding.QtCore import *
+from python_qt_binding.QtCore import QTranslator, Qt
 from threading import Lock
 from size_delegate import SizeDelegate
 from abstract_item import AbstractItem
@@ -59,6 +59,9 @@ class ROSModel(QAbstractItemModel):
         super(ROSModel, self).__init__(parent)
 
         self.__logger = ModelLogger()
+
+        self._translator = QTranslator()
+        # self._translator.load("language")
 
         self.__root_item = RootItem(self.__logger, "abstract", self)
 
@@ -642,3 +645,12 @@ class ROSModel(QAbstractItemModel):
         :returns: AbstractItem
         """
         return self.__root_item
+
+    def get_translator(self):
+        """
+        returns the translator.
+
+        :return: the translator
+        :rtype: QTranslator
+        """
+        return self._translator

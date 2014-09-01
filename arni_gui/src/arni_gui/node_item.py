@@ -1,16 +1,14 @@
-from abstract_item import AbstractItem
-from python_qt_binding.QtCore import QObject
+from rospy.rostime import Time
+from rospy import ServiceException
 
+from python_qt_binding.QtCore import QObject
+from python_qt_binding.QtCore import QTranslator
+
+from abstract_item import AbstractItem
 from arni_core.host_lookup import HostLookup
 from arni_core.helper import SEUID
 import arni_core.helper as helper
 from arni_msgs.srv import NodeReaction
-
-from rospy.rostime import Time
-
-import rospy
-from rospy import ServiceException
-
 
 
 class NodeItem(AbstractItem):
@@ -97,19 +95,61 @@ class NodeItem(AbstractItem):
         #todo: fill the content sensefully!
         data_dict = self.get_latest_data()
 
-        content = "<p style=\"font-size:15px\">"
+        content = "<p class=\"detailed_data\">"
 
-        content += "node_cpu_usage_mean: " + str(data_dict["node_cpu_usage_mean"]) + "<br>"
-        content += "node_bandwidth_mean: " + str(data_dict["node_bandwidth_mean"]) + "<br>"
-        # content += "connected_nodes:" + str(data_dict["connected_nodes"]) + "<br>"
-        # content += "topic_counter" + str(data_dict["topic_counter"]) + "<br>"
-        # content += "connection_counter: " + str(data_dict["connection_counter"]) + "<br>"
-        # content += "cpu_usage_max: " + str(data_dict["cpu_usage_max"]) + "<br>"
-        # content += "cpu_temp_mean: " + str(data_dict["cpu_temp_mean"]) + "<br>"
-        # content += "average_ram_load: " + str(data_dict["average_ram_load"]) + "<br>"
-        # content += "cpu_usage_mean:" + str(data_dict["cpu_usage_mean"]) + "<br>"
-        # content += "cpu_temp_max: " + str(data_dict["cpu_temp_max"]) + "<br>"
-        # content += "ram_usage_max: " + str(data_dict["ram_usage_max"]) + "<br>"
+
+        content += QTranslator.translate("AbstractItem", "node_cpu_usage_mean") + ": " + str(data_dict["node_cpu_usage_mean"]) \
+                   + " " + QTranslator.translate("AbstractItem", "node_cpu_usage_mean_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "node_cpu_usage_stddev") + ": " + str(data_dict["node_cpu_usage_stddev"]) \
+                   + " " + QTranslator.translate("AbstractItem", "node_cpu_usage_stddev_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "node_cpu_usage_max") + ": " + str(data_dict["node_cpu_usage_max"]) \
+                   + " " + QTranslator.translate("AbstractItem", "node_cpu_usage_max_unit") + " <br>"
+        for i in data_dict["node_cpu_usage_core_mean"]:
+            content += QTranslator.translate("AbstractItem", "core" + str(i + 1)) + "<br>"
+            content += QTranslator.translate("AbstractItem", "node_cpu_usage_core_mean") + ": " + str(data_dict["node_cpu_usage_core_mean"]) \
+                       + " " + QTranslator.translate("AbstractItem", "node_cpu_usage_core_mean_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "node_cpu_usage_core_stddev") + ": " + str(data_dict["node_cpu_usage_core_stddev"]) \
+                       + " " + QTranslator.translate("AbstractItem", "node_cpu_usage_core_stddev_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "node_cpu_usage_core_max") + ": " + str(data_dict["node_cpu_usage_core_max"]) \
+                       + " " + QTranslator.translate("AbstractItem", "node_cpu_usage_core_max_unit") + " <br>"
+        for i in data_dict["node_gpu_usage_mean"]:
+            content += QTranslator.translate("AbstractItem", "node_gpu_usage_mean") + ": " + str(data_dict["node_gpu_usage_mean"]) \
+                       + " " + QTranslator.translate("AbstractItem", "node_gpu_usage_mean_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "node_gpu_usage_stddev") + ": " + str(data_dict["node_gpu_usage_stddev"]) \
+                       + " " + QTranslator.translate("AbstractItem", "node_gpu_usage_stddev_unit") + " <br>"
+            content += QTranslator.translate("AbstractItem", "node_gpu_usage_max") + ": " + str(data_dict["node_gpu_usage_max"]) \
+                       + " " + QTranslator.translate("AbstractItem", "node_gpu_usage_max_unit") + " <br>"
+
+        content += QTranslator.translate("AbstractItem", "node_ramusage_mean") + ": " + str(data_dict["node_ramusage_mean"]) \
+                   + " " + QTranslator.translate("AbstractItem", "node_ramusage_mean_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "node_ramusage_stddev") + ": " + str(data_dict["node_ramusage_stddev"]) \
+                   + " " + QTranslator.translate("AbstractItem", "node_ramusage_stddev_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "node_ramusage_max") + ": " + str(data_dict["node_ramusage_max"]) \
+                   + " " + QTranslator.translate("AbstractItem", "node_ramusage_max_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "node_message_frequency_mean") + ": " + str(data_dict["node_message_frequency_mean"]) \
+                   + " " + QTranslator.translate("AbstractItem", "node_message_frequency_mean_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "node_message_frequency_stddev") + ": " + str(data_dict["node_message_frequency_stddev"]) \
+                   + " " + QTranslator.translate("AbstractItem", "node_message_frequency_stddev_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "node_message_frequency_max") + ": " + str(data_dict["node_message_frequency_max"]) \
+                   + " " + QTranslator.translate("AbstractItem", "node_message_frequency_max_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "node_bandwidth_mean") + ": " + str(data_dict["node_bandwidth_mean"]) \
+                   + " " + QTranslator.translate("AbstractItem", "node_bandwidth_mean_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "node_bandwidth_stddev") + ": " + str(data_dict["node_bandwidth_stddev"]) \
+                   + " " + QTranslator.translate("AbstractItem", "node_bandwidth_stddev_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "node_bandwidth_max") + ": " + str(data_dict["node_bandwidth_max"]) \
+                   + " " + QTranslator.translate("AbstractItem", "node_bandwidth_max_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "node_write_mean") + ": " + str(data_dict["node_write_mean"]) \
+                   + " " + QTranslator.translate("AbstractItem", "node_write_mean_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "node_write_stddev") + ": " + str(data_dict["node_write_stddev"]) \
+                   + " " + QTranslator.translate("AbstractItem", "node_write_stddev_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "node_write_max") + ": " + str(data_dict["node_write_max"]) \
+                   + " " + QTranslator.translate("AbstractItem", "node_write_max_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "node_read_mean") + ": " + str(data_dict["node_read_mean"]) \
+                   + " " + QTranslator.translate("AbstractItem", "node_read_mean_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "node_read_stddev") + ": " + str(data_dict["node_read_stddev"]) \
+                   + " " + QTranslator.translate("AbstractItem", "node_read_stddev_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "node_read_max") + ": " + str(data_dict["node_read_max"]) \
+                   + " " + QTranslator.translate("AbstractItem", "node_read_max_unit") + " <br>"
 
         content += "</p>"
         return content

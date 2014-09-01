@@ -1,6 +1,9 @@
+from rospy.rostime import Time
+
+from python_qt_binding.QtCore import QTranslator
+
 from abstract_item import AbstractItem
 
-from rospy.rostime import Time
 
 class TopicItem(AbstractItem):
     """A TopicItem represents a specific topic which contains many connections and has attributes like the number of sent messages."""
@@ -63,19 +66,16 @@ class TopicItem(AbstractItem):
         #todo: fill the content sensefully!
         data_dict = self.get_latest_data()
 
-        content = "<p style=\"font-size:15px\">"
+        content = "<p class=\"detailed_data\">"
 
-        content += "dropped_msgs: " + str(data_dict["dropped_msgs"]) + "<br>"
-        content += "traffic: " + str(data_dict["traffic"]) + "<br>"
-        # content += "connected_nodes:" + str(data_dict["connected_nodes"]) + "<br>"
-        # content += "topic_counter" + str(data_dict["topic_counter"]) + "<br>"
-        # content += "connection_counter: " + str(data_dict["connection_counter"]) + "<br>"
-        # content += "cpu_usage_max: " + str(data_dict["cpu_usage_max"]) + "<br>"
-        # content += "cpu_temp_mean: " + str(data_dict["cpu_temp_mean"]) + "<br>"
-        # content += "average_ram_load: " + str(data_dict["average_ram_load"]) + "<br>"
-        # content += "cpu_usage_mean:" + str(data_dict["cpu_usage_mean"]) + "<br>"
-        # content += "cpu_temp_max: " + str(data_dict["cpu_temp_max"]) + "<br>"
-        # content += "ram_usage_max: " + str(data_dict["ram_usage_max"]) + "<br>"
+        content += QTranslator.translate("AbstractItem", "dropped_msgs") + ": " + str(data_dict["dropped_msgs"]) \
+                   + " " + QTranslator.translate("AbstractItem", "traffic") + " <br>"
+        content += QTranslator.translate("AbstractItem", "traffic") + ": " + str(data_dict["traffic"]) \
+                   + " " + QTranslator.translate("AbstractItem", "traffic_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "stamp_age_mean") + ": " + str(data_dict["stamp_age_mean"]) \
+                   + " " + QTranslator.translate("AbstractItem", "stamp_age_mean_unit") + " <br>"
+        content += QTranslator.translate("AbstractItem", "stamp_age_max") + ": " + str(data_dict["stamp_age_max"]) \
+                   + " " + QTranslator.translate("AbstractItem", "stamp_age_max_unit") + " <br>"
 
         content += "</p>"
         return content
@@ -87,7 +87,7 @@ class TopicItem(AbstractItem):
         
         :returns: str[]
         """
-        return ["dropped_msgs", "traffic"]
+        return ["dropped_msgs", "traffic", "stamp_age_mean", "stamp_age_max"]
 
     def get_short_data(self):
         return "TopicItem"
