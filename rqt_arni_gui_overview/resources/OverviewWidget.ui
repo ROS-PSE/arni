@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Widget</string>
+   <string>ArniGui-Overview</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
