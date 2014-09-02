@@ -28,7 +28,8 @@ class NodeStatisticsHandler(StatisticsHandler):
 
         self.__node_process = node_process
         self.pub = rospy.Publisher('/statistics_node', NodeStatistics)
-        self.update_interval = rospy.get_param('~update_interval', 1)
+        self.update_interval = rospy.get_param('~publish_interval', 10) /\
+            float(rospy.get_param('~window_max_elements', 10))
         self.register_subscriber()
         self.__write_base = 0
         self.__read_base = 0
@@ -77,6 +78,7 @@ class NodeStatisticsHandler(StatisticsHandler):
         """
         self._status.time_end = rospy.Time.now()
         stats = self.__calc_statistics()
+        rospy.logdebug('Publishing Node Status %s' % self._id)
         self.pub.publish(stats)
         self._status.reset()
         self._status.time_start = rospy.Time.now()
@@ -135,7 +137,7 @@ class NodeStatisticsHandler(StatisticsHandler):
     def receive_statistics(self, stats):
         """
         Receives the statistics published by ROS Topic statistics
-        and attemps to calculate node net I/O stats with them        
+        and attemps to calculate node net I/O stats with them
         """
         if self._id in stats.node_pub:
             dur = stats.window_stop - stats.window_start
@@ -144,15 +146,16 @@ class NodeStatisticsHandler(StatisticsHandler):
 
     def __cpu_usage_per_core(self):
         """
-        Reads the cpu usage in percent per core, using 'ps'. 
+        Reads the cpu usage in percent per core, using 'ps'.
         Only works on linux.
         Most likely useless, as it's lifetime stats.
         """
 
-        """Use ps to collect information about process, 
+        """Use ps to collect information about process,
         psr is the id of the cpu pcpu usage in percent"""
-        pipe = subprocess.Popen('ps -p %s -L -o psr,pcpu' % self.__node_process.pid,
-                                shell=True, stdout=subprocess.PIPE).stdout
+        pipe = subprocess.Popen(
+            'ps -p %s -L -o psr,pcpu' % self.__node_process.pid,
+            shell=True, stdout=subprocess.PIPE).stdout
         output = pipe.read()
 
         # format output string Format ,where format_output[2i] is psr

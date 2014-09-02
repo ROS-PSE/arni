@@ -111,7 +111,9 @@ class Status(object):
         return self._stats_dict
 
     def __calc_cpu_stats(self):
-
+        """
+        calculate statistics about cpu usage
+        """
         cpu_usage = self.calc_stat_tuple(self._cpu_usage)
         cpu_usage_core = [self.calc_stat_tuple(i)
                           for i in self._cpu_usage_core]
@@ -128,14 +130,19 @@ class Status(object):
                                                   for i in cpu_usage_core]
 
     def __calc_gpu_stats(self):
-
+        """
+        calculate statistics about gpu usage
+        placeholder not implemented yet, returns 0 - values.
+        """
         gpu_usage = self.calc_stat_tuple(self._gpu_usage)
         self._stats_dict['gpu_usage_mean'] = [gpu_usage.mean]
         self._stats_dict['gpu_usage_stddev'] = [gpu_usage.stddev]
         self._stats_dict['gpu_usage_max'] = [gpu_usage.max]
 
     def __calc_ram_stats(self):
-
+        """
+        calculate statistics about ram usage
+        """
         ram_usage = self.calc_stat_tuple(self._ram_usage)
 
         for key in vars(ram_usage):
@@ -144,7 +151,7 @@ class Status(object):
     def calc_stat_tuple(self, slist):
         """
         Returns a named tuple containing mean , standard deviation and maximum
-        of a given list.
+        of a given list. returns zero-tuple if list is empty.
 
         :returns: namedtuple
         """

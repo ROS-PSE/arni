@@ -30,7 +30,7 @@ class NodeStatus(Status):
     def add_node_bandwidth(self, bytes):
         """
         Adds another measured value in bytes, taken
-        from ROS topics statistics, to node_bandwidth. 
+        from ROS topics statistics, to node_bandwidth.
 
         :param bytes: Bytes measured.
         :type bytes: int
@@ -39,8 +39,8 @@ class NodeStatus(Status):
 
     def add_node_io(self, read, write):
         """
-        Adds another pair of measured disk I/O values 
-        to node_read and node_write. 
+        Adds another pair of measured disk I/O values
+        to node_read and node_write.
 
         :param read: Bytes read.
         :type read: int
@@ -53,7 +53,7 @@ class NodeStatus(Status):
     def add_node_msg_freq(self, freq):
         """
         Adds another measured value to node_msg_frequency,
-        taken from ROS topics statistics. 
+        taken from ROS topics statistics.
 
         :param freq: frequency of network calls.
         :type bytes: int
@@ -73,6 +73,7 @@ class NodeStatus(Status):
     def calc_stats_specific(self):
         """
         calculates statistics specific to nodes.
+        and write them into the stats_dict.
         """
 
         self.__calc_net_stats()

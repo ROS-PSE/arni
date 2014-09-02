@@ -21,9 +21,9 @@ class StatisticsHandler(object):
 
     @abstractmethod
     def measure_status(self):
-        """ 
+        """
         Periodically collects information about the
-        current status. 
+        current status.
         """
         pass
 
@@ -31,8 +31,8 @@ class StatisticsHandler(object):
     def publish_status(self, topic):
         """
         Publishes the current stats to the given topic
-        using ROS's publisher-subscriber mechanism. 
+        using ROS's publisher-subscriber mechanism.
 
-        :topic: Topic to which the data should be published 
+        :topic: Topic to which the data should be published
         """
         pass
