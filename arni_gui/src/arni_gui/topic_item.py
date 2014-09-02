@@ -131,3 +131,6 @@ class TopicItem(AbstractItem):
 
     def get_list_items(self):
         return []
+
+    def get_time_items(self):
+        return ["stamp_age_mean", "stamp_age_max"]

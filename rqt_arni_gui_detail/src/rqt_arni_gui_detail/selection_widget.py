@@ -353,6 +353,7 @@ class SelectionWidget(QWidget):
                     x = np.array(temp_time)
 
                     list_entries = self.__selected_item.get_list_items()
+                    time_entries = self.__selected_item.get_time_items()
 
                     for key in plotable_items:
                         if key in list_entries:
@@ -363,9 +364,12 @@ class SelectionWidget(QWidget):
                             #    for j in range(0, len(plotable_data[key]):
                             pass
                         else:
-                            for i in range(0, length, modulo):
-                                #print(plotable_data[key][i])
-                                temp_content.append(plotable_data[key][i])
+                            if key in time_entries:
+                                for i in range(0, length, modulo):
+                                    temp_content.append(float(str(plotable_data[key][i])))
+                            else:
+                                for i in range(0, length, modulo):
+                                    temp_content.append(plotable_data[key][i])
                             y = np.array(temp_content)
                             del temp_content[:]
 

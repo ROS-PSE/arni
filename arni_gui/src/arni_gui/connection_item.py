@@ -135,3 +135,7 @@ class ConnectionItem(AbstractItem):
 
     def get_list_items(self):
         return []
+
+    def get_time_items(self):
+        return ["period_mean", "period_stddev", "period_max", "stamp_age_mean",
+                "stamp_age_stddev", "stamp_age_max"]

@@ -198,3 +198,6 @@ class HostItem(AbstractItem):
                 "message_frequency_stddev",
                 "message_frequency_max", "bandwidth_mean", "bandwidth_stddev", "bandwidth_max",
                 "drive_name", "drive_free_space", "drive_read", "drive_write"]
+
+    def get_time_items(self):
+        return []
