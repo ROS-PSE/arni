@@ -7,6 +7,7 @@ from python_qt_binding.QtCore import QTranslator, QObject
 
 from helper_functions import prepare_number_for_representation
 
+
 class AbstractItem(QObject):
     """ 
     Provides a unified interface to access the items of the model.
@@ -50,7 +51,6 @@ class AbstractItem(QObject):
         self.__length_of_data = 0
         self.__length_of_rated_data = 0
 
-
     def get_seuid(self):
         """
         Returns the seuid as a string.
@@ -59,7 +59,6 @@ class AbstractItem(QObject):
         :rtype: str
         """
         return self.seuid
-
 
     def get_state(self):
         """
@@ -71,7 +70,6 @@ class AbstractItem(QObject):
         if self.__state:
             return self.__state[-1]
 
-
     def _add_data_list(self, name):
         """
         Adds keys to the data_list.
@@ -80,7 +78,6 @@ class AbstractItem(QObject):
         :type name: str
         """
         self._data[name] = []
-
 
     def _add_rated_data_list(self, name):
         """
@@ -91,7 +88,6 @@ class AbstractItem(QObject):
         """
         self.__rated_data[name] = []
 
-
     def append_child(self, child):
         """
         Append a child to the list of childs.
@@ -100,7 +96,6 @@ class AbstractItem(QObject):
         :type child: AbstractItem
         """
         self.__child_items.append(child)
-
 
     def append_data_dict(self, data):
         """
@@ -127,7 +122,6 @@ class AbstractItem(QObject):
         self.__length_of_data += 1
         self._update_current_state()
 
-
     def _update_current_state(self):
         """
         This method updates the current state of the AbstractItem.
@@ -139,11 +133,10 @@ class AbstractItem(QObject):
                     and self.__state[-1] is not "unknown":
                 for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5), "window_stop"))["window_stop"]), length):
                     if self.__state[i] == "error":
-			self._logger.log("error", Time.now(), self.seuid, get_erroneous_entries_for_log)
+                        self._logger.log("error", Time.now(), self.seuid, self.get_erroneous_entries_for_log())
                         self.__state[-1] = "warning"
                         break
         self.__last_update = Time.now()
-
 
     def append_data(self, data):
         """
@@ -165,7 +158,6 @@ class AbstractItem(QObject):
         self.__length_of_data += 1
         self._update_current_state()
 
-
     def update_rated_data(self, data):
         """
         Appends data to the rated_data of the AbstractItem.
@@ -180,7 +172,7 @@ class AbstractItem(QObject):
             except KeyError:
                 print("An entry found in the object dictionary of the rated data was not found in the given rated data")
                 raise
-	      
+
         if self.__state:
             if "state" in data:
                 self.__state[-1] = data["state"]
@@ -192,7 +184,6 @@ class AbstractItem(QObject):
         self.__length_of_rated_data += 1
         self._update_current_state()
 
-
     def child_count(self):
         """
         Returns the number of children from the AbstractItem.
@@ -201,7 +192,6 @@ class AbstractItem(QObject):
         :rtype: int
         """
         return len(self.__child_items)
-
 
     def column_count(self):
         """
@@ -221,7 +211,6 @@ class AbstractItem(QObject):
         """
         return self.__child_items
 
-
     def get_child(self, row):
         """
         Returns the child at the position row.
@@ -233,7 +222,6 @@ class AbstractItem(QObject):
         :rtype: AbstractItem
         """
         return self.__child_items[row]
-
 
     def row(self):
         """
@@ -247,7 +235,6 @@ class AbstractItem(QObject):
 
         return 0
 
-
     def get_amount_of_entries(self):
         """
         Returns the amount of entries in the data part of the item
@@ -256,7 +243,6 @@ class AbstractItem(QObject):
         :rtype: int
         """
         return self.__length_of_data
-
 
     def get_latest_data(self, *args):
         """
@@ -321,7 +307,6 @@ class AbstractItem(QObject):
                 return_dict['state'] = "unknown"
         return return_dict
 
-
     def parent(self):
         """
         Returns the parent of this or None if there is no parent.
@@ -330,7 +315,6 @@ class AbstractItem(QObject):
         :rtype: AbstractItem
         """
         return self.__parent
-
 
     def get_items_older_than(self, time):
         """
@@ -365,7 +349,6 @@ class AbstractItem(QObject):
 
         return return_values
 
-
     def delete_items_older_than(self, time):
         """
         Deletes all items which are older than time.
@@ -386,7 +369,6 @@ class AbstractItem(QObject):
                 del self.__state[0]
 
             self.__length_of_data -= i
-
 
     def get_items_younger_than(self, time, *args):
         """
@@ -446,16 +428,14 @@ class AbstractItem(QObject):
 
         return return_values
 
-
     def execute_action(self, action):
         """
         Executes a action on the current item like stop or restart. Calls to this method should be redirected to the remote host on executed there.
 
-        :param acion: the action which should be executed
+        :param action: the action which should be executed
         :type action: RemoteAction
         """
         pass
-
 
     def get_detailed_data(self):
         """
@@ -466,7 +446,6 @@ class AbstractItem(QObject):
         """
         raise NotImplementedError()
 
-
     def get_plotable_items(self):
         """
         Returns the plotable entries in the item. Has to be implemented in subclasses.
@@ -475,7 +454,6 @@ class AbstractItem(QObject):
         :rtype: list
         """
         raise NotImplementedError()
-
 
     def get_erroneous_entries(self):
         """
@@ -507,8 +485,7 @@ class AbstractItem(QObject):
                 content += "<br>"
         content += "</p>"
         return content
-      
-      
+
     def get_erroneous_entries_for_log(self):
         """
         Returns the erroneous entries for the log as a string
@@ -526,7 +503,6 @@ class AbstractItem(QObject):
                                 content += self.tr(entry) + ": " + self.__rated_data[entry + ".state"][i] + "  "
         return content
 
-
     def can_execute_actions(self):
         """
         This item cannot execute actions
@@ -534,7 +510,6 @@ class AbstractItem(QObject):
         :return: False
         """
         return False
-
 
     def get_short_data(self):
         raise NotImplementedError()
