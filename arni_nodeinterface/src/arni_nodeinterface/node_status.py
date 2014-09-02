@@ -78,9 +78,12 @@ class NodeStatus(Status):
 
         self.__calc_net_stats()
         self.__calc_drive_stats()
+        self.__rename_keys()
 
     def __calc_net_stats(self):
-
+        """
+        Calculate net I/O statistics for a node
+        """
         node_bandwidth = self.calc_stat_tuple(self.__node_bandwidth)
         node_msg_frequency = self.calc_stat_tuple(self.__node_msg_frequency)
 
@@ -95,6 +98,9 @@ class NodeStatus(Status):
         self._stats_dict['node_bandwidth_max'] = node_bandwidth.max
 
     def __calc_drive_stats(self):
+        """
+        Calculate drive I/O statistics for a node.
+        """
         node_read = self.calc_stat_tuple(self.__node_read)
         node_write = self.calc_stat_tuple(self.__node_write)
 
@@ -105,6 +111,23 @@ class NodeStatus(Status):
         self._stats_dict['node_write_mean'] = node_write.mean
         self._stats_dict['node_write_stddev'] = node_write.stddev
         self._stats_dict['node_write_max'] = node_write.max
+
+    def __rename_keys(self):
+        """
+        rename keys in statistics dictionary , prepending node_ prefix
+        to fit NodeStatistics message field names.
+        """
+        statistic = ['mean', 'stddev', 'max']
+
+        for i in statistic:
+            self._stats_dict['node_cpu_usage_%s' %
+                             i] = self._stats_dict.pop('cpu_usage_%s' % i)
+            self._stats_dict['node_cpu_usage_core_%s' %
+                             i] = self._stats_dict.pop('cpu_usage_core_%s' % i)
+            self._stats_dict['node_ramusage_%s' %
+                             i] = self._stats_dict.pop('ram_usage_%s' % i)
+            self._stats_dict['node_gpu_usage_%s' %
+                             i] = self._stats_dict.pop('gpu_usage_%s' % i)
 
     @property
     def node_bandwidth(self):

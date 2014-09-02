@@ -237,54 +237,16 @@ class HostStatisticsHandler(StatisticsHandler):
         """
         stats_dict = self._status.calc_stats()
 
-        hs = HostStatistics()
+        host_status = HostStatistics()
 
-        hs.host = self._id
-        hs.window_start = self._status.time_start
-        hs.window_stop = self._status.time_end
+        host_status.host = self._id
+        host_status.window_start = self._status.time_start
+        host_status.window_stop = self._status.time_end
 
-        hs.cpu_usage_mean = stats_dict['cpu_usage_mean']
-        hs.cpu_usage_stddev = stats_dict['cpu_usage_stddev']
-        hs.cpu_usage_max = stats_dict['cpu_usage_max']
-
-        hs.cpu_temp_mean = stats_dict['cpu_temp_mean']
-        hs.cpu_temp_stddev = stats_dict['cpu_temp_stddev']
-        hs.cpu_temp_max = stats_dict['cpu_temp_max']
-
-        hs.cpu_usage_core_mean = stats_dict['cpu_usage_core_mean']
-        hs.cpu_usage_core_stddev = stats_dict['cpu_usage_core_stddev']
-        hs.cpu_usage_core_max = stats_dict['cpu_usage_core_max']
-
-        hs.cpu_temp_core_mean = stats_dict['cpu_temp_core_mean']
-        hs.cpu_temp_core_stddev = stats_dict['cpu_temp_core_stddev']
-        hs.cpu_temp_core_max = stats_dict['cpu_temp_core_max']
-
-        hs.ram_usage_mean = stats_dict['ram_usage_mean']
-        hs.ram_usage_stddev = stats_dict['ram_usage_stddev']
-        hs.ram_usage_max = stats_dict['ram_usage_max']
-
-        hs.interface_name = stats_dict['interface_name']
-        hs.message_frequency_mean = stats_dict['message_frequency_mean']
-        hs.message_frequency_stddev = stats_dict['message_frequency_stddev']
-        hs.message_frequency_max = stats_dict['message_frequency_max']
-
-        hs.bandwidth_mean = stats_dict['bandwidth_mean']
-        hs.bandwidth_stddev = stats_dict['bandwidth_stddev']
-        hs.bandwidth_max = stats_dict['bandwidth_max']
-
-        hs.drive_name = stats_dict['drive_name']
-        hs.drive_free_space = stats_dict['drive_free_space']
-        hs.drive_write = stats_dict['drive_write_mean']
-        hs.drive_read = stats_dict['drive_read_mean']
-
-        hs.gpu_temp_mean = stats_dict['gpu_temp_mean']
-        hs.gpu_temp_stddev = stats_dict['gpu_temp_stddev']
-        hs.gpu_temp_max = stats_dict['gpu_temp_max']
-        hs.gpu_usage_mean = stats_dict['gpu_usage_mean']
-        hs.gpu_usage_stddev = stats_dict['gpu_usage_stddev']
-        hs.gpu_usage_max = stats_dict['gpu_usage_max']
-
-        return hs
+        for v in dir(host_status):
+            if v in stats_dict:
+                setattr(host_status, v, stats_dict[v])
+        return host_status
 
     def execute_reaction(self, reaction):
         """

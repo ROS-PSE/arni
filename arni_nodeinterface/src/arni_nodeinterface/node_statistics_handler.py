@@ -93,46 +93,15 @@ class NodeStatisticsHandler(StatisticsHandler):
         """
         stats_dict = self._status.calc_stats()
 
-        ns = NodeStatistics()
-        ns.host = self.__host_id
-        ns.node = self._id
-        ns.window_start = self._status.time_start
-        ns.window_stop = self._status.time_end
-        ns.node_cpu_usage_mean = stats_dict['cpu_usage_mean']
-        ns.node_cpu_usage_stddev = stats_dict['cpu_usage_stddev']
-        ns.node_cpu_usage_max = stats_dict['cpu_usage_max']
-
-        ns.node_cpu_usage_core_mean = stats_dict['cpu_usage_core_mean']
-        ns.node_cpu_usage_core_stddev = stats_dict['cpu_usage_core_stddev']
-        ns.node_cpu_usage_core_max = stats_dict['cpu_usage_core_max']
-
-        ns.node_ramusage_mean = stats_dict['ram_usage_mean']
-        ns.node_ramusage_stddev = stats_dict['ram_usage_stddev']
-        ns.node_ramusage_max = stats_dict['ram_usage_max']
-
-        ns.node_message_frequency_mean = stats_dict[
-            'node_message_frequency_mean']
-        ns.node_message_frequency_stddev = stats_dict[
-            'node_message_frequency_stddev']
-        ns.node_message_frequency_max = stats_dict[
-            'node_message_frequency_max']
-
-        ns.node_bandwidth_mean = stats_dict['node_bandwidth_mean']
-        ns.node_bandwidth_stddev = stats_dict['node_bandwidth_stddev']
-        ns.node_bandwidth_max = stats_dict['node_bandwidth_max']
-
-        ns.node_write_mean = stats_dict['node_write_mean']
-        ns.node_write_stddev = stats_dict['node_write_stddev']
-        ns.node_write_max = stats_dict['node_write_max']
-
-        ns.node_read_mean = stats_dict['node_read_mean']
-        ns.node_read_stddev = stats_dict['node_read_stddev']
-        ns.node_read_max = stats_dict['node_read_max']
-
-        ns.node_gpu_usage_mean = stats_dict['gpu_usage_mean']
-        ns.node_gpu_usage_stddev = stats_dict['gpu_usage_stddev']
-        ns.node_gpu_usage_max = stats_dict['gpu_usage_max']
-        return ns
+        node_status = NodeStatistics()
+        node_status.host = self.__host_id
+        node_status.node = self._id
+        node_status.window_start = self._status.time_start
+        node_status.window_stop = self._status.time_end
+        for v in dir(node_status):
+            if v in stats_dict:
+                setattr(node_status, v, stats_dict[v])
+        return node_status
 
     def receive_statistics(self, stats):
         """

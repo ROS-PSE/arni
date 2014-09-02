@@ -219,14 +219,8 @@ class HostStatus(Status):
         drive_read = [self.calc_stat_tuple(self.__drive_read[key])
                       for key in self.__drive_read]
 
-        self._stats_dict['drive_write_mean'] = [i.mean for i in drive_write]
-        self._stats_dict['drive_write_stddev'] = [
-            i.stddev for i in drive_write]
-        self._stats_dict['drive_write_max'] = [i.max for i in drive_write]
-
-        self._stats_dict['drive_read_mean'] = [i.mean for i in drive_read]
-        self._stats_dict['drive_read_stddev'] = [i.stddev for i in drive_read]
-        self._stats_dict['drive_read_max'] = [i.max for i in drive_read]
+        self._stats_dict['drive_write'] = [i.mean for i in drive_write]
+        self._stats_dict['drive_read'] = [i.mean for i in drive_read]
 
     @property
     def cpu_temp(self):
