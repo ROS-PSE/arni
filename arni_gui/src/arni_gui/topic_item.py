@@ -103,9 +103,8 @@ class TopicItem(AbstractItem):
         data_dict = self.get_latest_data()
 
         content = ""
-        if data_dict["state"] is not "ok":
-            #todo: print the wrong data here
-            content += "something is wrong"
+        if data_dict["state"] is "error":
+            content += self.get_erroneous_entries().replace("<br>", " - ")
             pass
         else:
             content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(

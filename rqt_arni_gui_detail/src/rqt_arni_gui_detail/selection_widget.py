@@ -357,12 +357,17 @@ class SelectionWidget(QWidget):
 
                     for key in plotable_items:
                         if key in list_entries:
+                            pass
                             #y = []
+                            #for j in range(0, len(plotable_data[key][0])):
+                            #    temp_content[j] = []
                             # time
                             #for i in range(0, length, modulo):
+                            #    for j in range(0, len(plotable_data[key][i])):
+                            #        temp_content[j].append(plotable_data[key][i][j])
 
-                            #    for j in range(0, len(plotable_data[key]):
-                            pass
+                            #for j in range(0, len(plotable_data[key][0])):
+                            #    self.__plotted_curves[key].setData(x=x, y=np.array(temp_content[j]))
                         else:
                             if key in time_entries:
                                 for i in range(0, length, modulo):
@@ -373,11 +378,7 @@ class SelectionWidget(QWidget):
                             y = np.array(temp_content)
                             del temp_content[:]
 
-                            try:
-                                self.__plotted_curves[key].setData(x=x, y=y)
-                            except KeyError:
-                                print self.__plotted_curves
-                                raise
+                            self.__plotted_curves[key].setData(x=x, y=y)
                 else:
                     pass
 

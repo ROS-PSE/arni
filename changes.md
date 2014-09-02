@@ -38,14 +38,12 @@ Change
 * overview.ui from log_tab_tree_widget to log_tab_tree_view.
 
 ## Big TODOS:
-* logging every error message occuring when updating an item
 * delete items older than currently does **NOT** erase rated data!!! 
 * from some data in the overview widget the mean has to be calculated (or e.g. display the data from the last minute or something!!!)
 * topic aggregation not yet working!!! --> get the algorithm from matthias and build it in :) --> 
 * filter is restricted to the upper plains --> if an word is searched and only a node but not its host contains the word
 * replace "something is wrong" with good text!
-* cpu usage core ist nicht sinnvoll beim plotten --> raus!
-* beim plotten beachten: mehrdimensionale arrays!!!
+
 
 ## !others work!
 * CPU_TEMP_CORE IS UNNECESSARY AND SHOULD BE REMOVED BEFORE PUBLISHING!!!
@@ -65,6 +63,9 @@ Change
 
 
 ## WiP
+* [mh]when plotting have to care for multidimensional entries --> simpel solution: don't add them right now
+* [mh]cpu usage core ist nicht sinnvoll beim plotten --> raus!
+* [sk]logging every error message occuring when updating an item
 * [sk]host recognition for a host on the same pc  --> seems to work but only in "real" networks, obviously a Configuration problem
 * [mh]Fixed a bug that when the erroneous checkbox was on, the filter could not be applied correcty without removing the "errouneous" filter
 * [mh]drawing the graphs in selectionwidget --> copy and paste --> many errors still remaining to fix!!!

@@ -117,6 +117,8 @@ class OverviewWidget(QWidget):
 
         self.__graph_dict = {}
 
+        self.__first_resize = True
+
         self.__plotted_curves = {}
         self.create_graphs()
 
@@ -193,7 +195,8 @@ class OverviewWidget(QWidget):
         # getting the size
         size = self.__graph_layout.size()
         items_per_group = (size.height() - 100) / 200 + 1
-        if items_per_group is not self.__items_per_group:
+        if items_per_group is not self.__items_per_group or self.__first_resize:
+            self.__first_resize = False
             self.__graph_layout.set_blocked(True)
             self.__items_per_group = 1 if items_per_group < 1 else items_per_group
             self.__number_of_groups = int(math.ceil(len(self.__plotable_items) / float(self.__items_per_group)))
