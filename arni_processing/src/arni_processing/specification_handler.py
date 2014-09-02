@@ -108,6 +108,7 @@ class SpecificationHandler:
             fields.append("bandwidth")
             fields.append("frequency")
         for field in fields:
+            value = None
             if field[0] == "_" or "serialize" in field:
                 continue
             current_obj = {}
@@ -118,22 +119,23 @@ class SpecificationHandler:
                     value = data.delivered_msgs / window_len.to_sec()
             else:
                 value = getattr(data, field)
-            limits = self.__get_limits(specification, field)
-            if isinstance(value, (list, tuple)):
-                current_obj["state"] = []
-                current_obj["actual"] = []
-                current_obj["expected"] = []
-                for i, v in enumerate(value):
-                    limits = self.__get_limits(specification, field, i)
-                    current_obj["actual"].append(v)
-                    current_obj["state"].append(self.__compare(v, limits))
-                    current_obj["expected"].append(limits)
-            else:
-                status = self.__compare(value, limits)
-                current_obj["state"] = status
-                current_obj["actual"] = value
-                current_obj["expected"] = limits
-            result.add_value(field, current_obj["actual"], current_obj["expected"], current_obj["state"])
+            if value is not None:
+                limits = self.__get_limits(specification, field)
+                if isinstance(value, (list, tuple)):
+                    current_obj["state"] = []
+                    current_obj["actual"] = []
+                    current_obj["expected"] = []
+                    for i, v in enumerate(value):
+                        limits = self.__get_limits(specification, field, i)
+                        current_obj["actual"].append(v)
+                        current_obj["state"].append(self.__compare(v, limits))
+                        current_obj["expected"].append(limits)
+                else:
+                    status = self.__compare(value, limits)
+                    current_obj["state"] = status
+                    current_obj["actual"] = value
+                    current_obj["expected"] = limits
+                result.add_value(field, current_obj["actual"], current_obj["expected"], current_obj["state"])
         return result
 
     def compare_topic(self, data=None):
