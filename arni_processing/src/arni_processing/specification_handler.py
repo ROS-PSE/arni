@@ -95,7 +95,7 @@ class SpecificationHandler:
             #     if identifier[0] == "c":
             #         if SEUID(identifier).topic in self.__specifications.keys():
             #             specification = self.__specifications[SEUID(identifier).topic]
-            identifier = self.get(identifier)
+            specification = self.get(identifier)
         # if specification is None:
         # rospy.logdebug("[SpecificationHandler][compare] No Specification available for %s" % identifier)
         window_len = data.window_stop - data.window_start
