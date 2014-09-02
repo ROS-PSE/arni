@@ -139,6 +139,7 @@ class AbstractItem(QObject):
                     and self.__state[-1] is not "unknown":
                 for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5), "window_stop"))["window_stop"]), length):
                     if self.__state[i] == "error":
+			self._logger.log("error", Time.now(), self.seuid, get_erroneous_entries_for_log)
                         self.__state[-1] = "warning"
                         break
         self.__last_update = Time.now()
@@ -505,6 +506,24 @@ class AbstractItem(QObject):
                                            " <div class=\"erroneous_entry\">" + self.__rated_data[entry + ".state"][i] + "</div>"
                 content += "<br>"
         content += "</p>"
+        return content
+      
+      
+      def get_erroneous_entries_for_log(self):
+        """
+        Returns the erroneous entries for the log as a string
+
+        :returns: an string containing the erroneous entries yet preformatted
+        :rtype: str
+        """
+        content = ""
+        if self.__state:
+            if self.__state[-1] is not "ok" and self.__state[-1] is not "unknown":
+                for entry in self._attributes:
+                    if self.__rated_data[entry + ".state"]:
+                        for i in range(0, len(self.__rated_data[entry + ".state"][-1])):
+                            if self.__rated_data[entry + ".state"][-1][i] is "high" or self.__rated_data[entry + ".state"][-1][i] is "low":
+                                content += self.tr(entry) + ": " self.__rated_data[entry + ".state"][i] + "  "
         return content
 
 
