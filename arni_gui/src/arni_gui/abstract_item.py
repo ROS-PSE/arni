@@ -133,14 +133,15 @@ class AbstractItem(QObject):
         
         if self.__state:
 	    if len(self.__state) > 1:
-	        if self.__state[-1] is "error" and self.__state[-2] is not "error" and self.seuid is not "root":	       
+	        if self.__state[-1] is "error" and self.__state[-2] is not "error" and self.seuid is not "root":		    
 	            self._logger.log("error", Time.now(), self.seuid, self.get_erroneous_entries_for_log())
-	    elif self.__state[-1] == "error" and self.seuid is not "root":
+	    elif self.__state[-1] is "error" and self.seuid is not "root":
 	        self.__state.append("error")
 	        self._logger.log("error", Time.now(), self.seuid, self.get_erroneous_entries_for_log())
             if self.__state[-1] is not "error" and self.__state[-1] is not "warning" \
                     and self.__state[-1] is not "unknown":
-                for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5), "window_stop"))["window_stop"]), length):
+                #for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5), "window_stop"))["window_stop"]), length):
+                for i in range(-2):
                     if self.__state[i] == "error":
                         self.__state.append("warning")
                         break
