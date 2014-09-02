@@ -73,7 +73,7 @@ class TopicItem(AbstractItem):
         content += self.get_erroneous_entries()
 
         content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) \
-                   + " " + self.tr("traffic") + " <br>"
+                   + " " + self.tr("dropped_msgs_unit") + " <br>"
         content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) \
                    + " " + self.tr("traffic_unit") + " <br>"
         content += self.tr("stamp_age_mean") + ": " + str(data_dict["stamp_age_mean"]) \
