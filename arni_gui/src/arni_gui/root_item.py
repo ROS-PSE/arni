@@ -56,7 +56,7 @@ class RootItem(AbstractItem):
 
         #content += "<span title=\"<tooltip>\">TestTestTest</span> <br>"
         content += self.tr("total_traffic") + ": " + prepare_number_for_representation(data_dict["total_traffic"]) + " " + self.tr("bandwidth_mean_unit") + " <br>"
-        content += self.tr("connected_hosts") + ": " + ": " + str(data_dict["connected_hosts"]) + "<br>"
+        content += self.tr("connected_hosts") + ": " + str(data_dict["connected_hosts"]) + "<br>"
         content += self.tr("connected_nodes") + ": " + str(data_dict["connected_nodes"]) + "<br>"
         content += self.tr("topic_counter") + ": " + str(data_dict["topic_counter"]) + "<br>"
         content += self.tr("connection_counter") + ": " + str(data_dict["connection_counter"]) + "<br>"

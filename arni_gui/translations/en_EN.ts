@@ -34,7 +34,7 @@
     <message>
         <location filename="src/arni_gui/connection_item.py" line="126"/>
         <source>dropped_msgs_unit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"> </translation>
     </message>
     <message>
         <location filename="src/arni_gui/connection_item.py" line="127"/>
@@ -352,7 +352,7 @@
     <message>
         <location filename="src/arni_gui/host_item.py" line="133"/>
         <source>bandwidth_mean_unit</source>
-        <translation type="unfinished">Byte</translation>
+        <translation type="unfinished">Byte/s</translation>
     </message>
     <message>
         <location filename="src/arni_gui/host_item.py" line="134"/>
@@ -362,7 +362,7 @@
     <message>
         <location filename="src/arni_gui/host_item.py" line="135"/>
         <source>bandwidth_stddev_unit</source>
-        <translation type="unfinished">Byte</translation>
+        <translation type="unfinished">Byte/s</translation>
     </message>
     <message>
         <location filename="src/arni_gui/host_item.py" line="136"/>
@@ -372,7 +372,7 @@
     <message>
         <location filename="src/arni_gui/host_item.py" line="137"/>
         <source>bandwidth_max_unit</source>
-        <translation type="unfinished">Byte</translation>
+        <translation type="unfinished">Byte/s</translation>
     </message>
     <message>
         <location filename="src/arni_gui/host_item.py" line="141"/>
@@ -580,7 +580,7 @@
     <message>
         <location filename="src/arni_gui/node_item.py" line="212"/>
         <source>node_bandwidth_mean_unit</source>
-        <translation type="unfinished">Byte</translation>
+        <translation type="unfinished">Byte/s</translation>
     </message>
     <message>
         <location filename="src/arni_gui/node_item.py" line="152"/>
@@ -590,7 +590,7 @@
     <message>
         <location filename="src/arni_gui/node_item.py" line="154"/>
         <source>node_bandwidth_stddev_unit</source>
-        <translation type="unfinished">Byte</translation>
+        <translation type="unfinished">Byte/s</translation>
     </message>
     <message>
         <location filename="src/arni_gui/node_item.py" line="155"/>
@@ -600,7 +600,7 @@
     <message>
         <location filename="src/arni_gui/node_item.py" line="157"/>
         <source>node_bandwidth_max_unit</source>
-        <translation type="unfinished">Byte</translation>
+        <translation type="unfinished">Byte/s</translation>
     </message>
     <message>
         <location filename="src/arni_gui/node_item.py" line="158"/>
@@ -769,12 +769,12 @@
     <message>
         <location filename="src/arni_gui/root_item.py" line="60"/>
         <source>topic_counter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Monitored Topics</translation>
     </message>
     <message>
         <location filename="src/arni_gui/root_item.py" line="61"/>
         <source>connection_counter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Publisher-Subscriber Connections</translation>
     </message>
     <message>
         <location filename="src/arni_gui/root_item.py" line="62"/>
@@ -970,7 +970,7 @@
     <message>
         <location filename="src/arni_gui/topic_item.py" line="113"/>
         <source>dropped_msgs_unit</source>
-        <translation type="unfinished">s</translation>
+        <translation type="unfinished"> </translation>
     </message>
 </context>
 <context>
