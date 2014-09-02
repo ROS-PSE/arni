@@ -50,6 +50,8 @@ class AbstractItem(QObject):
 
         self.__length_of_data = 0
         self.__length_of_rated_data = 0
+        
+        self.__old_log_entry = ""
 
     def get_seuid(self):
         """
@@ -129,11 +131,13 @@ class AbstractItem(QObject):
         length = len(self.__state)
         
         if self.__state:
+	    if self.__state[-1] is "error" and self.seuid is not "root" and self.get_erroneous_entries_for_log():
+	        self._logger.log("error", Time.now(), self.seuid, self.get_erroneous_entries_for_log())
+	        self.__old_log_entry = self.get_erroneous_entries_for_log()
             if self.__state[-1] is not "error" and self.__state[-1] is not "warning" \
                     and self.__state[-1] is not "unknown":
                 for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5), "window_stop"))["window_stop"]), length):
-                    if self.__state[i] == "error":
-                        self._logger.log("error", Time.now(), self.seuid, self.get_erroneous_entries_for_log())
+                    if self.__state[i] == "error":                        
                         self.__state[-1] = "warning"
                         break
         self.__last_update = Time.now()
@@ -472,16 +476,16 @@ class AbstractItem(QObject):
                         for i in range(0, len(self.__rated_data[entry + ".state"][-1])):
                             if self.__rated_data[entry + ".state"][-1][i] is "high" or self.__rated_data[entry + ".state"][-1][i] is "low":
                                 content += self.tr(entry) +\
-                                           self.tr("actual_value") +\
-                                           " <div class=\"erroneous_entry\">" + self.__rated_data[entry + ".actual_value"][i] + "</div>" + \
-                                           self.tr(entry + "_unit")
+                                           self.tr(" actual_value:") +\
+                                           " <div class=\"erroneous_entry\">" +  str(self.__rated_data[entry + ".actual_value"][i][0][0]) + "</div>" + \
+                                           self.tr(entry + "_unit") + "<br>"
                                 content += self.tr(entry) +\
-                                           self.tr("expected_value") +\
-                                           " <div class=\"erroneous_entry\">" + self.__rated_data[entry + ".expected_value"][i] + "</div>" + \
-                                           self.tr(entry + "_unit")
+                                           self.tr(" expected_value:") +\
+                                           " <div class=\"erroneous_entry\">" + str(self.__rated_data[entry + ".expected_value"][i][0][0]) + "</div>" + \
+                                           self.tr(entry + "_unit") + "<br>"
                                 content += self.tr(entry) +\
-                                           self.tr("state") +\
-                                           " <div class=\"erroneous_entry\">" + self.__rated_data[entry + ".state"][i] + "</div>"
+                                           self.tr(" state:") +\
+                                           " <div class=\"erroneous_entry\">" + str(self.__rated_data[entry + ".state"][i][0]) + "</div>" + "<br>"
                 content += "<br>"
         content += "</p>"
         return content
@@ -500,7 +504,7 @@ class AbstractItem(QObject):
                     if self.__rated_data[entry + ".state"]:
                         for i in range(0, len(self.__rated_data[entry + ".state"][-1])):
                             if self.__rated_data[entry + ".state"][-1][i] is "high" or self.__rated_data[entry + ".state"][-1][i] is "low":
-                                content += self.tr(entry) + ": " + self.__rated_data[entry + ".state"][i] + "  "
+                                content += self.tr(entry) + ": " + str(self.__rated_data[entry + ".state"][i][0]) + "  "
         return content
 
     def can_execute_actions(self):
