@@ -43,6 +43,8 @@ Change
 * from some data in the overview widget the mean has to be calculated (or e.g. display the data from the last minute or something!!!)
 * topic aggregation not yet working!!! --> get the algorithm from matthias and build it in :) --> 
 
+* filter is restricted to the upper plains --> if an word is searched and only a node but not its host contains the word
+
 ## !others work!
 * CPU_TEMP_CORE IS UNNECESSARY AND SHOULD BE REMOVED BEFORE PUBLISHING!!!
 
@@ -54,9 +56,15 @@ Change
 * add licence data to every file
 * check host/node etc regularily for timeouts --> get_time_of_last_update() --> im model regelmäßig abfragen und nach 65 sekunden löschen
 * shrink the graphics to smaller size
+* after a lot of time the programm doesn't terminate any longer
+* on enter clicked --> automatically activate apply button
+* add an expand_all button 
+* caching the filter results in the proxies for faster updates :)
 
 
 ## WiP
+* [sk]host recognition for a host on the same pc  --> seems to work but only in "real" networks, obviously a Configuration problem
+* [mh]Fixed a bug that when the erroneous checkbox was on, the filter could not be applied correcty without removing the "errouneous" filter
 * [mh]drawing the graphs in selectionwidget --> copy and paste --> many errors still remaining to fix!!!
 * [mh]race conditions in overviewWidget on_graph_window_resized or similar whenever the resize method is called to fast... --> probably fixed, at least in most cases
 * [sk] / [mh]after some time the overview widget does not show any data any more...

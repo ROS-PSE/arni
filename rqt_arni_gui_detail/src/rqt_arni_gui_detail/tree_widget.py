@@ -68,7 +68,6 @@ class TreeWidget(QWidget):
         self.show_erroneous_check_box.setText(self.tr("Only Erroneous"))
         self.apply_push_button.setText(self.tr("Apply"))
 
-
     def connect_slots(self):
         """Connects the slots."""
         # : show_nodes_check_box
@@ -88,6 +87,7 @@ class TreeWidget(QWidget):
         #: plus_push_button
         self.plus_push_button.clicked.connect(self.__on_plus_push_button_clicked)
 
+        self.filter_line_Edit.returnPressed.connect(self.__on_apply_push_button_clicked)
 
     def __on_show_nodes_check_box_state_changed(self, activated):
         """
@@ -159,7 +159,7 @@ class TreeWidget(QWidget):
         """
         Filters the content in the box according to the content of the filter_line_edit.
         """
-        self.__filter_proxy.setFilterRegExp(QRegExp(".*" + self.filter_line_Edit.text() + ".*"))
+        self.__filter_proxy.set_filter_string(self.filter_line_Edit.text())
 
 
     def __on_minus_push_button_clicked(self):

@@ -23,6 +23,8 @@ class ItemFilterProxy(QSortFilterProxyModel):
         self.__show_connections = True
         self.__show_topics = True
 
+        self.__filter_string = ""
+
 
     def filterAcceptsRow(self, source_row, source_parent):
         """
@@ -69,9 +71,22 @@ class ItemFilterProxy(QSortFilterProxyModel):
         if correct_type is False:
             return False
 
-        #filters accordings to the filter regex
+        #todo: speed this implementation a lot up by not using the model!!!
+        if self.__filter_string is not "":
+            #print("now filter")
+            #print(self.__filter_string)
+            #for i in range(0, len(entries)):
+            #    print(self.sourceModel().data(entries[i]))
+
+            tests = [self.__filter_string in self.sourceModel().data(entries[i]) for i in range(0, len(entries))]
+
+            if True in tests:
+                return QSortFilterProxyModel.filterAcceptsRow(self, source_row, source_parent)
+            else:
+                return False
+
         return QSortFilterProxyModel.filterAcceptsRow(self, source_row, source_parent)
-      
+
 
     def lessThan(self, left, right):
         """
@@ -95,6 +110,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
         :type show_hosts: bool
         """
         self.__show_hosts = show_hosts
+        self.invalidateFilter()
         
 
     def show_nodes(self, show_nodes):
@@ -105,6 +121,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
         :type show_nodes: bool
         """
         self.__show_nodes = show_nodes
+        self.invalidateFilter()
         
 
     def show_connections(self, show_connections):
@@ -115,6 +132,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
         :type show_connections: bool
         """
         self.__show_connections = show_connections
+        self.invalidateFilter()
 
 
     def show_topics(self, show_topics):
@@ -125,3 +143,8 @@ class ItemFilterProxy(QSortFilterProxyModel):
         :type show_topics: bool
         """
         self.__show_topics = show_topics
+        self.invalidateFilter()
+
+    def set_filter_string(self, filter_string):
+        self.__filter_string = filter_string
+        self.invalidateFilter()
