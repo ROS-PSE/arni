@@ -5,6 +5,7 @@ from arni_msgs.msg import RatedStatistics
 
 import pyqtgraph as pg
 
+import genpy
 import time
 
 # define constants
@@ -36,6 +37,7 @@ except ImportError as e:
     print("An error occured trying to import pyqtgraph. Please install pyqtgraph via \"pip install pyqtgraph\".")
     raise
 
+
 class ResizeableGraphicsLayoutWidget(pg.GraphicsLayoutWidget):
     def __init__(self, function_to_call, parent=None, **kwargs):
         self.function_to_call = function_to_call
@@ -53,6 +55,7 @@ class ResizeableGraphicsLayoutWidget(pg.GraphicsLayoutWidget):
                 #only occurs when widget is resized before the set_function method is called
                 pass
         pg.GraphicsLayoutWidget.resizeEvent(self, ev)
+
 
 class DateAxis(pg.AxisItem):
     def tickStrings(self, values, scale, spacing):
@@ -119,6 +122,8 @@ def prepare_number_for_representation(number):
     """
     if number is None:
         return "unknown"
+    if type(number) is genpy.rostime.Duration or type(number) is genpy.rostime.Time:
+        return str(number.to_sec())
     if type(number) is str or type(number) is unicode:
         return number
     return str(round(number, 2))
