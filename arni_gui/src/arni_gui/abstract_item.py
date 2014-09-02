@@ -28,6 +28,8 @@ class AbstractItem(QObject):
         super(AbstractItem, self).__init__(parent)
         self._logger = logger
         self._data = {}
+        
+        self.counter = 0
         """
         __rated_data is dict containing the rated data. state, window_start and window_end are simply lists
          with the corresponding entries. Any other values typically is a list containing lists which however contain the
@@ -51,7 +53,6 @@ class AbstractItem(QObject):
         self.__length_of_data = 0
         self.__length_of_rated_data = 0
         
-        self.__old_log_entry = ""
 
     def get_seuid(self):
         """
@@ -131,15 +132,19 @@ class AbstractItem(QObject):
         length = len(self.__state)
         
         if self.__state:
-	    if self.__state[-1] is "error" and self.seuid is not "root" and self.get_erroneous_entries_for_log():
+	    if len(self.__state) > 1:
+	        if self.__state[-1] is "error" and self.__state[-2] is not "error" and self.seuid is not "root":	       
+	            self._logger.log("error", Time.now(), self.seuid, self.get_erroneous_entries_for_log())
+	    elif self.__state[-1] == "error" and self.seuid is not "root":
+	        self.__state.append("error")
 	        self._logger.log("error", Time.now(), self.seuid, self.get_erroneous_entries_for_log())
-	        self.__old_log_entry = self.get_erroneous_entries_for_log()
             if self.__state[-1] is not "error" and self.__state[-1] is not "warning" \
                     and self.__state[-1] is not "unknown":
                 for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5), "window_stop"))["window_stop"]), length):
-                    if self.__state[i] == "error":                        
-                        self.__state[-1] = "warning"
+                    if self.__state[i] == "error":
+                        self.__state.append("warning")
                         break
+            
         self.__last_update = Time.now()
 
     def append_data(self, data):
@@ -158,7 +163,7 @@ class AbstractItem(QObject):
                 raise
 
         #todo: is the state sensefull here? I THINK NOT!!!
-        self.__state.append("unknown")
+        #self.__state.append("unknown")
         self.__length_of_data += 1
         self._update_current_state()
 
@@ -179,7 +184,7 @@ class AbstractItem(QObject):
 
         if self.__state:
             if "state" in data:
-                self.__state[-1] = data["state"]
+                self.__state.append(data["state"])
         else:
             #todo: now there is one entry too much in self.__state... is that a problem?
             self.__state.append("unknown")
@@ -370,9 +375,10 @@ class AbstractItem(QObject):
             for j in range(0, len(entries_to_delete["window_stop"])):
                 for value in self._data.values():
                     del value[0]
-                del self.__state[0]
+                #del self.__state[0]
 
             self.__length_of_data -= i
+        self.__state[0:-2]
 
     def get_items_younger_than(self, time, *args):
         """
