@@ -195,7 +195,7 @@ class OverviewWidget(QWidget):
         items_per_group = (size.height() - 100) / 200 + 1
         if items_per_group is not self.__items_per_group:
             self.__graph_layout.set_blocked(True)
-            self.__items_per_group = items_per_group
+            self.__items_per_group = 1 if items_per_group < 1 else items_per_group
             self.__number_of_groups = int(math.ceil(len(self.__plotable_items) / float(self.__items_per_group)))
             # change the groups in the widget
             self.selected_combo_box.clear()

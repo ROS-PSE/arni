@@ -42,8 +42,10 @@ Change
 * delete items older than currently does **NOT** erase rated data!!! 
 * from some data in the overview widget the mean has to be calculated (or e.g. display the data from the last minute or something!!!)
 * topic aggregation not yet working!!! --> get the algorithm from matthias and build it in :) --> 
-
 * filter is restricted to the upper plains --> if an word is searched and only a node but not its host contains the word
+* replace "something is wrong" with good text!
+* cpu usage core ist nicht sinnvoll beim plotten --> raus!
+* beim plotten beachten: mehrdimensionale arrays!!!
 
 ## !others work!
 * CPU_TEMP_CORE IS UNNECESSARY AND SHOULD BE REMOVED BEFORE PUBLISHING!!!

@@ -118,6 +118,8 @@ class SelectionWidget(QWidget):
         self.__state = "ok"
         self.__previous_state = "ok"
 
+        self.__selected_item_changed = True
+
         self.__deleted = False
         
         pg.setConfigOption('background', 'w')
@@ -214,7 +216,7 @@ class SelectionWidget(QWidget):
         if self.__selected_item is not None:
             size = self.__graph_layout.size()
             items_per_group = (size.height() - 100) / 200 + 1
-            if items_per_group is not self.__items_per_group:
+            if items_per_group is not self.__items_per_group or self.__selected_item_changed:
                 self.__graph_layout.set_blocked(True)
                 self.__items_per_group = items_per_group
                 self.__number_of_groups = int(math.ceil(len(self.__plotable_items) / float(self.__items_per_group)))
@@ -280,8 +282,9 @@ class SelectionWidget(QWidget):
                 else:
                     self.stop_push_button.setEnabled(False)
                     self.restart_push_button.setEnabled(False)
-            self.create_graphs()
+                self.__selected_item_changed = True
             self.update()
+            self.__on_graph_window_size_changed()
 
 
     def __on_current_tab_changed(self, tab):
@@ -328,6 +331,9 @@ class SelectionWidget(QWidget):
         self.__update_graphs_lock.acquire()
         if self.__selected_item is not None:
             if self.__draw_graphs or self.__first_update_pending:
+                #print("items per group: " + str(self.__items_per_group))
+                #print("combo index: " + str(self.__current_selected_combo_box_index))
+                #print("len plot " + str(len(self.__plotable_items)))
                 plotable_items = self.__plotable_items[min(self.__current_selected_combo_box_index *
                                     self.__items_per_group, len(self.__plotable_items)):min((self.__current_selected_combo_box_index + 1)
                                                             * self.__items_per_group, len(self.__plotable_items))]
@@ -338,33 +344,38 @@ class SelectionWidget(QWidget):
                     temp_time = []
                     temp_content = []
 
-                    modulo = (len(plotable_data["window_stop"]) / 200) + 1
-
                     length = len(plotable_data["window_stop"])
+                    modulo = (length / 200) + 1
+
                     for i in range(0, length, modulo):
                         # now having maximally 100 items to plot :)
                         temp_time.append(int(str(plotable_data["window_stop"][i]))/1000000000)
                     x = np.array(temp_time)
 
+                    list_entries = self.__selected_item.get_list_items()
 
                     for key in plotable_items:
-                        for i in range(0, length, modulo):
-                            temp_content.append(plotable_data[key][i])
-                        #todo: does this also work, when ints are inputed (or None values^^). is f8 needed here?
-                        #print("length content before:" + str(len(temp_content)))
-                        #print(key + "   y   ")
-                        y = np.array(temp_content)
-                        del temp_content[:]
+                        if key in list_entries:
+                            #y = []
+                            # time
+                            #for i in range(0, length, modulo):
 
-                        try:
-                            self.__plotted_curves[key].setData(x=x, y=y)
-                        except KeyError:
-                            print self.__plotted_curves
-                            raise
+                            #    for j in range(0, len(plotable_data[key]):
+                            pass
+                        else:
+                            for i in range(0, length, modulo):
+                                #print(plotable_data[key][i])
+                                temp_content.append(plotable_data[key][i])
+                            y = np.array(temp_content)
+                            del temp_content[:]
+
+                            try:
+                                self.__plotted_curves[key].setData(x=x, y=y)
+                            except KeyError:
+                                print self.__plotted_curves
+                                raise
                 else:
                     pass
-                    #for key in plotable_items:
-                    #    self.__graph_dict[key].setLabel(axis='top', text='no information available')
 
             self.__first_update_pending = False
         self.__update_graphs_lock.release()
@@ -429,7 +440,7 @@ class SelectionWidget(QWidget):
         elif self.__current_combo_box_index == 1:
             return 30
         else:
-            return 300
+            return 60
 
 
     def get_current_tab(self):

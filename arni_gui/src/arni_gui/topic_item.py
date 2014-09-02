@@ -129,5 +129,5 @@ class TopicItem(AbstractItem):
         """
         return False
 
-    def _get_list_items(self):
+    def get_list_items(self):
         return []

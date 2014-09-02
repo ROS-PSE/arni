@@ -190,7 +190,7 @@ class HostItem(AbstractItem):
         return content
 
 
-    def _get_list_items(self):
+    def get_list_items(self):
         return ["cpu_usage_core_mean", "cpu_usage_core_stddev",
                 "cpu_usage_core_max", "cpu_temp_core", "cpu_temp_core_mean", "cpu_temp_core_stddev",
                 "cpu_temp_core_max", "gpu_temp_mean", "gpu_temp_stddev", "gpu_temp_max", "gpu_usage_mean",

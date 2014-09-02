@@ -139,7 +139,7 @@ class AbstractItem(QObject):
                     and self.__state[-1] is not "unknown":
                 for i in range(length - len((self.get_items_younger_than(Time.now() - Duration(secs=5), "window_stop"))["window_stop"]), length):
                     if self.__state[i] == "error":
-			self._logger.log("error", Time.now(), self.seuid, get_erroneous_entries_for_log)
+                        self._logger.log("error", Time.now(), self.seuid, self.get_erroneous_entries_for_log())
                         self.__state[-1] = "warning"
                         break
         self.__last_update = Time.now()
@@ -289,7 +289,7 @@ class AbstractItem(QObject):
                         if self._data[key]:
                             return_dict[key] = self._data[key][-1]
                         else:
-                            if key in self._get_list_items():
+                            if key in self.get_list_items():
                                 return_dict[key] = [self.tr("Currently no value available")]
                             else:
                                 return_dict[key] = self.tr("Currently no value available")
@@ -306,7 +306,7 @@ class AbstractItem(QObject):
                 if self._data[entry]:
                     return_dict[entry] = self._data[entry][-1]
                 else:
-                    if entry in self._get_list_items():
+                    if entry in self.get_list_items():
                         return_dict[entry] = [self.tr("Currently no value available")]
                     else:
                         return_dict[entry] = self.tr("Currently no value available")

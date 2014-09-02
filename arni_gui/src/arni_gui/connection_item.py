@@ -133,5 +133,5 @@ class ConnectionItem(AbstractItem):
 
         return content
 
-    def _get_list_items(self):
+    def get_list_items(self):
         return []

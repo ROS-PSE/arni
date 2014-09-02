@@ -137,7 +137,7 @@ class ROSModel(QAbstractItemModel):
             if item is None:
                 raise IndexError("item is None")
             if self.__mapping[index.column()] is "data":
-                return item.get_short_data()	      
+                return item.get_short_data()
             return item.get_latest_data(self.__mapping[index.column()])[self.__mapping[index.column()]]	  
         return None
 
@@ -154,7 +154,7 @@ class ROSModel(QAbstractItemModel):
         """
         if not index.isValid():
             return Qt.NoItemFlags
-	  
+
         return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
 
