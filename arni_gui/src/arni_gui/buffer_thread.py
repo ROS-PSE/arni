@@ -98,7 +98,12 @@ class BufferThread(Thread):
         """
         self.__model.update_model(self.__rated_statistics_buffer, self.__topic_statistics_buffer,
                                   self.__host_statistics_buffer, self.__node_statistics_buffer)
-        
+	
+	del self.__rated_statistics_buffer[:]
+	del self.__topic_statistics_buffer[:]
+	del self.__host_statistics_buffer[:]
+	del self.__node_statistics_buffer[:]
+	
         
     def __add_rated_statistics_item(self, item):
         """
