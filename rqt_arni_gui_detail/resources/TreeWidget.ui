@@ -32,8 +32,11 @@
          </item>
          <item>
           <widget class="QLineEdit" name="filter_line_Edit">
+           <property name="text">
+            <string/>
+           </property>
            <property name="placeholderText">
-            <string>Enter filter text here</string>
+            <string>Filter by item</string>
            </property>
           </widget>
          </item>

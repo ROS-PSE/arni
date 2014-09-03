@@ -46,7 +46,7 @@ class BufferThread(Thread):
         """
         The Destructor of the BufferThread
         """
-        #todo: I think this does not work as intended :(
+        # todo: I think this does not work as intended :(
         self.__timer.stop()
         del self.__timer
 
@@ -67,9 +67,10 @@ class BufferThread(Thread):
             response = get_statistic_history(rospy.Time(0))
             rated_statistics_history = response.rated_topic_statistics + response.rated_node_statistics + response.rated_host_statistics + response.rated_node_statistics
             self.__model.update_model(rated_statistics_history, response.topic_statistics,
-                                        response.host_statistics, response.node_statistics)
+                                      response.host_statistics, response.node_statistics)
         except ServiceException as msg:
-            self.__model.get_logger().log("info", Time.now(), "BufferThread", "get_statistic_history is not available, probably monitoring_node is not running. Will continue without the information about the past")
+            self.__model.get_logger().log("info", Time.now(), "BufferThread",
+                                          "get_statistic_history is not available, probably monitoring_node is not running. Will continue without the information about the past")
 
 
     def __register_subscribers(self):
@@ -88,8 +89,8 @@ class BufferThread(Thread):
         rospy.Subscriber(
             "/statistics_host", HostStatistics,
             self.__add_host_statistics_item)
-        
-        
+
+
     def __update_model(self, event):
         """
         Starts the update of the model. 
@@ -98,8 +99,13 @@ class BufferThread(Thread):
         """
         self.__model.update_model(self.__rated_statistics_buffer, self.__topic_statistics_buffer,
                                   self.__host_statistics_buffer, self.__node_statistics_buffer)
-        
-        
+
+        del self.__rated_statistics_buffer[:]
+        del self.__topic_statistics_buffer[:]
+        del self.__host_statistics_buffer[:]
+        del self.__node_statistics_buffer[:]
+
+
     def __add_rated_statistics_item(self, item):
         """
         Adds the item to the buffer list. Will be called whenever data from the topics is available.
