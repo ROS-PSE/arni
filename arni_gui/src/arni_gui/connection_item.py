@@ -124,9 +124,9 @@ class ConnectionItem(AbstractItem):
                        + self.tr("dropped_msgs_unit") + " - "
             content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) + " " \
                        + self.tr("traffic_unit") + " - "
-            content += self.tr("period_mean") + ": " + str(data_dict["period_mean"]) \
+            content += self.tr("period_mean") + ": " + prepare_number_for_representation(data_dict["period_mean"]) \
                        + " " + self.tr("period_mean_unit") + "  - "
-            content += self.tr("stamp_age_mean") + ": " + str(data_dict["stamp_age_mean"]) \
+            content += self.tr("stamp_age_mean") + ": " + prepare_number_for_representation(data_dict["stamp_age_mean"]) \
                        + " " + self.tr("stamp_age_mean_unit")
 
         return content

@@ -276,6 +276,8 @@ class SelectionWidget(QWidget):
             self.__log_filter_proxy.filter_by_item(self.__selected_item)
             if self.__selected_item is not None:
                 self.__plotable_items = self.__selected_item.get_plotable_items()
+                for key in self.__selected_item.get_list_items():
+                    self.__plotable_items.remove(key)
                 if self.__selected_item.can_execute_actions():
                     self.stop_push_button.setEnabled(True)
                     self.restart_push_button.setEnabled(True)
@@ -349,7 +351,7 @@ class SelectionWidget(QWidget):
 
                     for i in range(0, length, modulo):
                         # now having maximally 100 items to plot :)
-                        temp_time.append(int(str(plotable_data["window_stop"][i]))/1000000000)
+                        temp_time.append(plotable_data["window_stop"][i].to_sec())
                     x = np.array(temp_time)
 
                     list_entries = self.__selected_item.get_list_items()
@@ -371,7 +373,7 @@ class SelectionWidget(QWidget):
                         else:
                             if key in time_entries:
                                 for i in range(0, length, modulo):
-                                    temp_content.append(float(str(plotable_data[key][i])))
+                                    temp_content.append(float(str(plotable_data[key][i]))/1000000000)
                             else:
                                 for i in range(0, length, modulo):
                                     temp_content.append(plotable_data[key][i])
