@@ -161,7 +161,7 @@ class AbstractItem(QObject):
         self.__rated_data["window_stop"].append(data.window_stop)
 
         last_state = self.get_state()
-        new_state = "ok"
+        new_state = "unknown"
 
         for element in data.rated_statistics_entity:
             self.__rated_data[element.statistic_type + ".actual_value"].append(element.actual_value)
@@ -172,10 +172,10 @@ class AbstractItem(QObject):
                 self.__rated_data[element.statistic_type + ".state"].append(state)
                     #state = topic_statistics_state_to_string(element, element.state)
                     #self.__[element.statistic_type + ".state"].append(state)
-                if state is "low" or state is "high":
+                if (state is "low" or state is "high") and state is not "ok" and state is not "unkown":
                     new_state = "error"
-                elif state is "unknown" and new_state is not "error":
-                    new_state = "unknown"
+                elif state is "ok" and new_state is not "error":
+                    new_state = "ok"
 
         self.add_state(new_state)
         self._update_current_state()
@@ -547,15 +547,15 @@ class AbstractItem(QObject):
                             if self.__rated_data[entry + ".state"][-1][i] is "high" or self.__rated_data[entry + ".state"][-1][i] is "low":
                                 content += self.tr(entry) +\
                                            self.tr(" actual_value:") +\
-                                           " <div class=\"erroneous_entry\">" +  str(self.__rated_data[entry + ".actual_value"][i][0][0]) + "</div>" + \
+                                           " <span class=\"erroneous_entry\">" +  str(self.__rated_data[entry + ".actual_value"][i][0][0]) + "</span>" + \
                                            self.tr(entry + "_unit") + "<br>"
                                 content += self.tr(entry) +\
                                            self.tr(" expected_value:") +\
-                                           " <div class=\"erroneous_entry\">" + str(self.__rated_data[entry + ".expected_value"][i][0][0]) + "</div>" + \
+                                           " <span class=\"erroneous_entry\">" + str(self.__rated_data[entry + ".expected_value"][i][0][0]) + "</span>" + \
                                            self.tr(entry + "_unit") + "<br>"
                                 content += self.tr(entry) +\
                                            self.tr(" state:") +\
-                                           " <div class=\"erroneous_entry\">" + str(self.__rated_data[entry + ".state"][i][0]) + "</div>" + "<br>"
+                                           " <span class=\"erroneous_entry\">" + str(self.__rated_data[entry + ".state"][i][0]) + "</span>" + "<br>"
                 content += "<br>"
         content += "</p>"
         self._data_lock.release()
