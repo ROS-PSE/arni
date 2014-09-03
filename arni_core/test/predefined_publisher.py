@@ -4,6 +4,8 @@ import rospy
 import math
 import random
 from std_msgs.msg import String
+import sys
+import array
 
 pub = rospy.Publisher('topic_name', String, queue_size=10)
 
@@ -25,7 +27,8 @@ def floored_abs():
             direction = 1
         c *= 1000
         print(c)
-        pub.publish(("%s times, " % int(c)) + "publishing with floored_abs. " * int(c))
+        pub.publish(
+            ("%s times, " % int(c)) + "publishing with floored_abs. " * int(c))
         rospy.Rate(rospy.get_param("~frequency", 10)).sleep()
 
 
@@ -43,7 +46,8 @@ def linear_abs():
             direction = -1
         if direction < 0 and counter == 1:
             direction = 1
-        pub.publish(("%s times, " % int(math.floor(counter))) + "publishing with linear_abs. " * int(math.floor(counter)))
+        pub.publish(("%s times, " % int(math.floor(counter))) +
+                    "publishing with linear_abs. " * int(math.floor(counter)))
         rospy.Rate(rospy.get_param("~frequency", 10)).sleep()
 
 
@@ -75,15 +79,44 @@ def sine():
 
 
 def constant():
+    frequency = rospy.get_param("~frequency", 1000)
+    rate = rospy.Rate(frequency)
+    bandwidth = rospy.get_param("~bandwidth", 1024 * 1024)
+    msg = "." * (bandwidth / frequency)
     while not rospy.is_shutdown():
-        pub.publish("publishing with constant. " * 100)
-        rospy.Rate(rospy.get_param("~frequency", 10)).sleep()
+        pub.publish(msg)
+        rate.sleep()
+
+
+def high_low():
+    frequency = rospy.get_param("~frequency", 10)
+    rate = rospy.Rate(frequency)
+    bandwidth_high = rospy.get_param("~bandwidth_high", 1024 * 1024)
+    bandwidth_low = rospy.get_param("~bandwidth_low", 1024)
+    # in seconds
+    change_interval = rospy.Duration(rospy.get_param("~period", 30) / 2)
+
+    msg = list()
+    msg.append("." * (bandwidth_low / frequency))
+    msg.append("." * (bandwidth_high / frequency))
+
+    current = 0
+    last_change = rospy.Time.now()
+    while not rospy.is_shutdown():
+        if(rospy.Time.now() - last_change > change_interval):
+            last_change = rospy.Time.now()
+            current = not current
+            print current
+
+        pub.publish(msg[current])
+        rate.sleep()
 
 
 def stop_publish():
     start = rospy.Time.now()
     while not rospy.is_shutdown() and rospy.Time.now() - start < rospy.Duration(rospy.get_param("~timeout", 30)):
-        pub.publish("publishing until it stops. " * int(random.randrange(100, 150)))
+        pub.publish(
+            "publishing until it stops. " * int(random.randrange(100, 150)))
         rospy.Rate(rospy.get_param("~frequency", 10)).sleep()
 
 
@@ -111,16 +144,12 @@ linear_abs:
 '''
 if __name__ == '__main__':
     rospy.init_node('node_name', log_level=rospy.DEBUG)
-    mode = rospy.get_param("~mode", "constant")
-    if mode == "constant":
-        constant()
-    elif mode == "stop_publish":
-        stop_publish()
-    elif mode == "sawtooth":
-        sawtooth()
-    elif mode == "sine":
-        sine()
-    elif mode == "floored_abs":
-        floored_abs()
-    elif mode == "linear_abs":
-        linear_abs()
+    modes = {
+        'constant': constant,
+        'stop_publish': stop_publish,
+        'sawtooth': sawtooth,
+        'sine': sine,
+        'high_low': high_low}
+    mode = rospy.get_param("~mode", "high_low")
+    if mode in modes:
+        modes[mode]()
