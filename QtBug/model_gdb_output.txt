@@ -1,0 +1,41 @@
+ Program received signal SIGSEGV, Segmentation fault.
+PyObject_GetAttr (v=< at remote 0xfaa010>, name=<optimized out>) at ../Objects/object.c:1198
+1198    ../Objects/object.c: No such file or directory.
+(gdb) 
+(gdb) backtrace
+#0  PyObject_GetAttr (v=< at remote 0xfaa010>, name=<optimized out>) at ../Objects/object.c:1198
+#1  0x000000000052c461 in PyEval_EvalFrameEx (
+    f=f@entry=Frame 0x9b1d80, for file ./model_error.py, line 7, in is_clicked (index=<PySide.QtCore.QModelIndex at remote 0x7ffff0123f80>), throwflag=throwflag@entry=0) at ../Python/ceval.c:2256
+#2  0x000000000056d0aa in PyEval_EvalCodeEx (closure=<optimized out>, defcount=<optimized out>, defs=0x0, 
+    kwcount=<optimized out>, kws=<optimized out>, argcount=10165632, args=<optimized out>, locals=0x0, 
+    globals=<optimized out>, co=<optimized out>) at ../Python/ceval.c:3252
+#3  function_call (func=func@entry=<function at remote 0x7ffff01de500>, 
+    arg=arg@entry=(<PySide.QtCore.QModelIndex at remote 0x7ffff0123f80>,), kw=kw@entry=0x0)
+    at ../Objects/funcobject.c:526
+#4  0x000000000055ab29 in PyObject_Call (kw=0x0, arg=(<PySide.QtCore.QModelIndex at remote 0x7ffff0123f80>,), 
+    func=<function at remote 0x7ffff01de500>) at ../Objects/abstract.c:2529
+#5  PyEval_CallObjectWithKeywords (kw=0x0, arg=(<PySide.QtCore.QModelIndex at remote 0x7ffff0123f80>,), 
+    func=<function at remote 0x7ffff01de500>) at ../Python/ceval.c:3889
+#6  PyObject_CallObject (o=<function at remote 0x7ffff01de500>, 
+    a=(<PySide.QtCore.QModelIndex at remote 0x7ffff0123f80>,)) at ../Objects/abstract.c:2517
+#7  0x00007ffff5fb972c in PySide::SignalManager::callPythonMetaMethod(QMetaMethod const&, void**, _object*, bool) ()
+   from /usr/lib/x86_64-linux-gnu/libpyside-python2.7.so.1.2
+#8  0x00007ffff5fbf8a0 in ?? () from /usr/lib/x86_64-linux-gnu/libpyside-python2.7.so.1.2
+#9  0x00007ffff54c3a78 in QMetaObject::activate(QObject*, QMetaObject const*, int, void**) ()
+   from /usr/lib/x86_64-linux-gnu/libQtCore.so.4
+#10 0x00007ffff31af215 in QAbstractItemView::clicked(QModelIndex const&) ()
+   from /usr/lib/x86_64-linux-gnu/libQtGui.so.4
+#11 0x00007ffff31af3c8 in QAbstractItemView::mouseReleaseEvent(QMouseEvent*) ()
+   from /usr/lib/x86_64-linux-gnu/libQtGui.so.4
+#12 0x00007ffff31d86ce in QListView::mouseReleaseEvent(QMouseEvent*) () from /usr/lib/x86_64-linux-gnu/libQtGui.so.4
+#13 0x00007ffff3bf3ae3 in ?? () from /usr/lib/python2.7/dist-packages/PySide/QtGui.so
+#14 0x00007ffff2d0750a in QWidget::event(QEvent*) () from /usr/lib/x86_64-linux-gnu/libQtGui.so.4
+#15 0x00007ffff30a8fce in QFrame::event(QEvent*) () from /usr/lib/x86_64-linux-gnu/libQtGui.so.4
+#16 0x00007ffff31b85b3 in QAbstractItemView::viewportEvent(QEvent*) () from /usr/lib/x86_64-linux-gnu/libQtGui.so.4
+#17 0x00007ffff3bf96bb in ?? () from /usr/lib/python2.7/dist-packages/PySide/QtGui.so
+#18 0x00007ffff54af646 in QCoreApplicationPrivate::sendThroughObjectEventFilters(QObject*, QEvent*) ()
+   from /usr/lib/x86_64-linux-gnu/libQtCore.so.4
+#19 0x00007ffff2cb7e0c in QApplicationPrivate::notify_helper(QObject*, QEvent*) ()
+   from /usr/lib/x86_64-linux-gnu/libQtGui.so.4
+#20 0x00007ffff2cbe5dd in QApplication::notify(QObject*, QEvent*) () from /usr/lib/x86_64-linux-gnu/libQtGui.so.4
+#21 0x00007ffff3989c5e in ?? () from /usr/lib/python2.7/dist-packages/PySide/QtGui.so

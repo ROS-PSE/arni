@@ -5,13 +5,15 @@ import rospkg
 from overview_widget import OverviewWidget
 
 from python_qt_binding import loadUi
-from python_qt_binding.QtGui import QWidget
+from python_qt_binding.QtGui import QWidget, qApp
 
 from rqt_gui_py.plugin import Plugin
 
 
 class ArniGuiOverview(Plugin):
-    """The ArniGuiOverview-Plugin."""
+    """
+    The ArniGuiOverview-Plugin.
+    """
     
     def __init__(self, context):
         """
@@ -47,21 +49,13 @@ class ArniGuiOverview(Plugin):
 
     def save_settings(self, plugin_settings, instance_settings):
         # TODO save intrinsic configuration, usually using:
-        # instance_settings.set_value(k, v)
         instance_settings.set_value("tab_widget", self.__overview_widget.get_current_tab())
         instance_settings.set_value("range_combo_box", self.__overview_widget.get_range_combo_box_index())
 
 
     def restore_settings(self, plugin_settings, instance_settings):
         # TODO restore intrinsic configuration, usually using:
-        # v = instance_settings.value(k)
         tab_value = instance_settings.value("tab_widget")
         combo_box_value = instance_settings.value("range_combo_box")
         self.__overview_widget.set_current_tab(0 if tab_value is None else int(tab_value))
         self.__overview_widget.set_range_combo_box_index(0 if combo_box_value is None else int(combo_box_value))
-
-        # def trigger_configuration(self):
-        # Comment in to signal that the plugin has a way to configure
-        # This will enable a setting button (gear icon) in each dock widget title bar
-        # Usually used to open a modal configuration dialog
-

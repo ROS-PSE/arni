@@ -30,9 +30,9 @@ import threading
 class HostStatisticsHandler(StatisticsHandler):
 
     """
-    Represents a host , limited to one instance per host. 
+    Represents a host , limited to one instance per host.
     Collects statistics about the current state of the host and s
-    ends them using the publisher-subscriber mechanism. 
+    ends them using the publisher-subscriber mechanism.
     """
 
     def __init__(self, hostid):
@@ -44,7 +44,7 @@ class HostStatisticsHandler(StatisticsHandler):
         """
         super(HostStatisticsHandler, self).__init__(hostid)
 
-        self.__update_interval = 0
+        self.__update_interval = float(0)
         self.__publish_interval = 0
         self.__is_enabled = False
         self.__check_enabled = 0
@@ -117,7 +117,6 @@ class HostStatisticsHandler(StatisticsHandler):
         Triggered periodically.
         """
         if not self.__is_enabled:
-            rospy.logdebug('enable_statistics not set')
             pass
         if self.__is_enabled:
             self.__lock.acquire()
@@ -125,7 +124,6 @@ class HostStatisticsHandler(StatisticsHandler):
             self.__dict_lock.acquire()
             self.update_nodes()
             self.__dict_lock.release()
-            rospy.logdebug('measuring host status')
             # CPU
             self._status.add_cpu_usage(psutil.cpu_percent())
             self._status.add_cpu_usage_core(psutil.cpu_percent(percpu=True))
@@ -164,7 +162,7 @@ class HostStatisticsHandler(StatisticsHandler):
 
     def __measure_disk_usage(self):
         """
-        measure current disk usage 
+        measure current disk usage
         """
         # Free Space on disks
         disks = psutil.disk_partitions()
@@ -194,10 +192,9 @@ class HostStatisticsHandler(StatisticsHandler):
     def publish_status(self, event):
         """
         Publishes the current status to a topic using ROS's publisher-subscriber mechanism.
-        Triggered periodically. 
+        Triggered periodically.
         """
         if not self.__is_enabled:
-            rospy.logdebug('enable_statistics not set')
             pass
         if self.__is_enabled:
             self.__lock.acquire()
@@ -223,8 +220,9 @@ class HostStatisticsHandler(StatisticsHandler):
         """
         Initializes params on the parameter server,
         """
-        self.__update_interval = rospy.get_param('~update_interval', 1)
         self.__publish_interval = rospy.get_param('~publish_interval', 10)
+        self.__update_interval = self.__publish_interval / \
+            float(rospy.get_param('~window_max_elements', 10))
         self.__is_enabled = rospy.get_param('/enable_statistics', False)
         self.__check_enabled = rospy.get_param(
             '/arni/check_enabled_interval', 10)
@@ -235,66 +233,24 @@ class HostStatisticsHandler(StatisticsHandler):
         Calculates statistics like mean, standard deviation and max from the status.
         Returns an instance of HostStatistics which can be published.
 
-        :returns: HostStatistics 
+        :returns: HostStatistics
         """
         stats_dict = self._status.calc_stats()
 
-        hs = HostStatistics()
+        host_status = HostStatistics()
 
-        hs.host = self._id
-        hs.window_start = self._status.time_start
-        hs.window_stop = self._status.time_end
+        host_status.host = self._id
+        host_status.window_start = self._status.time_start
+        host_status.window_stop = self._status.time_end
 
-        hs.cpu_usage_mean = stats_dict['cpu_usage_mean']
-        hs.cpu_usage_stddev = stats_dict['cpu_usage_stddev']
-        hs.cpu_usage_max = stats_dict['cpu_usage_max']
-
-        hs.cpu_temp_mean = stats_dict['cpu_temp_mean']
-        hs.cpu_temp_stddev = stats_dict['cpu_temp_stddev']
-        hs.cpu_temp_max = stats_dict['cpu_temp_max']
-
-        hs.cpu_usage_core_mean = stats_dict['cpu_usage_core_mean']
-        hs.cpu_usage_core_stddev = stats_dict['cpu_usage_core_stddev']
-        hs.cpu_usage_core_max = stats_dict['cpu_usage_core_max']
-
-        hs.cpu_temp_core_mean = stats_dict['cpu_temp_core_mean']
-        hs.cpu_temp_core_stddev = stats_dict['cpu_temp_core_stddev']
-        hs.cpu_temp_core_max = stats_dict['cpu_temp_core_max']
-
-        hs.ram_usage_mean = stats_dict['ram_usage_mean']
-        hs.ram_usage_stddev = stats_dict['ram_usage_stddev']
-        hs.ram_usage_max = stats_dict['ram_usage_max']
-
-        hs.interface_name = stats_dict['interface_name']
-        hs.message_frequency_mean = stats_dict['message_frequency_mean']
-        hs.message_frequency_stddev = stats_dict['message_frequency_stddev']
-        hs.message_frequency_max = stats_dict['message_frequency_max']
-
-        hs.bandwidth_mean = stats_dict['bandwidth_mean']
-        hs.bandwidth_stddev = stats_dict['bandwidth_stddev']
-        hs.bandwidth_max = stats_dict['bandwidth_max']
-
-        hs.drive_name = stats_dict['drive_name']
-        hs.drive_free_space = stats_dict['drive_free_space']
-        hs.drive_write = stats_dict['drive_write_mean']
-        #hs.drive_write_stddev = stats_dict['drive_write_stddev']
-        #hs.drive_write_max = stats_dict['drive_write_max']
-        hs.drive_read = stats_dict['drive_read_mean']
-        #hs.drive_read_stddev = stats_dict['drive_read_stddev']
-        #hs.drive_read_max = stats_dict['drive_read_max']
-
-        hs.gpu_temp_mean = stats_dict['gpu_temp_mean']
-        hs.gpu_temp_stddev = stats_dict['gpu_temp_stddev']
-        hs.gpu_temp_max = stats_dict['gpu_temp_max']
-        hs.gpu_usage_mean = stats_dict['gpu_usage_mean']
-        hs.gpu_usage_stddev = stats_dict['gpu_usage_stddev']
-        hs.gpu_usage_max = stats_dict['gpu_usage_max']
-
-        return hs
+        for v in dir(host_status):
+            if v in stats_dict:
+                setattr(host_status, v, stats_dict[v])
+        return host_status
 
     def execute_reaction(self, reaction):
         """
-        Parses through the reaction and 
+        Parses through the reaction and
         calls the appropriate method from the NodeManager. Uses ROS Services.
         Returns a message about operation's success.
 
@@ -336,7 +292,6 @@ class HostStatisticsHandler(StatisticsHandler):
         Update the __node_list
         """
         if not self.__is_enabled:
-            rospy.logdebug('enable_statistics not set')
             pass
 
         if self.__is_enabled:
@@ -352,8 +307,7 @@ class HostStatisticsHandler(StatisticsHandler):
                     node_api = rosnode.get_api_uri(
                         rospy.get_master(), node, skip_cache=True)
                     try:
-                        rospy.logdebug('Getting Nodeinfo %s' % node)
-                        pid = self.node_server_proxy(node_api, node)
+                        pid = self.get_node_pid(node_api, node)
                         if not pid:
                             continue
                         node_process = psutil.Process(pid)
@@ -378,7 +332,7 @@ class HostStatisticsHandler(StatisticsHandler):
 
             rospy.logdebug([key for key in self.__node_list])
 
-    def node_server_proxy(self, node_api, node):
+    def get_node_pid(self, node_api, node):
         """
         Use the xmlrpclib Server Proxy to get
         node- pid
@@ -389,7 +343,6 @@ class HostStatisticsHandler(StatisticsHandler):
         """
         socket.setdefaulttimeout(1)
         try:
-            rospy.logdebug('Node %s at API %s' % (node, node_api))
             code, msg, pid = xmlrpclib.ServerProxy(
                 node_api[2]).getPid('/NODEINFO')
 
@@ -408,7 +361,7 @@ class HostStatisticsHandler(StatisticsHandler):
 
     def get_sensors(self):
         """
-        collects the current temperatur of CPU
+        collects the current temperature of CPU
         and each core
         """
 
@@ -441,9 +394,9 @@ class HostStatisticsHandler(StatisticsHandler):
         Periodically checks if /enable_statistics is ture
         if false no data will be collected / published
         """
-        rospy.logdebug('checking enable_statistics == true')
+        rospy.logdebug('checking if enable_statistics is true')
         self.__is_enabled = rospy.get_param('/enable_statistics', False)
-        rospy.logdebug('enabled is %s' % self.__is_enabled)
+        rospy.logdebug('enable_statistics is %s' % self.__is_enabled)
 
     @property
     def update_interval(self):

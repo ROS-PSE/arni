@@ -1,32 +1,35 @@
-from abstract_item import AbstractItem
-from python_qt_binding.QtCore import QObject
+from rospy.rostime import Time
+from rospy import ServiceException
+import rospy
 
+from python_qt_binding.QtCore import QObject
+from python_qt_binding.QtCore import QTranslator
+
+from abstract_item import AbstractItem
 from arni_core.host_lookup import HostLookup
 from arni_core.helper import SEUID
 import arni_core.helper as helper
 from arni_msgs.srv import NodeReaction
-
-import rospy
-from rospy import ServiceException
-
+from helper_functions import prepare_number_for_representation
 
 
 class NodeItem(AbstractItem):
-    """A NodeItem represents a node with all of its data. It also has a interface to start/stop/restart nodes."""
+    """
+    A NodeItem represents a node with all of its data. It also has a interface to start/stop/restart nodes.
+    """
 
-
-    def __init__(self, seuid, parent=None):
+    def __init__(self, logger, seuid, parent=None):
         """
         Initializes the NodeItem.
         
         :param seuid: the seuid of the item
         :type seuid: str
+        :param logger: a logger where to log when special events occur
+        :type logger: ModelLogger
         :param parent: the parent-item
         :type parent: AbstractItem
         """
-        #add the content
-        AbstractItem.__init__(self, seuid, parent)
-        #super(NodeItem, self).__init__(seuid, parent)
+        AbstractItem.__init__(self, logger, seuid, parent)
         self._type = "node"
         self.__parent = parent
 
@@ -34,12 +37,16 @@ class NodeItem(AbstractItem):
 
         self._attributes = []
         self._attributes.extend(["node_cpu_usage_mean", "node_cpu_usage_stddev", "node_cpu_usage_max",
-                      "node_cpu_usage_core_mean",
-                      "node_cpu_usage_core_stddev", "node_cpu_usage_core_max", "node_gpu_usage_mean", "node_gpu_usage_stddev",
-                      "node_gpu_usage_max", "node_ramusage_mean", "node_ramusage_stddev", "node_ramusage_max",
-                      "node_message_frequency_mean", "node_message_frequency_stddev", "node_message_frequency_max", "node_bandwidth_mean", "node_bandwidth_stddev",
-                      "node_bandwidth_max", "node_write_mean", "node_write_stddev", "node_write_max", "node_read_mean",
-                      "node_read_stddev", "node_read_max"])
+                                 "node_cpu_usage_core_mean",
+                                 "node_cpu_usage_core_stddev", "node_cpu_usage_core_max", "node_gpu_usage_mean",
+                                 "node_gpu_usage_stddev",
+                                 "node_gpu_usage_max", "node_ramusage_mean", "node_ramusage_stddev",
+                                 "node_ramusage_max",
+                                 "node_message_frequency_mean", "node_message_frequency_stddev",
+                                 "node_message_frequency_max", "node_bandwidth_mean", "node_bandwidth_stddev",
+                                 "node_bandwidth_max", "node_write_mean", "node_write_stddev", "node_write_max",
+                                 "node_read_mean",
+                                 "node_read_stddev", "node_read_max"])
 
         for item in self._attributes:
             self._add_data_list(item)
@@ -50,10 +57,12 @@ class NodeItem(AbstractItem):
             self.__rated_attributes.append(item + ".expected_value")
             self.__rated_attributes.append(item + ".state")
 
-        del self._attributes
+        #del self._attributes
 
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)
+
+        self._logger.log("info", Time.now(), seuid, "Created a new NodeItem")
 
 
     def execute_action(self, action):
@@ -63,49 +72,105 @@ class NodeItem(AbstractItem):
         :param action: action to be executed
         :type action: RemoteAction
         """
-        #create the name of the service
-        #service_name = "/execute_node_reaction/" +
-        #rospy.wait_for_service(
-        
         host_formatted = helper.underscore_ip(self.__parent.get_seuid()[2:])
         service_name = "/execute_node_reaction/%s" % host_formatted
-        try:            
+        try:
             execute = rospy.ServiceProxy(
                 service_name, NodeReaction)
             resp = execute(self.seuid[2:], action, '')
-            #rospy.logdebug(
-                #"sending command '%s' to node %s returned: %s"
-                #% (self.__command, self._node, resp.returnmessage))
-            print resp.returnmessage
         except ServiceException:
-            rospy.logdebug(
-                "could not stop node %s, service %s not found"
-                % (self.seuid, service_name))
+            self._logger.log("error", Time.now(), seuid, "could not stop node %s, service %s not found"
+                             % (self.seuid, service_name))
+
 
     def get_detailed_data(self):
         """
         Returns the detailed data of the NodeItem.
         
-        :returns: str
+        :returns: detailed data
+        :rtype: str
         """
-        #todo: fill the content sensefully!
         data_dict = self.get_latest_data()
 
-        content = "<p style=\"font-size:15px\">"
+        content = "<p class=\"detailed_data\">"
 
-        content += "node_cpu_usage_mean: " + str(data_dict["node_cpu_usage_mean"]) + "<br>"
-        content += "node_bandwidth_mean: " + str(data_dict["node_bandwidth_mean"]) + "<br>"
-        # content += "connected_nodes:" + str(data_dict["connected_nodes"]) + "<br>"
-        # content += "topic_counter" + str(data_dict["topic_counter"]) + "<br>"
-        # content += "connection_counter: " + str(data_dict["connection_counter"]) + "<br>"
-        # content += "cpu_usage_max: " + str(data_dict["cpu_usage_max"]) + "<br>"
-        # content += "cpu_temp_mean: " + str(data_dict["cpu_temp_mean"]) + "<br>"
-        # content += "average_ram_load: " + str(data_dict["average_ram_load"]) + "<br>"
-        # content += "cpu_usage_mean:" + str(data_dict["cpu_usage_mean"]) + "<br>"
-        # content += "cpu_temp_max: " + str(data_dict["cpu_temp_max"]) + "<br>"
-        # content += "ram_usage_max: " + str(data_dict["ram_usage_max"]) + "<br>"
+        content += self.get_erroneous_entries()
 
+        content += self.tr("node_cpu_usage_mean") + ": " + prepare_number_for_representation(
+            data_dict["node_cpu_usage_mean"]) + " " + self.tr("node_cpu_usage_mean_unit") + " <br>"
+        content += self.tr("node_cpu_usage_stddev") + ": " + prepare_number_for_representation(
+            data_dict["node_cpu_usage_stddev"]) \
+                   + " " + self.tr("node_cpu_usage_stddev_unit") + " <br>"
+        content += self.tr("node_cpu_usage_max") + ": " + prepare_number_for_representation(
+            data_dict["node_cpu_usage_max"]) \
+                   + " " + self.tr("node_cpu_usage_max_unit") + " <br>"
+        content += self.tr("node_ramusage_mean") + ": " + prepare_number_for_representation(
+            data_dict["node_ramusage_mean"]) \
+                   + " " + self.tr("node_ramusage_mean_unit") + " <br>"
+        content += self.tr("node_ramusage_stddev") + ": " + prepare_number_for_representation(
+            data_dict["node_ramusage_stddev"]) \
+                   + " " + self.tr("node_ramusage_stddev_unit") + " <br>"
+        content += self.tr("node_ramusage_max") + ": " + prepare_number_for_representation(
+            data_dict["node_ramusage_max"]) \
+                   + " " + self.tr("node_ramusage_max_unit") + " <br>"
+
+        for i in range(0, len(data_dict["node_cpu_usage_core_mean"])):
+            content += self.tr("core" + str(i + 1)) + "<br>"
+            content += self.tr("node_cpu_usage_core_mean") + ": " + prepare_number_for_representation(
+                data_dict["node_cpu_usage_core_mean"][i]) \
+                       + " " + self.tr("node_cpu_usage_core_mean_unit") + " <br>"
+            content += self.tr("node_cpu_usage_core_stddev") + ": " + prepare_number_for_representation(
+                data_dict["node_cpu_usage_core_stddev"][i]) \
+                       + " " + self.tr("node_cpu_usage_core_stddev_unit") + " <br>"
+            content += self.tr("node_cpu_usage_core_max") + ": " + prepare_number_for_representation(
+                data_dict["node_cpu_usage_core_max"][i]) \
+                       + " " + self.tr("node_cpu_usage_core_max_unit") + " <br>"
+
+        for i in range(0, len(data_dict["node_gpu_usage_mean"])):
+            content += self.tr("node_gpu_usage_mean") + ": " + prepare_number_for_representation(
+                data_dict["node_gpu_usage_mean"][i]) \
+                       + " " + self.tr("node_gpu_usage_mean_unit") + " <br>"
+            content += self.tr("node_gpu_usage_stddev") + ": " + prepare_number_for_representation(
+                data_dict["node_gpu_usage_stddev"][i]) \
+                       + " " + self.tr("node_gpu_usage_stddev_unit") + " <br>"
+            content += self.tr("node_gpu_usage_max") + ": " + prepare_number_for_representation(
+                data_dict["node_gpu_usage_max"][i]) \
+                       + " " + self.tr("node_gpu_usage_max_unit") + " <br>"
+
+
+        content += self.tr("node_message_frequency_mean") + ": " + prepare_number_for_representation(
+            data_dict["node_message_frequency_mean"]) \
+                   + " " + self.tr("node_message_frequency_mean_unit") + " <br>"
+        content += self.tr("node_message_frequency_stddev") + ": " + prepare_number_for_representation(
+            data_dict["node_message_frequency_stddev"]) \
+                   + " " + self.tr("node_message_frequency_stddev_unit") + " <br>"
+        content += self.tr("node_message_frequency_max") + ": " + prepare_number_for_representation(
+            data_dict["node_message_frequency_max"]) \
+                   + " " + self.tr("node_message_frequency_max_unit") + " <br>"
+        content += self.tr("node_bandwidth_mean") + ": " + prepare_number_for_representation(
+            data_dict["node_bandwidth_mean"]) \
+                   + " " + self.tr("node_bandwidth_mean_unit") + " <br>"
+        content += self.tr("node_bandwidth_stddev") + ": " + prepare_number_for_representation(
+            data_dict["node_bandwidth_stddev"]) \
+                   + " " + self.tr("node_bandwidth_stddev_unit") + " <br>"
+        content += self.tr("node_bandwidth_max") + ": " + prepare_number_for_representation(
+            data_dict["node_bandwidth_max"]) \
+                   + " " + self.tr("node_bandwidth_max_unit") + " <br>"
+        content += self.tr("node_write_mean") + ": " + prepare_number_for_representation(data_dict["node_write_mean"]) \
+                   + " " + self.tr("node_write_mean_unit") + " <br>"
+        content += self.tr("node_write_stddev") + ": " + prepare_number_for_representation(
+            data_dict["node_write_stddev"]) \
+                   + " " + self.tr("node_write_stddev_unit") + " <br>"
+        content += self.tr("node_write_max") + ": " + prepare_number_for_representation(data_dict["node_write_max"]) \
+                   + " " + self.tr("node_write_max_unit") + " <br>"
+        content += self.tr("node_read_mean") + ": " + prepare_number_for_representation(data_dict["node_read_mean"]) \
+                   + " " + self.tr("node_read_mean_unit") + " <br>"
+        content += self.tr("node_read_stddev") + ": " + prepare_number_for_representation(data_dict["node_read_stddev"]) \
+                   + " " + self.tr("node_read_stddev_unit") + " <br>"
+        content += self.tr("node_read_max") + ": " + prepare_number_for_representation(data_dict["node_read_max"]) \
+                   + " " + self.tr("node_read_max_unit") + " <br>"
         content += "</p>"
+
         return content
 
 
@@ -115,7 +180,60 @@ class NodeItem(AbstractItem):
         
         :returns: str[]
         """
-        return ["node_cpu_usage_mean", "node_bandwidth_mean"]
+        return ["node_cpu_usage_mean", "node_cpu_usage_stddev", "node_cpu_usage_max",
+                                 "node_cpu_usage_core_mean",
+                                 "node_cpu_usage_core_stddev", "node_cpu_usage_core_max", "node_gpu_usage_mean",
+                                 "node_gpu_usage_stddev",
+                                 "node_gpu_usage_max", "node_ramusage_mean", "node_ramusage_stddev",
+                                 "node_ramusage_max",
+                                 "node_message_frequency_mean", "node_message_frequency_stddev",
+                                 "node_message_frequency_max", "node_bandwidth_mean", "node_bandwidth_stddev",
+                                 "node_bandwidth_max", "node_write_mean", "node_write_stddev", "node_write_max",
+                                 "node_read_mean",
+                                 "node_read_stddev", "node_read_max"]
+
 
     def get_short_data(self):
-        return "NodeItem"
+        """
+        Returns a shortend version of the item data.
+        
+        :returns: data of the item
+        :rtype: str
+        """
+        data_dict = self.get_latest_data()
+
+        content = ""
+        if data_dict["state"] is "error":
+            content += self.get_erroneous_entries().replace("<br>", " - ")
+            pass
+        else:
+            content += self.tr("node_cpu_usage_mean") + ": " + prepare_number_for_representation(
+            data_dict["node_cpu_usage_mean"]) + " " + self.tr("node_cpu_usage_mean_unit") + " - "
+            content += self.tr("node_ramusage_mean") + ": " + prepare_number_for_representation(
+            data_dict["node_ramusage_mean"]) \
+                   + " " + self.tr("node_ramusage_mean_unit") + " - "
+            content += self.tr("node_message_frequency_mean") + ": " + prepare_number_for_representation(
+            data_dict["node_message_frequency_mean"]) \
+                   + " " + self.tr("node_message_frequency_mean_unit") + " - "
+            content += self.tr("node_bandwidth_mean") + ": " + prepare_number_for_representation(
+            data_dict["node_bandwidth_mean"]) \
+                   + " " + self.tr("node_bandwidth_mean_unit")
+
+        return content
+
+
+
+    def can_execute_actions(self):
+        """
+        This item can execute actions, so it returns True
+
+        :return: True
+        """
+        return True
+
+    def get_list_items(self):
+        return ["node_cpu_usage_core_mean", "node_cpu_usage_core_stddev", "node_cpu_usage_core_max",
+                "node_gpu_usage_mean", "node_gpu_usage_stddev", "node_gpu_usage_max"]
+
+    def get_time_items(self):
+        return []

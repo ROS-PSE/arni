@@ -1,22 +1,30 @@
+from rospy.rostime import Time
+
+from python_qt_binding.QtCore import QTranslator
+
 from abstract_item import AbstractItem
+from helper_functions import prepare_number_for_representation
+
 
 class TopicItem(AbstractItem):
-    """A TopicItem represents a specific topic which contains many connections and has attributes like the number of sent messages."""
+    """
+    A TopicItem represents a specific topic which contains many connections and has attributes like the number of sent messages.
+    """
 
-    def __init__(self, seuid, parent=None):
+    def __init__(self, logger, seuid, parent=None):
         """Initializes the TopicItem.
         
         :param seuid: the seuid of the item
         :type seuid: str
+        :param logger: a logger where to log when special events occur
+        :type logger: ModelLogger
         :param parent: the parent-item
         :type parent: AbstractItem
         """
-        AbstractItem.__init__(self, seuid, parent)
-        #super(TopicItem, self).__init__(seuid, parent)
+        AbstractItem.__init__(self, logger, seuid, parent)
         self.__parent = parent
         self._type = "topic"
 
-        #add the content
         self._attributes = []
         #todo: currently probably only these 4 implemented
         self._attributes.extend(["dropped_msgs", "traffic",
@@ -37,10 +45,12 @@ class TopicItem(AbstractItem):
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)
 
+        self._logger.log("info", Time.now(), seuid, "Created a new TopicItem")
+
 
     def execute_action(self, action):
         """
-        Not senseful, throws an exception.
+        Not senseful, Topics cannot execute actions.
 
         :param action: action to be executed
         :type action: RemoteAction
@@ -50,26 +60,26 @@ class TopicItem(AbstractItem):
 
     def get_detailed_data(self):
         """
-        Returns the detailed data of the TopicItem.
+        Returns the detailed data of the HostItem.
         
-        :returns: str
+        :returns: detailed data
+        :rtype: str
         """
         #todo: fill the content sensefully!
         data_dict = self.get_latest_data()
 
-        content = "<p style=\"font-size:15px\">"
+        content = "<p class=\"detailed_data\">"
 
-        content += "dropped_msgs: " + str(data_dict["dropped_msgs"]) + "<br>"
-        content += "traffic: " + str(data_dict["traffic"]) + "<br>"
-        # content += "connected_nodes:" + str(data_dict["connected_nodes"]) + "<br>"
-        # content += "topic_counter" + str(data_dict["topic_counter"]) + "<br>"
-        # content += "connection_counter: " + str(data_dict["connection_counter"]) + "<br>"
-        # content += "cpu_usage_max: " + str(data_dict["cpu_usage_max"]) + "<br>"
-        # content += "cpu_temp_mean: " + str(data_dict["cpu_temp_mean"]) + "<br>"
-        # content += "average_ram_load: " + str(data_dict["average_ram_load"]) + "<br>"
-        # content += "cpu_usage_mean:" + str(data_dict["cpu_usage_mean"]) + "<br>"
-        # content += "cpu_temp_max: " + str(data_dict["cpu_temp_max"]) + "<br>"
-        # content += "ram_usage_max: " + str(data_dict["ram_usage_max"]) + "<br>"
+        content += self.get_erroneous_entries()
+
+        content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) \
+                   + " " + self.tr("dropped_msgs_unit") + " <br>"
+        content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) \
+                   + " " + self.tr("traffic_unit") + " <br>"
+        content += self.tr("stamp_age_mean") + ": " + prepare_number_for_representation(data_dict["stamp_age_mean"]) \
+                   + " " + self.tr("stamp_age_mean_unit") + " <br>"
+        content += self.tr("stamp_age_max") + ": " + prepare_number_for_representation(data_dict["stamp_age_max"]) \
+                   + " " + self.tr("stamp_age_max_unit") + " <br>"
 
         content += "</p>"
         return content
@@ -81,7 +91,45 @@ class TopicItem(AbstractItem):
         
         :returns: str[]
         """
-        return ["dropped_msgs", "traffic"]
+        return ["dropped_msgs", "traffic", "stamp_age_mean", "stamp_age_max"]
 
     def get_short_data(self):
-        return "TopicItem"
+        """
+        Returns a shortend version of the item data.
+        
+        :returns: data of the item
+        :rtype: str
+        """
+        data_dict = self.get_latest_data()
+
+        content = ""
+        if data_dict["state"] is "error":
+            content += self.get_erroneous_entries().replace("<br>", " - ")
+            pass
+        else:
+            content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(
+                data_dict["dropped_msgs"]) + " " \
+                       + self.tr("dropped_msgs_unit") + " - "
+            content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) + " " \
+                       + self.tr("traffic_unit") + " - "
+            #content += self.tr("period_mean") + ": " + str(data_dict["period_mean"]) \
+            #           + " " + self.tr("period_mean_unit") + "  - "
+            content += self.tr("stamp_age_mean") + ": " + prepare_number_for_representation(data_dict["stamp_age_mean"]) \
+                       + " " + self.tr("stamp_age_mean_unit")
+
+        return content
+
+
+    def can_execute_actions(self):
+        """
+        This item cannot execute actions, so it returns False
+
+        :return: False
+        """
+        return False
+
+    def get_list_items(self):
+        return []
+
+    def get_time_items(self):
+        return ["stamp_age_mean", "stamp_age_max"]

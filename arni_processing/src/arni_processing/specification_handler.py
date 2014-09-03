@@ -59,6 +59,9 @@ class SpecificationHandler:
         """
         if identifier in self.__specifications.keys():
             return self.__specifications[identifier]
+        if identifier[0] == "c":
+            if SEUID(identifier).topic in self.__specifications.keys():
+                return self.__specifications[SEUID(identifier).topic]
         return None
 
     def compare(self, data, identifier, specification=None):
@@ -86,12 +89,13 @@ class SpecificationHandler:
         if identifier[0] == "n":
             result.host = data.host
         if specification is None:
-            if identifier in self.__specifications.keys():
-                specification = self.__specifications[identifier]
-            else:
-                if identifier[0] == "c":
-                    if SEUID(identifier).topic in self.__specifications.keys():
-                        specification = self.__specifications[SEUID(identifier).topic]
+            # if identifier in self.__specifications.keys():
+            #     specification = self.__specifications[identifier]
+            # else:
+            #     if identifier[0] == "c":
+            #         if SEUID(identifier).topic in self.__specifications.keys():
+            #             specification = self.__specifications[SEUID(identifier).topic]
+            specification = self.get(identifier)
         # if specification is None:
         # rospy.logdebug("[SpecificationHandler][compare] No Specification available for %s" % identifier)
         window_len = data.window_stop - data.window_start
@@ -104,6 +108,7 @@ class SpecificationHandler:
             fields.append("bandwidth")
             fields.append("frequency")
         for field in fields:
+            value = None
             if field[0] == "_" or "serialize" in field:
                 continue
             current_obj = {}
@@ -114,22 +119,23 @@ class SpecificationHandler:
                     value = data.delivered_msgs / window_len.to_sec()
             else:
                 value = getattr(data, field)
-            limits = self.__get_limits(specification, field)
-            if isinstance(value, (list, tuple)):
-                current_obj["state"] = []
-                current_obj["actual"] = []
-                current_obj["expected"] = []
-                for i, v in enumerate(value):
-                    limits = self.__get_limits(specification, field, i)
-                    current_obj["actual"].append(v)
-                    current_obj["state"].append(self.__compare(v, limits))
-                    current_obj["expected"].append(limits)
-            else:
-                status = self.__compare(value, limits)
-                current_obj["state"] = status
-                current_obj["actual"] = value
-                current_obj["expected"] = limits
-            result.add_value(field, current_obj["actual"], current_obj["expected"], current_obj["state"])
+            if value is not None:
+                limits = self.__get_limits(specification, field)
+                if isinstance(value, (list, tuple)):
+                    current_obj["state"] = []
+                    current_obj["actual"] = []
+                    current_obj["expected"] = []
+                    for i, v in enumerate(value):
+                        limits = self.__get_limits(specification, field, i)
+                        current_obj["actual"].append(v)
+                        current_obj["state"].append(self.__compare(v, limits))
+                        current_obj["expected"].append(limits)
+                else:
+                    status = self.__compare(value, limits)
+                    current_obj["state"] = status
+                    current_obj["actual"] = value
+                    current_obj["expected"] = limits
+                result.add_value(field, current_obj["actual"], current_obj["expected"], current_obj["state"])
         return result
 
     def compare_topic(self, data=None):
@@ -177,10 +183,7 @@ class SpecificationHandler:
             by_topic[seuid.get_seuid("topic")]["stamp_age_mean"].append(message.stamp_age_mean * scale)
             by_topic[seuid.get_seuid("topic")]["packages"] += 1
         for topic, data in by_topic.iteritems():
-            if topic in self.__specifications.keys():
-                specification = self.__specifications[topic]
-            else:
-                specification = None
+            specification = self.get(topic)
             r = RatedStatistics()
             r.window_start = data["window_min"]
             r.window_stop = data["window_max"]

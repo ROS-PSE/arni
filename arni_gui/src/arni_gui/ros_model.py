@@ -1,6 +1,7 @@
-from python_qt_binding.QtGui import QStandardItemModel
-from python_qt_binding.QtCore import QAbstractItemModel
-from python_qt_binding.QtCore import *
+from python_qt_binding.QtCore import QAbstractItemModel, QModelIndex
+from python_qt_binding.QtCore import QTranslator, Qt
+from python_qt_binding.QtGui import qApp
+
 from threading import Lock
 from size_delegate import SizeDelegate
 from abstract_item import AbstractItem
@@ -22,11 +23,16 @@ from arni_msgs.msg import RatedStatistics
 from arni_msgs.msg import NodeStatistics
 from arni_msgs.msg import HostStatistics
 
+from model_logger import ModelLogger
+
 from arni_core.helper import SEUID, SEUID_DELIMITER
 
 import time
 
-from helper_functions import UPDATE_FREQUENCY
+from helper_functions import UPDATE_FREQUENCY, MAXIMUM_AMOUNT_OF_ENTRIES, MINIMUM_RECORDING_TIME, topic_statistics_state_to_string, find_qm_files
+
+import rospkg
+import os
 
 from buffer_thread import *
 
@@ -49,41 +55,50 @@ class ROSModel(QAbstractItemModel):
 
     def __init__(self, parent=None):
         """
-        Defines the class attributes especially the root_item which later contains the
-        list of headers e.g. for a TreeView representation.
+        Defines the class attributes especially the root_item which later contains the list of headers e.g. for a TreeView representation.
         :param parent: the parent of the model
         :type parent: QObject
         """
-        #rospy.init_node('arni_gui_model', log_level=rospy.DEBUG)
         super(ROSModel, self).__init__(parent)
-        self.__root_item = RootItem("abstract")
+
+        self.__logger = ModelLogger()
+
+        self._translator = QTranslator()
+        # internationalize everything including the 2 plugins
+        self.rp = rospkg.RosPack()
+        directory = os.path.join(self.rp.get_path('arni_gui'), 'translations')
+        files = find_qm_files(directory)
+        translator = self.get_translator()
+        #todo: make this more intelligent
+        print("chose translation " + files[0])
+        translator.load(files[0])
+        qApp.installTranslator(translator)
+        # self._translator.load("language")
+
+        self.__root_item = RootItem(self.__logger, "abstract", self)
 
         self.__parent = parent
         self.__model_lock = Lock()
 
         self.__identifier_dict = {"root": self.__root_item}
         self.__item_delegate = SizeDelegate()
-        self.__log_model = QStandardItemModel(0, 4, None)
-        self.__log_model.setHorizontalHeaderLabels(["type", "date", "location", "message"])
+
         self.__mapping = {
             0: 'type',
             1: 'name',
             2: 'state',
             3: 'data'
         }
-
-        rospy.logdebug("Finished model initialization.")
         
         self.__last_time_error_occured = 0
-        self.add_log_entry("info", Time.now(), "ROSModel", "ROSModel initialization finished")
-        self.add_log_entry("error", Time.now(), "ROSModel", "Just testing")
+        self.__logger.log("info", Time.now(), "ROSModel", "ROSModel initialization finished")
 
         self.__seuid_helper = SEUID()
 
         self.__find_host = HostLookup()
 
         self.__buffer_thread = BufferThread(self)
-        print "ich hab das rosmodel init"
+        
 
     def get_overview_data_since(self, time=None):
         """
@@ -92,7 +107,8 @@ class ROSModel(QAbstractItemModel):
         :param time: the lower bound from the intervall
         :type time: rospy.Time
         
-        :return: dict of values
+        :return: the overview data 
+        :rtype: dict of values
         """
         if time is None:
             data_dict = self.__root_item.get_latest_data()
@@ -111,7 +127,6 @@ class ROSModel(QAbstractItemModel):
         :param role: the role that should be used
         :type role: int
         """
-        #todo: remove later
         if index is not None:
             if not index.isValid():
                 return None
@@ -121,7 +136,9 @@ class ROSModel(QAbstractItemModel):
             item = index.internalPointer()
             if item is None:
                 raise IndexError("item is None")
-            return item.get_latest_data(self.__mapping[index.column()])[self.__mapping[index.column()]]
+            if self.__mapping[index.column()] is "data":
+                return item.get_short_data()
+            return item.get_latest_data(self.__mapping[index.column()])[self.__mapping[index.column()]]	  
         return None
 
 
@@ -132,10 +149,12 @@ class ROSModel(QAbstractItemModel):
         :param index: the index of the item
         :type index: QModelIndex
         
-        :returns: ItemFlags
+        :returns: the flags 
+        :rtype: ItemFlags
         """
         if not index.isValid():
             return Qt.NoItemFlags
+
         return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
 
@@ -149,17 +168,20 @@ class ROSModel(QAbstractItemModel):
         :type orientation: Orientation
         :param role:
         :type role: int
-        :returns: QVariant
+        
+        :returns: the header data 
+        :rtype: QVariant
         """
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
-            return {'type': ' type',
-                    'name': ' name',
-                    'state': ' state',
-                    'data': ' data'}[self.__mapping[section]]
-                #self.__root_item.get_latest_data(self.__mapping[section])
+            if section is 0:
+                return " " + self.tr('Type')
+            elif section is 1:
+                return " " + self.tr('Name')
+            elif section is 2:
+                return " " + self.tr('State')
+            else:
+                return " " + self.tr('Data')
         return None
-        #print("orientation is %s, Role is %s should be %s, %s", orientation, role, Qt.Horizontal, Qt.DisplayRole)
-        #raise IndexError("Illegal access to a non existent line.")
 
 
     def index(self, row, column, parent):
@@ -173,7 +195,8 @@ class ROSModel(QAbstractItemModel):
         :param parent: the parent 
         :type parent: QModelIndex
         
-        :returns: QModelIndex
+        :returns: the index 
+        :rtype: QModelIndex
         """
         if not self.hasIndex(row, column, parent):
             return QModelIndex()
@@ -181,12 +204,8 @@ class ROSModel(QAbstractItemModel):
         if not parent.isValid():
             parent_item = self.__root_item
         else:
-            #print("das hier ist der name:    " + parent.data() + " internal pointer:   " + str(type(parent.internalPointer())))
-            #todo: internalPointer or data????
             parent_item = parent.internalPointer()
 
-        #print(parent_item.get_seuid())
-        #print("child count: " + str(parent_item.child_count()) + " accesed row: " + str(row))
         child_item = parent_item.get_child(row)
         if child_item:
             return self.createIndex(row, column, child_item)
@@ -201,7 +220,8 @@ class ROSModel(QAbstractItemModel):
         :param index: the index of the child
         :type index: QModelIndex
         
-        :returns: QModelIndex
+        :returns: the parent 
+        :rtype: QModelIndex
         """
         if not index.isValid():
             return QModelIndex()
@@ -222,7 +242,8 @@ class ROSModel(QAbstractItemModel):
         :param parent: the parent
         :type parent: QModelIndex
         
-        :returns: int
+        :returns: the nuber amount of rows 
+        :rtype: int
         """
         if parent.column() > 0:
             return 0
@@ -264,8 +285,23 @@ class ROSModel(QAbstractItemModel):
         :type host_statistics: list
         """
         self.layoutAboutToBeChanged.emit()
-        #todo: remove in productional code
-        #now = rospy.Time.now()
+
+        amount_of_entries = 0
+        for item in self.__identifier_dict.values():
+            if item is not self.__root_item:
+                amount_of_entries += item.get_amount_of_entries()
+
+        # enables "intellgent" updates when there are only few elements in the model so that most of the history is kept
+        # maybe use something loglike for the range
+        for i in range(5, 0, -1):
+            if amount_of_entries > MAXIMUM_AMOUNT_OF_ENTRIES:
+                for item in self.__identifier_dict.values():
+                    if item is not self.__root_item:
+                        item.delete_items_older_than(Time.now() - Duration(secs=i * MINIMUM_RECORDING_TIME))
+
+        if self.__root_item.get_amount_of_entries() > MAXIMUM_AMOUNT_OF_ENTRIES:
+            self.__root_item.delete_items_older_than(Time.now() - Duration(secs=360))
+
         # in order of their appearance in the treeview for always having valid parents
         for item in host_statistics:
             self.__transform_host_statistics_item(item)
@@ -289,13 +325,11 @@ class ROSModel(QAbstractItemModel):
             "connection_counter": 0,
             "cpu_usage_max": 0,
             "cpu_temp_mean": 0,
-            "average_ram_load": 0,
+            "ram_usage_mean": 0,
             "cpu_usage_mean": 0,
             "cpu_temp_max": 0,
             "ram_usage_max": 0,
         }
-        # made it global
-        #last_time_error_occured = 0
 
         connected_hosts = 0
         connected_nodes = 0
@@ -312,28 +346,30 @@ class ROSModel(QAbstractItemModel):
         #todo: extract in own method????
         #generate the general information
         for host_item in self.__root_item.get_childs():
-            #hostinfo
+	    #hostinfo
             connected_hosts += 1
-            data = host_item.get_items_younger_than(Time.now() - Duration(nsecs=UPDATE_FREQUENCY), "bandwidth_mean", "cpu_usage_max", "cpu_temp_mean",
-                               "cpu_usage_mean", "cpu_temp_max", "ram_usage_max", "ram_usage_mean")
-
+            data = host_item.get_latest_data("bandwidth_mean", "cpu_usage_max", "cpu_temp_mean", "cpu_usage_mean", "cpu_temp_max", "ram_usage_max", "ram_usage_mean")
             if host_item.get_state() is "warning" and state is not "error":
                 state = "warning"
             elif host_item.get_state() is "error":
                 state = "error"
-            elif host_item.get_state is "unknown":
-                state = "unknown"
 
             for key in data:
-                #print("key " + key)
-                if key is "bandwidth_mean":
-                    for entry in data[key]:
-                        data_dict["total_traffic"] += entry
-                else:
-                    for entry in data[key]:
-                        print(entry)
-                        data_dict[key] += entry
-
+                if data[key]:
+                    if key is "bandwidth_mean":
+                        for entry in data[key]:
+                            if type(entry) is not unicode:
+                                if entry is not 0:
+                                    data_dict["total_traffic"] += entry
+                    elif key is "cpu_temp_max" or key is "cpu_temp_mean":
+                        # very unprobably the temp might be 0 then the programm is not showing this value!
+                        if type(data[key]) is not unicode:
+                            if data[key] is not 0:
+                                data_dict[key] += data[key]
+                    else:
+                        if type(data[key]) is not unicode:
+                            if data[key] is not 0:
+                                data_dict[key] += data[key]
             for node_item in host_item.get_childs():
                 #nodeinfo
                 connected_nodes += 1
@@ -371,9 +407,6 @@ class ROSModel(QAbstractItemModel):
         #now give this information to the root :)
         self.__root_item.append_data_dict(data_dict)
 
-        #todo: does this work correctly?
-        #self.add_log_entry("info", Time.now(), "ROSModel", "update_model (in ros_model) took: " + str(int(str(rospy.Time.now() - now))/1000000) + " milliseconds")
-
         self.layoutChanged.emit()
 
 
@@ -389,12 +422,12 @@ class ROSModel(QAbstractItemModel):
         # check if avaiable
         if seuid not in self.__identifier_dict:
             #having a problem, item doesn't exist but should not be created here
-            #self.add_log_entry("warning", Time.now(), "ROSModel", "Received rated statistics for an item that doesn't exist the database!")
             pass
         else:
             #update it
             current_item = self.__identifier_dict[seuid]
             data = {}
+            data["state"] = "unknown"
             for element in item.rated_statistics_entity:
                 if element.statistic_type not in data:
                     data[element.statistic_type + ".actual_value"] = []
@@ -403,12 +436,13 @@ class ROSModel(QAbstractItemModel):
 
                 data[element.statistic_type + ".actual_value"].append(element.actual_value)
                 data[element.statistic_type + ".expected_value"].append(element.expected_value)
-                data[element.statistic_type + ".state"].append(element.state)
-
-                if element.state is not element.OK and element.state is not element.UNKNOWN:
-                    data["state"] = "error"
-                elif element.state is not element.UNKNOWN:
-                    data["state"] = "unknown"
+                for i in range(0, len(element.state)):
+                    state = topic_statistics_state_to_string(element, element.state[i])
+                    data[element.statistic_type + ".state"].append(state)
+                    if (state is "low" or state is "high") and state is not "ok" and state is not "unknown":
+                        data["state"] = "error"
+                    elif data["state"] is not "error" and state is "ok":
+                        data["state"] = "ok"                      
 
             data["window_start"] = item.window_start
             data["window_stop"] = item.window_stop
@@ -423,8 +457,6 @@ class ROSModel(QAbstractItemModel):
         :type item: TopicStatisticsStatistics
         """
         # get identifier
-        #todo: adapt this to the changes of the seuid!
-        #TODO
         topic_seuid = "t" + SEUID_DELIMITER + item.topic
         connection_seuid = "c" + SEUID_DELIMITER + item.node_sub + SEUID_DELIMITER + item.topic \
                               + SEUID_DELIMITER + item.node_pub
@@ -439,43 +471,38 @@ class ROSModel(QAbstractItemModel):
                 host_seuid = "h" + SEUID_DELIMITER + self.__find_host.get_host(item.node_pub)
                 host_item = None
                 if host_seuid not in self.__identifier_dict:
-                    host_item = HostItem(host_seuid, self.__root_item)
+                    host_item = HostItem(self.__logger, host_seuid, self.__root_item)
                     self.__identifier_dict[host_seuid] = host_item
                     self.__root_item.append_child(host_item)
-                    self.add_log_entry("info", Time.now(), "ROSModel", "Added a new HostItem with name " + host_seuid)
                 else:
                     host_item = self.__identifier_dict[host_seuid]
 
                 node_seuid = "n" + SEUID_DELIMITER + item.node_pub
                 node_item = None
                 if node_seuid not in self.__identifier_dict:
-		    node_item = NodeItem(node_seuid, host_item)
+                    node_item = NodeItem(self.__logger, node_seuid, host_item)
                     self.__identifier_dict[node_seuid] = node_item
                     host_item.append_child(node_item)
-                    self.add_log_entry("info", Time.now(), "ROSModel", "Added a new NodeItem with name " + node_seuid)
                 else:
-		    node_item = self.__identifier_dict[node_seuid]
+                    node_item = self.__identifier_dict[node_seuid]
 
                 parent = self.__identifier_dict["n" + SEUID_DELIMITER + item.node_pub]
             if parent is None:
                 # having a problem, there is no node with the given name
                 raise UserWarning("The parent of the given topic statistics item cannot be found.")
 
-            topic_item = TopicItem(topic_seuid, parent)
+            topic_item = TopicItem(self.__logger, topic_seuid, parent)
             parent.append_child(topic_item)
             self.__identifier_dict[topic_seuid] = topic_item
-            self.add_log_entry("info", Time.now(), "ROSModel", "Added a new TopicItem with name " + topic_seuid)
             #creating a connection item
-            connection_item = ConnectionItem(connection_seuid, topic_item)
+            connection_item = ConnectionItem(self.__logger, connection_seuid, topic_item)
             topic_item.append_child(connection_item)
-            self.add_log_entry("info", Time.now(), "ROSModel", "Added a new ConnectionItem with name " + connection_seuid)
             self.__identifier_dict[connection_seuid] = connection_item
         elif connection_seuid not in self.__identifier_dict:
             topic_item = self.__identifier_dict[topic_seuid]
             #creating a new connection item
-            connection_item = ConnectionItem(connection_seuid, topic_item)
+            connection_item = ConnectionItem(self.__logger, connection_seuid, topic_item)
             topic_item.append_child(connection_item)
-            self.add_log_entry("info", Time.now(), "ROSModel", "Added a new ConnectionItem with name " + connection_seuid)
             self.__identifier_dict[connection_seuid] = connection_item
         else:
             # get topic and connection item
@@ -500,21 +527,18 @@ class ROSModel(QAbstractItemModel):
         :type item: NodeStatistics
         """
         item_seuid = "n" + SEUID_DELIMITER + item.node
-        #print(item_seuid)
         if item_seuid not in self.__identifier_dict:
             #create item
             host_seuid = "h" + SEUID_DELIMITER + item.host
             host_item = None
             if host_seuid not in self.__identifier_dict:
-                host_item = HostItem(host_seuid, self.__root_item)
+                host_item = HostItem(self.__logger, host_seuid, self.__root_item)
                 self.__identifier_dict[host_seuid] = host_item
                 self.__root_item.append_child(host_item)
-                self.add_log_entry("info", Time.now(), "ROSModel", "Added a new HostItem with name " + host_seuid)
             else:
                 host_item = self.__identifier_dict[host_seuid]
-            node_item = NodeItem(item_seuid, host_item)
+            node_item = NodeItem(self.__logger, item_seuid, host_item)
             self.__identifier_dict[item_seuid] = node_item
-            self.add_log_entry("info", Time.now(), "ROSModel", "Added a new NodeItem with name " + item_seuid)
             host_item.append_child(node_item)
         else:
             node_item = self.__identifier_dict[item_seuid]
@@ -529,21 +553,20 @@ class ROSModel(QAbstractItemModel):
         :param item: the HostStatistics item
         :type item: HostStatistics
         """
+        #print("got host data")
         host_item = None
         item_seuid = "h" + SEUID_DELIMITER + item.host
         if item_seuid not in self.__identifier_dict:
             #create item
-            host_item = HostItem(item_seuid, self.__root_item)
+            host_item = HostItem(self.__logger, item_seuid, self.__root_item)
             self.__identifier_dict[item_seuid] = host_item
             self.__root_item.append_child(host_item)
-            self.add_log_entry("info", Time.now(), "ROSModel", "Added a new HostItem with name " + item_seuid)
         else:
             host_item = self.__identifier_dict[item_seuid]
 
         host_item.append_data(item)
 
 
-#todo: deprecated and probably not needed --> self.__identifier_dict is a lot faster
     def get_item_by_seuid(self, seuid):
         """
         Returns an item according to the given seuid.
@@ -551,21 +574,16 @@ class ROSModel(QAbstractItemModel):
         :param seuid: the seuid of the wanted item
         :type seuid: str
 
-        :returns: AbstractItem
+        :returns: the item 
+        :rtype: AbstractItem
         """
         try:
             return self.__identifier_dict[seuid]
         except KeyError:
             print("There is no item with this seuid")
             raise
-        # for item in self.__root_item.get_childs():
-        #     value = self.__get_item_by_name(seuid, item)
-        #     if value is not None:
-        #         return value
-        # return None
 
 
-    #TODO which one of these tw methods is correct
     def __get_item_by_seuid(self, seuid, current_item):
         """
         Returns an item according to the given seuid and the currently selected item.
@@ -575,7 +593,8 @@ class ROSModel(QAbstractItemModel):
         :param current_item: the currently selected item
         :type current_item: Abstractitem
 
-        :retuns: AbstractItem
+        :retuns: the item
+        :rtype: AbstractItem
         """
         if current_item.get_seuid() == seuid:
             return current_item
@@ -588,36 +607,26 @@ class ROSModel(QAbstractItemModel):
         """
         Returns the log_model.
 
-        :returns: QStandardItemModel
+        :returns: the log-model 
+        :rtype: QStandardItemModel
         """
         return self.__log_model
 
-
-    def add_log_entry(self, type, date, location, message):
+    def get_logger(self):
         """
-        Adds a log entry to the log_model.
-
-        :param type: the type of the log_entry
-        :type type: str
-        :param date: the time of the log_entry
-        :type date: Time
-        :param location: the location, were the fault/info/... occured
-        :type location: str
-        :param message: the message of the log_entry
-        :type message: str
+        Returns the logger of the model.
+        
+        :returns: the logger
+        :rtype: ModelLogger
         """
-        self.__log_model.insertRow(0)
-        self.__log_model.setData(self.__log_model.index(0, 0), str(type))
-        self.__log_model.setData(self.__log_model.index(0, 1), time.strftime("%d.%m-%H:%M:%S", time.localtime(int(str(date)) / 1000000000)))
-        self.__log_model.setData(self.__log_model.index(0, 2), str(location))
-        self.__log_model.setData(self.__log_model.index(0, 3), str(message))
-
+        return self.__logger
 
     def get_overview_text(self):
         """
         Returns the overview-data for the overview-widget.
 
-        :returns: str
+        :returns: the overview-data 
+        :rtype: str
         """
         return self.__root_item.get_detailed_data()
 
@@ -626,6 +635,16 @@ class ROSModel(QAbstractItemModel):
         """
         returns the root item of the ROSModel.
 
-        :returns: AbstractItem
+        :returns: the root-item 
+        :rtype: AbstractItem
         """
         return self.__root_item
+
+    def get_translator(self):
+        """
+        returns the translator.
+
+        :return: the translator
+        :rtype: QTranslator
+        """
+        return self._translator

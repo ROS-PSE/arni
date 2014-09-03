@@ -5,8 +5,6 @@ class Specification:
     with desired values.
     """
 
-    __values = {}
-
     def add_tuple(self, t):
         """
         Adds a Tuple to the bundle.
@@ -53,10 +51,13 @@ class Specification:
         :param tuples: Optionally give tuples on creation. Use add_tuple(tuple) afterwards.
         :type tuples: list(tuple(str, object)
         """
+        self.__values = {}
         for t in tuples:
             self.add_tuple(t)
         self.seuid = ""
 
     def __str__(self):
-        for t in self.__values:
-            print("- " + str(t))
+        output = ""
+        for k, t in self.__values.iteritems():
+            output += "- %s: %s\n" % (str(k), str(t))
+        return output

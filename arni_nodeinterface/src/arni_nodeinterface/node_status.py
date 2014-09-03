@@ -30,7 +30,7 @@ class NodeStatus(Status):
     def add_node_bandwidth(self, bytes):
         """
         Adds another measured value in bytes, taken
-        from ROS topics statistics, to node_bandwidth. 
+        from ROS topics statistics, to node_bandwidth.
 
         :param bytes: Bytes measured.
         :type bytes: int
@@ -39,8 +39,8 @@ class NodeStatus(Status):
 
     def add_node_io(self, read, write):
         """
-        Adds another pair of measured disk I/O values 
-        to node_read and node_write. 
+        Adds another pair of measured disk I/O values
+        to node_read and node_write.
 
         :param read: Bytes read.
         :type read: int
@@ -53,7 +53,7 @@ class NodeStatus(Status):
     def add_node_msg_freq(self, freq):
         """
         Adds another measured value to node_msg_frequency,
-        taken from ROS topics statistics. 
+        taken from ROS topics statistics.
 
         :param freq: frequency of network calls.
         :type bytes: int
@@ -73,13 +73,17 @@ class NodeStatus(Status):
     def calc_stats_specific(self):
         """
         calculates statistics specific to nodes.
+        and write them into the stats_dict.
         """
 
         self.__calc_net_stats()
         self.__calc_drive_stats()
+        self.__rename_keys()
 
     def __calc_net_stats(self):
-
+        """
+        Calculate net I/O statistics for a node
+        """
         node_bandwidth = self.calc_stat_tuple(self.__node_bandwidth)
         node_msg_frequency = self.calc_stat_tuple(self.__node_msg_frequency)
 
@@ -94,6 +98,9 @@ class NodeStatus(Status):
         self._stats_dict['node_bandwidth_max'] = node_bandwidth.max
 
     def __calc_drive_stats(self):
+        """
+        Calculate drive I/O statistics for a node.
+        """
         node_read = self.calc_stat_tuple(self.__node_read)
         node_write = self.calc_stat_tuple(self.__node_write)
 
@@ -104,6 +111,23 @@ class NodeStatus(Status):
         self._stats_dict['node_write_mean'] = node_write.mean
         self._stats_dict['node_write_stddev'] = node_write.stddev
         self._stats_dict['node_write_max'] = node_write.max
+
+    def __rename_keys(self):
+        """
+        rename keys in statistics dictionary , prepending node_ prefix
+        to fit NodeStatistics message field names.
+        """
+        statistic = ['mean', 'stddev', 'max']
+
+        for i in statistic:
+            self._stats_dict['node_cpu_usage_%s' %
+                             i] = self._stats_dict.pop('cpu_usage_%s' % i)
+            self._stats_dict['node_cpu_usage_core_%s' %
+                             i] = self._stats_dict.pop('cpu_usage_core_%s' % i)
+            self._stats_dict['node_ramusage_%s' %
+                             i] = self._stats_dict.pop('ram_usage_%s' % i)
+            self._stats_dict['node_gpu_usage_%s' %
+                             i] = self._stats_dict.pop('gpu_usage_%s' % i)
 
     @property
     def node_bandwidth(self):

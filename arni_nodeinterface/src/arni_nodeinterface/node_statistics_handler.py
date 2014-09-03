@@ -28,7 +28,8 @@ class NodeStatisticsHandler(StatisticsHandler):
 
         self.__node_process = node_process
         self.pub = rospy.Publisher('/statistics_node', NodeStatistics)
-        self.update_interval = rospy.get_param('~update_interval', 1)
+        self.update_interval = rospy.get_param('~publish_interval', 10) /\
+            float(rospy.get_param('~window_max_elements', 10))
         self.register_subscriber()
         self.__write_base = 0
         self.__read_base = 0
@@ -77,6 +78,7 @@ class NodeStatisticsHandler(StatisticsHandler):
         """
         self._status.time_end = rospy.Time.now()
         stats = self.__calc_statistics()
+        rospy.logdebug('Publishing Node Status %s' % self._id)
         self.pub.publish(stats)
         self._status.reset()
         self._status.time_start = rospy.Time.now()
@@ -91,51 +93,20 @@ class NodeStatisticsHandler(StatisticsHandler):
         """
         stats_dict = self._status.calc_stats()
 
-        ns = NodeStatistics()
-        ns.host = self.__host_id
-        ns.node = self._id
-        ns.window_start = self._status.time_start
-        ns.window_stop = self._status.time_end
-        ns.node_cpu_usage_mean = stats_dict['cpu_usage_mean']
-        ns.node_cpu_usage_stddev = stats_dict['cpu_usage_stddev']
-        ns.node_cpu_usage_max = stats_dict['cpu_usage_max']
-
-        ns.node_cpu_usage_core_mean = stats_dict['cpu_usage_core_mean']
-        ns.node_cpu_usage_core_stddev = stats_dict['cpu_usage_core_stddev']
-        ns.node_cpu_usage_core_max = stats_dict['cpu_usage_core_max']
-
-        ns.node_ramusage_mean = stats_dict['ram_usage_mean']
-        ns.node_ramusage_stddev = stats_dict['ram_usage_stddev']
-        ns.node_ramusage_max = stats_dict['ram_usage_max']
-
-        ns.node_message_frequency_mean = stats_dict[
-            'node_message_frequency_mean']
-        ns.node_message_frequency_stddev = stats_dict[
-            'node_message_frequency_stddev']
-        ns.node_message_frequency_max = stats_dict[
-            'node_message_frequency_max']
-
-        ns.node_bandwidth_mean = stats_dict['node_bandwidth_mean']
-        ns.node_bandwidth_stddev = stats_dict['node_bandwidth_stddev']
-        ns.node_bandwidth_max = stats_dict['node_bandwidth_max']
-
-        ns.node_write_mean = stats_dict['node_write_mean']
-        ns.node_write_stddev = stats_dict['node_write_stddev']
-        ns.node_write_max = stats_dict['node_write_max']
-
-        ns.node_read_mean = stats_dict['node_read_mean']
-        ns.node_read_stddev = stats_dict['node_read_stddev']
-        ns.node_read_max = stats_dict['node_read_max']
-
-        ns.node_gpu_usage_mean = stats_dict['gpu_usage_mean']
-        ns.node_gpu_usage_stddev = stats_dict['gpu_usage_stddev']
-        ns.node_gpu_usage_max = stats_dict['gpu_usage_max']
-        return ns
+        node_status = NodeStatistics()
+        node_status.host = self.__host_id
+        node_status.node = self._id
+        node_status.window_start = self._status.time_start
+        node_status.window_stop = self._status.time_end
+        for v in dir(node_status):
+            if v in stats_dict:
+                setattr(node_status, v, stats_dict[v])
+        return node_status
 
     def receive_statistics(self, stats):
         """
         Receives the statistics published by ROS Topic statistics
-        and attemps to calculate node net I/O stats with them        
+        and attemps to calculate node net I/O stats with them
         """
         if self._id in stats.node_pub:
             dur = stats.window_stop - stats.window_start
@@ -144,15 +115,16 @@ class NodeStatisticsHandler(StatisticsHandler):
 
     def __cpu_usage_per_core(self):
         """
-        Reads the cpu usage in percent per core, using 'ps'. 
+        Reads the cpu usage in percent per core, using 'ps'.
         Only works on linux.
         Most likely useless, as it's lifetime stats.
         """
 
-        """Use ps to collect information about process, 
+        """Use ps to collect information about process,
         psr is the id of the cpu pcpu usage in percent"""
-        pipe = subprocess.Popen('ps -p %s -L -o psr,pcpu' % self.__node_process.pid,
-                                shell=True, stdout=subprocess.PIPE).stdout
+        pipe = subprocess.Popen(
+            'ps -p %s -L -o psr,pcpu' % self.__node_process.pid,
+            shell=True, stdout=subprocess.PIPE).stdout
         output = pipe.read()
 
         # format output string Format ,where format_output[2i] is psr

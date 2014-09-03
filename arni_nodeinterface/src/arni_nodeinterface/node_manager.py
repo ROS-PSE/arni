@@ -8,14 +8,12 @@ import rospy
 
 class NodeManager(object):
 
-    """ 
-    Can restart or stop nodes or execute a countermeasure. 
+    """
+    Can restart or stop nodes or execute a countermeasure.
     """
 
     def __init__(self):
-        """
-        empty comment to prevent indention error for whatever reason
-        """
+        super(NodeManager, self).__init__()
 
     def stop_node(self, node_id):
         """
