@@ -1,6 +1,12 @@
 from python_qt_binding.QtGui import QSortFilterProxyModel
 from python_qt_binding.QtCore import QObject, QModelIndex
 
+import sys
+
+if sys.version_info[0] is 2 or (sys.version_info[0] is 3 and sys.version_info[1] < 2):
+    from lru_cache import lru_cache
+else:
+    from functools import lru_cache
 
 class ItemFilterProxy(QSortFilterProxyModel):
     """
@@ -25,7 +31,18 @@ class ItemFilterProxy(QSortFilterProxyModel):
 
         self.__filter_string = ""
 
+    def invalidateFilter(self):
+        """
+        Invalidates the filter
+        """
+        QSortFilterProxyModel.invalidateFilter(self)
+        #invalidate cache
+        print(self.filterAcceptsRow.cache_info())
+        print("now deleting cache")
+        self.filterAcceptsRow.cache_clear()
 
+    #creating cache with infinite size
+    @lru_cache(None)
     def filterAcceptsRow(self, source_row, source_parent):
         """
         Tells by analysing the given row if it should be shown or not. This behaviour can be modified via
@@ -87,6 +104,10 @@ class ItemFilterProxy(QSortFilterProxyModel):
 
         return QSortFilterProxyModel.filterAcceptsRow(self, source_row, source_parent)
 
+
+    def setFilterRegExp(self, string):
+        self.invalidateFilter()
+        QSortFilterProxyModel.setFilterRegExp(self, string)
 
     def lessThan(self, left, right):
         """
