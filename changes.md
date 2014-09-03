@@ -38,14 +38,28 @@ Change
 * overview.ui from log_tab_tree_widget to log_tab_tree_view.
 
 ## Big TODOS:
-* delete items older than currently does **NOT** erase rated data!!! 
+* delete items nolder than currently does **NOT** erase rated data!!! 
 * from some data in the overview widget the mean has to be calculated (or e.g. display the data from the last minute or something!!!)
-* topic aggregation not yet working!!! --> get the algorithm from matthias and build it in :) --> 
-* filter is restricted to the upper plains --> if an word is searched and only a node but not its host contains the word
+* topic aggregation not yet working!!! --> get the algorithm from matthias and build it in :) --> cannot be applied here
+* filter is restricted to the upper plains --> if an word is searched and only a node but not its host contains the word <--> search every time through the whole subtreee and if any element returns true return true, for effiency use extensive caching
 * solve funny graphs problem in selectionWidget (probably double plot or something similar)
 * race condition when delete_items_older_than and get_items_younger_than are executed paralelly
 * because of new changes the state is no longer calculated correctly. HAS TO BE FIXED ASAP.
-* [mh]when plotting have to care for multidimensional entries --> simpel solution: don't add them right now --> ask andreas if he wants this information to be plotted too 
+* the flood of the data gets bigger and bigger, getting more and more data per each update - REASON UNKWON --> LOOK FOR BUFFERTHREAD AND THE INCOMING DATA IF THERE IS ALWAYS MORE AND MORE... IF NOT WE GONNA HAVE A PROBLEM
+* NEW SEGFAULT AND NOBODY KNOWS WHY..
+* the units in the graphs are still missing
+* also show subscribers
+* make the show buttons more intelligent
+* in the filter field add some default text
+* check why the translation is not working in the range boxes
+
+
+testcases
+    alles richtig
+    eine sache falsch (kurz oder länger )
+    leichte fluktuationen
+    countermeasure greift erfolgreich ein und danach alles wieder normal laufennd
+    countermeasure greift einfach, aber es ist trotzdem weiterhin falsch
 
 ## !others work!
 * CPU_TEMP_CORE IS UNNECESSARY AND SHOULD BE REMOVED BEFORE PUBLISHING!!!
@@ -62,13 +76,17 @@ Change
 * on enter clicked --> automatically activate apply button
 * add an expand_all button
 * caching the filter results in the proxies for faster updates :) --> maybe also needed to fix the filter problems!!! (can return same result as long as the filter is not invalidated, but have to invalidate filter on every update)
+* model is never closed
+* find out why the translation is not used for generating the text of the range box in overview/ selection widget
+* test code coverage with tools by trying out anything on the gui
 
 
 ## WiP
+* [mh]when plotting have to care for multidimensional entries --> simpel solution: don't add them right now --> currently not needed
 * [mh]if the gui runs longer sometimes segfaults may appear - might be because of the race conditions that are about to be fixed
-* [mh]cpu usage core ist nicht sinnvoll beim plotten --> currently simply ignored, has to be removed <--> ask alex if this makes sens at all --> IS NOT ANSWERING SINCE 3 DAYS
+* [mh]cpu usage core ist nicht sinnvoll beim plotten --> currently simply ignored, has to be removed <--> ask alex if this makes sens at all --> IS NOT ANSWERING SINCE 3 DAYS --> now answered: can be removed --> remove in the code
 * [sk]logging every error message occuring when updating an item <--> DAMAGED STATE CONVERSION BUT SEEMS TO BE WORKING
-* [mh]drawing the graphs in selectionwidget --> copy and paste --> many errors still remaining to fix!!!
+* [mh]drawing the graphs in selectionwidget --> copy and paste --> many errors still remaining to fix!!! 
 * [mh]race conditions in overviewWidget on_graph_window_resized or similar whenever the resize method is called to fast... --> probably fixed, at least in most cases ^^
 * [mh]saving the model for only 60 seconds (maybe more, simply try it) --> seems to work --> keep testing this feature!!! <--> race condition up there is happing because of this!!!
 * [sk]/[mh]document everything
