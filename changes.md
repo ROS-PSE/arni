@@ -42,8 +42,10 @@ Change
 * from some data in the overview widget the mean has to be calculated (or e.g. display the data from the last minute or something!!!)
 * topic aggregation not yet working!!! --> get the algorithm from matthias and build it in :) --> 
 * filter is restricted to the upper plains --> if an word is searched and only a node but not its host contains the word
-* replace "something is wrong" with good text!
-
+* solve funny graphs problem in selectionWidget (probably double plot or something similar)
+* race condition when delete_items_older_than and get_items_younger_than are executed paralelly
+* because of new changes the state is no longer calculated correctly. HAS TO BE FIXED ASAP.
+* [mh]when plotting have to care for multidimensional entries --> simpel solution: don't add them right now --> ask andreas if he wants this information to be plotted too 
 
 ## !others work!
 * CPU_TEMP_CORE IS UNNECESSARY AND SHOULD BE REMOVED BEFORE PUBLISHING!!!
@@ -58,31 +60,31 @@ Change
 * shrink the graphics to smaller size
 * after a lot of time the programm doesn't terminate any longer
 * on enter clicked --> automatically activate apply button
-* add an expand_all button 
-* caching the filter results in the proxies for faster updates :)
+* add an expand_all button
+* caching the filter results in the proxies for faster updates :) --> maybe also needed to fix the filter problems!!! (can return same result as long as the filter is not invalidated, but have to invalidate filter on every update)
 
 
 ## WiP
-* [mh]when plotting have to care for multidimensional entries --> simpel solution: don't add them right now
-* [mh]cpu usage core ist nicht sinnvoll beim plotten --> raus!
-* [sk]logging every error message occuring when updating an item
-* [sk]host recognition for a host on the same pc  --> seems to work but only in "real" networks, obviously a Configuration problem
-* [mh]Fixed a bug that when the erroneous checkbox was on, the filter could not be applied correcty without removing the "errouneous" filter
+* [mh]if the gui runs longer sometimes segfaults may appear - might be because of the race conditions that are about to be fixed
+* [mh]cpu usage core ist nicht sinnvoll beim plotten --> currently simply ignored, has to be removed <--> ask alex if this makes sens at all --> IS NOT ANSWERING SINCE 3 DAYS
+* [sk]logging every error message occuring when updating an item <--> DAMAGED STATE CONVERSION BUT SEEMS TO BE WORKING
 * [mh]drawing the graphs in selectionwidget --> copy and paste --> many errors still remaining to fix!!!
-* [mh]race conditions in overviewWidget on_graph_window_resized or similar whenever the resize method is called to fast... --> probably fixed, at least in most cases
-* [sk] / [mh]after some time the overview widget does not show any data any more...
-* [sk] / [mh]host_statistics arrives in the gui only at the beginning --> then nothing comes any longer!!!
-* [sk] / [mh]remove all the todos and code comments everywhere
-* [mh]the storage of the data in node_item is somehow erroneous --> Fix!
-* [mh]round the shown data in the gui --> round(number, 2) --> started but not finished yet
-* [mh]saving the model for only 60 seconds (maybe more, simply try it) --> seems to work --> keep testing this feature!!!
+* [mh]race conditions in overviewWidget on_graph_window_resized or similar whenever the resize method is called to fast... --> probably fixed, at least in most cases ^^
+* [mh]saving the model for only 60 seconds (maybe more, simply try it) --> seems to work --> keep testing this feature!!! <--> race condition up there is happing because of this!!!
 * [sk]/[mh]document everything
 * [mh]RUNTIME_ERROR BECAUSE ELEMENT HAS BEEN DELETED --> Timer Fehler oder so... Schwer/nicht behebbar
 * [mh]why are sometimes empty values given to the axis? --> for no plausible reason
-
+* [sk] / [mh]host_statistics arrives in the gui only at the beginning --> then nothing comes any longer!!!
 
 
 ## Done
+* [sk] / [mh]host recognition for a host on the same pc  --> seems to work but only in "real" networks, obviously a Configuration problem <--> when restarting most times works again
+* [mh]Fixed a bug that when the erroneous checkbox was on, the filter could not be applied correcty without removing the "errouneous" filter
+* [sk] / [mh]after some time the overview widget does not show any data any more...
+* [sk] / [mh]remove all the todos and code comments everywhere
+* [mh]the storage of the data in node_item is somehow erroneous --> Fix!
+* [mh]round the shown data in the gui --> round(number, 2) --> started but not finished yet
+* [mh]replace "something is wrong" with good text!
 * [mh]update the texts that are shown  --- the units in the overview are missing (maybe also some color if someone is too high --> not our )
 * [mh]give the translatable items to somebody so that he can translate these items
 * [mh]enter tr() everywhere for internationalisation --> still missing: the widget itself and the actual_values etc --> probably finished
