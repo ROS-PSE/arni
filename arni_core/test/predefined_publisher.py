@@ -7,8 +7,7 @@ from std_msgs.msg import String
 import sys
 import array
 
-pub = rospy.Publisher('topic_name', String, queue_size=10)
-
+pub = None
 
 def floored_abs():
     counter = 1
@@ -144,6 +143,8 @@ linear_abs:
 '''
 if __name__ == '__main__':
     rospy.init_node('node_name', log_level=rospy.DEBUG)
+    pub = rospy.Publisher(rospy.get_param('~topic_name', 'topic_name'), String, queue_size=10)
+
     modes = {
         'constant': constant,
         'stop_publish': stop_publish,
