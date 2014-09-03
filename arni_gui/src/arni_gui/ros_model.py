@@ -427,7 +427,7 @@ class ROSModel(QAbstractItemModel):
             #update it
             current_item = self.__identifier_dict[seuid]
             data = {}
-            data["state"] = "unkown"
+            data["state"] = "unknown"
             for element in item.rated_statistics_entity:
                 if element.statistic_type not in data:
                     data[element.statistic_type + ".actual_value"] = []
@@ -439,7 +439,7 @@ class ROSModel(QAbstractItemModel):
                 for i in range(0, len(element.state)):
                     state = topic_statistics_state_to_string(element, element.state[i])
                     data[element.statistic_type + ".state"].append(state)
-                    if state is not "ok" and state is not "unknown":
+                    if (state is "low" or state is "high") and state is not "ok" and state is not "unknown":
                         data["state"] = "error"
                     elif data["state"] is not "error" and state is "ok":
                         data["state"] = "ok"                      
