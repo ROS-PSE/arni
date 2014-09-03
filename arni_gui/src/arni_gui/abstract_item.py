@@ -543,19 +543,20 @@ class AbstractItem(QObject):
             if self.get_state() is not "ok" and self.get_state() is not "unknown":
                 for entry in self._attributes:
                     if self.__rated_data[entry + ".state"]:
-                        for i in range(0, len(self.__rated_data[entry + ".state"][-1])):
-                            if self.__rated_data[entry + ".state"][-1][i] is "high" or self.__rated_data[entry + ".state"][-1][i] is "low":
-                                content += self.tr(entry) +\
-                                           self.tr(" actual_value:") +\
-                                           " <span class=\"erroneous_entry\">" +  str(self.__rated_data[entry + ".actual_value"][i][0][0]) + "</span>" + \
-                                           self.tr(entry + "_unit") + "<br>"
-                                content += self.tr(entry) +\
-                                           self.tr(" expected_value:") +\
-                                           " <span class=\"erroneous_entry\">" + str(self.__rated_data[entry + ".expected_value"][i][0][0]) + "</span>" + \
-                                           self.tr(entry + "_unit") + "<br>"
-                                content += self.tr(entry) +\
-                                           self.tr(" state:") +\
-                                           " <span class=\"erroneous_entry\">" + str(self.__rated_data[entry + ".state"][i][0]) + "</span>" + "<br>"
+                        #for i in range(0, len(self.__rated_data[entry + ".state"])):
+			    #print self.__rated_data[entry + ".state"][i][-1]
+                        if self.__rated_data[entry + ".state"][-1] is "high" or self.__rated_data[entry + ".state"][-1] is "low":
+                            content += self.tr(entry) +\
+                                       self.tr(" actual_value:") +\
+                                       " <span class=\"erroneous_entry\">" +  str(self.__rated_data[entry + ".actual_value"][-1][0]) + "</span>" + \
+                                       self.tr(entry + "_unit") + "<br>"
+                            content += self.tr(entry) +\
+                                       self.tr(" expected_value:") +\
+                                       " <span class=\"erroneous_entry\">" + str(self.__rated_data[entry + ".expected_value"][-1][0]) + "</span>" + \
+                                       self.tr(entry + "_unit") + "<br>"
+                            content += self.tr(entry) +\
+                                       self.tr(" state:") +\
+                                       " <span class=\"erroneous_entry\">" + str(self.__rated_data[entry + ".state"][-1]) + "</span>" + "<br>"
                 content += "<br>"
         content += "</p>"
         self._data_lock.release()
