@@ -28,15 +28,22 @@ class TopicItem(AbstractItem):
         self._attributes = []
         #todo: currently probably only these 4 implemented
         self._attributes.extend(["dropped_msgs", "traffic",
-                                 "stamp_age_mean", "stamp_age_max"])
+                                 "stamp_age_mean", "stamp_age_max", "stamp_age_stddev"])
 
         for item in self._attributes:
             self._add_data_list(item)
 
-        self._attributes.remove("traffic")
+        #self._attributes.remove("traffic")
         self._attributes.append("bandwidth")
 
         self.__rated_attributes = []
+
+        self._attributes.append("packages")
+        self._attributes.append("packages_per_second")
+        self._attributes.append("frequency")
+        self._attributes.append("delivered_msgs")
+
+
         for item in self._attributes:
             self.__rated_attributes.append(item + ".actual_value")
             self.__rated_attributes.append(item + ".expected_value")

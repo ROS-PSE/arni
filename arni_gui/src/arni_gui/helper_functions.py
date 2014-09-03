@@ -146,6 +146,8 @@ def find_qm_files(translation_directory):
 def topic_statistics_state_to_string(element, state):
     """
     Converts the state type from int to string.
+    :returns: the string
+    :rtype: str
     """
     if state is not None:
         number = struct.unpack('B', state)[0]

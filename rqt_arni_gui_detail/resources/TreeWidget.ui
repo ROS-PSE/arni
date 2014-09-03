@@ -31,7 +31,11 @@
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="filter_line_Edit"/>
+          <widget class="QLineEdit" name="filter_line_Edit">
+           <property name="placeholderText">
+            <string>Enter filter text here</string>
+           </property>
+          </widget>
          </item>
          <item>
           <widget class="QPushButton" name="apply_push_button">

@@ -42,27 +42,18 @@ Change
 * from some data in the overview widget the mean has to be calculated (or e.g. display the data from the last minute or something!!!)
 * topic aggregation not yet working!!! --> get the algorithm from matthias and build it in :) --> cannot be applied here
 * filter is restricted to the upper plains --> if an word is searched and only a node but not its host contains the word <--> search every time through the whole subtreee and if any element returns true return true, for effiency use extensive caching
-* solve funny graphs problem in selectionWidget (probably double plot or something similar)
-* race condition when delete_items_older_than and get_items_younger_than are executed paralelly
 * because of new changes the state is no longer calculated correctly. HAS TO BE FIXED ASAP.
-* the flood of the data gets bigger and bigger, getting more and more data per each update - REASON UNKWON --> LOOK FOR BUFFERTHREAD AND THE INCOMING DATA IF THERE IS ALWAYS MORE AND MORE... IF NOT WE GONNA HAVE A PROBLEM
 * NEW SEGFAULT AND NOBODY KNOWS WHY..
 * the units in the graphs are still missing
 * also show subscribers
 * make the show buttons more intelligent
 * in the filter field add some default text
 * check why the translation is not working in the range boxes
+* self.__last_update no longer needed
+* make locking a little better by using different locks for rated and non rated data :) --> show if this works :)
 
+reminder: state is no longer returned by the get_items_younger_than --> if any errors occur, look for this
 
-testcases
-    alles richtig
-    eine sache falsch (kurz oder länger )
-    leichte fluktuationen
-    countermeasure greift erfolgreich ein und danach alles wieder normal laufennd
-    countermeasure greift einfach, aber es ist trotzdem weiterhin falsch
-
-## !others work!
-* CPU_TEMP_CORE IS UNNECESSARY AND SHOULD BE REMOVED BEFORE PUBLISHING!!!
 
 ## Final/Small Improvements
 * interpolate the data with flowcharts or however the method is called
@@ -79,9 +70,13 @@ testcases
 * model is never closed
 * find out why the translation is not used for generating the text of the range box in overview/ selection widget
 * test code coverage with tools by trying out anything on the gui
+* currently we do not support the delivered_msg part in topicstatistics --> may add support for it
 
 
 ## WiP
+* [sk]the flood of the data gets bigger and bigger, getting more and more data per each update - REASON UNKWON --> LOOK FOR BUFFERTHREAD AND THE INCOMING DATA IF THERE IS ALWAYS MORE AND MORE... IF NOT WE GONNA HAVE A PROBLEM
+* [mh]race condition when delete_items_older_than and get_items_younger_than are executed paralelly
+* [sk]solve funny graphs problem in selectionWidget (probably double plot or something similar)
 * [mh]when plotting have to care for multidimensional entries --> simpel solution: don't add them right now --> currently not needed
 * [mh]if the gui runs longer sometimes segfaults may appear - might be because of the race conditions that are about to be fixed
 * [mh]cpu usage core ist nicht sinnvoll beim plotten --> currently simply ignored, has to be removed <--> ask alex if this makes sens at all --> IS NOT ANSWERING SINCE 3 DAYS --> now answered: can be removed --> remove in the code
@@ -96,6 +91,7 @@ testcases
 
 
 ## Done
+* [mh]CPU_TEMP_CORE IS UNNECESSARY AND SHOULD BE REMOVED BEFORE PUBLISHING!!!
 * [sk] / [mh]host recognition for a host on the same pc  --> seems to work but only in "real" networks, obviously a Configuration problem <--> when restarting most times works again
 * [mh]Fixed a bug that when the erroneous checkbox was on, the filter could not be applied correcty without removing the "errouneous" filter
 * [sk] / [mh]after some time the overview widget does not show any data any more...

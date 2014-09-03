@@ -36,15 +36,18 @@ class ConnectionItem(AbstractItem):
         for item in self._attributes:
             self._add_data_list(item)
 
-        # todo: do these really not get any rating?!?
-        for element in ["traffic", "stamp_age_mean", "stamp_age_stddev", "stamp_age_max"]:
-            self._attributes.remove(element)
+        #for element in ["period_mean", "period_stddev", "period_max"]:
+        #    self._attributes.remove(element)
+
+        self._attributes.append("bandwidth")
+        self._attributes.append("frequency")
 
         self.__rated_attributes = []
         for item in self._attributes:
             self.__rated_attributes.append(item + ".actual_value")
             self.__rated_attributes.append(item + ".expected_value")
             self.__rated_attributes.append(item + ".state")
+
 
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)

@@ -346,7 +346,7 @@ class ROSModel(QAbstractItemModel):
         #todo: extract in own method????
         #generate the general information
         for host_item in self.__root_item.get_childs():
-	    #hostinfo
+	        #hostinfo
             connected_hosts += 1
             data = host_item.get_latest_data("bandwidth_mean", "cpu_usage_max", "cpu_temp_mean", "cpu_usage_mean", "cpu_temp_max", "ram_usage_max", "ram_usage_mean")
             if host_item.get_state() is "warning" and state is not "error":
@@ -426,27 +426,7 @@ class ROSModel(QAbstractItemModel):
         else:
             #update it
             current_item = self.__identifier_dict[seuid]
-            data = {}
-            data["state"] = "unknown"
-            for element in item.rated_statistics_entity:
-                if element.statistic_type not in data:
-                    data[element.statistic_type + ".actual_value"] = []
-                    data[element.statistic_type + ".expected_value"] = []
-                    data[element.statistic_type + ".state"] = []
-
-                data[element.statistic_type + ".actual_value"].append(element.actual_value)
-                data[element.statistic_type + ".expected_value"].append(element.expected_value)
-                for i in range(0, len(element.state)):
-                    state = topic_statistics_state_to_string(element, element.state[i])
-                    data[element.statistic_type + ".state"].append(state)
-                    if (state is "low" or state is "high") and state is not "ok" and state is not "unknown":
-                        data["state"] = "error"
-                    elif data["state"] is not "error" and state is "ok":
-                        data["state"] = "ok"                      
-
-            data["window_start"] = item.window_start
-            data["window_stop"] = item.window_stop
-            current_item.update_rated_data(data)
+            current_item.update_rated_data(item)
 
 
     def __transform_topic_statistics_item(self, item):
