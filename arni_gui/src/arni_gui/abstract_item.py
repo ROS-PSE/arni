@@ -139,23 +139,22 @@ class AbstractItem(QObject):
 		    return
 		    
 
-    def append_data(self, data):
+    def append_data(self, message):
         """
         Appends data to the data of the AbstractItem.
 
-        :param data: the data to append in key value form
-        :type data: one of the different message types names TopicStatistics, HostStatistics or NodeStatistics
+        :param message: the message to append
+        :type message: one of the different message types TopicStatistics, HostStatistics or NodeStatistics
         :raises KeyError: if an entry is in the rated dictionary but not found in the message
         """
         self._data_lock.acquire()
         for attribute in self._data:
             try:
-                self._data[attribute].append(getattr(data, attribute))
+                self._data[attribute].append(getattr(message, attribute))
             except KeyError:
                 print("KeyError occurred when trying to access %s", attribute)
                 raise
 
-        #todo: is the state sensefull here? I THINK NOT!!!
         #self.__state.append("unknown")
         self._length_of_data += 1
         #self._update_current_state()
@@ -426,7 +425,7 @@ class AbstractItem(QObject):
             if list_of_time[0] >= time:
                 for key in return_values:
                     try:
-                        return_values[key] = self._data[key]
+                        return_values[key] = self._data[key][:]
                     except KeyError:
                         print("Accessed key was: " + key + ". Available keys are: ")
                         print(self._data)

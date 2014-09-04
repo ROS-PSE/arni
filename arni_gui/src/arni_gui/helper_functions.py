@@ -30,6 +30,10 @@ The minimum time that should be recorded in the model.
 """
 MINIMUM_RECORDING_TIME = 100
 
+"""
+The time intervall after which the topics should be aggregated in nsecs.
+"""
+TOPIC_AGGREGATION_FREQUENCY = 1000000000
 
 try:
     import pyqtgraph as pg

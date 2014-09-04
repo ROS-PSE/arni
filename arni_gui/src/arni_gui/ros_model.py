@@ -471,7 +471,7 @@ class ROSModel(QAbstractItemModel):
                 # having a problem, there is no node with the given name
                 raise UserWarning("The parent of the given topic statistics item cannot be found.")
 
-            topic_item = TopicItem(self.__logger, topic_seuid, parent)
+            topic_item = TopicItem(self.__logger, topic_seuid, item, parent)
             parent.append_child(topic_item)
             self.__identifier_dict[topic_seuid] = topic_item
             #creating a connection item
