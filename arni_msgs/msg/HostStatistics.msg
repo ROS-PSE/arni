@@ -28,7 +28,7 @@ float32[] cpu_temp_core_max
 
 
 # gpu, placeholder not implemented
-# temp in °C
+# temp in celsius
 float32[] gpu_temp_mean
 float32[] gpu_temp_stddev
 float32[] gpu_temp_max
