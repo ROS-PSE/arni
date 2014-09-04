@@ -362,7 +362,7 @@ class AbstractItem(QObject):
                     return_values[key] = self._data[key][0:breakpoint]
                 #todo: currently this is not right for rated data... FIX!!! --> probably move this to another function!
                 return_values["state"] = self.__state[breakpoint:length]
-        self._data_lock.release()
+        #self._data_lock.release()
         return return_values
 
     def delete_items_older_than(self, time):

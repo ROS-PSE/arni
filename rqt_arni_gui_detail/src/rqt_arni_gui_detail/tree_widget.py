@@ -45,15 +45,15 @@ class TreeWidget(QWidget):
         self.__filter_proxy.setFilterCaseSensitivity(Qt.CaseInsensitive)
         self.item_tree_view.setModel(self.__filter_proxy)
 
-        #self.item_tree_view.setRootIsDecorated(True)
-        #self.item_tree_view.setAlternatingRowColors(True)
+        self.item_tree_view.setRootIsDecorated(True)
+        self.item_tree_view.setAlternatingRowColors(True)
         self.item_tree_view.setSortingEnabled(True)
         self.item_tree_view.sortByColumn(1, Qt.AscendingOrder)
 
         self.__model.layoutChanged.connect(self.update)
 
-        #self.__size_delegate = SizeDelegate()
-        #self.item_tree_view.setItemDelegate(self.__size_delegate)
+        self.__size_delegate = SizeDelegate()
+        self.item_tree_view.setItemDelegate(self.__size_delegate)
 
         self.__font_size = 10
         self.item_tree_view.setStyleSheet("font-size: %dpt;" % self.__font_size)
