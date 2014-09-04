@@ -33,8 +33,8 @@ class TreeWidget(QWidget):
         self.__model = model
 
         # Get path to UI file which is a sibling of this file
-        rp = rospkg.RosPack()
-        ui_file = os.path.join(rp.get_path('rqt_arni_gui_detail'), 'resources', 'TreeWidget.ui')
+        self.rp = rospkg.RosPack()
+        ui_file = os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources', 'TreeWidget.ui')
         # Extend the widget with all attributes and children from UI file
         loadUi(ui_file, self)
         self.setObjectName('TreeWidgetUi')
@@ -58,6 +58,7 @@ class TreeWidget(QWidget):
         self.__font_size = 10
         self.item_tree_view.setStyleSheet("font-size: %dpt;" % self.__font_size)
         self.item_tree_view.expandAll()
+        self.__is_expanded = True
         self.__resize_columns()
 
         self.__relative_font_size = 0
@@ -89,6 +90,8 @@ class TreeWidget(QWidget):
         self.plus_push_button.clicked.connect(self.__on_plus_push_button_clicked)
 
         self.filter_line_Edit.returnPressed.connect(self.__on_apply_push_button_clicked)
+
+        self.expand_push_button.clicked.connect(self.__on_expand_push_button_clicked)
 
     def __on_show_nodes_check_box_state_changed(self, activated):
         """
@@ -180,6 +183,25 @@ class TreeWidget(QWidget):
         self.__font_size += 1
         self.item_tree_view.setStyleSheet("font-size: %dpt;" % self.__font_size)
         self.__resize_columns()
+
+    def __on_expand_push_button_clicked(self):
+        """
+        Lets the Treeview collaps/expand on click.
+        """
+        pixmap = None
+        if self.__is_expanded:
+            self.__is_expanded = False
+            self.item_tree_view.collapseAll()
+            # set new icon
+            #pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
+            #                                          'expand.png'))
+        else:
+            self.__is_expanded = True
+            self.item_tree_view.expandAll()
+            #set new icon
+            #pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
+            #                                          'collaps.png'))
+        #self.expand_push_button.setPixmap(pixmap)
 
 
     def get_relative_font_size(self):

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>713</width>
-    <height>259</height>
+    <width>997</width>
+    <height>274</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -86,6 +86,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QCheckBox" name="also_show_subscrobers_push_button">
+           <property name="text">
+            <string>Also show Subscribers</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QCheckBox" name="show_erroneous_check_box">
            <property name="text">
             <string>Only erroneous</string>
@@ -124,6 +131,17 @@
            <property name="icon">
             <iconset>
              <normaloff>graphics/minus.png</normaloff>graphics/minus.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="expand_push_button">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>graphics/expand.png</normaloff>graphics/expand.png</iconset>
            </property>
           </widget>
          </item>
