@@ -179,11 +179,11 @@ class HostItem(AbstractItem):
             content += self.get_erroneous_entries_for_log()
             pass
         else:
-            content += self.tr("cpu_usage_mean") + ": " + str(data_dict["cpu_usage_mean"]) \
+            content += self.tr("cpu_usage_mean") + ": " + prepare_number_for_representation(data_dict["cpu_usage_mean"]) \
                    + " " + self.tr("cpu_usage_mean_unit") + " - "
-            content += self.tr("cpu_temp_mean") + ": " + str(data_dict["cpu_temp_mean"]) \
+            content += self.tr("cpu_temp_mean") + ": " + prepare_number_for_representation(data_dict["cpu_temp_mean"]) \
                    + " " + self.tr("cpu_temp_mean_unit") + " - "
-            content += self.tr("ram_usage_mean") + ": " + str(data_dict["ram_usage_mean"]) \
+            content += self.tr("ram_usage_mean") + ": " + prepare_number_for_representation(data_dict["ram_usage_mean"]) \
                    + " " + self.tr("ram_usage_mean_unit")
 
         return content

@@ -552,7 +552,7 @@ class AbstractItem(QObject):
                         if self.__rated_data[entry + ".state"][-1] is "high" or self.__rated_data[entry + ".state"][-1] is "low":
                             content += self.tr(entry) +\
                                        self.tr(" actual_value:") +\
-                                       " <span class=\"erroneous_entry\">" +  str(self.__rated_data[entry + ".actual_value"][-1][0]) + "</span>" + \
+                                       " <span class=\"erroneous_entry\">" +  prepare_number_for_representation(self.__rated_data[entry + ".actual_value"][-1][0]) + "</span>" + \
                                        self.tr(entry + "_unit") + "<br>"
                             content += self.tr(entry) +\
                                        self.tr(" expected_value:") +\
