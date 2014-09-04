@@ -84,7 +84,6 @@ class TreeWidget(QWidget):
         self.show_erroneous_check_box.stateChanged.connect(self.__on_show_erroneous_check_box_state_changed)
         #: apply_push_button
         self.apply_push_button.clicked.connect(self.__on_apply_push_button_clicked)
-        self.apply_push_button.setShortcut(QKeySequence(Qt.Key_Enter))
         #: minus_push_button
         self.minus_push_button.clicked.connect(self.__on_minus_push_button_clicked)
         #: plus_push_button
