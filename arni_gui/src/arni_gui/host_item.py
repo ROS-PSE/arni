@@ -176,7 +176,7 @@ class HostItem(AbstractItem):
 
         content = ""
         if data_dict["state"] is "error":
-            content += self.get_erroneous_entries().replace("<br>", " - ")
+            content += self.get_erroneous_entries_for_log()
             pass
         else:
             content += self.tr("cpu_usage_mean") + ": " + str(data_dict["cpu_usage_mean"]) \

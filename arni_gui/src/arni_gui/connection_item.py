@@ -119,7 +119,7 @@ class ConnectionItem(AbstractItem):
 
         content = ""
         if data_dict["state"] is "error":
-            content += self.get_erroneous_entries().replace("<br>", " - ")
+            content += self.get_erroneous_entries_for_log()
             pass
         else:
             content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(
