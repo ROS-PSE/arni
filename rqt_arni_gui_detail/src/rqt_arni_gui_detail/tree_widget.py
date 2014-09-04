@@ -102,8 +102,14 @@ class TreeWidget(QWidget):
         """
         if activated is 2:
             self.__filter_proxy.show_nodes(True)
+            if not self.show_hosts_check_box.checkState():
+                self.show_hosts_check_box.click()
         else:
-            self.__filter_proxy.show_nodes(False)
+            self.__filter_proxy.show_nodes(False)            
+	    if self.show_topics_check_box.checkState():
+	        self.show_topics_check_box.click()
+            if self.show_connections_check_box.checkState():
+	        self.show_connections_check_box.click()
 
 
     def __on_show_hosts_check_box_state_changed(self, activated):
@@ -117,6 +123,12 @@ class TreeWidget(QWidget):
             self.__filter_proxy.show_hosts(True)
         else:
             self.__filter_proxy.show_hosts(False)
+            if self.show_nodes_check_box.checkState():
+                self.show_nodes_check_box.click()
+            if self.show_topics_check_box.checkState():
+	        self.show_topics_check_box.click()
+            if self.show_connections_check_box.checkState():
+	        self.show_connections_check_box.click()
 
 
     def __on_show_topics_check_box_state_changed(self, activated):
@@ -128,8 +140,14 @@ class TreeWidget(QWidget):
         """
         if activated is 2:
             self.__filter_proxy.show_topics(True)
+            if not self.show_hosts_check_box.checkState():
+                self.show_hosts_check_box.click()
+            if not self.show_nodes_check_box.checkState():
+	        self.show_nodes_check_box.click()
         else:
             self.__filter_proxy.show_topics(False)
+            if self.show_connections_check_box.checkState():
+	        self.show_connections_check_box.click()
 
 
     def __on_show_connections_check_box_state_changed(self, activated):
@@ -141,6 +159,12 @@ class TreeWidget(QWidget):
         """
         if activated is 2:
             self.__filter_proxy.show_connections(True)
+            if not self.show_hosts_check_box.checkState():
+                self.show_hosts_check_box.click()
+            if not self.show_nodes_check_box.checkState():
+	        self.show_nodes_check_box.click()
+	    if not self.show_topics_check_box.checkState():
+	        self.show_topics_check_box.click()
         else:
             self.__filter_proxy.show_connections(False)
 
