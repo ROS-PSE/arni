@@ -116,14 +116,20 @@ class AbstractItem(QObject):
     def _update_current_state(self):
         """
         This method updates the current state of the AbstractItem.
+        
+        :raises TypeError: at the initialization, it's possible that last_states["state"] has no entries and a TypeError occures
         """
         if self.get_state():
             if self.get_state() is not "error":
-                last_states = self.get_rated_items_younger_than(Time.now() - Duration(secs=5), "state")
-                for state in last_states:
-                    if state is "error":
-                        self.set_state("warning")
-                        break
+                last_states = self.get_rated_items_younger_than(Time.now() - Duration(secs=5), "state")                
+                try:
+		    for i in range(0, len(last_states["state"])):
+		        if last_states["state"][i] is "error":
+                            self.set_state("warning")
+                            break
+	        except TypeError:
+		    return
+		    
 
     def append_data(self, data):
         """
