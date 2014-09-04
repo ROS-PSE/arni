@@ -31,11 +31,11 @@ class AbstractItem(QObject):
         
         self.counter = 0
         """
-        __rated_data is dict containing the rated data. state, window_start and window_end are simply lists
+        _rated_data is dict containing the rated data. state, window_start and window_end are simply lists
          with the corresponding entries. Any other values typically is a list containing lists which however contain the
          values. This is equivalent to the representation in the RatedStatistics/Entity.
         """
-        self.__rated_data = {}
+        self._rated_data = {}
         self.__child_items = []
         self.__parent = parent
         self.seuid = seuid
@@ -110,7 +110,7 @@ class AbstractItem(QObject):
         :param name: the key to be added
         :type name: str
         """
-        self.__rated_data[name] = []
+        self._rated_data[name] = []
 
     def append_child(self, child):
         """
@@ -171,19 +171,19 @@ class AbstractItem(QObject):
         """
         self._rated_data_lock.acquire()
 
-        self.__rated_data["window_start"].append(data.window_start)
-        self.__rated_data["window_stop"].append(data.window_stop)
+        self._rated_data["window_start"].append(data.window_start)
+        self._rated_data["window_stop"].append(data.window_stop)
 
         last_state = self.get_state()
         new_state = "unknown"
 
         for element in data.rated_statistics_entity:
-            self.__rated_data[element.statistic_type + ".actual_value"].append(element.actual_value)
-            self.__rated_data[element.statistic_type + ".expected_value"].append(element.expected_value)
+            self._rated_data[element.statistic_type + ".actual_value"].append(element.actual_value)
+            self._rated_data[element.statistic_type + ".expected_value"].append(element.expected_value)
 
             for i in range(0, len(element.state)):
                 state = topic_statistics_state_to_string(element, element.state[i])
-                self.__rated_data[element.statistic_type + ".state"].append(state)
+                self._rated_data[element.statistic_type + ".state"].append(state)
                 if (state is "low" or state is "high") and state is not "ok" and state is not "unkown":
                     new_state = "error"
                 elif state is "ok" and new_state is not "error":
@@ -291,9 +291,9 @@ class AbstractItem(QObject):
                                 return_dict[key] = [self.tr("Currently no value available")]
                             else:
                                 return_dict[key] = self.tr("Currently no value available")
-                    elif key in self.__rated_data:
-                        if self.__rated_data[key]:
-                            return_dict[key] = self.__rated_data[key][-1]
+                    elif key in self._rated_data:
+                        if self._rated_data[key]:
+                            return_dict[key] = self._rated_data[key][-1]
                     else:
                         raise KeyError("item " + key + "was not found")
         else:
@@ -308,9 +308,9 @@ class AbstractItem(QObject):
                         return_dict[entry] = [self.tr("Currently no value available")]
                     else:
                         return_dict[entry] = self.tr("Currently no value available")
-            for entry in self.__rated_data:
-                if self.__rated_data[entry]:
-                    return_dict[entry] = self.__rated_data[entry][-1]
+            for entry in self._rated_data:
+                if self._rated_data[entry]:
+                    return_dict[entry] = self._rated_data[entry][-1]
                 else:
                     return_dict[entry] = self.tr("Currently no value available")
             if self.__state:
@@ -388,9 +388,67 @@ class AbstractItem(QObject):
 
             self._length_of_data -= i
         #todo: add state and rated data here
+        self.delete_rated_items_older_than(time)
         self._rated_data_lock.release()
         self._data_lock.release()
 
+    def get_rated_items_older_than(self, time):
+        """
+        Returns all items which are older than time.
+        Warning: Method assumes data is sorted by time if this is not true will return too few or too much data.
+        WARNING: This method is only thread-safe if used via delete_items_older_than() otherwise the
+        method may result in undetermined behaviour.
+
+        :param time: the upper bound in seconds
+        :type time: rospy.Time
+
+        :returns: dict of lists with the data
+        :rtype: dict
+        """
+        return_values = {}
+        breakpoint = 0
+        list_of_time = self._rated_data["window_stop"]
+        return_values["window_stop"] = []
+        length = len(list_of_time)
+
+        if length is not 0:
+            if list_of_time[-1] < time:
+                for key in return_values:
+                    return_values[key] = self._rated_data[key]
+            else:
+                i = length - 1
+                while i > 0 and list_of_time[i] > time:
+                    i -= 1
+                breakpoint = i
+                for key in self._rated_data:
+                    return_values[key] = self._rated_data[key][0:breakpoint]
+                return_values["state"] = self.__state[breakpoint:length]
+        return return_values
+      
+    def delete_rated_items_older_than(self, time):
+        """
+        Deletes all items which are older than time.
+
+        :param time: the upper bound
+        :type time: rospy.Time
+        
+        :raises IndexError: Because in most cases not all values are monitored, it is possible that a reated_data_value is empty
+        """
+        list_of_time = self._rated_data["window_stop"]
+        
+        if len(list_of_time) is not 0:
+            i = 0
+            entries_to_delete = self.get_rated_items_older_than(time)
+
+            i += len(entries_to_delete["window_stop"])
+            for j in range(0, len(entries_to_delete["window_stop"])):
+                for value in self._rated_data.values():
+		    try:
+                        del value[0]
+                    except IndexError:
+		        j += 1
+            self._length_of_rated_data -= i
+            
     def get_items_younger_than(self, time, *args):
         """
         Returns all entries that are younger than time either in all keys of self._data or if args not empty in
@@ -448,7 +506,7 @@ class AbstractItem(QObject):
 
     def get_rated_items_younger_than(self, time, *args):
         """
-        Returns all entries that are younger than time either in all keys of self.__rated_data or if args not empty in
+        Returns all entries that are younger than time either in all keys of self._rated_data or if args not empty in
         all key corresponding to args.
         Warning: Method assumes data is sorted by time if this is not true will return too few or too much data.
 
@@ -471,7 +529,7 @@ class AbstractItem(QObject):
             if "window_stop" not in args:
                 return_values["window_stop"] = None
         else:
-            for key in self.__rated_data:
+            for key in self._rated_data:
                 return_values[key] = None
 
         #print("3end get_rated_items_younger_than")
@@ -479,7 +537,7 @@ class AbstractItem(QObject):
         return_values["state"] = None
 
         breakpoint = 0
-        list_of_time = self.__rated_data["window_stop"]
+        list_of_time = self._rated_data["window_stop"]
         length = len(list_of_time)
 
         if length is not 0:
@@ -490,10 +548,10 @@ class AbstractItem(QObject):
                                 return_values[key] = self.__state
                     else:
                         try:
-                            return_values[key] = self.__rated_data[key]
+                            return_values[key] = self._rated_data[key]
                         except KeyError:
                             print("Accessed key was: " + key + ". Available keys are: ")
-                            print(self.__rated_data)
+                            print(self._rated_data)
                             raise
             else:
                 #print("2end get_rated_items_younger_than")
@@ -501,8 +559,8 @@ class AbstractItem(QObject):
                     if list_of_time[i] < time:
                         breakpoint = i + 1
                         for key in return_values:
-                            if key in self.__rated_data:
-                                return_values[key] = self.__rated_data[key][breakpoint:length]
+                            if key in self._rated_data:
+                                return_values[key] = self._rated_data[key][breakpoint:length]
                             elif key is "state":
                                 return_values[key] = self.__state[breakpoint:length]
                             else:
@@ -556,19 +614,19 @@ class AbstractItem(QObject):
         if self.__state:
             if self.get_state() is not "ok" and self.get_state() is not "unknown":
                 for entry in self._attributes:
-                    if self.__rated_data[entry + ".state"]:
-                        if self.__rated_data[entry + ".state"][-1] is "high" or self.__rated_data[entry + ".state"][-1] is "low":
+                    if self._rated_data[entry + ".state"]:
+                        if self._rated_data[entry + ".state"][-1] is "high" or self._rated_data[entry + ".state"][-1] is "low":
                             content += self.tr(entry) +\
                                        self.tr(" actual_value:") +\
-                                       " <span class=\"erroneous_entry\">" +  prepare_number_for_representation(self.__rated_data[entry + ".actual_value"][-1][0]) + "</span>" + \
+                                       " <span class=\"erroneous_entry\">" +  prepare_number_for_representation(self._rated_data[entry + ".actual_value"][-1][0]) + "</span>" + \
                                        self.tr(entry + "_unit") + "<br>"
                             content += self.tr(entry) +\
                                        self.tr(" expected_value:") +\
-                                       " <span class=\"erroneous_entry\">" + str(self.__rated_data[entry + ".expected_value"][-1][0]) + "</span>" + \
+                                       " <span class=\"erroneous_entry\">" + str(self._rated_data[entry + ".expected_value"][-1][0]) + "</span>" + \
                                        self.tr(entry + "_unit") + "<br>"
                             content += self.tr(entry) +\
                                        self.tr(" state:") +\
-                                       " <span class=\"erroneous_entry\">" + str(self.__rated_data[entry + ".state"][-1]) + "</span>" + "<br>"
+                                       " <span class=\"erroneous_entry\">" + str(self._rated_data[entry + ".state"][-1]) + "</span>" + "<br>"
                 content += "<br>"
         content += "</p>"
         self._data_lock.release()
@@ -586,9 +644,9 @@ class AbstractItem(QObject):
         if self.__state:
             if self.get_state() is not "ok" and self.get_state() is not "unknown":
                 for entry in self._attributes:
-                    if self.__rated_data[entry + ".state"]:
-                        if self.__rated_data[entry + ".state"][-1] is "high" or self.__rated_data[entry + ".state"][-1] is "low":
-                            content += self.tr(entry) + ": " + str(self.__rated_data[entry + ".state"][-1]) + "  "
+                    if self._rated_data[entry + ".state"]:
+                        if self._rated_data[entry + ".state"][-1] is "high" or self._rated_data[entry + ".state"][-1] is "low":
+                            content += self.tr(entry) + ": " + str(self._rated_data[entry + ".state"][-1]) + "  "
 
         self._data_lock.release()
         return content
