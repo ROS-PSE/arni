@@ -28,7 +28,7 @@ class HostItem(AbstractItem):
         self._attributes = []
         self._attributes.extend(["cpu_temp_mean", "cpu_temp_stddev", "cpu_temp_max", "cpu_usage_mean",
                       "cpu_usage_stddev", "cpu_usage_max", "cpu_usage_core_mean", "cpu_usage_core_stddev",
-                      "cpu_usage_core_max", "cpu_temp_core", "cpu_temp_core_mean", "cpu_temp_core_stddev",
+                      "cpu_usage_core_max", "cpu_temp_core_mean", "cpu_temp_core_stddev",
                       "cpu_temp_core_max", "gpu_temp_mean", "gpu_temp_stddev", "gpu_temp_max", "gpu_usage_mean",
                       "gpu_usage_stddev", "gpu_usage_max", "ram_usage_mean", "ram_usage_stddev", "ram_usage_max",
                       "interface_name", "message_frequency_mean", "message_frequency_stddev",
@@ -157,7 +157,7 @@ class HostItem(AbstractItem):
         """
         return ["cpu_temp_mean", "cpu_temp_stddev", "cpu_temp_max", "cpu_usage_mean",
                       "cpu_usage_stddev", "cpu_usage_max", "cpu_usage_core_mean", "cpu_usage_core_stddev",
-                      "cpu_usage_core_max", "cpu_temp_core", "cpu_temp_core_mean", "cpu_temp_core_stddev",
+                      "cpu_usage_core_max", "cpu_temp_core_mean", "cpu_temp_core_stddev",
                       "cpu_temp_core_max", "gpu_temp_mean", "gpu_temp_stddev", "gpu_temp_max", "gpu_usage_mean",
                       "gpu_usage_stddev", "gpu_usage_max", "ram_usage_mean", "ram_usage_stddev", "ram_usage_max",
                       "interface_name", "message_frequency_mean", "message_frequency_stddev",
@@ -176,14 +176,14 @@ class HostItem(AbstractItem):
 
         content = ""
         if data_dict["state"] is "error":
-            content += self.get_erroneous_entries().replace("<br>", " - ")
+            content += self.get_erroneous_entries_for_log()
             pass
         else:
-            content += self.tr("cpu_usage_mean") + ": " + str(data_dict["cpu_usage_mean"]) \
+            content += self.tr("cpu_usage_mean") + ": " + prepare_number_for_representation(data_dict["cpu_usage_mean"]) \
                    + " " + self.tr("cpu_usage_mean_unit") + " - "
-            content += self.tr("cpu_temp_mean") + ": " + str(data_dict["cpu_temp_mean"]) \
+            content += self.tr("cpu_temp_mean") + ": " + prepare_number_for_representation(data_dict["cpu_temp_mean"]) \
                    + " " + self.tr("cpu_temp_mean_unit") + " - "
-            content += self.tr("ram_usage_mean") + ": " + str(data_dict["ram_usage_mean"]) \
+            content += self.tr("ram_usage_mean") + ": " + prepare_number_for_representation(data_dict["ram_usage_mean"]) \
                    + " " + self.tr("ram_usage_mean_unit")
 
         return content
@@ -191,7 +191,7 @@ class HostItem(AbstractItem):
 
     def get_list_items(self):
         return ["cpu_usage_core_mean", "cpu_usage_core_stddev",
-                "cpu_usage_core_max", "cpu_temp_core", "cpu_temp_core_mean", "cpu_temp_core_stddev",
+                "cpu_usage_core_max", "cpu_temp_core_mean", "cpu_temp_core_stddev",
                 "cpu_temp_core_max", "gpu_temp_mean", "gpu_temp_stddev", "gpu_temp_max", "gpu_usage_mean",
                 "gpu_usage_stddev", "gpu_usage_max", "interface_name", "message_frequency_mean",
                 "message_frequency_stddev",

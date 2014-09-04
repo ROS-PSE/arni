@@ -124,14 +124,20 @@ class AbstractItem(QObject):
     def _update_current_state(self):
         """
         This method updates the current state of the AbstractItem.
+        
+        :raises TypeError: at the initialization, it's possible that last_states["state"] has no entries and a TypeError occures
         """
         if self.get_state():
             if self.get_state() is not "error":
-                last_states = self.get_rated_items_younger_than(Time.now() - Duration(secs=5), "state")
-                for state in last_states:
-                    if state is "error":
-                        self.set_state("warning")
-                        break
+                last_states = self.get_rated_items_younger_than(Time.now() - Duration(secs=5), "state")                
+                try:
+		    for i in range(0, len(last_states["state"])):
+		        if last_states["state"][i] is "error":
+                            self.set_state("warning")
+                            break
+	        except TypeError:
+		    return
+		    
 
     def append_data(self, data):
         """
@@ -178,8 +184,6 @@ class AbstractItem(QObject):
             for i in range(0, len(element.state)):
                 state = topic_statistics_state_to_string(element, element.state[i])
                 self.__rated_data[element.statistic_type + ".state"].append(state)
-                    #state = topic_statistics_state_to_string(element, element.state)
-                    #self.__[element.statistic_type + ".state"].append(state)
                 if (state is "low" or state is "high") and state is not "ok" and state is not "unkown":
                     new_state = "error"
                 elif state is "ok" and new_state is not "error":
@@ -187,6 +191,8 @@ class AbstractItem(QObject):
 
         self.add_state(new_state)
         self._update_current_state()
+        if new_state is "error" and last_state is not "error":
+            self._logger.log("error", Time.now(), self.seuid, self.get_erroneous_entries_for_log())
         self._rated_data_lock.release()
 
     def child_count(self):
@@ -551,19 +557,18 @@ class AbstractItem(QObject):
             if self.get_state() is not "ok" and self.get_state() is not "unknown":
                 for entry in self._attributes:
                     if self.__rated_data[entry + ".state"]:
-                        for i in range(0, len(self.__rated_data[entry + ".state"][-1])):
-                            if self.__rated_data[entry + ".state"][-1][i] is "high" or self.__rated_data[entry + ".state"][-1][i] is "low":
-                                content += self.tr(entry) +\
-                                           self.tr(" actual_value:") +\
-                                           " <span class=\"erroneous_entry\">" +  str(self.__rated_data[entry + ".actual_value"][i][0][0]) + "</span>" + \
-                                           self.tr(entry + "_unit") + "<br>"
-                                content += self.tr(entry) +\
-                                           self.tr(" expected_value:") +\
-                                           " <span class=\"erroneous_entry\">" + str(self.__rated_data[entry + ".expected_value"][i][0][0]) + "</span>" + \
-                                           self.tr(entry + "_unit") + "<br>"
-                                content += self.tr(entry) +\
-                                           self.tr(" state:") +\
-                                           " <span class=\"erroneous_entry\">" + str(self.__rated_data[entry + ".state"][i][0]) + "</span>" + "<br>"
+                        if self.__rated_data[entry + ".state"][-1] is "high" or self.__rated_data[entry + ".state"][-1] is "low":
+                            content += self.tr(entry) +\
+                                       self.tr(" actual_value:") +\
+                                       " <span class=\"erroneous_entry\">" +  prepare_number_for_representation(self.__rated_data[entry + ".actual_value"][-1][0]) + "</span>" + \
+                                       self.tr(entry + "_unit") + "<br>"
+                            content += self.tr(entry) +\
+                                       self.tr(" expected_value:") +\
+                                       " <span class=\"erroneous_entry\">" + str(self.__rated_data[entry + ".expected_value"][-1][0]) + "</span>" + \
+                                       self.tr(entry + "_unit") + "<br>"
+                            content += self.tr(entry) +\
+                                       self.tr(" state:") +\
+                                       " <span class=\"erroneous_entry\">" + str(self.__rated_data[entry + ".state"][-1]) + "</span>" + "<br>"
                 content += "<br>"
         content += "</p>"
         self._data_lock.release()
@@ -582,9 +587,8 @@ class AbstractItem(QObject):
             if self.get_state() is not "ok" and self.get_state() is not "unknown":
                 for entry in self._attributes:
                     if self.__rated_data[entry + ".state"]:
-                        for i in range(0, len(self.__rated_data[entry + ".state"][-1])):
-                            if self.__rated_data[entry + ".state"][-1][i] is "high" or self.__rated_data[entry + ".state"][-1][i] is "low":
-                                content += self.tr(entry) + ": " + str(self.__rated_data[entry + ".state"][i][0]) + "  "
+                        if self.__rated_data[entry + ".state"][-1] is "high" or self.__rated_data[entry + ".state"][-1] is "low":
+                            content += self.tr(entry) + ": " + str(self.__rated_data[entry + ".state"][-1]) + "  "
 
         self._data_lock.release()
         return content

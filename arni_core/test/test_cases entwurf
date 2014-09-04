@@ -1,0 +1,20 @@
+Test Cases:
+
+1.  Alles Richtig:
+    Der Benutzer startet den host_manager, countermeasure und processing node.Er läd eine vordefinierte Config-datei mit Grenzwerten. Der host_manager verschickt dummy-daten, in einer festen Frequenz, welche unterhalb des Grenzwertes liegen. Processing wertet diese Daten aus, wertet sie als ok und schickt diese info an die Gui. In der Gui wird der Status als ok angezeigt.
+
+2.  Falscher Wert, leichte flunktuation:
+    Der Benutzer startet den host_manager, countermeasure und processing node.Er läd eine vordefinierte Config-datei mit Grenzwerten. Der host_manager schickt zuerst dummy-daten, die unterhalb der Grenzwerte liegen. Danach verschickt er für einen Zeitintervall, die unterhalb des Grenzwertes liegt daten, daten, die den Grenzwert überschreiten, gefolgt von korrekten Daten. Die Störung wird notiert, es wird aber kein Fehler ausgegeben.
+
+3.  Falscher Wert, längere Störung:
+    Der Benutzer startet den host_manager, countermeasure und processing node.Er läd eine vordefinierte Config-datei mit Grenzwerten. Der host_manager schickt zuerst dummy-daten, die unterhalb der Grenzwerte liegen. Danach verschickt er für einen Zeitintervall, der den Grenzwert übersteigt, falsche Daten. Die Überschreitung wird vom Processing erkannt und and die Gui weitergegeben, welche den Host rot markiert.
+
+4.  Countermeasure greift ein.
+    Der Benutzer startet den host_manager, countermeasure und processing node.Er läd eine vordefinierte Config-datei mit Grenzwerten und 
+    countermeasures. Es wird ein zusätzlicher dummy-node geladen. Der host_manager verschickt statistiken die den dummy-node als fehlerhaft kennzeichnen. Der Processing node erkennt dies und leitet diese information an den countermeasure weiter. Dieser führt eine Gegenmaßnahme aus ( Restart/ stop). Nach dem Restart sendet der Node korrekte statistiken.
+
+5.  Countermeasure greift ein, fehler besteht.
+    siehe 4). Aber nach dem restart sended der Node weiterhing fehlerhafte statistiken.
+
+6.  komischer publisher ?:
+    Ein Publisher sendet Daten, in definierten Mustern (Treppe, sawtooth, sinus), je nach gesetzen Flags in konstanter Frequenz. Der "Traffic" graph in der Gui soll, dies korrekt darstellen.
