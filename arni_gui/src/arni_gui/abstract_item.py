@@ -57,6 +57,14 @@ class AbstractItem(QObject):
         self._rated_data_lock = Lock()
         
 
+    def get_type(self):
+        """
+        Returns the type of the item
+        :return: the type
+        :rtype: str
+        """
+        return self._type
+
     def get_seuid(self):
         """
         Returns the seuid as a string.
@@ -84,7 +92,7 @@ class AbstractItem(QObject):
         """
         if self.__state:
             return self.__state[-1]
-        return None
+        return "unknown"
 
     def _add_data_list(self, name):
         """

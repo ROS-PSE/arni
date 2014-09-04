@@ -271,8 +271,10 @@ class SelectionWidget(QWidget):
         :type selected_item: QModelIndex
         """
         if index is not None:
+            print("now setting item")
             src_index = index.model().mapToSource(index)
             self.__selected_item = src_index.internalPointer()
+            print("after")
             self.__log_filter_proxy.filter_by_item(self.__selected_item)
             if self.__selected_item is not None:
                 self.__plotable_items = self.__selected_item.get_plotable_items()
