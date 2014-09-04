@@ -176,8 +176,6 @@ class AbstractItem(QObject):
             for i in range(0, len(element.state)):
                 state = topic_statistics_state_to_string(element, element.state[i])
                 self.__rated_data[element.statistic_type + ".state"].append(state)
-                    #state = topic_statistics_state_to_string(element, element.state)
-                    #self.__[element.statistic_type + ".state"].append(state)
                 if (state is "low" or state is "high") and state is not "ok" and state is not "unkown":
                     new_state = "error"
                 elif state is "ok" and new_state is not "error":
@@ -185,6 +183,8 @@ class AbstractItem(QObject):
 
         self.add_state(new_state)
         self._update_current_state()
+        if new_state is "error" and last_state is not "error":
+            self._logger.log("error", Time.now(), self.seuid, self.get_erroneous_entries_for_log())
         self._rated_data_lock.release()
 
     def child_count(self):
@@ -549,8 +549,6 @@ class AbstractItem(QObject):
             if self.get_state() is not "ok" and self.get_state() is not "unknown":
                 for entry in self._attributes:
                     if self.__rated_data[entry + ".state"]:
-                        #for i in range(0, len(self.__rated_data[entry + ".state"])):
-			    #print self.__rated_data[entry + ".state"][i][-1]
                         if self.__rated_data[entry + ".state"][-1] is "high" or self.__rated_data[entry + ".state"][-1] is "low":
                             content += self.tr(entry) +\
                                        self.tr(" actual_value:") +\
@@ -581,9 +579,8 @@ class AbstractItem(QObject):
             if self.get_state() is not "ok" and self.get_state() is not "unknown":
                 for entry in self._attributes:
                     if self.__rated_data[entry + ".state"]:
-                        for i in range(0, len(self.__rated_data[entry + ".state"][-1])):
-                            if self.__rated_data[entry + ".state"][-1][i] is "high" or self.__rated_data[entry + ".state"][-1][i] is "low":
-                                content += self.tr(entry) + ": " + str(self.__rated_data[entry + ".state"][i][0]) + "  "
+                        if self.__rated_data[entry + ".state"][-1] is "high" or self.__rated_data[entry + ".state"][-1] is "low":
+                            content += self.tr(entry) + ": " + str(self.__rated_data[entry + ".state"][-1]) + "  "
 
         self._data_lock.release()
         return content
