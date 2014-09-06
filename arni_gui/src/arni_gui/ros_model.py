@@ -348,11 +348,23 @@ class ROSModel(QAbstractItemModel):
         for host_item in self.__root_item.get_childs():
             #hostinfo
             connected_hosts += 1
-            data = host_item.get_latest_data("bandwidth_mean", "cpu_usage_max", "cpu_temp_mean", "cpu_usage_mean", "cpu_temp_max", "ram_usage_max", "ram_usage_mean")
             if host_item.get_state() is "warning" and state is not "error":
                 state = "warning"
             elif host_item.get_state() is "error":
                 state = "error"
+
+            last_entry = {}
+            data = host_item.get_items_younger_than(Time.now() - Duration(secs=10), "bandwidth_mean", "cpu_usage_max",
+                                                    "cpu_temp_mean", "cpu_usage_mean", "cpu_temp_max", "ram_usage_max",
+                                                    "ram_usage_mean")
+            if data["window_stop"]:
+                for key in data:
+                    last_entry[key] = data[key][-1]
+            else:
+                data = host_item.get_latest_data("bandwidth_mean", "cpu_usage_max", "cpu_temp_mean", "cpu_usage_mean",
+                                             "cpu_temp_max", "ram_usage_max", "ram_usage_mean")
+                for key in data:
+                    last_entry[key] = data[key]
 
             for key in data:
                 if data[key]:

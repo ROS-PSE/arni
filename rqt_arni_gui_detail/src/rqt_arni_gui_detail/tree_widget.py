@@ -69,6 +69,7 @@ class TreeWidget(QWidget):
         self.show_connections_check_box.setText(self.tr("Show Connections"))
         self.show_erroneous_check_box.setText(self.tr("Only Erroneous"))
         self.apply_push_button.setText(self.tr("Apply"))
+        self.also_show_subscribers_check_box.setText(self.tr("Also show Subscribers"))
 
     def connect_slots(self):
         """Connects the slots."""

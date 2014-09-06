@@ -40,6 +40,7 @@ Change
 ## Big TODOS:
 * from some data in the overview widget the mean has to be calculated (or e.g. display the data from the last minute or something!!!) --> important
 * also show subscribers
+* the translation has to be done again for adapting to the newly added items and texts
 
 
 ## Final/Small Improvements --> maybe for after PSE...
@@ -94,7 +95,7 @@ Change
 * [mh]the storage of the data in node_item is somehow erroneous --> Fix!
 * [mh]round the shown data in the gui --> round(number, 2) --> started but not finished yet
 * [mh]replace "something is wrong" with good text!
-* [mh]update the texts that are shown  --- the units in the overview are missing (maybe also some color if someone is too high --> not our )
+* [mh]update the texts that are shown  --- the units in the overview are missing (maybe also some color if someone is too high)
 * [mh]give the translatable items to somebody so that he can translate these items
 * [mh]enter tr() everywhere for internationalisation --> still missing: the widget itself and the actual_values etc --> probably finished
 * [mh]get overview widget to work --> still the bug with host items remains, don't know why
@@ -121,12 +122,14 @@ Change
 * [mh]fixed index errors when element was None
 * [mh]reason for wrong return values: *args is never None, so if args is not None will always enter even though args might be empty!!!
 * [mh]moved logging to own class
-
 * [mh]changing the background of the updateGraphs
 * [mh]change plotting to use one range_box or maybe two or three if there is enough space :) <--> make this dependent from the available space
 * [sk]scrolling does not work because of the permanent updates...--> solution: if no data has changed, simply get_detailed_data simply returns None --> or not calling the update so often, every minute should suffice --> found better solution by simply asking the scrollbar
 * [mh]fixed never ending recursion
-
+* [mh]fixed segfault that occured because of using internalPointer() instead of data()
+* [mh]fixed segfault that occured because of missing input sanitization (inputed dict instead of str)
+* [mh]fixed bad singleton error in ROSModel --> normal singleton implementation didn't work because of the missing superclass object in PyQt/PySide <--> Fix: multiple inheritance for also using QObject
+* [mh]extreme performance problem when plotting --> used the wrong method plot instead of setData, furthermore to clear graphs use clear(), a non api-documented method
 
 =======
 * selection.ui from log_tab_tree_widget to log_tab_tree_view.

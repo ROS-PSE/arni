@@ -86,7 +86,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="also_show_subscrobers_push_button">
+          <widget class="QCheckBox" name="also_show_subscribers_check_box">
            <property name="text">
             <string>Also show Subscribers</string>
            </property>
