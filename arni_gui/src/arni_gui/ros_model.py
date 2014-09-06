@@ -480,6 +480,32 @@ class ROSModel(QAbstractItemModel):
                     node_item = self.__identifier_dict[node_seuid]
 
                 parent = self.__identifier_dict["n" + SEUID_DELIMITER + item.node_pub]
+
+            #try:
+                #parent_sub = self.__identifier_dict[item.node_sub]
+            #except KeyError:
+                ##host_seuid = "h" + SEUID_DELIMITER + self.__find_host.get_host(item.node_sub)
+                ##host_item = None
+                ##if host_seuid not in self.__identifier_dict:
+                    ##host_item = HostItem(self.__logger, host_seuid, self.__root_item)
+                    ##self.__identifier_dict[host_seuid] = host_item
+                    ##self.__root_item.append_child(host_item)
+                ##else:
+                    ##host_item = self.__identifier_dict[host_seuid]
+
+                #node_seuid = "n" + SEUID_DELIMITER + item.node_sub
+                #node_item = None
+                #if node_seuid not in self.__identifier_dict:
+                    #node_item = NodeItem(self.__logger, node_seuid, host_item)
+                    #self.__identifier_dict[node_seuid] = node_item
+                    #host_item.append_child(node_item)
+                #else:
+                    #node_item = self.__identifier_dict[node_seuid]
+
+                #parent_sub = self.__identifier_dict["n" + SEUID_DELIMITER + item.node_sub]
+                
+                
+                
             if parent is None:
                 # having a problem, there is no node with the given name
                 raise UserWarning("The parent of the given topic statistics item cannot be found.")
@@ -491,6 +517,11 @@ class ROSModel(QAbstractItemModel):
             connection_item = ConnectionItem(self.__logger, connection_seuid, topic_item)
             topic_item.append_child(connection_item)
             self.__identifier_dict[connection_seuid] = connection_item
+            
+            #connection_item_sub = ConnectionItem(self.__logger, connection_seuid + "sub", parent_sub)
+            #parent_sub.append_child(connection_item_sub)
+            #self.__identifier_dict[connection_seuid] = connection_item_sub
+            
         elif connection_seuid not in self.__identifier_dict:
             topic_item = self.__identifier_dict[topic_seuid]
             #creating a new connection item
