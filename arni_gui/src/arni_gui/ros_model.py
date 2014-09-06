@@ -359,29 +359,30 @@ class ROSModel(QAbstractItemModel):
                                                     "ram_usage_mean")
             if data["window_stop"]:
                 for key in data:
-                    last_entry[key] = data[key][-1]
+		    if key is not "window_stop":
+                        last_entry[key] = data[key][-1]
             else:
                 data = host_item.get_latest_data("bandwidth_mean", "cpu_usage_max", "cpu_temp_mean", "cpu_usage_mean",
                                              "cpu_temp_max", "ram_usage_max", "ram_usage_mean")
                 for key in data:
                     last_entry[key] = data[key]
 
-            for key in data:
-                if data[key]:
+            for key in last_entry:
+                if last_entry[key]:
                     if key is "bandwidth_mean":
-                        for entry in data[key]:
+                        for entry in last_entry[key]:
                             if type(entry) is not unicode:
                                 if entry is not 0:
                                     data_dict["total_traffic"] += entry
                     elif key is "cpu_temp_max" or key is "cpu_temp_mean":
                         # very unprobably the temp might be 0 then the programm is not showing this value!
-                        if type(data[key]) is not unicode:
-                            if data[key] is not 0:
-                                data_dict[key] += data[key]
+                        if type(last_entry[key]) is not unicode:
+                            if last_entry[key] is not 0:
+                                data_dict[key] += last_entry[key]
                     else:
-                        if type(data[key]) is not unicode:
-                            if data[key] is not 0:
-                                data_dict[key] += data[key]
+                        if type(last_entry[key]) is not unicode:
+                            if last_entry[key] is not 0:
+                                data_dict[key] += last_entry[key]
             for node_item in host_item.get_childs():
                 #nodeinfo
                 connected_nodes += 1
