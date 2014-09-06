@@ -194,7 +194,7 @@ class OverviewWidget(QWidget):
     def __on_graph_window_size_changed(self):
         # getting the size
         size = self.__graph_layout.size()
-        items_per_group = (size.height() - 100) / 200 + 1
+        items_per_group = max(int(math.ceil((size.height() - 100) / 200 + 1)), 1)
         if items_per_group is not self.__items_per_group or self.__first_resize:
             self.__first_resize = False
             self.__graph_layout.set_blocked(True)

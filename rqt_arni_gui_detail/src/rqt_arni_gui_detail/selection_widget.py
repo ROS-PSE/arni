@@ -215,7 +215,7 @@ class SelectionWidget(QWidget):
         # getting the size
         if self.__selected_item is not None:
             size = self.__graph_layout.size()
-            items_per_group = (size.height() - 100) / 200 + 1
+            items_per_group = max(int(math.ceil((size.height() - 100) / 200 + 1)), 1)
             if items_per_group is not self.__items_per_group or self.__selected_item_changed:
                 self.__graph_layout.set_blocked(True)
                 self.__items_per_group = items_per_group

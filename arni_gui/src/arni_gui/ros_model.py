@@ -346,7 +346,7 @@ class ROSModel(QAbstractItemModel):
         #todo: extract in own method????
         #generate the general information
         for host_item in self.__root_item.get_childs():
-	        #hostinfo
+            #hostinfo
             connected_hosts += 1
             data = host_item.get_latest_data("bandwidth_mean", "cpu_usage_max", "cpu_temp_mean", "cpu_usage_mean", "cpu_temp_max", "ram_usage_max", "ram_usage_mean")
             if host_item.get_state() is "warning" and state is not "error":

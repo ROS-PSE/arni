@@ -40,9 +40,10 @@ Change
 ## Big TODOS:
 * from some data in the overview widget the mean has to be calculated (or e.g. display the data from the last minute or something!!!) --> important
 * also show subscribers
-* check why the translation is not working in the range boxes
+
 
 ## Final/Small Improvements --> maybe for after PSE...
+* check why the translation is not working in the range boxes
 * print the last update somewhere...
 * interpolate the data with flowcharts or however the method is called
 * hover texts have to be defined
@@ -60,6 +61,7 @@ Change
 * [mh]why are sometimes empty values given to the axis? --> for no plausible reason
 
 ## Done
+* [mh]fixed division error
 * [sk]make the show buttons more intelligent
 * [mh]currently we do not support the delivered_msg part in topicstatistics --> may add support for it
 * [mh]test code coverage with tools by trying out anything on the gui
