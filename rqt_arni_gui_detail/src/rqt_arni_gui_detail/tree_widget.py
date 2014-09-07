@@ -151,8 +151,6 @@ class TreeWidget(QWidget):
                 self.show_hosts_check_box.click()
             if not self.show_nodes_check_box.checkState():
 	        self.show_nodes_check_box.click()
-	    if self.also_show_subscribers_check_box.checkState():
-	        self.also_show_subscribers_check_box.click()
         else:
             self.__filter_proxy.show_topics(False)
             if self.show_connections_check_box.checkState():
