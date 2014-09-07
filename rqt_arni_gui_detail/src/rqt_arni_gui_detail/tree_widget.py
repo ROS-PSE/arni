@@ -114,7 +114,7 @@ class TreeWidget(QWidget):
             if self.show_connections_check_box.checkState():
 	        self.show_connections_check_box.click()
 	    if self.also_show_subscribers_check_box.checkState():
-	        self.also_show_check_box.click()
+	        self.also_show_subscriber_check_box.click()
 	        
 
     def __on_show_hosts_check_box_state_changed(self, activated):
@@ -132,10 +132,10 @@ class TreeWidget(QWidget):
                 self.show_nodes_check_box.click()
             if self.show_topics_check_box.checkState():
 	        self.show_topics_check_box.click()
-            if self.also_show_connections_check_box.checkState():
+            if self.show_connections_check_box.checkState():
 	        self.show_connections_check_box.click()
 	    if self.also_show_subscribers_check_box.checkState():
-	        self.also_show_check_box.click()	     
+	        self.also_show_subscribers_check_box.click()	     
 
 
     def __on_show_topics_check_box_state_changed(self, activated):
