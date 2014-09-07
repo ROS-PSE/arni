@@ -28,6 +28,7 @@ class ItemFilterProxy(QSortFilterProxyModel):
         self.__show_nodes = True
         self.__show_connections = True
         self.__show_topics = True
+        self.__show_subscribers = True
 
         self.__filter_string = ""
 
@@ -115,17 +116,20 @@ class ItemFilterProxy(QSortFilterProxyModel):
                     break
             if self.__show_connections is True:
                 if data == "connection":
-                    correct_type = True
-                    break
+		    if self.__show_subscribers is True:
+		        correct_type = True
+		        break
+		    elif "--sub" not in entries[1]:		        
+                        correct_type = True
+                        break
             if self.__show_topics is True:
                 if data == "topic":
                     correct_type = True
                     break
 
+
         if correct_type is False:
             return False
-
-
         #print(entries)
 
         #todo: speed this implementation a lot up by not using the model!!!
@@ -212,6 +216,16 @@ class ItemFilterProxy(QSortFilterProxyModel):
         :type show_topics: bool
         """
         self.__show_topics = show_topics
+        self.invalidateFilter()
+        
+    def show_subscribers(self, show_subscribers):
+        """
+        Set true if subscriber should be shown
+
+        :param show_subscriber: true if subscriber should be shown
+        :type show_subscriber: bool
+        """
+        self.__show_subscribers = show_subscribers
         self.invalidateFilter()
 
     def set_filter_string(self, filter_string):

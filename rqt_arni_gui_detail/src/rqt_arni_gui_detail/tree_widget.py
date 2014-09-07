@@ -83,6 +83,8 @@ class TreeWidget(QWidget):
         self.show_connections_check_box.stateChanged.connect(self.__on_show_connections_check_box_state_changed)
         #: show_erroneous_check_box
         self.show_erroneous_check_box.stateChanged.connect(self.__on_show_erroneous_check_box_state_changed)
+        #: also_show_subscribers_check_box
+        self.also_show_subscribers_check_box.stateChanged.connect(self.__on_also_show_subscribers_check_box_state_changed)
         #: apply_push_button
         self.apply_push_button.clicked.connect(self.__on_apply_push_button_clicked)
         #: minus_push_button
@@ -111,7 +113,9 @@ class TreeWidget(QWidget):
 	        self.show_topics_check_box.click()
             if self.show_connections_check_box.checkState():
 	        self.show_connections_check_box.click()
-
+	    if self.also_show_subscribers_check_box.checkState():
+	        self.also_show_check_box.click()
+	        
 
     def __on_show_hosts_check_box_state_changed(self, activated):
         """
@@ -128,8 +132,10 @@ class TreeWidget(QWidget):
                 self.show_nodes_check_box.click()
             if self.show_topics_check_box.checkState():
 	        self.show_topics_check_box.click()
-            if self.show_connections_check_box.checkState():
+            if self.also_show_connections_check_box.checkState():
 	        self.show_connections_check_box.click()
+	    if self.also_show_subscribers_check_box.checkState():
+	        self.also_show_check_box.click()	     
 
 
     def __on_show_topics_check_box_state_changed(self, activated):
@@ -145,10 +151,14 @@ class TreeWidget(QWidget):
                 self.show_hosts_check_box.click()
             if not self.show_nodes_check_box.checkState():
 	        self.show_nodes_check_box.click()
+	    if self.also_show_subscribers_check_box.checkState():
+	        self.also_show_subscribers_check_box.click()
         else:
             self.__filter_proxy.show_topics(False)
             if self.show_connections_check_box.checkState():
 	        self.show_connections_check_box.click()
+	    if self.also_show_subscribers_check_box.checkState():
+	        self.also_show_check_box.click()
 
 
     def __on_show_connections_check_box_state_changed(self, activated):
@@ -168,6 +178,8 @@ class TreeWidget(QWidget):
 	        self.show_topics_check_box.click()
         else:
             self.__filter_proxy.show_connections(False)
+            if self.also_show_subscribers_check_box.checkState():
+	        self.also_show_subscribers_check_box.click()
 
 
     def __on_show_erroneous_check_box_state_changed(self, activated):
@@ -182,6 +194,29 @@ class TreeWidget(QWidget):
             self.__filter_proxy.setFilterKeyColumn(2)
         else:
             self.__filter_proxy.setFilterRegExp(QRegExp(""))
+            
+    
+    def __on_also_show_subscribers_check_box_state_changed(self, activated):
+        """
+        If this checkBox is set, also subscribers will be displayed.
+
+        :param activated: 2 if checkBox is set, 0 if check is unset
+        :type activated: Integer
+        """
+        if activated is 2:
+            self.__filter_proxy.show_subscribers(True)
+            if not self.show_hosts_check_box.checkState():
+                self.show_hosts_check_box.click()
+            if not self.show_nodes_check_box.checkState():
+	        self.show_nodes_check_box.click()
+	    if not self.show_topics_check_box.checkState():
+	        self.show_topics_check_box.click()
+	    if not self.show_connections_check_box.checkState():
+	        self.show_connections_check_box.click()
+        else:
+	    self.__filter_proxy.show_subscribers(False)
+	   
+	    
 
 
     def __on_apply_push_button_clicked(self):

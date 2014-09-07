@@ -80,6 +80,7 @@ class ArniGuiDetail(Plugin):
         instance_settings.set_value("show_hosts_check_box", self.__tree_widget.show_hosts_check_box.checkState())
         instance_settings.set_value("show_topics_check_box", self.__tree_widget.show_topics_check_box.checkState())
         instance_settings.set_value("show_connections_check_box", self.__tree_widget.show_connections_check_box.checkState())
+        instance_settings.set_value("also_show_subscribers_check_box", self.__tree_widget.also_show_subscribers_check_box.checkState())
         instance_settings.set_value("show_erroneous_check_box", self.__tree_widget.show_erroneous_check_box.checkState())
         instance_settings.set_value("relative_font_size", self.__tree_widget.get_relative_font_size())
 
@@ -94,6 +95,7 @@ class ArniGuiDetail(Plugin):
         show_topics_check_box = instance_settings.value("show_topics_check_box")
         show_erroneous_check_box = instance_settings.value("show_erroneous_check_box")
         show_connections_check_box = instance_settings.value("show_connections_check_box")
+        also_show_subscribers_check_box = instance_settings.value("also_show_subscribers_check_box")
         relative_font_size = instance_settings.value("relative_font_size")
 
         self.__selection_widget.set_current_tab(0 if tab_value is None else int(tab_value))
@@ -118,6 +120,11 @@ class ArniGuiDetail(Plugin):
         state = 2 if show_connections_check_box is None else int(show_connections_check_box)
         self.__tree_widget.show_connections_check_box.setCheckState(state)
         self.__tree_widget.show_connections_check_box.stateChanged.emit(state)
+        #self.__tree_widget.__on_show_connections_check_box_state_changed(state)
+        
+        state = 2 if also_show_subscribers_check_box is None else int(also_show_subscribers_check_box)
+        self.__tree_widget.also_show_subscribers_check_box.setCheckState(state)
+        self.__tree_widget.also_show_subscribers_check_box.stateChanged.emit(state)
         #self.__tree_widget.__on_show_connections_check_box_state_changed(state)
 
         state = 2 if show_erroneous_check_box is None else int(show_erroneous_check_box)

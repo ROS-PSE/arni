@@ -447,14 +447,16 @@ class ROSModel(QAbstractItemModel):
         Integrates TopicStatistics in the model by moding its item/s by adding a new dict to the corresponding item.
 
         :param item: the TopicStatistics item
-        :type item: TopicStatisticsStatistics
+        :type item: TopicStatistics
         """
         # get identifier
         topic_seuid = "t" + SEUID_DELIMITER + item.topic
         connection_seuid = "c" + SEUID_DELIMITER + item.node_sub + SEUID_DELIMITER + item.topic \
                               + SEUID_DELIMITER + item.node_pub
+	
         topic_item = None
-        connection_item = None
+        connection_item = None        
+        
         # check if avaiable
         if topic_seuid not in self.__identifier_dict:
             #creating a topic item
@@ -476,35 +478,11 @@ class ROSModel(QAbstractItemModel):
                     node_item = NodeItem(self.__logger, node_seuid, host_item)
                     self.__identifier_dict[node_seuid] = node_item
                     host_item.append_child(node_item)
+                    self.__find_host.add_node(item.node_pub, self.__find_host.get_host(item.node_pub))
                 else:
                     node_item = self.__identifier_dict[node_seuid]
 
-                parent = self.__identifier_dict["n" + SEUID_DELIMITER + item.node_pub]
-
-            #try:
-                #parent_sub = self.__identifier_dict[item.node_sub]
-            #except KeyError:
-                ##host_seuid = "h" + SEUID_DELIMITER + self.__find_host.get_host(item.node_sub)
-                ##host_item = None
-                ##if host_seuid not in self.__identifier_dict:
-                    ##host_item = HostItem(self.__logger, host_seuid, self.__root_item)
-                    ##self.__identifier_dict[host_seuid] = host_item
-                    ##self.__root_item.append_child(host_item)
-                ##else:
-                    ##host_item = self.__identifier_dict[host_seuid]
-
-                #node_seuid = "n" + SEUID_DELIMITER + item.node_sub
-                #node_item = None
-                #if node_seuid not in self.__identifier_dict:
-                    #node_item = NodeItem(self.__logger, node_seuid, host_item)
-                    #self.__identifier_dict[node_seuid] = node_item
-                    #host_item.append_child(node_item)
-                #else:
-                    #node_item = self.__identifier_dict[node_seuid]
-
-                #parent_sub = self.__identifier_dict["n" + SEUID_DELIMITER + item.node_sub]
-                
-                
+                parent = self.__identifier_dict["n" + SEUID_DELIMITER + item.node_pub]               
                 
             if parent is None:
                 # having a problem, there is no node with the given name
@@ -516,12 +494,7 @@ class ROSModel(QAbstractItemModel):
             #creating a connection item
             connection_item = ConnectionItem(self.__logger, connection_seuid, topic_item)
             topic_item.append_child(connection_item)
-            self.__identifier_dict[connection_seuid] = connection_item
-            
-            #connection_item_sub = ConnectionItem(self.__logger, connection_seuid + "sub", parent_sub)
-            #parent_sub.append_child(connection_item_sub)
-            #self.__identifier_dict[connection_seuid] = connection_item_sub
-            
+            self.__identifier_dict[connection_seuid] = connection_item                 
         elif connection_seuid not in self.__identifier_dict:
             topic_item = self.__identifier_dict[topic_seuid]
             #creating a new connection item
@@ -532,15 +505,68 @@ class ROSModel(QAbstractItemModel):
             # get topic and connection item
             topic_item = self.__identifier_dict[topic_seuid]
             connection_item = self.__identifier_dict[connection_seuid]
+          
             if topic_item is None or connection_item is None:
                 for item in self.__identifier_dict:
                     if self.__identifier_dict[item] is None:
                         print(item)
                 raise UserWarning("The parent of the given topic statistics item cannot be found.")
-
         # now update these
         connection_item.append_data(item)
-        topic_item.append_data(item)
+        topic_item.append_data(item) 
+            
+        self.__transform_subscriber(item)
+        
+        
+    def __transform_subscriber(self, item):   
+        """
+        Integrates the subscribers in the model.
+
+        :param item: the TopicStatistics item
+        :type item: TopicStatistics
+        """
+	
+	node_seuid_sub = "n" + SEUID_DELIMITER + item.node_sub
+	connection_seuid_sub = "c" + SEUID_DELIMITER + item.node_sub + SEUID_DELIMITER + item.topic \
+                              + SEUID_DELIMITER + item.node_pub + "--sub"
+			    
+        connection_item_sub = None
+	
+	if connection_seuid_sub not in self.__identifier_dict:        
+            try:
+                parent_sub = self.__identifier_dict[item.node_sub]
+            except KeyError:
+	        host_ip = self.__find_host.get_host(item.node_sub)
+	        if host_ip is not None:
+                    host_seuid = "h" + SEUID_DELIMITER + host_ip
+                    host_item = None
+                    if host_seuid not in self.__identifier_dict:
+                        host_item = HostItem(self.__logger, host_seuid, self.__root_item)
+                        self.__identifier_dict[host_seuid] = host_item
+                        self.__root_item.append_child(host_item)
+                    else:
+                        host_item = self.__identifier_dict[host_seuid]
+
+                    node_item = None
+                    if node_seuid_sub not in self.__identifier_dict:
+                        node_item = NodeItem(self.__logger, node_seuid_sub, host_item)
+                        self.__identifier_dict[node_seuid_sub] = node_item
+                        host_item.append_child(node_item)
+                        self.__find_host.add_node(item.node_sub, host_ip)
+                    else:
+                        node_item = self.__identifier_dict[node_seuid_sub]
+
+                    parent_sub = self.__identifier_dict[node_seuid_sub]
+                else:
+		    return
+            
+            connection_item_sub = ConnectionItem(self.__logger, connection_seuid_sub, parent_sub)
+            parent_sub.append_child(connection_item_sub)
+            self.__identifier_dict[connection_seuid_sub] = connection_item_sub            
+        else:
+	    connection_item_sub = self.__identifier_dict[connection_seuid_sub] 
+	    
+        connection_item_sub.append_data(item)
 
 
     def __transform_node_statistics_item(self, item):
@@ -564,6 +590,7 @@ class ROSModel(QAbstractItemModel):
             node_item = NodeItem(self.__logger, item_seuid, host_item)
             self.__identifier_dict[item_seuid] = node_item
             host_item.append_child(node_item)
+            self.__find_host.add_node(item.node, item.host)
         else:
             node_item = self.__identifier_dict[item_seuid]
 
