@@ -166,7 +166,8 @@ class SpecificationHandler:
                     "packages": 0
                 }
             window_len = message.window_stop - message.window_start
-            scale = 1 / window_len.to_sec()
+            # scale = window_len.to_sec() / window_len_max.to_sec()
+            scale = 1  # placeholder
             by_topic[seuid.get_seuid("topic")]["window_min"] = min(message.window_start,
                                                                    by_topic[seuid.get_seuid("topic")]["window_min"])
             by_topic[seuid.get_seuid("topic")]["window_max"] = max(message.window_stop,
