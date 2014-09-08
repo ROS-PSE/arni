@@ -99,6 +99,8 @@ class SpecificationHandler:
         # if specification is None:
         # rospy.logdebug("[SpecificationHandler][compare] No Specification available for %s" % identifier)
         window_len = data.window_stop - data.window_start
+        if window_len.to_sec() == 0:
+            window_len = rospy.Duration(1)
         fields = dir(data)
         # exclude = ("window_start", "window_stop")
         # for x in exclude:
@@ -166,6 +168,8 @@ class SpecificationHandler:
                     "packages": 0
                 }
             window_len = message.window_stop - message.window_start
+            if window_len.to_sec() == 0:
+                window_len = rospy.Duration(1)
             # scale = window_len.to_sec() / window_len_max.to_sec()
             scale = 1  # placeholder
             by_topic[seuid.get_seuid("topic")]["window_min"] = min(message.window_start,
