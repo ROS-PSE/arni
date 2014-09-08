@@ -1,8 +1,10 @@
 import re
+import rospy
 import arni_msgs
 from arni_msgs.msg import HostStatistics, NodeStatistics
 import rosgraph_msgs
 from rosgraph_msgs.msg import TopicStatistics
+from rospy.exceptions import ROSInitException
 
 """
 This helper module contains useful functions and variables that
@@ -181,3 +183,20 @@ def underscore_ip(ip):
         return None
 
     return ip.replace(".", "_")
+
+
+def older_than(time1, duration, time2=None):
+    """
+    Compares a given rospy.Time to now or a second given time and returns whether it exceeds the given duration.
+
+    :param time1: A rospy.Time object.
+    :param duration: A rospy.Duration object.
+    :param time2:  Optionally a rospy.Time object if not to assume rospy.Time.now()
+    :return: True, if the difference between the given times exceeds the duration and a valid time2 could be found.
+    """
+    try:
+        if time2 is None:
+            time2 = rospy.Time.now()
+    except ROSInitException:
+        return False
+    return time2 > time1 and time2 - time1 > duration

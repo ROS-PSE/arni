@@ -78,10 +78,11 @@ class MonitoringNode:
 
         :param data: A statistics message object
         """
+        res = self.__specification_handler.compare_topic(self.__aggregate)
         if self.__aggregate is None or \
-                                rospy.Time.now() - self.__aggregate_start >= \
-                        rospy.Duration(rospy.get_param("/arni/aggregation_window", 3)):
-            res = self.__specification_handler.compare_topic(self.__aggregate)
+                older_than(self.__aggregate_start, rospy.Duration(rospy.get_param("/arni/aggregation_window", 3))):
+                # rospy.Time.now() - self.__aggregate_start >= \
+                # rospy.Duration(rospy.get_param("/arni/aggregation_window", 3)):
             for r in res:
                 container = StorageContainer(rospy.Time.now(), str(identifier), data, r)
                 self.__metadata_storage.store(container)
