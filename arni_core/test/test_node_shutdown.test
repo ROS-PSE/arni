@@ -1,0 +1,19 @@
+<launch>
+    <include file="$(find arni_core)/launch/start_arni.xml"/>
+
+    <rosparam file="$(find arni_core)/test/constraint_node_stop.yaml" command="load" />
+
+    <group>
+        <!-- node that publishes with ~1mb/s -->
+        <node name="dayfly" pkg="arni_core" type="predefined_publisher.py">
+            <param name="mode" value="stop_publish"/>
+            <param name="frequency" value="10"/>
+            <param name="bandwidth" value="10241000"/>
+            <param name="timeout" value="15"/>
+            <param name="topic_name" value="forest"/>
+        </node>
+
+    </group>
+
+    <test test-name="test_node_shutdown" pkg="arni_core" type="test_node_shutdown.py" />
+</launch>
