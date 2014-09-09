@@ -35,6 +35,10 @@ class TopicItem(AbstractItem):
         self._attributes.extend(["dropped_msgs", "traffic",
                                  "stamp_age_mean", "stamp_age_max", "stamp_age_stddev", "period_max"])
 
+
+        if hasattr(first_message, "delivered_msgs"):
+            self._attributes.append("delivered_msgs")
+
         for item in self._attributes:
             self._add_data_list(item)
 
@@ -46,8 +50,6 @@ class TopicItem(AbstractItem):
         self._attributes.append("packages")
         self._attributes.append("packages_per_second")
         self._attributes.append("frequency")
-        if hasattr(first_message, "delivered_msgs"):
-            self._attributes.append("delivered_msgs")
 
         self.__calculated_data = {}
         for key in self._attributes:
