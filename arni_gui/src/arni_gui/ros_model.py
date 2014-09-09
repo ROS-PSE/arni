@@ -492,13 +492,13 @@ class ROSModel(QAbstractItemModel):
             parent.append_child(topic_item)
             self.__identifier_dict[topic_seuid] = topic_item
             #creating a connection item
-            connection_item = ConnectionItem(self.__logger, connection_seuid, topic_item)
+            connection_item = ConnectionItem(self.__logger, connection_seuid, item, topic_item)
             topic_item.append_child(connection_item)
             self.__identifier_dict[connection_seuid] = connection_item                 
         elif connection_seuid not in self.__identifier_dict:
             topic_item = self.__identifier_dict[topic_seuid]
             #creating a new connection item
-            connection_item = ConnectionItem(self.__logger, connection_seuid, topic_item)
+            connection_item = ConnectionItem(self.__logger, connection_seuid, item, topic_item)
             topic_item.append_child(connection_item)
             self.__identifier_dict[connection_seuid] = connection_item
         else:
@@ -560,7 +560,7 @@ class ROSModel(QAbstractItemModel):
                 else:
 		    return
             
-            connection_item_sub = ConnectionItem(self.__logger, connection_seuid_sub, parent_sub)
+            connection_item_sub = ConnectionItem(self.__logger, connection_seuid_sub, item, parent_sub)
             parent_sub.append_child(connection_item_sub)
             self.__identifier_dict[connection_seuid_sub] = connection_item_sub            
         else:

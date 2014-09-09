@@ -11,7 +11,7 @@ class ConnectionItem(AbstractItem):
     A ConnectionItem reresents the connection between a publisher and a subscriber and the topic they are publishing / listening on
     """
 
-    def __init__(self, logger, seuid, parent=None):
+    def __init__(self, logger, seuid, first_message, parent=None):
         """
         Initializes the ConnectionItem.
         
@@ -33,6 +33,8 @@ class ConnectionItem(AbstractItem):
                                  "period_mean", "period_stddev", "period_max", "stamp_age_mean",
                                  "stamp_age_stddev", "stamp_age_max"])
 
+        if hasattr(first_message, "delivered_msgs"):
+            self._attributes.append("delivered_msgs")
         for item in self._attributes:
             self._add_data_list(item)
 
