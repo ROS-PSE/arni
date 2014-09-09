@@ -206,7 +206,7 @@ class TopicItem(AbstractItem):
 
             if "delivered_msgs" in self.__calculated_data:
                 self.__calculated_data["delivered_msgs"][-1] += entries["delivered_msgs"][i]
-                self.__calculated_data["frequency"][-1] += entries["frequency"][i] / window_len.to_sec()
+                self.__calculated_data["frequency"][-1] += entries["delivered_msgs"][i] / window_len.to_sec()
             self.__calculated_data["dropped_msgs"][-1] += entries["dropped_msgs"][i]
             self.__calculated_data["traffic"][-1] += entries["traffic"][i]
             self.__calculated_data["stamp_age_max"][-1] = max(entries["stamp_age_max"][i].to_sec(),
