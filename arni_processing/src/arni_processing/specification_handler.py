@@ -138,6 +138,7 @@ class SpecificationHandler:
                     current_obj["actual"] = value
                     current_obj["expected"] = limits
                 result.add_value(field, current_obj["actual"], current_obj["expected"], current_obj["state"])
+        result.add_value("alive", ["True"], ["True"], [1])
         return result
 
     def compare_topic(self, data=None):
@@ -218,6 +219,12 @@ class SpecificationHandler:
                 re.expected_value.append(str(limits))
                 re.state = [self.__compare(value, limits)]
                 r.rated_statistics_entity.append(re)
+            re = RatedStatisticsEntity()
+            re.statistic_type = "alive"
+            re.expected_value = ["True"]
+            re.actual_value = ["True"]
+            re.state = [3]
+            r.rated_statistics_entity.append(re)
             result.append(r)
         return result
 
