@@ -124,8 +124,22 @@ class ItemFilterProxy(QSortFilterProxyModel):
                         break
             if self.__show_topics is True:
                 if data == "topic":
-                    correct_type = True
-                    break
+		    if self.__show_subscribers is True:
+                        correct_type = True
+                        break
+		    elif "--sub" not in entries[1]:		        
+                        correct_type = True
+                        break
+            if self.__show_connections is True:
+                if data == "connection-sub":
+		    if self.__show_subscribers is True:
+		        correct_type = True
+		        break
+	    if self.__show_topics is True:
+                if data == "topic-sub":
+		    if self.__show_subscribers is True:
+                        correct_type = True
+                        break
 
 
         if correct_type is False:

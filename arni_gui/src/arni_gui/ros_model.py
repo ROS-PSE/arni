@@ -7,7 +7,9 @@ from size_delegate import SizeDelegate
 from abstract_item import AbstractItem
 
 from connection_item import ConnectionItem
+from connection_item_sub import ConnectionItemSub
 from topic_item import TopicItem
+from topic_item_sub import TopicItemSub
 from host_item import HostItem
 from node_item import NodeItem
 from root_item import RootItem
@@ -527,15 +529,19 @@ class ROSModel(QAbstractItemModel):
         """
 	
 	node_seuid_sub = "n" + SEUID_DELIMITER + item.node_sub
+	
+	topic_seuid_sub = "t" + SEUID_DELIMITER + item.topic + "--sub"
+	
 	connection_seuid_sub = "c" + SEUID_DELIMITER + item.node_sub + SEUID_DELIMITER + item.topic \
                               + SEUID_DELIMITER + item.node_pub + "--sub"
 			    
+	topic_item_sub = None
         connection_item_sub = None
 	
-	if connection_seuid_sub not in self.__identifier_dict:        
-            try:
-                parent_sub = self.__identifier_dict[item.node_sub]
-            except KeyError:
+	if topic_seuid_sub not in self.__identifier_dict:
+	    try:
+	        parent_sub = self.__identifier_dict[item.node_sub]
+	    except KeyError:
 	        host_ip = self.__find_host.get_host(item.node_sub)
 	        if host_ip is not None:
                     host_seuid = "h" + SEUID_DELIMITER + host_ip
@@ -557,16 +563,29 @@ class ROSModel(QAbstractItemModel):
                         node_item = self.__identifier_dict[node_seuid_sub]
 
                     parent_sub = self.__identifier_dict[node_seuid_sub]
-                else:
+                else: 
 		    return
             
-            connection_item_sub = ConnectionItem(self.__logger, connection_seuid_sub, item, parent_sub)
-            parent_sub.append_child(connection_item_sub)
-            self.__identifier_dict[connection_seuid_sub] = connection_item_sub            
+            topic_item_sub = TopicItemSub(self.__logger, topic_seuid_sub, item, parent_sub)
+            parent_sub.append_child(topic_item_sub)
+            self.__identifier_dict[topic_seuid_sub] = topic_item_sub
+                    
+            connection_item_sub = ConnectionItemSub(self.__logger, connection_seuid_sub, item, topic_item_sub)
+            topic_item_sub.append_child(connection_item_sub)
+            self.__identifier_dict[connection_seuid_sub] = connection_item_sub          
+        elif connection_seuid_sub not in self.__identifier_dict:
+	    topic_item_sub = self.__identifier_dict[topic_seuid_sub]
+	    
+	    connection_item_sub = ConnectionItemSub(self.__logger, connection_seuid_sub, item, topic_item_sub)
+            topic_item_sub.append_child(connection_item_sub)
+            self.__identifier_dict[connection_seuid_sub] = connection_item_sub        
+	
         else:
+	    topic_item_sub = self.__identifier_dict[topic_seuid_sub]
 	    connection_item_sub = self.__identifier_dict[connection_seuid_sub] 
 	    
-        connection_item_sub.append_data(item)
+        #connection_item_sub.append_data(item)
+        #topic_item_sub.append_data(item)
 
 
     def __transform_node_statistics_item(self, item):

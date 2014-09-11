@@ -342,7 +342,7 @@ class SelectionWidget(QWidget):
                 plotable_data = self.__selected_item.get_items_younger_than(
                     Time.now() - Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)),
                     "window_stop", *plotable_items)
-                if plotable_data["window_stop"]:
+                if "window_stop" in plotable_data:
                     temp_time = []
                     temp_content = []
 
