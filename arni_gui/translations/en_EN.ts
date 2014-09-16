@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS><TS version="1.1" language="en">
+<!DOCTYPE TS>
+<TS version="2.0" language="en">
 <context>
     <name>AbstractItem</name>
     <message>
@@ -25,17 +26,17 @@
     <message>
         <location filename="src/arni_gui/abstract_item.py" line="620"/>
         <source> actual_value:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Actual Value:</translation>
     </message>
     <message>
         <location filename="src/arni_gui/abstract_item.py" line="624"/>
         <source> expected_value:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Expected Value:</translation>
     </message>
     <message>
         <location filename="src/arni_gui/abstract_item.py" line="628"/>
         <source> state:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">State:</translation>
     </message>
 </context>
 <context>
@@ -946,12 +947,12 @@
     <message>
         <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="260"/>
         <source>Continue</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Continue</translation>
     </message>
     <message>
         <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="263"/>
         <source>Pause</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Pause</translation>
     </message>
 </context>
 <context>
@@ -999,57 +1000,57 @@
     <message>
         <location filename="src/arni_gui/topic_item.py" line="319"/>
         <source>Currently no value available</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Currently no value available</translation>
     </message>
     <message>
         <location filename="src/arni_gui/topic_item.py" line="267"/>
         <source>delivered_msgs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Delivered messages</translation>
     </message>
     <message>
         <location filename="src/arni_gui/topic_item.py" line="268"/>
         <source>delivered_msgs_unit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"> </translation>
     </message>
     <message>
         <location filename="src/arni_gui/topic_item.py" line="269"/>
         <source>frequency</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Frequency</translation>
     </message>
     <message>
         <location filename="src/arni_gui/topic_item.py" line="270"/>
         <source>frequency_unit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hz</translation>
     </message>
     <message>
         <location filename="src/arni_gui/topic_item.py" line="277"/>
         <source>period_max</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Maximal time between messages</translation>
     </message>
     <message>
         <location filename="src/arni_gui/topic_item.py" line="278"/>
         <source>period_max_unit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">s</translation>
     </message>
     <message>
         <location filename="src/arni_gui/topic_item.py" line="281"/>
         <source>bandwidth</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Bandwidth</translation>
     </message>
     <message>
         <location filename="src/arni_gui/topic_item.py" line="282"/>
         <source>bandwidth_unit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Byte/s</translation>
     </message>
     <message>
         <location filename="src/arni_gui/topic_item.py" line="283"/>
         <source>packages_per_second</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Packages per second</translation>
     </message>
     <message>
         <location filename="src/arni_gui/topic_item.py" line="285"/>
         <source>packages_per_second_unit</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"> </translation>
     </message>
 </context>
 <context>
@@ -1087,7 +1088,7 @@
     <message>
         <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/tree_widget.py" line="72"/>
         <source>Also show Subscribers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Also show Subscribers</translation>
     </message>
 </context>
 </TS>
