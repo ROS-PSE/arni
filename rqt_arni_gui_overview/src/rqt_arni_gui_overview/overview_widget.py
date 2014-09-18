@@ -319,9 +319,13 @@ class OverviewWidget(QWidget):
             temp_time = []
             temp_content = []
 
-            modulo = (len(plotable_data["window_stop"]) / 200) + 1
+            if plotable_data["window_stop"]:
+                modulo = (len(plotable_data["window_stop"]) / 200) + 1
 
-            length = len(plotable_data["window_stop"])
+                length = len(plotable_data["window_stop"])
+            else:
+                length = 0
+                modulo = 1
             for i in range(0, length, modulo):
                 # now having maximally 100 items to plot :)
                 temp_time.append(int(str(plotable_data["window_stop"][i]))/1000000000)

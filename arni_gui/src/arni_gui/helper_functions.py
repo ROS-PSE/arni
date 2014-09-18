@@ -22,7 +22,7 @@ The maximal amount of entries allowed in the model (for not crashing it).
 Entries are the data_entries in the childs of the model
 """
 
-#todo: apapt to a good number by trial and failure :)
+# todo: apapt to a good number by trial and failure :)
 MAXIMUM_AMOUNT_OF_ENTRIES = 10000
 
 """
@@ -67,20 +67,23 @@ class DateAxis(pg.AxisItem):
             raise UserWarning("DateAxis::tickStrings: values is empty!")
 
         strns = []
-        rng = max(values)-min(values)
-        if rng < 3600*24:
+        rng = max(values) - min(values)
+        string = '%Y'
+        label1 = ''
+        label2 = ''
+        if rng < 3600 * 24:
             string = '%H:%M:%S'
             label1 = '%b %d -'
             label2 = ' %b %d, %Y'
-        elif rng >= 3600*24 and rng < 3600*24*30:
+        elif 3600 * 24 <= rng < 3600 * 24 * 30:
             string = '%d'
             label1 = '%b - '
             label2 = '%b, %Y'
-        elif rng >= 3600*24*30 and rng < 3600*24*30*24:
+        elif 3600 * 24 * 30 <= rng < 3600 * 24 * 30 * 24:
             string = '%b'
             label1 = '%Y -'
             label2 = ' %Y'
-        elif rng >=3600*24*30*24:
+        elif rng >= 3600 * 24 * 30 * 24:
             string = '%Y'
             label1 = ''
             label2 = ''
@@ -90,11 +93,11 @@ class DateAxis(pg.AxisItem):
             except ValueError:  ## Windows can't handle dates before 1970
                 strns.append('')
         try:
-            label = time.strftime(label1, time.localtime(min(values)))+time.strftime(label2, time.localtime(max(values)))
+            label = time.strftime(label1, time.localtime(min(values))) + time.strftime(label2,
+                                                                                       time.localtime(max(values)))
         except ValueError:
             label = ''
         return strns
-
 
 
 def choose_brush(index):
