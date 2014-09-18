@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.0" language="en">
+<!DOCTYPE TS><TS version="1.1" language="en">
 <context>
     <name>AbstractItem</name>
     <message>
@@ -42,84 +41,114 @@
 <context>
     <name>ConnectionItem</name>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="127"/>
+        <location filename="src/arni_gui/connection_item.py" line="138"/>
         <source>dropped_msgs</source>
         <translation type="unfinished">Dropped Messages</translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="129"/>
+        <location filename="src/arni_gui/connection_item.py" line="140"/>
         <source>dropped_msgs_unit</source>
         <translation type="unfinished"> </translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="130"/>
+        <location filename="src/arni_gui/connection_item.py" line="141"/>
         <source>traffic</source>
         <translation type="unfinished">Traffic</translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="131"/>
+        <location filename="src/arni_gui/connection_item.py" line="142"/>
         <source>traffic_unit</source>
         <translation type="unfinished">Byte</translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="132"/>
+        <location filename="src/arni_gui/connection_item.py" line="143"/>
         <source>period_mean</source>
         <translation type="unfinished">Average Messages Interval</translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="133"/>
+        <location filename="src/arni_gui/connection_item.py" line="144"/>
         <source>period_mean_unit</source>
         <translation type="unfinished">s</translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="89"/>
+        <location filename="src/arni_gui/connection_item.py" line="100"/>
         <source>period_stddev</source>
         <translation type="unfinished">Messages Interval Standard Deviation</translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="90"/>
+        <location filename="src/arni_gui/connection_item.py" line="101"/>
         <source>period_stddev_unit</source>
         <translation type="unfinished">s</translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="91"/>
+        <location filename="src/arni_gui/connection_item.py" line="102"/>
         <source>period_max</source>
         <translation type="unfinished">Longest Messages Interval</translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="92"/>
+        <location filename="src/arni_gui/connection_item.py" line="103"/>
         <source>period_max_unit</source>
         <translation type="unfinished">s</translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="134"/>
+        <location filename="src/arni_gui/connection_item.py" line="145"/>
         <source>stamp_age_mean</source>
         <translation type="unfinished">Average Message Age</translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="137"/>
+        <location filename="src/arni_gui/connection_item.py" line="148"/>
         <source>stamp_age_mean_unit</source>
         <translation type="unfinished">s</translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="95"/>
+        <location filename="src/arni_gui/connection_item.py" line="106"/>
         <source>stamp_age_stddev</source>
         <translation type="unfinished">Message Age Standard Deviation</translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="96"/>
+        <location filename="src/arni_gui/connection_item.py" line="107"/>
         <source>stamp_age_stddev_unit</source>
         <translation type="unfinished">s</translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="97"/>
+        <location filename="src/arni_gui/connection_item.py" line="108"/>
         <source>stamp_age_max</source>
         <translation type="unfinished">Maximal Message Age</translation>
     </message>
     <message>
-        <location filename="src/arni_gui/connection_item.py" line="98"/>
+        <location filename="src/arni_gui/connection_item.py" line="109"/>
         <source>stamp_age_max_unit</source>
         <translation type="unfinished">s</translation>
+    </message>
+    <message>
+        <location filename="src/arni_gui/connection_item.py" line="85"/>
+        <source>delivered_msgs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/arni_gui/connection_item.py" line="86"/>
+        <source>delivered_msgs_unit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/arni_gui/connection_item.py" line="87"/>
+        <source>frequency</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/arni_gui/connection_item.py" line="89"/>
+        <source>frequency_unit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/arni_gui/connection_item.py" line="95"/>
+        <source>bandwidth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/arni_gui/connection_item.py" line="97"/>
+        <source>bandwidth_unit</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -900,47 +929,47 @@
         <translation type="unfinished">Range</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="409"/>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="410"/>
         <source>online</source>
         <translation type="unfinished">Online</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="405"/>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="406"/>
         <source>Current Status: Ok</source>
         <translation type="unfinished">Current Status: Ok</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="410"/>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="411"/>
         <source>Current Status: Warning</source>
         <translation type="unfinished">Current Status: Warning</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="414"/>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="415"/>
         <source>unkown</source>
         <translation type="unfinished">Unknown</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="415"/>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="416"/>
         <source>Current Status: Unkown</source>
         <translation type="unfinished">Current Status: Unkown</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="419"/>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="420"/>
         <source>Current Status: Error</source>
         <translation type="unfinished">Current Status: Error</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="429"/>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="430"/>
         <source>No item selected</source>
         <translation type="unfinished">No item selected</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="430"/>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="431"/>
         <source>Offline</source>
         <translation type="unfinished">Offline</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="432"/>
+        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="433"/>
         <source>Please select an item in the TreeView to get more information about it</source>
         <translation type="unfinished">Please select an item in the TreeView to get more information about it</translation>
     </message>

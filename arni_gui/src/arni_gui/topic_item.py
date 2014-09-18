@@ -182,7 +182,7 @@ class TopicItem(AbstractItem):
         :param event: containing information when this method was called - not used but needed for the interface
         """
         self._data_lock.acquire()
-        entries = self.get_raw_items_younger_than(Time.now() - Duration(secs=TOPIC_AGGREGATION_FREQUENCY))
+        entries = self.get_raw_items_younger_than(Time.now() - Duration(secs=10))
         # print(entries)
         #print(len(entries["window_stop"]))
         #print(entries["window_start"])

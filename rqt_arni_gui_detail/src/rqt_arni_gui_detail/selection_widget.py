@@ -342,47 +342,48 @@ class SelectionWidget(QWidget):
                 plotable_data = self.__selected_item.get_items_younger_than(
                     Time.now() - Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)),
                     "window_stop", *plotable_items)
-                if plotable_data["window_stop"]:
-                    temp_time = []
-                    temp_content = []
+                if "window_stop" in plotable_data:
+                    if plotable_data["window_stop"]:
+                        temp_time = []
+                        temp_content = []
 
-                    length = len(plotable_data["window_stop"])
-                    modulo = (length / 200) + 1
+                        length = len(plotable_data["window_stop"])
+                        modulo = (length / 200) + 1
 
-                    for i in range(0, length, modulo):
-                        # now having maximally 100 items to plot :)
-                        temp_time.append(plotable_data["window_stop"][i].to_sec())
-                    x = np.array(temp_time)
+                        for i in range(0, length, modulo):
+                            # now having maximally 100 items to plot :)
+                            temp_time.append(plotable_data["window_stop"][i].to_sec())
+                        x = np.array(temp_time)
 
-                    list_entries = self.__selected_item.get_list_items()
-                    time_entries = self.__selected_item.get_time_items()
+                        list_entries = self.__selected_item.get_list_items()
+                        time_entries = self.__selected_item.get_time_items()
 
-                    for key in plotable_items:
-                        if key in list_entries:
-                            pass
-                            #y = []
-                            #for j in range(0, len(plotable_data[key][0])):
-                            #    temp_content[j] = []
-                            # time
-                            #for i in range(0, length, modulo):
-                            #    for j in range(0, len(plotable_data[key][i])):
-                            #        temp_content[j].append(plotable_data[key][i][j])
+                        for key in plotable_items:
+                            if key in list_entries:
+                                pass
+                                #y = []
+                                #for j in range(0, len(plotable_data[key][0])):
+                                #    temp_content[j] = []
+                                # time
+                                #for i in range(0, length, modulo):
+                                #    for j in range(0, len(plotable_data[key][i])):
+                                #        temp_content[j].append(plotable_data[key][i][j])
 
-                            #for j in range(0, len(plotable_data[key][0])):
-                            #    self.__plotted_curves[key].setData(x=x, y=np.array(temp_content[j]))
-                        else:
-                            if key in time_entries:
-                                for i in range(0, length, modulo):
-                                    temp_content.append(float(str(plotable_data[key][i]))/1000000000)
+                                #for j in range(0, len(plotable_data[key][0])):
+                                #    self.__plotted_curves[key].setData(x=x, y=np.array(temp_content[j]))
                             else:
-                                for i in range(0, length, modulo):
-                                    temp_content.append(plotable_data[key][i])
-                            y = np.array(temp_content)
-                            del temp_content[:]
+                                if key in time_entries:
+                                    for i in range(0, length, modulo):
+                                        temp_content.append(float(str(plotable_data[key][i]))/1000000000)
+                                else:
+                                    for i in range(0, length, modulo):
+                                        temp_content.append(plotable_data[key][i])
+                                y = np.array(temp_content)
+                                del temp_content[:]
 
-                            self.__plotted_curves[key].setData(x=x, y=y)
-                else:
-                    pass
+                                self.__plotted_curves[key].setData(x=x, y=y)
+                    else:
+                        pass
 
             self.__first_update_pending = False
         self.__update_graphs_lock.release()
