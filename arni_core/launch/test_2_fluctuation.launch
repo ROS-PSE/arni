@@ -1,0 +1,23 @@
+<launch>
+    <include file="$(find arni_core)/launch/start_arni.xml"/>
+
+    <rosparam file="$(find arni_core)/test/fluctuation_specification.yaml" command="load" ns="/arni/specifications" />
+
+    <group>
+        <!-- node that publishes with ~10mb/s +-5mb/s-->
+        <node name="fluctuating_tide" pkg="arni_core" type="predefined_publisher.py">
+            <param name="mode" value="sine"/>
+            <param name="frequency" value="10"/>
+            <param name="bandwidth_mid" value="10241000"/>
+            <param name="bandwidth_variation" value="5000100" />
+            <param name="period" value="20" />
+            <param name="topic_name" value="ocean"/>
+        </node>
+
+        <!-- just a simple subscriber -->
+        <node name="sailing_boat" pkg="arni_core" type="predefined_subscriber.py">
+            <param name="topic_name" value="ocean"/>
+        </node>
+
+    </group>
+</launch>

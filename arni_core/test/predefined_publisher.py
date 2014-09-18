@@ -73,7 +73,7 @@ def sine():
     mid = rospy.get_param("~bandwidth_mid", 1024) / frequency
     var = rospy.get_param("~bandwidth_variation", 500) / frequency
     # period normalised to 
-    period = rospy.get_param("~period", 1)
+    period = rospy.get_param("~period", 30)
     begin = rospy.Time.now()
 
     while not rospy.is_shutdown():
