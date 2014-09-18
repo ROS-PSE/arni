@@ -1,7 +1,7 @@
 import rospy
 
 #: the parameter namespace for the arni_countermeasure node
-ARNI_CTM_NS = "/arni/countermeasure/"
+ARNI_CTM_NS = "arni/countermeasure/"
 
 #: the parameter namespace for configuration files
 #: of the arni_countermeasure node
