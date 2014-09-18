@@ -16,7 +16,7 @@
         <node name="twitching_colibri" pkg="arni_core" type="predefined_publisher.py">
             <param name="mode" value="high_low"/>
             <param name="frequency" value="100"/>
-            <param name="bandwidth_low" value="10241000"/>
+            <param name="bandwidth_high" value="10241000"/>
             <param name="bandwidth_low" value="1024"/>
             <param name="period" value="30"/>
             <param name="topic_name" value="forest"/>
