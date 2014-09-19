@@ -1,6 +1,13 @@
+import sys
+
 from abstract_item import AbstractItem
 from python_qt_binding.QtGui import QSortFilterProxyModel
 from python_qt_binding.QtCore import QObject, QRegExp, Qt
+
+if sys.version_info[0] is 2 or (sys.version_info[0] is 3 and sys.version_info[1] < 2):
+    from lru_cache import lru_cache
+else:
+    from functools import lru_cache
 
 class LogFilterProxy(QSortFilterProxyModel):
     """
@@ -19,7 +26,15 @@ class LogFilterProxy(QSortFilterProxyModel):
         super(LogFilterProxy, self).__init__(parent)
         self.__current_item = None
 
+    def invalidateFilter(self):
+        """
+        Invalidates the filter
+        """
+        QSortFilterProxyModel.invalidateFilter(self)
+        #invalidate cache
+        self.filterAcceptsRow.cache_clear()
 
+    @lru_cache(None)
     def filterAcceptsRow(self, source_row, source_parent):
         """
         Tells by analysing the given row if it should be shown or not. This behaviour can be modified via setFilterRegExp
@@ -32,9 +47,6 @@ class LogFilterProxy(QSortFilterProxyModel):
 
         :returns: bool
         """
-        #todo: !!!!!!choose the right row here!!!!!!
-        #if self.sourceModel.data(self.sourceModel().index(source_row, 2, source_parent)).find(name) is -1:
-        #    return False
         return QSortFilterProxyModel.filterAcceptsRow(self, source_row, source_parent)
 
 
@@ -59,6 +71,11 @@ class LogFilterProxy(QSortFilterProxyModel):
         :param item: the item by which the filter should filter
         :type item: AbstractItem
         """
+        self.invalidateFilter()
         if item is not None:
             self.setFilterRegExp(QRegExp(".*" + item.get_seuid() + ".*"))
             self.setFilterKeyColumn(2)
+
+    def setFilterRegExp(self, string):
+        self.invalidateFilter()
+        QSortFilterProxyModel.setFilterRegExp(self, string)

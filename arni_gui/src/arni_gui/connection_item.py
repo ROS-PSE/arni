@@ -11,7 +11,7 @@ class ConnectionItem(AbstractItem):
     A ConnectionItem reresents the connection between a publisher and a subscriber and the topic they are publishing / listening on
     """
 
-    def __init__(self, logger, seuid, parent=None):
+    def __init__(self, logger, seuid, first_message, parent=None):
         """
         Initializes the ConnectionItem.
         
@@ -33,18 +33,23 @@ class ConnectionItem(AbstractItem):
                                  "period_mean", "period_stddev", "period_max", "stamp_age_mean",
                                  "stamp_age_stddev", "stamp_age_max"])
 
+        if hasattr(first_message, "delivered_msgs"):
+            self._attributes.append("delivered_msgs")
         for item in self._attributes:
             self._add_data_list(item)
 
-        # todo: do these really not get any rating?!?
-        for element in ["traffic", "stamp_age_mean", "stamp_age_stddev", "stamp_age_max"]:
-            self._attributes.remove(element)
+        #for element in ["period_mean", "period_stddev", "period_max"]:
+        #    self._attributes.remove(element)
+
+        self._attributes.append("bandwidth")
+        self._attributes.append("frequency")
 
         self.__rated_attributes = []
         for item in self._attributes:
             self.__rated_attributes.append(item + ".actual_value")
             self.__rated_attributes.append(item + ".expected_value")
             self.__rated_attributes.append(item + ".state")
+
 
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)
@@ -75,10 +80,21 @@ class ConnectionItem(AbstractItem):
 
         content += self.get_erroneous_entries()
 
+        window_len = data_dict["window_stop"] - data_dict["window_start"]
+        if "delivered_msgs" in self._attributes:
+            content += self.tr("delivered_msgs") + ": " + prepare_number_for_representation(data_dict["delivered_msgs"]) \
+                   + " " + self.tr("delivered_msgs_unit") + " <br>"
+            content += self.tr("frequency") + ": " + prepare_number_for_representation(data_dict["delivered_msgs"]
+                                                                                       / window_len.to_sec()) \
+                   + " " + self.tr("frequency_unit") + " <br>"
+
         content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) + " " \
                    + self.tr("dropped_msgs_unit") + " <br>"
         content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) + " " \
                    + self.tr("traffic_unit") + " <br>"
+        content += self.tr("bandwidth") + ": " + prepare_number_for_representation(data_dict["traffic"] /
+                                                                                   window_len.to_sec()) \
+                   + " " + self.tr("bandwidth_unit") + " <br>"
         content += self.tr("period_mean") + ": " + prepare_number_for_representation(data_dict["period_mean"]) \
                    + " " + self.tr("period_mean_unit") + " <br>"
         content += self.tr("period_stddev") + ": " + prepare_number_for_representation(data_dict["period_stddev"]) \
@@ -116,7 +132,7 @@ class ConnectionItem(AbstractItem):
 
         content = ""
         if data_dict["state"] is "error":
-            content += self.get_erroneous_entries().replace("<br>", " - ")
+            content += self.get_erroneous_entries_for_log()
             pass
         else:
             content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(

@@ -1,4 +1,5 @@
 from bzrlib.tests.per_branch import test_iter_merge_sorted_revisions
+from arni_core.helper import older_than
 import rospy
 import threading
 from threading import Timer
@@ -17,9 +18,10 @@ class MetadataStorage:
         last_cleanup = rospy.Time.now()
         sleeptime = rospy.Duration(0.5)
         while not rospy.is_shutdown():
-            if rospy.get_param('/arni/storage/auto_cleanup', True) and \
-                    not rospy.Duration(
-                            rospy.get_param('/arni/storage/cleanup_timer', 30)) > rospy.Time.now() - last_cleanup:
+            if rospy.get_param('~storage/auto_cleanup', True) and \
+                    older_than(last_cleanup, rospy.Duration(rospy.get_param('~storage/cleanup_timer', 30))):
+                    # not rospy.Duration(
+                    #         rospy.get_param('/arni/storage/cleanup_timer', 30)) > rospy.Time.now() - last_cleanup:
                 last_cleanup = rospy.Time.now()
                 self.__clean_up()
             rospy.sleep(sleeptime)
@@ -32,7 +34,8 @@ class MetadataStorage:
         counter = 0
         for ident in self.storage.keys():
             for stamp in self.storage[ident].keys():
-                if rospy.Time.now() - stamp > rospy.Duration(self.duration):
+                if older_than(stamp, rospy.Duration(self.duration)):
+                # if rospy.Time.now() - stamp > rospy.Duration(self.duration):
                     del self.storage[ident][stamp]
                     counter += 1
         rospy.logdebug("[MetadataStorage] Cleared storage, removed %s packages." % counter)
@@ -79,7 +82,7 @@ class MetadataStorage:
         :type duration: int.
         """
         self.storage = {}
-        self.duration = rospy.get_param('/arni/storage/timeout', duration)
+        self.duration = rospy.get_param('~/storage/timeout', duration)
         self.timer_running = True
         thr = threading.Thread(target=self.__cleanup_timer)
         thr.start()

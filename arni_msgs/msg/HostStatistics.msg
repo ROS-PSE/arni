@@ -16,20 +16,19 @@ float32 cpu_usage_mean
 float32 cpu_usage_stddev
 float32 cpu_usage_max
 
-# temp per core, in celsius
+#cpu usage per core in percent
 float32[] cpu_usage_core_mean
 float32[] cpu_usage_core_stddev
 float32[] cpu_usage_core_max
 
-#cpu usage per core in percent
-float32[] cpu_temp_core  
+# temp per core, in celsius
 float32[] cpu_temp_core_mean
 float32[] cpu_temp_core_stddev
 float32[] cpu_temp_core_max
 
 
 # gpu, placeholder not implemented
-# temp in °C
+# temp in celsius
 float32[] gpu_temp_mean
 float32[] gpu_temp_stddev
 float32[] gpu_temp_max

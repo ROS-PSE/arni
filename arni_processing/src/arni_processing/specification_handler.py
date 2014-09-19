@@ -99,6 +99,8 @@ class SpecificationHandler:
         # if specification is None:
         # rospy.logdebug("[SpecificationHandler][compare] No Specification available for %s" % identifier)
         window_len = data.window_stop - data.window_start
+        if window_len.to_sec() == 0:
+            window_len = rospy.Duration(1)
         fields = dir(data)
         # exclude = ("window_start", "window_stop")
         # for x in exclude:
@@ -136,6 +138,7 @@ class SpecificationHandler:
                     current_obj["actual"] = value
                     current_obj["expected"] = limits
                 result.add_value(field, current_obj["actual"], current_obj["expected"], current_obj["state"])
+        result.add_value("alive", ["True"], ["True"], [1])
         return result
 
     def compare_topic(self, data=None):
@@ -166,7 +169,10 @@ class SpecificationHandler:
                     "packages": 0
                 }
             window_len = message.window_stop - message.window_start
-            scale = window_len.to_sec() / window_len.to_sec()
+            if window_len.to_sec() == 0:
+                window_len = rospy.Duration(1)
+            # scale = window_len.to_sec() / window_len_max.to_sec()
+            scale = 1  # placeholder
             by_topic[seuid.get_seuid("topic")]["window_min"] = min(message.window_start,
                                                                    by_topic[seuid.get_seuid("topic")]["window_min"])
             by_topic[seuid.get_seuid("topic")]["window_max"] = max(message.window_stop,
@@ -213,6 +219,12 @@ class SpecificationHandler:
                 re.expected_value.append(str(limits))
                 re.state = [self.__compare(value, limits)]
                 r.rated_statistics_entity.append(re)
+            re = RatedStatisticsEntity()
+            re.statistic_type = "alive"
+            re.expected_value = ["True"]
+            re.actual_value = ["True"]
+            re.state = [3]
+            r.rated_statistics_entity.append(re)
             result.append(r)
         return result
 

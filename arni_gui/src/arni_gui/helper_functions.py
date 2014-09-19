@@ -22,7 +22,7 @@ The maximal amount of entries allowed in the model (for not crashing it).
 Entries are the data_entries in the childs of the model
 """
 
-#todo: apapt to a good number by trial and failure :)
+# todo: apapt to a good number by trial and failure :)
 MAXIMUM_AMOUNT_OF_ENTRIES = 10000
 
 """
@@ -30,6 +30,10 @@ The minimum time that should be recorded in the model.
 """
 MINIMUM_RECORDING_TIME = 100
 
+"""
+The time intervall after which the topics should be aggregated in nsecs.
+"""
+TOPIC_AGGREGATION_FREQUENCY = 1000000000
 
 try:
     import pyqtgraph as pg
@@ -63,20 +67,23 @@ class DateAxis(pg.AxisItem):
             raise UserWarning("DateAxis::tickStrings: values is empty!")
 
         strns = []
-        rng = max(values)-min(values)
-        if rng < 3600*24:
+        rng = max(values) - min(values)
+        string = '%Y'
+        label1 = ''
+        label2 = ''
+        if rng < 3600 * 24:
             string = '%H:%M:%S'
             label1 = '%b %d -'
             label2 = ' %b %d, %Y'
-        elif rng >= 3600*24 and rng < 3600*24*30:
+        elif 3600 * 24 <= rng < 3600 * 24 * 30:
             string = '%d'
             label1 = '%b - '
             label2 = '%b, %Y'
-        elif rng >= 3600*24*30 and rng < 3600*24*30*24:
+        elif 3600 * 24 * 30 <= rng < 3600 * 24 * 30 * 24:
             string = '%b'
             label1 = '%Y -'
             label2 = ' %Y'
-        elif rng >=3600*24*30*24:
+        elif rng >= 3600 * 24 * 30 * 24:
             string = '%Y'
             label1 = ''
             label2 = ''
@@ -86,11 +93,11 @@ class DateAxis(pg.AxisItem):
             except ValueError:  ## Windows can't handle dates before 1970
                 strns.append('')
         try:
-            label = time.strftime(label1, time.localtime(min(values)))+time.strftime(label2, time.localtime(max(values)))
+            label = time.strftime(label1, time.localtime(min(values))) + time.strftime(label2,
+                                                                                       time.localtime(max(values)))
         except ValueError:
             label = ''
         return strns
-
 
 
 def choose_brush(index):
@@ -146,6 +153,8 @@ def find_qm_files(translation_directory):
 def topic_statistics_state_to_string(element, state):
     """
     Converts the state type from int to string.
+    :returns: the string
+    :rtype: str
     """
     if state is not None:
         number = struct.unpack('B', state)[0]

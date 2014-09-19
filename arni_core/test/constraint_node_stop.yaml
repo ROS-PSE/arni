@@ -1,0 +1,18 @@
+arni:
+    countermeasure:
+        constraints:
+            on_node_stop:
+                constraint:
+                    - and:
+                        n!/dayfly: {
+                            node_bandwidth_mean: low }
+                min_reaction_interval: 10
+                reactions:
+                    write_to_file: {
+                        action: run,
+                        node: /dayfly,
+                        command: echo "mean bandwidth is low" > ~/Desktop/on_node_stop }
+    specifications:
+        on_node_stop:
+            - n!/dayfly:
+                node_bandwidth_mean: [10, 2000000]

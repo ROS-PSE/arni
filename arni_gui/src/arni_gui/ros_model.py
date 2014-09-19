@@ -7,7 +7,9 @@ from size_delegate import SizeDelegate
 from abstract_item import AbstractItem
 
 from connection_item import ConnectionItem
+from connection_item_sub import ConnectionItemSub
 from topic_item import TopicItem
+from topic_item_sub import TopicItemSub
 from host_item import HostItem
 from node_item import NodeItem
 from root_item import RootItem
@@ -297,10 +299,12 @@ class ROSModel(QAbstractItemModel):
             if amount_of_entries > MAXIMUM_AMOUNT_OF_ENTRIES:
                 for item in self.__identifier_dict.values():
                     if item is not self.__root_item:
-                        item.delete_items_older_than(Time.now() - Duration(secs=i * MINIMUM_RECORDING_TIME))
+		        #item.delete_items_older_than(Time.now() - Duration(secs=i * MINIMUM_RECORDING_TIME))
+                        item.delete_items_older_than(Time.now() - (Duration(secs=i * MINIMUM_RECORDING_TIME) if int(Duration(secs=i * MINIMUM_RECORDING_TIME).to_sec()) <= int(Time.now().to_sec()) else Time(0))  )
 
         if self.__root_item.get_amount_of_entries() > MAXIMUM_AMOUNT_OF_ENTRIES:
-            self.__root_item.delete_items_older_than(Time.now() - Duration(secs=360))
+            #self.__root_item.delete_items_older_than(Time.now() - Duration(secs=360))
+            self.__root_item.delete_items_older_than(Time.now() - (Duration(secs=360) if int(Duration(secs=360).to_sec()) <= int(Time.now().to_sec()) else Time(0)) )
 
         # in order of their appearance in the treeview for always having valid parents
         for item in host_statistics:
@@ -346,30 +350,44 @@ class ROSModel(QAbstractItemModel):
         #todo: extract in own method????
         #generate the general information
         for host_item in self.__root_item.get_childs():
-	    #hostinfo
+            #hostinfo
             connected_hosts += 1
-            data = host_item.get_latest_data("bandwidth_mean", "cpu_usage_max", "cpu_temp_mean", "cpu_usage_mean", "cpu_temp_max", "ram_usage_max", "ram_usage_mean")
             if host_item.get_state() is "warning" and state is not "error":
                 state = "warning"
             elif host_item.get_state() is "error":
                 state = "error"
 
-            for key in data:
-                if data[key]:
+            last_entry = {}
+            #data = host_item.get_items_younger_than(Time.now() - Duration(secs=10), "bandwidth_mean", "cpu_usage_max",
+            data = host_item.get_items_younger_than(Time.now() - (Duration(secs=10) if int(Duration(secs=10).to_sec()) <= int(Time.now().to_sec()) else Time(0)) , "bandwidth_mean", "cpu_usage_max",
+                                                    "cpu_temp_mean", "cpu_usage_mean", "cpu_temp_max", "ram_usage_max",
+                                                    "ram_usage_mean")
+            if data["window_stop"]:
+                for key in data:
+		    if key is not "window_stop":
+                        last_entry[key] = data[key][-1]
+            else:
+                data = host_item.get_latest_data("bandwidth_mean", "cpu_usage_max", "cpu_temp_mean", "cpu_usage_mean",
+                                             "cpu_temp_max", "ram_usage_max", "ram_usage_mean")
+                for key in data:
+                    last_entry[key] = data[key]
+
+            for key in last_entry:
+                if last_entry[key]:
                     if key is "bandwidth_mean":
-                        for entry in data[key]:
+                        for entry in last_entry[key]:
                             if type(entry) is not unicode:
                                 if entry is not 0:
                                     data_dict["total_traffic"] += entry
                     elif key is "cpu_temp_max" or key is "cpu_temp_mean":
                         # very unprobably the temp might be 0 then the programm is not showing this value!
-                        if type(data[key]) is not unicode:
-                            if data[key] is not 0:
-                                data_dict[key] += data[key]
+                        if type(last_entry[key]) is not unicode:
+                            if last_entry[key] is not 0:
+                                data_dict[key] += last_entry[key]
                     else:
-                        if type(data[key]) is not unicode:
-                            if data[key] is not 0:
-                                data_dict[key] += data[key]
+                        if type(last_entry[key]) is not unicode:
+                            if last_entry[key] is not 0:
+                                data_dict[key] += last_entry[key]
             for node_item in host_item.get_childs():
                 #nodeinfo
                 connected_nodes += 1
@@ -426,27 +444,7 @@ class ROSModel(QAbstractItemModel):
         else:
             #update it
             current_item = self.__identifier_dict[seuid]
-            data = {}
-            data["state"] = "unknown"
-            for element in item.rated_statistics_entity:
-                if element.statistic_type not in data:
-                    data[element.statistic_type + ".actual_value"] = []
-                    data[element.statistic_type + ".expected_value"] = []
-                    data[element.statistic_type + ".state"] = []
-
-                data[element.statistic_type + ".actual_value"].append(element.actual_value)
-                data[element.statistic_type + ".expected_value"].append(element.expected_value)
-                for i in range(0, len(element.state)):
-                    state = topic_statistics_state_to_string(element, element.state[i])
-                    data[element.statistic_type + ".state"].append(state)
-                    if (state is "low" or state is "high") and state is not "ok" and state is not "unknown":
-                        data["state"] = "error"
-                    elif data["state"] is not "error" and state is "ok":
-                        data["state"] = "ok"                      
-
-            data["window_start"] = item.window_start
-            data["window_stop"] = item.window_stop
-            current_item.update_rated_data(data)
+            current_item.update_rated_data(item)
 
 
     def __transform_topic_statistics_item(self, item):
@@ -454,14 +452,16 @@ class ROSModel(QAbstractItemModel):
         Integrates TopicStatistics in the model by moding its item/s by adding a new dict to the corresponding item.
 
         :param item: the TopicStatistics item
-        :type item: TopicStatisticsStatistics
+        :type item: TopicStatistics
         """
         # get identifier
         topic_seuid = "t" + SEUID_DELIMITER + item.topic
         connection_seuid = "c" + SEUID_DELIMITER + item.node_sub + SEUID_DELIMITER + item.topic \
                               + SEUID_DELIMITER + item.node_pub
+	
         topic_item = None
-        connection_item = None
+        connection_item = None        
+        
         # check if avaiable
         if topic_seuid not in self.__identifier_dict:
             #creating a topic item
@@ -483,40 +483,112 @@ class ROSModel(QAbstractItemModel):
                     node_item = NodeItem(self.__logger, node_seuid, host_item)
                     self.__identifier_dict[node_seuid] = node_item
                     host_item.append_child(node_item)
+                    self.__find_host.add_node(item.node_pub, self.__find_host.get_host(item.node_pub))
                 else:
                     node_item = self.__identifier_dict[node_seuid]
 
-                parent = self.__identifier_dict["n" + SEUID_DELIMITER + item.node_pub]
+                parent = self.__identifier_dict["n" + SEUID_DELIMITER + item.node_pub]               
+                
             if parent is None:
                 # having a problem, there is no node with the given name
                 raise UserWarning("The parent of the given topic statistics item cannot be found.")
 
-            topic_item = TopicItem(self.__logger, topic_seuid, parent)
+            topic_item = TopicItem(self.__logger, topic_seuid, item, parent)
             parent.append_child(topic_item)
             self.__identifier_dict[topic_seuid] = topic_item
             #creating a connection item
-            connection_item = ConnectionItem(self.__logger, connection_seuid, topic_item)
+            connection_item = ConnectionItem(self.__logger, connection_seuid, item, topic_item)
             topic_item.append_child(connection_item)
-            self.__identifier_dict[connection_seuid] = connection_item
+            self.__identifier_dict[connection_seuid] = connection_item                 
         elif connection_seuid not in self.__identifier_dict:
             topic_item = self.__identifier_dict[topic_seuid]
             #creating a new connection item
-            connection_item = ConnectionItem(self.__logger, connection_seuid, topic_item)
+            connection_item = ConnectionItem(self.__logger, connection_seuid, item, topic_item)
             topic_item.append_child(connection_item)
             self.__identifier_dict[connection_seuid] = connection_item
         else:
             # get topic and connection item
             topic_item = self.__identifier_dict[topic_seuid]
             connection_item = self.__identifier_dict[connection_seuid]
+          
             if topic_item is None or connection_item is None:
                 for item in self.__identifier_dict:
                     if self.__identifier_dict[item] is None:
                         print(item)
                 raise UserWarning("The parent of the given topic statistics item cannot be found.")
-
         # now update these
         connection_item.append_data(item)
-        topic_item.append_data(item)
+        topic_item.append_data(item) 
+            
+        self.__transform_subscriber(item)
+        
+        
+    def __transform_subscriber(self, item):   
+        """
+        Integrates the subscribers in the model.
+
+        :param item: the TopicStatistics item
+        :type item: TopicStatistics
+        """
+	
+	node_seuid_sub = "n" + SEUID_DELIMITER + item.node_sub
+	
+	topic_seuid_sub = "t" + SEUID_DELIMITER + item.topic + "--sub"
+	
+	connection_seuid_sub = "c" + SEUID_DELIMITER + item.node_sub + SEUID_DELIMITER + item.topic \
+                              + SEUID_DELIMITER + item.node_pub + "--sub"
+			    
+	topic_item_sub = None
+        connection_item_sub = None
+	
+	if topic_seuid_sub not in self.__identifier_dict:
+	    try:
+	        parent_sub = self.__identifier_dict[item.node_sub]
+	    except KeyError:
+	        host_ip = self.__find_host.get_host(item.node_sub)
+	        if host_ip is not None:
+                    host_seuid = "h" + SEUID_DELIMITER + host_ip
+                    host_item = None
+                    if host_seuid not in self.__identifier_dict:
+                        host_item = HostItem(self.__logger, host_seuid, self.__root_item)
+                        self.__identifier_dict[host_seuid] = host_item
+                        self.__root_item.append_child(host_item)
+                    else:
+                        host_item = self.__identifier_dict[host_seuid]
+
+                    node_item = None
+                    if node_seuid_sub not in self.__identifier_dict:
+                        node_item = NodeItem(self.__logger, node_seuid_sub, host_item)
+                        self.__identifier_dict[node_seuid_sub] = node_item
+                        host_item.append_child(node_item)
+                        self.__find_host.add_node(item.node_sub, host_ip)
+                    else:
+                        node_item = self.__identifier_dict[node_seuid_sub]
+
+                    parent_sub = self.__identifier_dict[node_seuid_sub]
+                else: 
+		    return
+            
+            topic_item_sub = TopicItemSub(self.__logger, topic_seuid_sub, item, parent_sub)
+            parent_sub.append_child(topic_item_sub)
+            self.__identifier_dict[topic_seuid_sub] = topic_item_sub
+                    
+            connection_item_sub = ConnectionItemSub(self.__logger, connection_seuid_sub, item, topic_item_sub)
+            topic_item_sub.append_child(connection_item_sub)
+            self.__identifier_dict[connection_seuid_sub] = connection_item_sub          
+        elif connection_seuid_sub not in self.__identifier_dict:
+	    topic_item_sub = self.__identifier_dict[topic_seuid_sub]
+	    
+	    connection_item_sub = ConnectionItemSub(self.__logger, connection_seuid_sub, item, topic_item_sub)
+            topic_item_sub.append_child(connection_item_sub)
+            self.__identifier_dict[connection_seuid_sub] = connection_item_sub        
+	
+        else:
+	    topic_item_sub = self.__identifier_dict[topic_seuid_sub]
+	    connection_item_sub = self.__identifier_dict[connection_seuid_sub] 
+	    
+        #connection_item_sub.append_data(item)
+        #topic_item_sub.append_data(item)
 
 
     def __transform_node_statistics_item(self, item):
@@ -540,6 +612,7 @@ class ROSModel(QAbstractItemModel):
             node_item = NodeItem(self.__logger, item_seuid, host_item)
             self.__identifier_dict[item_seuid] = node_item
             host_item.append_child(node_item)
+            self.__find_host.add_node(item.node, item.host)
         else:
             node_item = self.__identifier_dict[item_seuid]
 

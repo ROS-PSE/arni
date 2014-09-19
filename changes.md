@@ -38,46 +38,56 @@ Change
 * overview.ui from log_tab_tree_widget to log_tab_tree_view.
 
 ## Big TODOS:
-* delete items older than currently does **NOT** erase rated data!!! 
-* from some data in the overview widget the mean has to be calculated (or e.g. display the data from the last minute or something!!!)
-* topic aggregation not yet working!!! --> get the algorithm from matthias and build it in :) --> 
-* filter is restricted to the upper plains --> if an word is searched and only a node but not its host contains the word
-* solve funny graphs problem in selectionWidget (probably double plot or something similar)
-* race condition when delete_items_older_than and get_items_younger_than are executed paralelly
-* because of new changes the state is no longer calculated correctly. HAS TO BE FIXED ASAP.
-* [mh]when plotting have to care for multidimensional entries --> simpel solution: don't add them right now --> ask andreas if he wants this information to be plotted too 
+* from some data in the overview widget the mean has to be calculated (or e.g. display the data from the last minute or something!!!) --> important
+* also show subscribers
+* the translation has to be done again for adapting to the newly added items and texts
 
-## !others work!
-* CPU_TEMP_CORE IS UNNECESSARY AND SHOULD BE REMOVED BEFORE PUBLISHING!!!
 
-## Final/Small Improvements
+## Final/Small Improvements --> maybe for after PSE...
+* check why the translation is not working in the range boxes
+* print the last update somewhere...
 * interpolate the data with flowcharts or however the method is called
 * hover texts have to be defined
 * in the help button the api docs and the general docu (and our names should be shown)
-* improve the model
-* add licence data to every file
 * check host/node etc regularily for timeouts --> get_time_of_last_update() --> im model regelmäßig abfragen und nach 65 sekunden löschen
-* shrink the graphics to smaller size
-* after a lot of time the programm doesn't terminate any longer
-* on enter clicked --> automatically activate apply button
-* add an expand_all button
-* caching the filter results in the proxies for faster updates :) --> maybe also needed to fix the filter problems!!! (can return same result as long as the filter is not invalidated, but have to invalidate filter on every update)
-
+* find out why the translation is not used for generating the text of the range box in overview/ selection widget
+* [mh]when plotting have to care for multidimensional entries --> simpel solution: don't add them right now --> currently not needed
 
 ## WiP
-* [mh]if the gui runs longer sometimes segfaults may appear - might be because of the race conditions that are about to be fixed
-* [mh]cpu usage core ist nicht sinnvoll beim plotten --> currently simply ignored, has to be removed <--> ask alex if this makes sens at all --> IS NOT ANSWERING SINCE 3 DAYS
-* [sk]logging every error message occuring when updating an item <--> DAMAGED STATE CONVERSION BUT SEEMS TO BE WORKING
-* [mh]drawing the graphs in selectionwidget --> copy and paste --> many errors still remaining to fix!!!
+* [mh]topic aggregation not yet working!!! --> get the algorithm from matthias and build it in :) --> cannot be applied here --> check if everything is working
+* [mh]make locking a little better by using different locks for rated and non rated data :) --> show if this works :) <--> still a little work to do
 * [mh]race conditions in overviewWidget on_graph_window_resized or similar whenever the resize method is called to fast... --> probably fixed, at least in most cases ^^
-* [mh]saving the model for only 60 seconds (maybe more, simply try it) --> seems to work --> keep testing this feature!!! <--> race condition up there is happing because of this!!!
 * [sk]/[mh]document everything
 * [mh]RUNTIME_ERROR BECAUSE ELEMENT HAS BEEN DELETED --> Timer Fehler oder so... Schwer/nicht behebbar
 * [mh]why are sometimes empty values given to the axis? --> for no plausible reason
-* [sk] / [mh]host_statistics arrives in the gui only at the beginning --> then nothing comes any longer!!!
-
 
 ## Done
+* [mh]fixed division error
+* [sk]make the show buttons more intelligent
+* [mh]currently we do not support the delivered_msg part in topicstatistics --> may add support for it
+* [mh]test code coverage with tools by trying out anything on the gui
+* [mh]caching the filter results in the proxies for faster updates :) --> maybe also needed to fix the filter problems!!! (can return same result as long as the filter is not invalidated, but have to invalidate filter on every update)
+* [mh]shrink the graphics to smaller size
+* [mh]after a lot of time the programm doesn't terminate any longer
+* [mh]on enter clicked --> automatically activate apply button
+* [mh]add an expand_all button
+* [sk]delete items nolder than currently does **NOT** erase rated data!!! 
+* [mh]NEW SEGFAULT AND NOBODY KNOWS WHY.. --> still don't really know the reason, but it doesn't appear any longer
+* [mh]race condition when delete_items_older_than and get_items_younger_than are executed paralelly
+* [mh]cpu usage core ist nicht sinnvoll beim plotten --> currently simply ignored, has to be removed <--> ask alex if this makes sens at all --> IS NOT ANSWERING SINCE 3 DAYS --> now answered: can be removed --> remove in the code --> removed
+* [sk]logging every error message occuring when updating an item <--> DAMAGED STATE CONVERSION BUT SEEMS TO BE WORKING
+* [mh]/[sk]in the filter field add some default text
+* [mh]filter is restricted to the upper plains --> if an word is searched and only a node but not its host contains the word <--> search every time through the whole subtreee and if any element returns true return true, for effiency use extensive caching --> caching now implemented, the rest still missing --> now working
+* [mh] / [sk]solve funny graphs problem in selectionWidget (probably double plot or something similar)
+* [sk]the flood of the data gets bigger and bigger, getting more and more data per each update - REASON UNKWON --> LOOK FOR BUFFERTHREAD AND THE INCOMING DATA IF THERE IS ALWAYS MORE AND MORE... IF NOT WE GONNA HAVE A PROBLEM
+* [mh]if the gui runs longer sometimes segfaults may appear - might be because of the race conditions that are about to be fixed
+* [mh]drawing the graphs in selectionwidget --> copy and paste --> many errors still remaining to fix!!! 
+* [mh]saving the model for only 60 seconds (maybe more, simply try it) --> seems to work --> keep testing this feature!!! <--> race condition up there is happing because of this!!!
+* [sk] / [mh]host_statistics arrives in the gui only at the beginning --> then nothing comes any longer!!!
+* [mh]/[sk]because of new changes the state is no longer calculated correctly. HAS TO BE FIXED ASAP.
+* [mh]the units in the graphs are still missing
+* [mh]self.__last_update no longer needed
+* [mh]CPU_TEMP_CORE IS UNNECESSARY AND SHOULD BE REMOVED BEFORE PUBLISHING!!!
 * [sk] / [mh]host recognition for a host on the same pc  --> seems to work but only in "real" networks, obviously a Configuration problem <--> when restarting most times works again
 * [mh]Fixed a bug that when the erroneous checkbox was on, the filter could not be applied correcty without removing the "errouneous" filter
 * [sk] / [mh]after some time the overview widget does not show any data any more...
@@ -85,7 +95,7 @@ Change
 * [mh]the storage of the data in node_item is somehow erroneous --> Fix!
 * [mh]round the shown data in the gui --> round(number, 2) --> started but not finished yet
 * [mh]replace "something is wrong" with good text!
-* [mh]update the texts that are shown  --- the units in the overview are missing (maybe also some color if someone is too high --> not our )
+* [mh]update the texts that are shown  --- the units in the overview are missing (maybe also some color if someone is too high)
 * [mh]give the translatable items to somebody so that he can translate these items
 * [mh]enter tr() everywhere for internationalisation --> still missing: the widget itself and the actual_values etc --> probably finished
 * [mh]get overview widget to work --> still the bug with host items remains, don't know why
@@ -112,12 +122,14 @@ Change
 * [mh]fixed index errors when element was None
 * [mh]reason for wrong return values: *args is never None, so if args is not None will always enter even though args might be empty!!!
 * [mh]moved logging to own class
-
 * [mh]changing the background of the updateGraphs
 * [mh]change plotting to use one range_box or maybe two or three if there is enough space :) <--> make this dependent from the available space
 * [sk]scrolling does not work because of the permanent updates...--> solution: if no data has changed, simply get_detailed_data simply returns None --> or not calling the update so often, every minute should suffice --> found better solution by simply asking the scrollbar
 * [mh]fixed never ending recursion
-
+* [mh]fixed segfault that occured because of using internalPointer() instead of data()
+* [mh]fixed segfault that occured because of missing input sanitization (inputed dict instead of str)
+* [mh]fixed bad singleton error in ROSModel --> normal singleton implementation didn't work because of the missing superclass object in PyQt/PySide <--> Fix: multiple inheritance for also using QObject
+* [mh]extreme performance problem when plotting --> used the wrong method plot instead of setData, furthermore to clear graphs use clear(), a non api-documented method
 
 =======
 * selection.ui from log_tab_tree_widget to log_tab_tree_view.

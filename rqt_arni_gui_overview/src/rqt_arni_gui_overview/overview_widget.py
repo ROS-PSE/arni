@@ -194,7 +194,7 @@ class OverviewWidget(QWidget):
     def __on_graph_window_size_changed(self):
         # getting the size
         size = self.__graph_layout.size()
-        items_per_group = (size.height() - 100) / 200 + 1
+        items_per_group = max(int(math.ceil((size.height() - 100) / 200 + 1)), 1)
         if items_per_group is not self.__items_per_group or self.__first_resize:
             self.__first_resize = False
             self.__graph_layout.set_blocked(True)
@@ -314,14 +314,19 @@ class OverviewWidget(QWidget):
                                 self.__items_per_group, len(self.__plotable_items)):min((self.__current_selected_combo_box_index + 1)
                                                         * self.__items_per_group, len(self.__plotable_items))]
             plotable_data = self.__model.get_root_item().get_items_younger_than(
-                Time.now() - Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)),
+                #Time.now() - Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)),
+                Time.now() - (Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)) if int(Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)).to_sec()) <= int(Time.now().to_sec()) else Time(0) ),
                 "window_stop", *plotable_items)
             temp_time = []
             temp_content = []
 
-            modulo = (len(plotable_data["window_stop"]) / 200) + 1
+            if plotable_data["window_stop"]:
+                modulo = (len(plotable_data["window_stop"]) / 200) + 1
 
-            length = len(plotable_data["window_stop"])
+                length = len(plotable_data["window_stop"])
+            else:
+                length = 0
+                modulo = 1
             for i in range(0, length, modulo):
                 # now having maximally 100 items to plot :)
                 temp_time.append(int(str(plotable_data["window_stop"][i]))/1000000000)

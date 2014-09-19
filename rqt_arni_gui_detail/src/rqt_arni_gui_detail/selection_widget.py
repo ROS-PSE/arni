@@ -91,6 +91,8 @@ class SelectionWidget(QWidget):
         self.range_combo_box.addItem("60 " + self.tr("Seconds"))
         self.range_combo_box.setCurrentIndex(0)
 
+        #self.scrollAreaWidgetContents_2.setWidget(self.host_node_label)
+
         self.tab_widget.setTabText(0, self.tr("Information"))
         self.tab_widget.setTabText(1, self.tr("Graphs"))
         self.tab_widget.setTabText(2, self.tr("Log"))
@@ -215,7 +217,7 @@ class SelectionWidget(QWidget):
         # getting the size
         if self.__selected_item is not None:
             size = self.__graph_layout.size()
-            items_per_group = (size.height() - 100) / 200 + 1
+            items_per_group = max(int(math.ceil((size.height() - 100) / 200 + 1)), 1)
             if items_per_group is not self.__items_per_group or self.__selected_item_changed:
                 self.__graph_layout.set_blocked(True)
                 self.__items_per_group = items_per_group
@@ -340,49 +342,52 @@ class SelectionWidget(QWidget):
                                     self.__items_per_group, len(self.__plotable_items)):min((self.__current_selected_combo_box_index + 1)
                                                             * self.__items_per_group, len(self.__plotable_items))]
                 plotable_data = self.__selected_item.get_items_younger_than(
-                    Time.now() - Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)),
+                    #Time.now() - Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)),
+                    Time.now() - (Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)) if int(Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)).to_sec()) <= int(Time.now().to_sec()) else Time(0) ),
                     "window_stop", *plotable_items)
-                if plotable_data["window_stop"]:
-                    temp_time = []
-                    temp_content = []
+                if "window_stop" in plotable_data:
+                    if plotable_data["window_stop"]:
+                        temp_time = []
+                        temp_content = []
 
-                    length = len(plotable_data["window_stop"])
-                    modulo = (length / 200) + 1
+                        length = len(plotable_data["window_stop"])
+                        modulo = (length / 200) + 1
 
-                    for i in range(0, length, modulo):
-                        # now having maximally 100 items to plot :)
-                        temp_time.append(plotable_data["window_stop"][i].to_sec())
-                    x = np.array(temp_time)
+                        for i in range(0, length, modulo):
+                            # now having maximally 100 items to plot :)
+                            temp_time.append(plotable_data["window_stop"][i].to_sec())
+                        x = np.array(temp_time)
 
-                    list_entries = self.__selected_item.get_list_items()
-                    time_entries = self.__selected_item.get_time_items()
+                        list_entries = self.__selected_item.get_list_items()
+                        time_entries = self.__selected_item.get_time_items()
 
-                    for key in plotable_items:
-                        if key in list_entries:
-                            pass
-                            #y = []
-                            #for j in range(0, len(plotable_data[key][0])):
-                            #    temp_content[j] = []
-                            # time
-                            #for i in range(0, length, modulo):
-                            #    for j in range(0, len(plotable_data[key][i])):
-                            #        temp_content[j].append(plotable_data[key][i][j])
+                        for key in plotable_items:
+                            if key in list_entries:
+                                pass
+                                #y = []
+                                #for j in range(0, len(plotable_data[key][0])):
+                                #    temp_content[j] = []
+                                # time
+                                #for i in range(0, length, modulo):
+                                #    for j in range(0, len(plotable_data[key][i])):
+                                #        temp_content[j].append(plotable_data[key][i][j])
 
-                            #for j in range(0, len(plotable_data[key][0])):
-                            #    self.__plotted_curves[key].setData(x=x, y=np.array(temp_content[j]))
-                        else:
-                            if key in time_entries:
-                                for i in range(0, length, modulo):
-                                    temp_content.append(float(str(plotable_data[key][i]))/1000000000)
+                                #for j in range(0, len(plotable_data[key][0])):
+                                #    self.__plotted_curves[key].setData(x=x, y=np.array(temp_content[j]))
+
                             else:
-                                for i in range(0, length, modulo):
-                                    temp_content.append(plotable_data[key][i])
-                            y = np.array(temp_content)
-                            del temp_content[:]
+                                if key in time_entries:
+                                    for i in range(0, length, modulo):
+                                        temp_content.append(float(str(plotable_data[key][i]))/1000000000)
+                                else:
+                                    for i in range(0, length, modulo):
+                                        temp_content.append(plotable_data[key][i])
+                                y = np.array(temp_content)
+                                del temp_content[:]
 
-                            self.__plotted_curves[key].setData(x=x, y=y)
-                else:
-                    pass
+                                self.__plotted_curves[key].setData(x=x, y=y)
+                    else:
+                        pass
 
             self.__first_update_pending = False
         self.__update_graphs_lock.release()
@@ -397,26 +402,27 @@ class SelectionWidget(QWidget):
             if self.__selected_item is not None:
                 data_dict = self.__selected_item.get_latest_data()
                 self.__state = data_dict["state"]
+                self.host_node_label.setText(self.tr(self.__selected_item.get_seuid()))
 
                 if self.__previous_state is not self.__state:
                     self.__previous_state = self.__state
                     if self.__state == "ok":
                         self.current_status_label.setText(self.tr("online"))
-                        self.host_node_label.setText(self.tr("Current Status: Ok"))
+                        #self.host_node_label.setText(self.tr("Current Status: Ok"))
                         pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
                                                       'block_green.png'))
                     elif self.__state == "warning":
                         self.current_status_label.setText(self.tr("online"))
-                        self.host_node_label.setText(self.tr("Current Status: Warning"))
+                        #self.host_node_label.setText(self.tr("Current Status: Warning"))
                         pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
                                                       'block_orange.png'))
                     elif self.__state == "unknown":
                         self.current_status_label.setText(self.tr("unkown"))
-                        self.host_node_label.setText(self.tr("Current Status: Unkown"))
+                        #self.host_node_label.setText(self.tr("Current Status: Unkown"))
                         pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
                                                       'block_grey.png'))
                     else:
-                        self.host_node_label.setText(self.tr("Current Status: Error"))
+                        #self.host_node_label.setText(self.tr("Current Status: Error"))
                         pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
                                                       'block_red.png'))
                     self.status_light_label.setPixmap(pixmap)

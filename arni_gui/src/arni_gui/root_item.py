@@ -1,3 +1,5 @@
+from rospy.rostime import Time
+
 from python_qt_binding.QtCore import QObject
 from python_qt_binding.QtCore import QTranslator
 
@@ -42,6 +44,33 @@ class RootItem(AbstractItem):
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)
             
+
+    def append_data_dict(self, data):
+        """
+        Appends data to the data of the AbstractItem.
+
+        :param data: the data to append in key value form
+        :type data: dict
+        :raises KeyError: if an entry is in the global data dictionary but not found in the given dictionary
+        """
+        self._data_lock.acquire()
+        if "window_stop" not in data:
+            data["window_stop"] = Time.now()
+
+        for attribute in self._data:
+            if attribute in data:
+                self._data[attribute].append(data[attribute])
+            else:
+                self._data[attribute].append(None)
+
+        if "state" in data:
+            self.add_state((data["state"]))
+        else:
+            self.add_state("unknown")
+
+        self._length_of_data += 1
+        self._update_current_state()
+        self._data_lock.release()
 
     def get_detailed_data(self):
         """

@@ -4,7 +4,7 @@ import rosgraph_msgs
 import std_srvs.srv
 from std_srvs.srv import Empty
 import arni_msgs
-from arni_msgs.msg import HostStatistics, NodeStatistics, RatedStatistics
+from arni_msgs.msg import HostStatistics, NodeStatistics, RatedStatistics, RatedStatisticsEntity
 from arni_msgs.srv import StatisticHistory, StatisticHistoryResponse
 from arni_core.helper import *
 from rosgraph_msgs.msg import TopicStatistics
@@ -28,7 +28,10 @@ class MonitoringNode:
         self.__aggregate = []
         self.__aggregate_start = rospy.Time.now()
         self.__processing_enabled = rospy.get_param("/enable_statistics", False)
-        rospy.Timer(rospy.Duration(5), self.__publish_queue)
+        self.__alive_timers = {}
+        self.__alive_countdown = {}
+        rospy.Timer(rospy.Duration(rospy.get_param("~publish_interval", 5)), self.__publish_queue)
+        rospy.Timer(rospy.Duration(rospy.get_param("~alive_interval", 5)), self.__check_alive)
         rospy.Timer(rospy.Duration(rospy.get_param("/arni/check_enabled_interval", 10)), self.__update_enabled)
 
     def __update_enabled(self, event):
@@ -45,6 +48,7 @@ class MonitoringNode:
         if self.__processing_enabled:
             try:
                 seuid = SEUID(data)
+                self.__report_alive(str(seuid))
                 try:
                     self.__process_data(data, seuid)
                 except Exception as msg:
@@ -72,16 +76,46 @@ class MonitoringNode:
         self.__publish_data(result, False)
         return result
 
+    def __check_alive(self, event):
+        """
+        Iterates over all registered specifications and sends an error if no package is received but was expected.
+        """
+        for seuid in self.__specification_handler.loaded_specifications():
+            if seuid not in self.__alive_timers.keys():
+                spec = self.__specification_handler.get(seuid)
+                alive_timer = spec.get("alive_timer")
+                if not alive_timer:
+                    alive_timer = rospy.get_param("~alive_timer", 10)
+                self.__alive_timers[seuid] = rospy.Duration(alive_timer)
+            if seuid not in self.__alive_countdown.keys():
+                self.__alive_countdown[seuid] = rospy.Time.now()
+            if rospy.Time.now() >= self.__alive_countdown[seuid] + self.__alive_timers[seuid]:
+                r = RatedStatisticsContainer(seuid)
+                r.add_value("alive", ["False"], ["True"], [1])
+                r.add_value("window_start", self.__alive_countdown[seuid], None, None)
+                r.add_value("window_stop", rospy.Time.now(), None, None)
+                msg = r.to_msg_type()
+                self.__publish_data(msg)
+
+    def __report_alive(self, seuid):
+        """
+        Report that messages with the given seuid still arrive.
+
+        :param seuid: The seuid of the message that arrived.
+        """
+        self.__alive_countdown[seuid] = rospy.Time.now()
+
     def __aggregate_data(self, data, identifier):
         """
         Collect topic data and send them to get rated after a while.
 
         :param data: A statistics message object
         """
+        res = self.__specification_handler.compare_topic(self.__aggregate)
         if self.__aggregate is None or \
-                                rospy.Time.now() - self.__aggregate_start >= \
-                        rospy.Duration(rospy.get_param("/arni/aggregation_window", 3)):
-            res = self.__specification_handler.compare_topic(self.__aggregate)
+                older_than(self.__aggregate_start, rospy.Duration(rospy.get_param("~aggregation_window", 3))):
+                # rospy.Time.now() - self.__aggregate_start >= \
+                # rospy.Duration(rospy.get_param("/arni/aggregation_window", 3)):
             for r in res:
                 container = StorageContainer(rospy.Time.now(), str(identifier), data, r)
                 self.__metadata_storage.store(container)

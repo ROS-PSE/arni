@@ -79,7 +79,7 @@ class CountermeasureNode(object):
         #check periodically for enabled_statistic
         rospy.Timer(
             rospy.Duration(
-                rospy.get_param("/arni/check_enabled_interval", 10)),
+                rospy.get_param("arni/check_enabled_interval", 10)),
             self.__callback_enable)
 
         # evaluate periodically

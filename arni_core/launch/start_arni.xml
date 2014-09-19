@@ -1,0 +1,6 @@
+<launch>
+    <include file="$(find arni_core)/launch/init_params.launch"/>
+    <node name="processing" pkg="arni_processing" type="arni_processing"/>
+    <node name="node_manager" pkg="arni_nodeinterface" type="arni_nodeinterface"/>
+    <node name="countermeasure" pkg="arni_countermeasure" type="arni_countermeasure"/>
+</launch>
