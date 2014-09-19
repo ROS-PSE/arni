@@ -314,7 +314,8 @@ class OverviewWidget(QWidget):
                                 self.__items_per_group, len(self.__plotable_items)):min((self.__current_selected_combo_box_index + 1)
                                                         * self.__items_per_group, len(self.__plotable_items))]
             plotable_data = self.__model.get_root_item().get_items_younger_than(
-                Time.now() - Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)),
+                #Time.now() - Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)),
+                Time.now() - (Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)) if int(Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)).to_sec()) <= int(Time.now().to_sec()) else Time(0) ),
                 "window_stop", *plotable_items)
             temp_time = []
             temp_content = []

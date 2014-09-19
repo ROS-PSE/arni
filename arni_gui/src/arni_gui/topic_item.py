@@ -182,7 +182,8 @@ class TopicItem(AbstractItem):
         :param event: containing information when this method was called - not used but needed for the interface
         """
         self._data_lock.acquire()
-        entries = self.get_raw_items_younger_than(Time.now() - Duration(secs=10))
+        #entries = self.get_raw_items_younger_than(Time.now() - Duration(secs=10))
+        entries = self.get_raw_items_younger_than(Time.now() - (Duration(secs=10) if int(Duration(secs=10).to_sec()) <= int(Time.now().to_sec()) else Time(0) ))
         # print(entries)
         #print(len(entries["window_stop"]))
         #print(entries["window_start"])
@@ -193,7 +194,8 @@ class TopicItem(AbstractItem):
 
         #print(self.__calculated_data)
         self.__calculated_data["window_start"][-1] = Time.now()
-        self.__calculated_data["window_stop"][-1] = Time.now() - Duration(secs=600)
+        #self.__calculated_data["window_stop"][-1] = Time.now() - Duration(secs=600)
+        self.__calculated_data["window_stop"][-1] = Time.now() - (Duration(secs=600) if int(Duration(secs=600).to_sec()) <= int(Time.now().to_sec()) else Time(0))
 
         for i in range(0, len(entries["window_stop"])):
             #print("aggregating entry")

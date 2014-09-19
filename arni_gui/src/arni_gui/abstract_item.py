@@ -129,7 +129,9 @@ class AbstractItem(QObject):
         """
         if self.get_state():
             if self.get_state() is not "error":
-                last_states = self.get_rated_items_younger_than(Time.now() - Duration(secs=5), "state")                
+                #last_states = self.get_rated_items_younger_than(Time.now() - Duration(secs=5), "state")  
+                last_states = self.get_rated_items_younger_than(Time.now() - (Duration(secs=5) if int(Duration(secs=5).to_sec()) <= int(Time.now().to_sec()) else Time(0)), "state")  
+                
                 try:
 		    for i in range(0, len(last_states["state"])):
 		        if last_states["state"][i] is "error":

@@ -299,10 +299,12 @@ class ROSModel(QAbstractItemModel):
             if amount_of_entries > MAXIMUM_AMOUNT_OF_ENTRIES:
                 for item in self.__identifier_dict.values():
                     if item is not self.__root_item:
-                        item.delete_items_older_than(Time.now() - Duration(secs=i * MINIMUM_RECORDING_TIME))
+		        #item.delete_items_older_than(Time.now() - Duration(secs=i * MINIMUM_RECORDING_TIME))
+                        item.delete_items_older_than(Time.now() - (Duration(secs=i * MINIMUM_RECORDING_TIME) if int(Duration(secs=i * MINIMUM_RECORDING_TIME).to_sec()) <= int(Time.now().to_sec()) else Time(0))  )
 
         if self.__root_item.get_amount_of_entries() > MAXIMUM_AMOUNT_OF_ENTRIES:
-            self.__root_item.delete_items_older_than(Time.now() - Duration(secs=360))
+            #self.__root_item.delete_items_older_than(Time.now() - Duration(secs=360))
+            self.__root_item.delete_items_older_than(Time.now() - (Duration(secs=360) if int(Duration(secs=360).to_sec()) <= int(Time.now().to_sec()) else Time(0)) )
 
         # in order of their appearance in the treeview for always having valid parents
         for item in host_statistics:
@@ -356,7 +358,8 @@ class ROSModel(QAbstractItemModel):
                 state = "error"
 
             last_entry = {}
-            data = host_item.get_items_younger_than(Time.now() - Duration(secs=10), "bandwidth_mean", "cpu_usage_max",
+            #data = host_item.get_items_younger_than(Time.now() - Duration(secs=10), "bandwidth_mean", "cpu_usage_max",
+            data = host_item.get_items_younger_than(Time.now() - (Duration(secs=10) if int(Duration(secs=10).to_sec()) <= int(Time.now().to_sec()) else Time(0)) , "bandwidth_mean", "cpu_usage_max",
                                                     "cpu_temp_mean", "cpu_usage_mean", "cpu_temp_max", "ram_usage_max",
                                                     "ram_usage_mean")
             if data["window_stop"]:

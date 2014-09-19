@@ -342,7 +342,8 @@ class SelectionWidget(QWidget):
                                     self.__items_per_group, len(self.__plotable_items)):min((self.__current_selected_combo_box_index + 1)
                                                             * self.__items_per_group, len(self.__plotable_items))]
                 plotable_data = self.__selected_item.get_items_younger_than(
-                    Time.now() - Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)),
+                    #Time.now() - Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)),
+                    Time.now() - (Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)) if int(Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)).to_sec()) <= int(Time.now().to_sec()) else Time(0) ),
                     "window_stop", *plotable_items)
                 if "window_stop" in plotable_data:
                     if plotable_data["window_stop"]:
@@ -373,6 +374,7 @@ class SelectionWidget(QWidget):
 
                                 #for j in range(0, len(plotable_data[key][0])):
                                 #    self.__plotted_curves[key].setData(x=x, y=np.array(temp_content[j]))
+
                             else:
                                 if key in time_entries:
                                     for i in range(0, length, modulo):
