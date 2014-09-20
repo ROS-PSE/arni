@@ -45,6 +45,9 @@ class ConnectionItem(AbstractItem):
         self._attributes.append("frequency")
 
         self.__rated_attributes = []
+        self.__rated_attributes.append("alive.actual_value")
+        self.__rated_attributes.append("alive.expected_value")
+        self.__rated_attributes.append("alive.state")        
         for item in self._attributes:
             self.__rated_attributes.append(item + ".actual_value")
             self.__rated_attributes.append(item + ".expected_value")

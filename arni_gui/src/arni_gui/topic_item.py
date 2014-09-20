@@ -46,6 +46,9 @@ class TopicItem(AbstractItem):
         self._attributes.append("bandwidth")
 
         self.__rated_attributes = []
+        self.__rated_attributes.append("alive.actual_value")
+        self.__rated_attributes.append("alive.expected_value")
+        self.__rated_attributes.append("alive.state")         
 
         self._attributes.append("packages")
         self._attributes.append("packages_per_second")
