@@ -138,7 +138,7 @@ class SpecificationHandler:
                     current_obj["actual"] = value
                     current_obj["expected"] = limits
                 result.add_value(field, current_obj["actual"], current_obj["expected"], current_obj["state"])
-        result.add_value("alive", ["True"], ["True"], [1])
+        result.add_value("alive", ["True"], ["True"], [3])
         return result
 
     def compare_topic(self, data=None):
