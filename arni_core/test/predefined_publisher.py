@@ -126,6 +126,44 @@ def stop_publish():
         rospy.Rate(rospy.get_param("~frequency", 10)).sleep()
 
 
+def freq_high_low():
+    frequency_high = rospy.Duration(rospy.get_param("~frequency_high", 100))
+    frequency_low = rospy.Duration(rospy.get_param("~frequency_low", 10))
+    # in seconds
+    change_interval = rospy.Duration(rospy.get_param("~period", 30) / 2)
+
+    frequency = list()
+    frequency.append(frequency_high)
+    frequency.append(frequency_low)
+
+    current = 0
+    msg = "." * 100
+    last_change = rospy.Time.now()
+    while not rospy.is_shutdown():
+        if(rospy.Time.now() - last_change > change_interval):
+            last_change = rospy.Time.now()
+            current = not current
+            print current
+
+        pub.publish(msg)
+        rospy.sleep(frequency[current])
+
+
+def freq_sine():
+    mid = rospy.get_param("~frequency_mid", 100)
+    var = rospy.get_param("~frequency_variation", 20)
+    # period normalised to 
+    period = rospy.get_param("~period", 30)
+    begin = rospy.Time.now()
+    msg = "." * 100
+
+    while not rospy.is_shutdown():
+        cur = rospy.Time.now() - begin
+        fluctuation = math.sin(2 * math.pi / period * cur.to_sec()) * var
+        frequency = mid + fluctuation
+        pub.publish(msg)
+        rospy.sleep(rospy.Duration(1/frequency))
+
 '''
 ~mode = ("constant", "stop_publish", "sawtooth", "sine", "floored_abs", "linear_abs")
 ~frequency = 10
@@ -158,7 +196,9 @@ if __name__ == '__main__':
         'stop_publish': stop_publish,
         # 'sawtooth': sawtooth,
         'sine': sine,
-        'high_low': high_low}
-    mode = rospy.get_param("~mode", "sine")
+        'high_low': high_low,
+        'freq_high_low': freq_high_low,
+        'freq_sine': freq_sine}
+    mode = rospy.get_param("~mode", "freq_sine")
     if mode in modes:
         modes[mode]()
