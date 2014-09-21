@@ -49,6 +49,8 @@ class MonitoringNode:
             try:
                 seuid = SEUID(data)
                 self.__report_alive(str(seuid))
+                if seuid.topic is not None:
+                    self.__report_alive(str(seuid.get_seuid("topic")))
                 try:
                     self.__process_data(data, seuid)
                 except Exception as msg:
