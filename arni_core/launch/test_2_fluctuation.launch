@@ -6,11 +6,10 @@
     <group>
         <!-- node that publishes with ~10mb/s +-5mb/s-->
         <node name="fluctuating_tide" pkg="arni_core" type="predefined_publisher.py">
-            <param name="mode" value="sine"/>
-            <param name="frequency" value="10"/>
-            <param name="bandwidth_mid" value="10241000"/>
-            <param name="bandwidth_variation" value="5000100" />
-            <param name="period" value="20" />
+            <param name="mode" value="freq_sine"/>
+            <param name="frequency_mid" value="500"/>
+            <param name="frequency_variation" value="250"/>
+            <param name="period" value="60" />
             <param name="topic_name" value="ocean"/>
         </node>
 
