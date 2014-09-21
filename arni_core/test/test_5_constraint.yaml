@@ -1,0 +1,56 @@
+arni:
+  countermeasure:
+    constraints:
+
+      check_correct_frequency:
+        constraint:
+        - and:
+            t!/storm: {
+              frequency: ok,
+              }
+        min_reaction_interval: 5
+        reaction_timeout: 10
+        reactions:
+          publish_okay: {
+            action: publish,
+            autonomy_level: 0,
+            message: frequency of storm is ok,
+            loglevel: info}
+
+      check_frequency_not_okay:
+        constraint:
+        - and:
+            t!/storm: {
+              frequency: low,
+              }
+        min_reaction_interval: 5
+        reaction_timeout: 12
+        reactions:
+          publish_not_okay: {
+            action: publish,
+            autonomy_level: 0,
+            message: frequency of storm is low,
+            loglevel: warn}
+
+      check_frequency_low_restart:
+        constraint:
+        - and:
+            t!/storm: {
+              frequency: low,
+              }
+        min_reaction_interval: 10
+        reaction_timeout: 60
+        reactions:
+          publish_low_msg: {
+            action: publish,
+            autonomy_level: 0,
+            message: frequency of storm is too low - trying to restart,
+            loglevel: warn}
+          publish_low_restart: {
+            action: restart,
+            autonomy_level: 10,
+            node: /hawk}
+
+    config:
+      reaction_autonomy_level: 50
+      storage_timeout: 10

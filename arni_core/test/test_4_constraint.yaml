@@ -21,7 +21,7 @@ arni:
             t!/street: {
               frequency: low,
               }
-        min_reaction_interval: 5
+        min_reaction_interval: 10
         reaction_timeout: 30
         reactions:
           publish_low_msg: {
