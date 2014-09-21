@@ -110,7 +110,8 @@ class NodeStatisticsHandler(StatisticsHandler):
         """
         if self._id in stats.node_pub:
             dur = stats.window_stop - stats.window_start
-            self._status.add_node_bandwidth(stats.traffic / dur.to_sec())
+            if dur.to_sec() != 0:
+                self._status.add_node_bandwidth(stats.traffic / dur.to_sec())
             self._status.add_node_msg_freq(stats.period_mean.to_sec())
 
     def __cpu_usage_per_core(self):
