@@ -158,11 +158,17 @@ def freq_sine():
     msg = "." * 100
 
     while not rospy.is_shutdown():
+        calc_time = rospy.Time.now()
         cur = rospy.Time.now() - begin
-        fluctuation = math.sin(2 * math.pi / period * cur.to_sec()) * var
+        fluctuation = math.sin(2 * math.pi * cur.to_sec() / period ) * var
+        # rospy.logwarn("fluc is %f"%fluctuation)
         frequency = mid + fluctuation
         pub.publish(msg)
-        rospy.sleep(rospy.Duration(1/frequency))
+
+        calc_time =  rospy.Time.now() - calc_time
+        # rospy.logwarn("calc time is %f"%calc_time.to_sec())
+        # rospy.logwarn("should sleep %f", 1 / frequency)
+        rospy.sleep(rospy.Duration(1/frequency) - calc_time)
 
 '''
 ~mode = ("constant", "stop_publish", "sawtooth", "sine", "floored_abs", "linear_abs")

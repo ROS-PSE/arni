@@ -3,7 +3,7 @@ arni:
     constraints:
       check_correct_frequency:
         constraint:
-          and:
+        - and:
             t!/forest: {
               frequency: ok,
               }
@@ -17,7 +17,7 @@ arni:
             loglevel: info}
       check_frequency_not_okay:
         constraint:
-          not:
+        - not:
             t!/forest: {
               frequency: ok,
               }
