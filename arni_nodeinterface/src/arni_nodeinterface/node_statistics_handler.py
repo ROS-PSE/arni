@@ -155,6 +155,6 @@ class NodeStatisticsHandler(StatisticsHandler):
     def node_process(self):
         return self.__node_process
 
-    @property 
+    @property
     def status(self):
         return self._status

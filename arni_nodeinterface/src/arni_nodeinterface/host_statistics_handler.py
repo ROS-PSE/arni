@@ -263,8 +263,6 @@ class HostStatisticsHandler(StatisticsHandler):
         if reaction.node not in self.__node_list:
             return 'Specified node is not running on this host.'
 
-        if '/jumping_tower' in self.__node_list:
-            rospy.logdebug('Jumping Tower in nodelist')
         if reaction.action == 'restart':
             node = self.__node_list[reaction.node]
             msg = self.__node_manager.restart_node(node)

@@ -1,0 +1,7 @@
+<launch>
+  <param name="enable_statistics" value="true" />
+  <node name="host_manager" pkg="arni_nodeinterface" type="arni_nodeinterface" /> 
+  <node name="writer" pkg="arni_nodeinterface" type="writer.py" />
+  <node name="writer2" pkg="arni_nodeinterface" type="writer.py" />
+  <test test-name="test_service" pkg="arni_nodeinterface" type="test_service.py" />
+</launch>
