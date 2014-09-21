@@ -1,4 +1,5 @@
 from rospy.rostime import Time
+import rospy
 
 from python_qt_binding.QtCore import QTranslator
 
@@ -33,7 +34,7 @@ class TopicItem(AbstractItem):
         self._attributes = []
         # todo: currently probably only these 4 implemented
         self._attributes.extend(["dropped_msgs", "traffic",
-                                 "stamp_age_mean", "stamp_age_max", "stamp_age_stddev", "period_max"])
+                                 "stamp_age_mean", "stamp_age_max", "stamp_age_stddev", "period_max", "node_pub", "node_sub"])
 
 
         if hasattr(first_message, "delivered_msgs"):
@@ -173,7 +174,6 @@ class TopicItem(AbstractItem):
                                 raise IndexError("IndexError! length of the list %s, accessed index %s. length of data"
                                                  " at given point %s, key is %s", length, i, len(self._data[key]), key)
                         break
-
         return return_values
 
 
@@ -200,6 +200,8 @@ class TopicItem(AbstractItem):
         #self.__calculated_data["window_stop"][-1] = Time.now() - Duration(secs=600)
         self.__calculated_data["window_stop"][-1] = Time.now() - (Duration(secs=600) if int(Duration(secs=600).to_sec()) <= int(Time.now().to_sec()) else Time(0))
 
+        publisher_list = []
+
         for i in range(0, len(entries["window_stop"])):
             #print("aggregating entry")
             window_len = entries["window_stop"][i] - entries["window_start"][i]
@@ -211,9 +213,14 @@ class TopicItem(AbstractItem):
                                                                 self.__calculated_data["window_stop"][-1])
 
             if "delivered_msgs" in self.__calculated_data:
-                self.__calculated_data["delivered_msgs"][-1] += entries["delivered_msgs"][i]
-                if window_len is not 0:
-                    self.__calculated_data["frequency"][-1] += entries["delivered_msgs"][i] / window_len.to_sec()
+                # only care about the first connection for a publisher.
+                # this could be improved by looking for the minimum or something like that.
+                if not entries["node_pub"][i] in publisher_list:
+                    publisher_list.append(entries["node_pub"][i])
+                    # rospy.logwarn(publisher_list)
+                    self.__calculated_data["delivered_msgs"][-1] += entries["delivered_msgs"][i]
+                    if window_len is not 0:
+                        self.__calculated_data["frequency"][-1] += entries["delivered_msgs"][i] / window_len.to_sec()
             self.__calculated_data["dropped_msgs"][-1] += entries["dropped_msgs"][i]
             self.__calculated_data["traffic"][-1] += entries["traffic"][i]
             self.__calculated_data["stamp_age_max"][-1] = max(entries["stamp_age_max"][i].to_sec(),
