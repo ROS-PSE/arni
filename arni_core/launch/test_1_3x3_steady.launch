@@ -1,0 +1,57 @@
+<launch>
+    <!-- clean old configs-->
+    <rosparam command="delete" param="/arni"/>
+
+    <include file="$(find arni_core)/launch/start_arni.xml"/>
+
+    <rosparam file="$(find arni_core)/test/test_1_3x3_specification.yaml" command="load" ns="/arni/specifications" />
+
+    <rosparam file="$(find arni_core)/test/test_1_constraint.yaml" command="load"/>
+
+    <group>
+        <node name="steady_tree" pkg="arni_core" type="predefined_publisher.py">
+            <param name="mode" value="constant"/>
+            <param name="frequency" value="100"/>
+            <param name="bandwidth" value="10241000"/>
+            <param name="topic_name" value="forest"/>
+        </node>
+
+        <node name="steady_wall" pkg="arni_core" type="predefined_publisher.py">
+            <param name="mode" value="constant"/>
+            <param name="frequency" value="50"/>
+            <param name="bandwidth" value="1241000"/>
+            <param name="topic_name" value="forest"/>
+        </node>
+
+        <node name="steady_house" pkg="arni_core" type="predefined_publisher.py">
+            <param name="mode" value="constant"/>
+            <param name="frequency" value="150"/>
+            <param name="bandwidth" value="124000"/>
+            <param name="topic_name" value="forest"/>
+        </node>
+
+        <!-- fluctuating between 1kb and 10mb
+        <node name="twitching_colibri" pkg="arni_core" type="predefined_publisher.py">
+            <param name="mode" value="high_low"/>
+            <param name="frequency" value="100"/>
+            <param name="bandwidth_high" value="10241000"/>
+            <param name="bandwidth_low" value="1024"/>
+            <param name="period" value="30"/>
+            <param name="topic_name" value="forest"/>
+        </node> -->
+
+        <!-- just a simple subscriber -->
+        <node name="ninja_turtle" pkg="arni_core" type="predefined_subscriber.py">
+            <param name="topic_name" value="forest"/>
+        </node>
+
+        <node name="ninja_panda" pkg="arni_core" type="predefined_subscriber.py">
+            <param name="topic_name" value="forest"/>
+        </node>
+
+        <node name="ninja_leaf" pkg="arni_core" type="predefined_subscriber.py">
+            <param name="topic_name" value="forest"/>
+        </node>
+
+    </group>
+</launch>
