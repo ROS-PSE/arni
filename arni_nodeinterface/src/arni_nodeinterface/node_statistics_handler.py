@@ -77,7 +77,7 @@ class NodeStatisticsHandler(StatisticsHandler):
         """
         self._status.time_end = rospy.Time.now()
         stats = self.__calc_statistics()
-        rospy.logdebug('Publishing Node Status %s' % self._id)
+        #rospy.logdebug('Publishing Node Status %s' % self._id)
         self.pub.publish(stats)
         self._status.reset()
         self._status.time_start = rospy.Time.now()
@@ -154,3 +154,7 @@ class NodeStatisticsHandler(StatisticsHandler):
     @property
     def node_process(self):
         return self.__node_process
+
+    @property 
+    def status(self):
+        return self._status
