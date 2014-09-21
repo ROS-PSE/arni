@@ -127,26 +127,51 @@ def stop_publish():
 
 
 def freq_high_low():
-    frequency_high = rospy.Duration(rospy.get_param("~frequency_high", 100))
-    frequency_low = rospy.Duration(rospy.get_param("~frequency_low", 10))
+    sleep_time_high = rospy.Duration(1.0 / rospy.get_param("~frequency_high", 200))
+    sleep_time_low = rospy.Duration(1.0 / rospy.get_param("~frequency_low", 10))
     # in seconds
-    change_interval = rospy.Duration(rospy.get_param("~period", 30) / 2)
+    change_interval = rospy.Duration(rospy.get_param("~period", 10) / 2)
 
-    frequency = list()
-    frequency.append(frequency_high)
-    frequency.append(frequency_low)
+    sleep_time = list()
+    sleep_time.append(sleep_time_high)
+    sleep_time.append(sleep_time_low)
 
     current = 0
     msg = "." * 100
     last_change = rospy.Time.now()
     while not rospy.is_shutdown():
+        calc_time = rospy.Time.now()
         if(rospy.Time.now() - last_change > change_interval):
             last_change = rospy.Time.now()
             current = not current
-            print current
 
         pub.publish(msg)
-        rospy.sleep(frequency[current])
+        calc_time =  rospy.Time.now() - calc_time
+        rospy.sleep(sleep_time[current] - calc_time)
+
+def freq_high_low_once():
+    sleep_time_high = rospy.Duration(1.0 / rospy.get_param("~frequency_high", 200))
+    sleep_time_low = rospy.Duration(1.0 / rospy.get_param("~frequency_low", 10))
+    # in seconds
+    change_interval = rospy.Duration(rospy.get_param("~switch_after", 30))
+
+    sleep_time = list()
+    sleep_time.append(sleep_time_high)
+    sleep_time.append(sleep_time_low)
+
+    current = 0
+    msg = "." * 100
+    last_change = rospy.Time.now()
+    while not rospy.is_shutdown():
+        calc_time = rospy.Time.now()
+        if(rospy.Time.now() - last_change > change_interval) and (current == 0):
+            last_change = rospy.Time.now()
+            current = not current
+
+        pub.publish(msg)
+        calc_time =  rospy.Time.now() - calc_time
+        rospy.sleep(sleep_time[current] - calc_time)
+
 
 
 def freq_sine():
@@ -204,7 +229,8 @@ if __name__ == '__main__':
         'sine': sine,
         'high_low': high_low,
         'freq_high_low': freq_high_low,
-        'freq_sine': freq_sine}
-    mode = rospy.get_param("~mode", "freq_sine")
+        'freq_sine': freq_sine,
+        'freq_high_low_once': freq_high_low_once}
+    mode = rospy.get_param("~mode", "freq_high_low_once")
     if mode in modes:
         modes[mode]()
