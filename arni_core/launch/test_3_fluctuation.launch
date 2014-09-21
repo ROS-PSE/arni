@@ -9,7 +9,6 @@
     <rosparam file="$(find arni_core)/test/test_3_constraint.yaml" command="load"/>
 
     <group>
-        <!-- node that publishes with ~10mb/s +-5mb/s-->
         <node name="fluctuating_tide" pkg="arni_core" type="predefined_publisher.py">
             <param name="mode" value="freq_sine"/>
             <param name="frequency_mid" value="100"/>
