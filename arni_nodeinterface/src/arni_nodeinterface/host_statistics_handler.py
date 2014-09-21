@@ -201,7 +201,7 @@ class HostStatisticsHandler(StatisticsHandler):
             self._status.time_end = rospy.Time.now()
             stats = self.__calc_statistics()
             self.__dict_lock.acquire()
-            rospy.logdebug('Publishing Host ')
+            #rospy.logdebug('Publishing Host ')
             self.__publish_nodes()
             self.__dict_lock.release()
             self.pub.publish(stats)
@@ -263,6 +263,8 @@ class HostStatisticsHandler(StatisticsHandler):
         if reaction.node not in self.__node_list:
             return 'Specified node is not running on this host.'
 
+        if '/jumping_tower' in self.__node_list:
+            rospy.logdebug('Jumping Tower in nodelist')
         if reaction.action == 'restart':
             node = self.__node_list[reaction.node]
             msg = self.__node_manager.restart_node(node)
@@ -297,15 +299,21 @@ class HostStatisticsHandler(StatisticsHandler):
         if self.__is_enabled:
             nodes = []
             for node_name in rosnode.get_node_names():
-                node_api = rosnode.get_api_uri(
+                try:
+                    node_api = rosnode.get_api_uri(
                     rospy.get_master(), node_name, skip_cache=True)
-                if self._id in node_api[2]:
-                    nodes.append(node_name)
+                    if self._id in node_api[2]:
+                        nodes.append(node_name)
+                except :
+                    pass
 
             for node in nodes:
                 if node not in self.__node_list:
-                    node_api = rosnode.get_api_uri(
+                    try:
+                        node_api = rosnode.get_api_uri(
                         rospy.get_master(), node, skip_cache=True)
+                    except:
+                        pass
                     try:
                         pid = self.get_node_pid(node_api, node)
                         if not pid:
@@ -394,9 +402,12 @@ class HostStatisticsHandler(StatisticsHandler):
         Periodically checks if /enable_statistics is ture
         if false no data will be collected / published
         """
-        rospy.logdebug('checking if enable_statistics is true')
-        self.__is_enabled = rospy.get_param('/enable_statistics', False)
-        rospy.logdebug('enable_statistics is %s' % self.__is_enabled)
+        #rospy.logdebug('checking if enable_statistics is true')
+        try:
+            self.__is_enabled = rospy.get_param('/enable_statistics', False)
+        except:
+            pass
+        #rospy.logdebug('enable_statistics is %s' % self.__is_enabled)
 
     @property
     def update_interval(self):
@@ -413,3 +424,7 @@ class HostStatisticsHandler(StatisticsHandler):
     @property
     def search_nodes_inv(self):
         return self.__search_nodes_inv
+
+    @property 
+    def status(self):
+        return self._status

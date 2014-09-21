@@ -77,7 +77,7 @@ class NodeStatisticsHandler(StatisticsHandler):
         """
         self._status.time_end = rospy.Time.now()
         stats = self.__calc_statistics()
-        rospy.logdebug('Publishing Node Status %s' % self._id)
+        #rospy.logdebug('Publishing Node Status %s' % self._id)
         self.pub.publish(stats)
         self._status.reset()
         self._status.time_start = rospy.Time.now()
@@ -110,7 +110,8 @@ class NodeStatisticsHandler(StatisticsHandler):
         """
         if self._id in stats.node_pub:
             dur = stats.window_stop - stats.window_start
-            self._status.add_node_bandwidth(stats.traffic / dur.to_sec())
+            if dur.to_sec() != 0:
+                self._status.add_node_bandwidth(stats.traffic / dur.to_sec())
             self._status.add_node_msg_freq(stats.period_mean.to_sec())
 
     def __cpu_usage_per_core(self):
@@ -153,3 +154,7 @@ class NodeStatisticsHandler(StatisticsHandler):
     @property
     def node_process(self):
         return self.__node_process
+
+    @property 
+    def status(self):
+        return self._status
