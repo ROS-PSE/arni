@@ -87,17 +87,19 @@ class ConnectionItem(AbstractItem):
         if "delivered_msgs" in self._attributes:
             content += self.tr("delivered_msgs") + ": " + prepare_number_for_representation(data_dict["delivered_msgs"]) \
                    + " " + self.tr("delivered_msgs_unit") + " <br>"
-            content += self.tr("frequency") + ": " + prepare_number_for_representation(data_dict["delivered_msgs"]
-                                                                                       / window_len.to_sec()) \
-                   + " " + self.tr("frequency_unit") + " <br>"
+            if window_len is not 0:
+                content += self.tr("frequency") + ": " + prepare_number_for_representation(data_dict["delivered_msgs"]
+                                                                                           / window_len.to_sec()) \
+                       + " " + self.tr("frequency_unit") + " <br>"
 
         content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) + " " \
                    + self.tr("dropped_msgs_unit") + " <br>"
         content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) + " " \
                    + self.tr("traffic_unit") + " <br>"
-        content += self.tr("bandwidth") + ": " + prepare_number_for_representation(data_dict["traffic"] /
-                                                                                   window_len.to_sec()) \
-                   + " " + self.tr("bandwidth_unit") + " <br>"
+        if window_len is not 0:
+            content += self.tr("bandwidth") + ": " + prepare_number_for_representation(data_dict["traffic"] /
+                                                                                       window_len.to_sec()) \
+                       + " " + self.tr("bandwidth_unit") + " <br>"
         content += self.tr("period_mean") + ": " + prepare_number_for_representation(data_dict["period_mean"]) \
                    + " " + self.tr("period_mean_unit") + " <br>"
         content += self.tr("period_stddev") + ": " + prepare_number_for_representation(data_dict["period_stddev"]) \
