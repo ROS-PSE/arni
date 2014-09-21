@@ -13,7 +13,7 @@ spec_namespace = '/arni/specifications'
 hs = None
 
 
-class TestRatingData(unittest.TestCase):
+class TestSeuid(unittest.TestCase):
     def test_valid_noarg(self):
         s = SEUID()
         self.assertFalse(s.is_valid())
@@ -96,5 +96,5 @@ if __name__ == '__main__':
         except Exception:
             pass
 
-    rosunit.unitrun(PKG, 'test_seuid', TestRatingData)
+    rosunit.unitrun(PKG, 'test_seuid', TestSeuid)
 
