@@ -23,21 +23,33 @@ spec_namespace = '/arni/specifications'
 class TestRatingData(unittest.TestCase):
 
     def test_no_data(self):
+        '''
+        Rating None will return None.
+        '''
         sh = SpecificationHandler()
         res = sh.compare(None, "h!127.0.0.1")
         self.assertEqual(res, None)
 
     def test_invalid_ident(self):
+        '''
+        Trying to rate on an invalid identifier will return None.
+        '''
         sh = SpecificationHandler()
         res = sh.compare(None, "identifier")
         self.assertEqual(res, None)
 
     def test_no_ident(self):
+        '''
+        Trying to rate data without specifying an identifier will return None.
+        '''
         sh = SpecificationHandler()
         res = sh.compare(exampleMessages["h!127.0.0.1"], None)
         self.assertEqual(res, None)
 
     def test_no_spec(self):
+        '''
+        If no Specification is available, fields will be rated with 2 (unknown).
+        '''
         sh = SpecificationHandler()
         res = sh.compare(exampleMessages["h!127.0.0.1"], "h!127.0.0.1")
         for k in res.keys():
@@ -46,6 +58,9 @@ class TestRatingData(unittest.TestCase):
                 self.assertEqual(s, 2)
 
     def test_spec3(self):
+        '''
+        Values within their limits will be rated with 3 (OK).
+        '''
         rospy.set_param(spec_namespace, mockSpecs)
         sh = SpecificationHandler()
         res = sh.compare(exampleMessages["h!127.0.0.1"], "h!127.0.0.1")
@@ -57,6 +72,9 @@ class TestRatingData(unittest.TestCase):
             pass
 
     def test_spec2(self):
+        '''
+        Values without specifications will be rated with 2 (OK).
+        '''
         rospy.set_param(spec_namespace, mockSpecs)
         sh = SpecificationHandler()
         res = sh.compare(exampleMessages["h!127.0.0.1"], "h!127.0.0.1")
@@ -67,7 +85,11 @@ class TestRatingData(unittest.TestCase):
         except KeyError:
             pass
 
-    def test_spec13(self):
+    def test_spec10(self):
+        '''
+        Values below their limits will be rated with 1 (Low).
+        Values above their limits will be rated with 0 (High).
+        '''
         rospy.set_param(spec_namespace, mockSpecs)
         msg = exampleMessages["h!127.0.0.1"]
         msg.cpu_temp_core_mean[0] -= 30
