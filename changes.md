@@ -1,5 +1,25 @@
-Change
+Changes
 ===
+
+## Processing
+### Configuration files
+* Now uses seuid where possible
+=> specifications now take **seuid**: {} instead of **type: name**: {} (see arni_processing/resources/testconfig.yaml)
+* Now uses list of dictionaries against UserErrors from invalid parameter names
+
+### Processing Data
+* Added parameter `~aggregation_window (3)[seconds]` as length of time to aggregate topics,
+* Created a new method to compare especially topics.
+* Packages are rated as "alive" based on the parameters `~alive_interval` and `~alive_timer`.
+* Data fields are not compared on the intended level thus leaving the Metadata class unnecessary.
+
+### MetadataStorage
+* automatic cleanup now depends on the rosparameters `~storage/auto_cleanup (True)`, `~storage/cleanup_timer (30)[seconds]` and `~storage/timeout (300)[seconds]`
+
+* For more information on the new parameters see [The ROS wiki](http://wiki.ros.org/arni_processing#Used_Parameters).
+
+
+## Arni GUI
 
 * ***arni_gui_detail:*** added a Plugin-Class which holds the Widgets tree and selection
 * moved **__on_item_in_item_tree_view_double_clicked(self, item)** from tree_widget to arni_gui_detail to handle the content change of the selection_widget
@@ -63,17 +83,6 @@ Change
 * ***size_delegate:*** added method **initStyleOption(self, option, index)**
 * removed method **paint(self, painter, option, index)**
 * removed method **set_(bigger|smaller)_font_size(self)**
-
-
-## Configuration files
-* Now uses seuid where possible
-=> specifications now take **seuid**: {} instead of **type: name**: {} (see arni_processing/resources/testconfig.yaml)
-* Now uses list of dictionaries against UserErrors from invalid parameter names
-
-* /arni/aggregation_window (3) Length of time to aggregate topics
-
-## MetadataStorage
-* automatic cleanup now depends on the rosparameters /arni/storage/auto_cleanup (True) and /arni/storage/cleanup_timer (30)[seconds]
 
 * the names of the services now are /get_statistic_history and /execute_node_reaction
  
