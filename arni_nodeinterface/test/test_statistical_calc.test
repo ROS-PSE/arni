@@ -1,0 +1,3 @@
+<launch>
+  <test test-name="test_statistical_calc" pkg="arni_nodeinterface" type="test_statistical_calc.py" />
+</launch>

@@ -16,7 +16,7 @@ class NodeStatus(Status):
         super(NodeStatus, self).__init__(start)
 
         #: Network bandwidth used by the node in bytes.
-        self.__node_bandwidth = []
+        self.__node_bandwidth = {}
 
         #: Bytes read from disk by node.
         self.__node_read = []
@@ -29,7 +29,7 @@ class NodeStatus(Status):
         self.last_write_update = rospy.Time.now()
         self.last_read_update = rospy.Time.now()
 
-    def add_node_bandwidth(self, bytes):
+    def add_node_bandwidth(self, topic, bytes):
         """
         Adds another measured value in bytes, taken
         from ROS topics statistics, to node_bandwidth.
@@ -37,7 +37,10 @@ class NodeStatus(Status):
         :param bytes: Bytes measured.
         :type bytes: int
         """
-        self.__node_bandwidth.append(bytes)
+        if topic not in self.__node_bandwidth:
+            self.__node_bandwidth[topic] = []
+
+        self.__node_bandwidth[topic].append(bytes)
 
     def add_node_write(self, write):
         """
@@ -80,7 +83,7 @@ class NodeStatus(Status):
         Resets the values specific to Host or Nodes
         """
 
-        del self.__node_bandwidth[:]
+        self.__node_bandwidth.clear()
         del self.__node_read[:]
         del self.__node_write[:]
         del self.__node_msg_frequency[:]
@@ -99,7 +102,9 @@ class NodeStatus(Status):
         """
         Calculate net I/O statistics for a node
         """
-        node_bandwidth = self.calc_stat_tuple(self.__node_bandwidth)
+        bw = [self.calc_stat_tuple(
+            self.__node_bandwidth[key]).mean for key in self.__node_bandwidth]
+        node_bandwidth = self.calc_stat_tuple(bw)
         node_msg_frequency = self.calc_stat_tuple(self.__node_msg_frequency)
 
         self._stats_dict[
@@ -108,7 +113,7 @@ class NodeStatus(Status):
             'node_message_frequency_stddev'] = node_msg_frequency.stddev
         self._stats_dict['node_message_frequency_max'] = node_msg_frequency.max
 
-        self._stats_dict['node_bandwidth_mean'] = node_bandwidth.mean
+        self._stats_dict['node_bandwidth_mean'] = sum(bw)
         self._stats_dict['node_bandwidth_stddev'] = node_bandwidth.stddev
         self._stats_dict['node_bandwidth_max'] = node_bandwidth.max
 
