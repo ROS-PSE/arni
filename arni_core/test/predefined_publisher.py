@@ -126,6 +126,75 @@ def stop_publish():
         rospy.Rate(rospy.get_param("~frequency", 10)).sleep()
 
 
+def freq_high_low():
+    sleep_time_high = rospy.Duration(1.0 / rospy.get_param("~frequency_high", 200))
+    sleep_time_low = rospy.Duration(1.0 / rospy.get_param("~frequency_low", 10))
+    # in seconds
+    change_interval = rospy.Duration(rospy.get_param("~period", 10) / 2)
+
+    sleep_time = list()
+    sleep_time.append(sleep_time_high)
+    sleep_time.append(sleep_time_low)
+
+    current = 0
+    msg = "." * 100
+    last_change = rospy.Time.now()
+    while not rospy.is_shutdown():
+        calc_time = rospy.Time.now()
+        if(rospy.Time.now() - last_change > change_interval):
+            last_change = rospy.Time.now()
+            current = not current
+
+        pub.publish(msg)
+        calc_time =  rospy.Time.now() - calc_time
+        rospy.sleep(sleep_time[current] - calc_time)
+
+def freq_high_low_once():
+    sleep_time_high = rospy.Duration(1.0 / rospy.get_param("~frequency_high", 200))
+    sleep_time_low = rospy.Duration(1.0 / rospy.get_param("~frequency_low", 10))
+    # in seconds
+    change_interval = rospy.Duration(rospy.get_param("~switch_after", 30))
+
+    sleep_time = list()
+    sleep_time.append(sleep_time_high)
+    sleep_time.append(sleep_time_low)
+
+    current = 0
+    msg = "." * 100
+    last_change = rospy.Time.now()
+    while not rospy.is_shutdown():
+        calc_time = rospy.Time.now()
+        if(rospy.Time.now() - last_change > change_interval) and (current == 0):
+            last_change = rospy.Time.now()
+            current = not current
+
+        pub.publish(msg)
+        calc_time =  rospy.Time.now() - calc_time
+        rospy.sleep(sleep_time[current] - calc_time)
+
+
+
+def freq_sine():
+    mid = rospy.get_param("~frequency_mid", 100)
+    var = rospy.get_param("~frequency_variation", 20)
+    # period normalised to 
+    period = rospy.get_param("~period", 30)
+    begin = rospy.Time.now()
+    msg = "." * 100
+
+    while not rospy.is_shutdown():
+        calc_time = rospy.Time.now()
+        cur = rospy.Time.now() - begin
+        fluctuation = math.sin(2 * math.pi * cur.to_sec() / period ) * var
+        # rospy.logwarn("fluc is %f"%fluctuation)
+        frequency = mid + fluctuation
+        pub.publish(msg)
+
+        calc_time =  rospy.Time.now() - calc_time
+        # rospy.logwarn("calc time is %f"%calc_time.to_sec())
+        # rospy.logwarn("should sleep %f", 1 / frequency)
+        rospy.sleep(rospy.Duration(1/frequency) - calc_time)
+
 '''
 ~mode = ("constant", "stop_publish", "sawtooth", "sine", "floored_abs", "linear_abs")
 ~frequency = 10
@@ -158,7 +227,10 @@ if __name__ == '__main__':
         'stop_publish': stop_publish,
         # 'sawtooth': sawtooth,
         'sine': sine,
-        'high_low': high_low}
-    mode = rospy.get_param("~mode", "sine")
+        'high_low': high_low,
+        'freq_high_low': freq_high_low,
+        'freq_sine': freq_sine,
+        'freq_high_low_once': freq_high_low_once}
+    mode = rospy.get_param("~mode", "freq_high_low_once")
     if mode in modes:
         modes[mode]()

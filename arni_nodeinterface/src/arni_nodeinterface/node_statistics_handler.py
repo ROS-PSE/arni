@@ -31,8 +31,8 @@ class NodeStatisticsHandler(StatisticsHandler):
         self.update_interval = rospy.get_param('~publish_interval', 10) /\
             float(rospy.get_param('~window_max_elements', 10))
         self.register_subscriber()
-        self.__write_base = 0
-        self.__read_base = 0
+        self.__write_base = self.__node_process.io_counters().write_bytes
+        self.__read_base = self.__node_process.io_counters().read_bytes
 
     def measure_status(self):
         """
@@ -52,15 +52,14 @@ class NodeStatisticsHandler(StatisticsHandler):
             # Disk I/O
             node_io = self.__node_process.io_counters()
 
-            read_rate = (node_io.read_bytes - self.__read_base) / \
-                float(self.update_interval)
-            write_rate = (
-                node_io.write_bytes - self.__write_base) / float(self.update_interval)
-
-            self.__read_base = node_io.read_bytes
-            self.__write_base = node_io.write_bytes
-
-            self._status.add_node_io(read_rate, write_rate)
+            delta_write = node_io.write_bytes - self.__write_base
+            if delta_write != 0:
+                self._status.add_node_write(delta_write)
+                self.__write_base = node_io.write_bytes
+            delta_read = node_io.read_bytes - self.__read_base
+            if delta_read != 0:
+                self._status.add_node_read(delta_read)
+                self.__read_base = node_io.read_bytes
         except psutil.NoSuchProcess:
             pass
 
@@ -78,7 +77,7 @@ class NodeStatisticsHandler(StatisticsHandler):
         """
         self._status.time_end = rospy.Time.now()
         stats = self.__calc_statistics()
-        rospy.logdebug('Publishing Node Status %s' % self._id)
+        #rospy.logdebug('Publishing Node Status %s' % self._id)
         self.pub.publish(stats)
         self._status.reset()
         self._status.time_start = rospy.Time.now()
@@ -101,6 +100,7 @@ class NodeStatisticsHandler(StatisticsHandler):
         for v in dir(node_status):
             if v in stats_dict:
                 setattr(node_status, v, stats_dict[v])
+
         return node_status
 
     def receive_statistics(self, stats):
@@ -110,7 +110,8 @@ class NodeStatisticsHandler(StatisticsHandler):
         """
         if self._id in stats.node_pub:
             dur = stats.window_stop - stats.window_start
-            self._status.add_node_bandwidth(stats.traffic / dur.to_sec())
+            if dur.to_sec() != 0:
+                self._status.add_node_bandwidth(stats.traffic / dur.to_sec())
             self._status.add_node_msg_freq(stats.period_mean.to_sec())
 
     def __cpu_usage_per_core(self):
@@ -153,3 +154,7 @@ class NodeStatisticsHandler(StatisticsHandler):
     @property
     def node_process(self):
         return self.__node_process
+
+    @property 
+    def status(self):
+        return self._status

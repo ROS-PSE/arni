@@ -13,7 +13,7 @@ PKG = 'arni_nodeinterface'
 class TestStatisticsCalc(unittest.TestCase):
 
     def test_cpu(self):
-        hs = HostStatus()
+        hs = HostStatus('host')
         cpu_usage = [1 , 2 , 3 , 4 , 5 ]
         t = hs.calc_stat_tuple(cpu_usage)
         self.assertEqual(t.max , 5)
@@ -21,20 +21,19 @@ class TestStatisticsCalc(unittest.TestCase):
         self.assertAlmostEqual(t.stddev, 1.58114, delta = 0.01)
 
     def test_cpu_core(self):
-        hs = HostStatus()
+        hs = HostStatus('host')
         cpu_usage_core = [[1,2,3,4,5], [1,2,3,4,5]]
         ts = [hs.calc_stat_tuple(cpu_usage_core[0]) ,
                 hs.calc_stat_tuple(cpu_usage_core[1])]
         for i in range(2):
-            self.assertEqual(t[i].max , 5)
-            self.assertEqual(t[i].mean , 3)
-            self.assertAlmostEqual(t[i].stddev, 1.58114, delta = 0.01)
+            self.assertEqual(ts[i].max , 5)
+            self.assertEqual(ts[i].mean , 3)
+            self.assertAlmostEqual(ts[i].stddev, 1.58114, delta = 0.01)
 
     def test_empty_list(self):
-        hs = HostStatus()
-        e_list = []
+        hs = HostStatus('host')
         tl = hs.calc_stat_tuple(hs._cpu_usage)
-        self.assertEqual(tl, e_list)
+        self.assertEqual(tl, (0,0,0))
 
 
 

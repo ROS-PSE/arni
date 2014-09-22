@@ -614,6 +614,17 @@ class AbstractItem(QObject):
 
         if self.__state:
             if self.get_state() is not "ok" and self.get_state() is not "unknown":
+	        if self._rated_data["alive.state"]:
+		    if self._rated_data["alive.state"][-1] is "high" or self._rated_data["alive.state"][-1] is "low":
+                            content += self.tr("alive actual_value:") +\
+                                       " <span class=\"erroneous_entry\">" +  prepare_number_for_representation(self._rated_data["alive.actual_value"][-1][0]) + "</span>" + \
+                                       "<br>"
+                            content += self.tr("alive expected_value:") +\
+                                       " <span class=\"erroneous_entry\">" + str(self._rated_data["alive.expected_value"][-1][0]) + "</span>" + \
+                                       "<br>"
+                            content += self.tr("alive state:") +\
+                                       " <span class=\"erroneous_entry\">" + str(self._rated_data["alive.state"][-1]) + "</span>" + "<br>"  
+	      
                 for entry in self._attributes:
                     if self._rated_data[entry + ".state"]:
                         if self._rated_data[entry + ".state"][-1] is "high" or self._rated_data[entry + ".state"][-1] is "low":

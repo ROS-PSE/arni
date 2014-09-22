@@ -5,4 +5,5 @@
     <param name="statistics_window_min_size" value="1" />
     <param name="enable_statistics" value="true" />
     <param name="/arni/check_enabled_interval" value="1" />
+    <param name="/processing/alive_timer" value="30" />
 </launch>

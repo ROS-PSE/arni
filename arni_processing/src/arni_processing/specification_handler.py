@@ -138,7 +138,7 @@ class SpecificationHandler:
                     current_obj["actual"] = value
                     current_obj["expected"] = limits
                 result.add_value(field, current_obj["actual"], current_obj["expected"], current_obj["state"])
-        result.add_value("alive", ["True"], ["True"], [1])
+        result.add_value("alive", ["True"], ["True"], [2])
         return result
 
     def compare_topic(self, data=None):
@@ -161,7 +161,7 @@ class SpecificationHandler:
                     "window_max": rospy.Time(0),
                     "delivered_msgs": 0,
                     "dropped_msgs": 0,
-                    "frequency": 0,
+                    "frequency": {},
                     "traffic": 0,
                     "stamp_age_mean": [],
                     "stamp_age_stddev": [],
@@ -180,7 +180,15 @@ class SpecificationHandler:
             if hasattr(message, "delivered_msgs"):
                 delivered_msgs_set = True
                 by_topic[seuid.get_seuid("topic")]["delivered_msgs"] += message.delivered_msgs * scale
-                by_topic[seuid.get_seuid("topic")]["frequency"] += message.delivered_msgs / window_len.to_sec() * scale
+                if seuid.get_seuid("publisher") not in by_topic[seuid.get_seuid("topic")]["frequency"].keys():
+                    by_topic[seuid.get_seuid("topic")]["frequency"][seuid.get_seuid("publisher")] = {
+                        "value": 0,
+                        "subscriber": seuid.get_seuid("subscriber")
+                    }
+                if seuid.get_seuid("subscriber") == \
+                        by_topic[seuid.get_seuid("topic")]["frequency"][seuid.get_seuid("publisher")]["subscriber"]:
+                    by_topic[seuid.get_seuid("topic")]["frequency"][seuid.get_seuid("publisher")]["value"] += \
+                        message.delivered_msgs / window_len.to_sec() * scale
             by_topic[seuid.get_seuid("topic")]["dropped_msgs"] += message.dropped_msgs * scale
             by_topic[seuid.get_seuid("topic")]["traffic"] += message.traffic * scale
             by_topic[seuid.get_seuid("topic")]["stamp_age_max"] = max(message.stamp_age_max,
@@ -200,14 +208,18 @@ class SpecificationHandler:
             fields.remove("traffic")
             if delivered_msgs_set:
                 fields.append("delivered_msgs")
-                fields.append("delivered_msgs_per_second")
-            alt_names = {"traffic_per_second": "bandwidth", "delivered_msgs_per_second": "frequency"}
+                fields.append("frequency")
+            alt_names = {"traffic_per_second": "bandwidth"}
             for f in fields:
                 re = RatedStatisticsEntity()
                 re.statistic_type = f
                 if f in alt_names.keys():
                     re.statistic_type = alt_names[f]
-                if f[-10:] == "per_second":
+                if f == "frequency":
+                    value = 0
+                    for pub, freq in data["frequency"].iteritems():
+                        value += freq["value"]
+                elif f[-10:] == "per_second":
                     value = data[f[0:-11]] / window_len.to_sec()
                 elif f == "stamp_age_mean":
                     x = data[f]
@@ -223,7 +235,7 @@ class SpecificationHandler:
             re.statistic_type = "alive"
             re.expected_value = ["True"]
             re.actual_value = ["True"]
-            re.state = [3]
+            re.state = [2]
             r.rated_statistics_entity.append(re)
             result.append(r)
         return result

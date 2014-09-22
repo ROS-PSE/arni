@@ -26,6 +26,8 @@ class NodeStatus(Status):
 
         #: Frequency of network calls by node.
         self.__node_msg_frequency = []
+        self.last_write_update = rospy.Time.now()
+        self.last_read_update = rospy.Time.now()
 
     def add_node_bandwidth(self, bytes):
         """
@@ -37,18 +39,31 @@ class NodeStatus(Status):
         """
         self.__node_bandwidth.append(bytes)
 
-    def add_node_io(self, read, write):
+    def add_node_write(self, write):
         """
-        Adds another pair of measured disk I/O values
-        to node_read and node_write.
+        Adds another measured value to node_write
 
-        :param read: Bytes read.
-        :type read: int
         :param write: Bytes written.
         :type write: int
         """
-        self.__node_read.append(read)
-        self.__node_write.append(write)
+        t = rospy.Time.now()
+        delta_t = (t - self.last_write_update).to_sec()
+        write_rate = float(write) / delta_t
+        self.__node_write.append(write_rate)
+        self.last_write_update = t
+
+    def add_node_read(self, read):
+        """
+        Adds another measured value to node_read
+
+        :param read: Bytes read.
+        :type read: int
+        """
+        t = rospy.Time.now()
+        delta_t = (t - self.last_read_update).to_sec()
+        read_rate = float(read) / delta_t
+        self.__node_write.append(read_rate)
+        self.last_read_update = t
 
     def add_node_msg_freq(self, freq):
         """

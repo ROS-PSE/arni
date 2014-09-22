@@ -1,0 +1,39 @@
+arni:
+  countermeasure:
+    constraints:
+      check_correct_frequency:
+        constraint:
+        - and:
+            t!/street: {
+              frequency: ok,
+              }
+        min_reaction_interval: 3
+        reaction_timeout: 7
+        reactions:
+          publish_okay: {
+            action: publish,
+            autonomy_level: 0,
+            message: frequency of street is ok,
+            loglevel: info}
+      check_frequency_low:
+        constraint:
+        - and:
+            t!/street: {
+              frequency: low,
+              }
+        min_reaction_interval: 10
+        reaction_timeout: 30
+        reactions:
+          publish_low_msg: {
+            action: publish,
+            autonomy_level: 0,
+            message: frequency of street is too low - trying to restart,
+            loglevel: warn}
+          publish_low_restart: {
+            action: restart,
+            autonomy_level: 10,
+            node: /jumping_tower}
+
+    config:
+      reaction_autonomy_level: 50
+      storage_timeout: 10

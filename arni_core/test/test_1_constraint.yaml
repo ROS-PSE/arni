@@ -1,0 +1,34 @@
+arni:
+  countermeasure:
+    constraints:
+      check_correct_frequency:
+        constraint:
+        - and:
+            t!/forest: {
+              frequency: ok,
+              }
+        min_reaction_interval: 5
+        reaction_timeout: 10
+        reactions:
+          publish_okay: {
+            action: publish,
+            autonomy_level: 0,
+            message: frequency of forest is ok,
+            loglevel: info}
+      check_frequency_not_okay:
+        constraint:
+        - not:
+            t!/forest: {
+              frequency: ok,
+              }
+        min_reaction_interval: 5
+        reaction_timeout: 10
+        reactions:
+          publish_not_okay: {
+            action: publish,
+            autonomy_level: 0,
+            message: frequency of forest is not ok,
+            loglevel: warn}
+    config:
+      reaction_autonomy_level: 50
+      storage_timeout: 10

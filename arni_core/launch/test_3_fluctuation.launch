@@ -1,0 +1,26 @@
+<launch>
+    <!-- clean old configs-->
+    <rosparam command="delete" param="/arni"/>
+
+    <include file="$(find arni_core)/launch/start_arni.xml"/>
+
+    <rosparam file="$(find arni_core)/test/test_3_specification.yaml" command="load" ns="/arni/specifications" />
+
+    <rosparam file="$(find arni_core)/test/test_3_constraint.yaml" command="load"/>
+
+    <group>
+        <node name="fluctuating_tide" pkg="arni_core" type="predefined_publisher.py">
+            <param name="mode" value="freq_sine"/>
+            <param name="frequency_mid" value="100"/>
+            <param name="frequency_variation" value="90"/>
+            <param name="period" value="100" />
+            <param name="topic_name" value="ocean"/>
+        </node>
+
+        <!-- just a simple subscriber -->
+        <node name="sailing_boat" pkg="arni_core" type="predefined_subscriber.py">
+            <param name="topic_name" value="ocean"/>
+        </node>
+
+    </group>
+</launch>

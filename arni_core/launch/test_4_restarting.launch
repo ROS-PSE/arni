@@ -1,0 +1,26 @@
+<launch>
+    <!-- clean old configs-->
+    <rosparam command="delete" param="/arni"/>
+
+    <include file="$(find arni_core)/launch/start_arni.xml"/>
+
+    <rosparam file="$(find arni_core)/test/test_4_specification.yaml" command="load" ns="/arni/specifications" />
+
+    <rosparam file="$(find arni_core)/test/test_4_constraint.yaml" command="load"/>
+
+    <group>
+        <node name="jumping_tower" pkg="arni_core" type="predefined_publisher.py">
+            <param name="mode" value="freq_high_low_once"/>
+            <param name="frequency_high" value="100"/>
+            <param name="frequency_low" value="10"/>
+            <param name="switch_after" value="100" />
+            <param name="topic_name" value="street"/>
+        </node>
+
+        <!-- just a simple subscriber -->
+        <node name="sturbacks" pkg="arni_core" type="predefined_subscriber.py">
+            <param name="topic_name" value="street"/>
+        </node>
+
+    </group>
+</launch>

@@ -45,7 +45,7 @@ class NodeManager(object):
             try:
                 rospy.logdebug(' '.join(cmd))
                 subprocess.Popen(
-                    ' '.join(cmd), shell=True, stdout=subprocess.PIPE)
+                    ' '.join(cmd), shell=True, stdout = subprocess.PIPE)
                 return 'Restarted %s' % node.id
             except OSError:
                 return 'Failed to restart %s' % node.id

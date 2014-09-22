@@ -1,0 +1,25 @@
+<launch>
+    <!-- clean old configs-->
+    <rosparam command="delete" param="/arni"/>
+
+    <include file="$(find arni_core)/launch/start_arni.xml"/>
+
+    <rosparam file="$(find arni_core)/test/test_2_specification.yaml" command="load" ns="/arni/specifications" />
+
+    <rosparam file="$(find arni_core)/test/test_2_constraint.yaml" command="load"/>
+
+    <group>
+        <node name="breathing_penguin" pkg="arni_core" type="predefined_publisher.py">
+            <param name="mode" value="constant"/>
+            <param name="frequency" value="200"/>
+            <param name="bandwidth" value="10241000"/>
+            <param name="topic_name" value="antarctica"/>
+        </node>
+
+        <!-- just a simple subscriber -->
+        <node name="leopard_seal" pkg="arni_core" type="predefined_subscriber.py">
+            <param name="topic_name" value="antarctica"/>
+        </node>
+
+    </group>
+</launch>
