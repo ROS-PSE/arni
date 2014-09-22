@@ -111,7 +111,9 @@ class NodeStatisticsHandler(StatisticsHandler):
         if self._id in stats.node_pub:
             dur = stats.window_stop - stats.window_start
             if dur.to_sec() != 0:
-                self._status.add_node_bandwidth(stats.traffic / dur.to_sec())
+                #workaround for Bug in TopicStatistics remove '*stats.delivered_msgs' once fixed
+                self._status.add_node_bandwidth(stats.topic , (stats.traffic  / dur.to_sec()) * stats.delivered_msgs)
+                #rospy.logdebug('Received Traffic is %s, over %s second'%(stats.traffic, dur.to_sec()))
             self._status.add_node_msg_freq(stats.period_mean.to_sec())
 
     def __cpu_usage_per_core(self):

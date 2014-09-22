@@ -336,7 +336,7 @@ class HostStatisticsHandler(StatisticsHandler):
                 self.remove_node(node_name)
             self.__dict_lock.release()
 
-            rospy.logdebug([key for key in self.__node_list])
+            #rospy.logdebug([key for key in self.__node_list])
 
     def get_node_pid(self, node_api, node):
         """
