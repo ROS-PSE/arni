@@ -202,6 +202,8 @@ class SpecificationHandler:
             r.window_start = data["window_min"]
             r.window_stop = data["window_max"]
             window_len = data["window_max"] - data["window_min"]
+            if window_len.to_sec() == 0:
+                window_len = rospy.Duration(1)
             r.seuid = topic
             fields = ["dropped_msgs", "traffic", "traffic_per_second", "stamp_age_max", "stamp_age_mean", "packages",
                       "packages_per_second"]
