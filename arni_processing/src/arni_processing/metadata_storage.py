@@ -1,4 +1,3 @@
-from bzrlib.tests.per_branch import test_iter_merge_sorted_revisions
 from arni_core.helper import older_than
 import rospy
 import threading
