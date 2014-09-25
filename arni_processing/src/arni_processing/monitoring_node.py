@@ -88,6 +88,8 @@ class MonitoringNode:
                 alive_timer = spec.get("alive_timer")
                 if not alive_timer:
                     alive_timer = rospy.get_param("~alive_timer", 10)
+                else:
+                    alive_timer = alive_timer[1]
                 self.__alive_timers[seuid] = rospy.Duration(alive_timer)
             if seuid not in self.__alive_countdown.keys():
                 self.__alive_countdown[seuid] = rospy.Time.now()
