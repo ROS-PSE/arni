@@ -1,0 +1,10 @@
+arni:
+  specifications:
+    - t!/forest:
+        frequency: [380, 420]
+    - t!/sea:
+        frequency: [100, 280]
+    # - n!/deer:
+    #     alive: [0,0]
+    - n!/whale:
+        node_cpu_usage_mean: [0, 80]
