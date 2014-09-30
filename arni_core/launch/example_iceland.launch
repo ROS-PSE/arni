@@ -1,0 +1,49 @@
+<launch>
+    <!-- clean old configs-->
+    <rosparam command="delete" param="/arni"/>
+
+    <include file="$(find arni_core)/launch/start_arni.xml"/>
+
+<!--     <rosparam file="$(find arni_core)/test/iceland_specification.yaml" command="load" ns="/arni/specifications" /> -->
+
+<!--     <rosparam file="$(find arni_core)/test/test_1_constraint.yaml" command="load"/> -->
+
+    <group>
+        <include file="$(find arni_core)/launch/iceland_deer.launch"/>
+
+
+        <node name="horse" pkg="arni_core" type="predefined_publisher.py">
+            <param name="mode" value="constant"/>
+            <param name="frequency" value="300"/>
+            <param name="bandwidth" value="1000123"/>
+            <param name="topic_name" value="forest"/>
+        </node>
+
+        <node name="rabbit" pkg="arni_core" type="predefined_subscriber.py">
+            <param name="topic_name" value="forest"/>
+        </node>
+
+        <node name="fox" pkg="arni_core" type="predefined_subscriber.py">
+            <param name="topic_name" value="forest"/>
+        </node>
+
+    </group>
+
+    <group>
+        <node name="wave" pkg="arni_core" type="predefined_publisher.py">
+            <param name="mode" value="freq_sine"/>
+            <param name="frequency_mid" value="200"/>
+            <param name="frequency_variation" value="150"/>
+            <param name="period" value="60" />
+            <param name="topic_name" value="sea"/>
+        </node>
+
+        <node name="seal" pkg="arni_core" type="predefined_subscriber.py">
+            <param name="topic_name" value="sea"/>
+        </node>
+
+        <node name="whale" pkg="arni_core" type="predefined_subscriber.py">
+            <param name="topic_name" value="sea"/>
+        </node>
+    </group>
+</launch>

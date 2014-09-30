@@ -82,7 +82,7 @@ class NodeItem(AbstractItem):
                 service_name, NodeReaction)
             resp = execute(self.seuid[2:], action, '')
         except ServiceException:
-            self._logger.log("error", Time.now(), seuid, "could not stop node %s, service %s not found"
+            self._logger.log("error", Time.now(), self.seuid, "could not stop node %s, service %s not found"
                              % (self.seuid, service_name))
 
 

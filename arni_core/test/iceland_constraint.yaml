@@ -1,0 +1,21 @@
+arni:
+  countermeasure:
+    constraints:
+      check_correct_frequency:
+        constraint:
+        - and:
+            t!/forest: {
+              frequency: low,
+              }
+        min_reaction_interval: 5
+        reaction_timeout: 1000
+        reactions:
+          publish_low: {
+            action: publish,
+            message: frequency of forest too low,
+            loglevel: warn}
+          notify: {
+            action: run,
+            command: touch ~/Desktop/freq_forest_low,
+            node: /horse
+          }

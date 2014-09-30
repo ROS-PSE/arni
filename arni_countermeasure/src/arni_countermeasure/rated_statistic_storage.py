@@ -2,6 +2,7 @@ import rospy
 from outcome import *
 from arni_msgs.msg import RatedStatistics, RatedStatisticsEntity
 import helper
+import time
 
 
 class RatedStatisticStorage(object):
@@ -56,11 +57,7 @@ class RatedStatisticStorage(object):
         :param msg: The rated statistic to be added to the storage.
         :type msg:  RatedStatistics
         """
-
         seuid = msg.seuid
-
-        # # todo: removeme, im just here for autocompletion
-        # msg = RatedStatistics()
 
         for entity in msg.rated_statistics_entity:
             stat_type = entity.statistic_type
@@ -121,9 +118,6 @@ class RatedStatisticStorage(object):
                 rospy.Time.now() - timestamp < self.__timeout)):
 
             entity_dict[statistic_type] = outcome, timestamp
-
-        # do some cleaning up, to keep memory small.
-        self.clean_old_statistic()
 
     def get_outcome(self, seuid, statistic_type):
         """Return the outcome of the specific seuid
