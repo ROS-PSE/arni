@@ -87,28 +87,31 @@ Changes
 * the names of the services now are /get_statistic_history and /execute_node_reaction
  
 ## Final/Small Improvements --> maybe for after PSE...
-* check why the translation is not working in the range boxes
-* print the last update somewhere...
+* check why the translation is not working in the range boxes --> probably have to add a context or similar
+* print the last update (timestamp) somewhere...
 * interpolate the data with flowcharts or however the method is called
 * hover texts have to be defined
-* in the help button the api docs and the general docu (and our names should be shown)
+* on click the help button the api docs and the general docu should be shown
 * check host/node etc regularily for timeouts --> get_time_of_last_update() --> im model regelmäßig abfragen und nach 65 sekunden löschen
-* find out why the translation is not used for generating the text of the range box in overview/ selection widget
 * [mh]when plotting have to care for multidimensional entries --> simpel solution: don't add them right now --> currently not needed
 * add state unkown-alive / unkown-dead etc.
+* make the filter auto-updating
+* make filter non-case-sensitive
+* fix remaining issues in the calculation of bandwidth etc (after the ros people have fixed their bug)
+* calculate the update frequency by getting the publish intervall from the parameter 
 
-## WiP
-* [mh]topic aggregation not yet working!!! --> get the algorithm from matthias and build it in :) --> cannot be applied here --> check if everything is working
-* [mh]make locking a little better by using different locks for rated and non rated data :) --> show if this works :) <--> still a little work to do
-* [mh]race conditions in overviewWidget on_graph_window_resized or similar whenever the resize method is called to fast... --> probably fixed, at least in most cases ^^
-* [sk]/[mh]document everything
+## Not resolvable
 * [mh]RUNTIME_ERROR BECAUSE ELEMENT HAS BEEN DELETED --> Timer Fehler oder so... Schwer/nicht behebbar
 * [mh]why are sometimes empty values given to the axis? --> for no plausible reason
 
 ## Done
-* [?]from some data in the overview widget the mean has to be calculated (or e.g. display the data from the last minute or something!!!) --> important
+* [mh]make locking a little better by using different locks for rated and non rated data :) --> show if this works :) <--> still a little work to do
+* [mh]race conditions in overviewWidget on_graph_window_resized or similar whenever the resize method is called to fast... --> probably fixed, at least in most cases ^^ --> resolved
+* [sk]/[mh]document everything
+* [mh]topic aggregation not yet working!!! --> get the algorithm from matthias and build it in :) --> cannot be applied here --> check if everything is working
+* [mh/sk]from some data in the overview widget the mean has to be calculated (or e.g. display the data from the last minute or something!!!) --> important
 * [sk]also show subscribers
-* [?]the translation has to be done again for adapting to the newly added items and texts
+* [mk]the translation has to be done again for adapting to the newly added items and texts
 * [mh]fixed division error
 * [sk]make the show buttons more intelligent
 * [mh]currently we do not support the delivered_msg part in topicstatistics --> may add support for it
