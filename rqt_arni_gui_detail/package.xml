@@ -1,13 +1,23 @@
 <?xml version="1.0"?>
 <package>
   <name>rqt_arni_gui_detail</name>
-  <version>0.0.0</version>
-  <description>The rqt_arni_gui_detail package</description>
+  <version>1.0.0</version>
+  <description>
+    The ARNI rqt_gui detail plugin.
+  </description>
 
-  <maintainer email="matthiashadlich@yahoo.de">Matthias Hadlich</maintainer>
-  <maintainer email="sebastian.kneipp@gmx.net">Sebastian Kneipp</maintainer>
+  <maintainer email="andreas.bihlmaier@gmx.de">Andreas Bihlmaier</maintainer>
 
   <license>BSD</license>
+  <url type="website">http://wiki.ros.org/arni</url>
+
+
+  <author email="micha.wetzel@student.kit.edu">Micha Wetzel</author>
+  <author email="alex.weber3@gmx.net">Alex Weber</author>
+  <author email="matthias.klatte@go4more.de">Matthias Klatte</author>
+  <author email="sebastian.kneipp@gmx.net">Sebastian Kneipp</author>
+  <author email="matthiashadlich@yahoo.de">Matthias Hadlich</author>
+
 
   <buildtool_depend>catkin</buildtool_depend>
  
@@ -24,6 +34,6 @@
   <build_depend>pyqtgraph</build_depend>
 
   <export>    	
-	<rqt_gui plugin="${prefix}/plugin.xml"/>
+    <rqt_gui plugin="${prefix}/plugin.xml"/>
   </export>
 </package>
