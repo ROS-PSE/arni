@@ -83,7 +83,10 @@ class ConnectionItem(AbstractItem):
 
         content += self.get_erroneous_entries()
 
-        window_len = data_dict["window_stop"] - data_dict["window_start"]
+        if type(data_dict["window_stop"]) != unicode and type(data_dict["window_start"]) != unicode:
+          window_len = data_dict["window_stop"] - data_dict["window_start"]
+        else:
+          window_len = 0
         if "delivered_msgs" in self._attributes:
             content += self.tr("delivered_msgs") + ": " + prepare_number_for_representation(data_dict["delivered_msgs"]) \
                    + " " + self.tr("delivered_msgs_unit") + " <br>"
