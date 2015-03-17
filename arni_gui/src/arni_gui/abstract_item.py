@@ -310,6 +310,8 @@ class AbstractItem(QObject):
                     else:
                         return_dict[entry] = self.tr("Currently no value available")
             for entry in self._rated_data:
+                if entry == 'window_start' or entry == 'window_stop':
+                  continue
                 if self._rated_data[entry]:
                     return_dict[entry] = self._rated_data[entry][-1]
                 else:
