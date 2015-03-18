@@ -166,7 +166,6 @@ class SpecificationHandler:
                     "stamp_age_mean": [],
                     "stamp_age_stddev": [],
                     "stamp_age_max": rospy.Duration(0),
-                    "packages": 0
                 }
             window_len = message.window_stop - message.window_start
             if window_len.to_sec() == 0:
@@ -195,7 +194,6 @@ class SpecificationHandler:
                                                                       by_topic[seuid.get_seuid("topic")][
                                                                           "stamp_age_max"])
             by_topic[seuid.get_seuid("topic")]["stamp_age_mean"].append(message.stamp_age_mean * scale)
-            by_topic[seuid.get_seuid("topic")]["packages"] += 1
         for topic, data in by_topic.iteritems():
             specification = self.get(topic)
             r = RatedStatistics()
@@ -205,8 +203,7 @@ class SpecificationHandler:
             if window_len.to_sec() == 0:
                 window_len = rospy.Duration(1)
             r.seuid = topic
-            fields = ["dropped_msgs", "traffic", "traffic_per_second", "stamp_age_max", "stamp_age_mean", "packages",
-                      "packages_per_second"]
+            fields = ["dropped_msgs", "traffic", "traffic_per_second", "stamp_age_max", "stamp_age_mean"]
             fields.remove("traffic")
             if delivered_msgs_set:
                 fields.append("delivered_msgs")
@@ -267,6 +264,8 @@ class SpecificationHandler:
             limits = None
         except AttributeError:
             limits = None
+        if limits is not None and field == "stamp_age_max":
+          limits = [rospy.Duration.from_sec(limits[0]), rospy.Duration.from_sec(limits[1])]
         self.__limit_cache[key] = limits
         return limits
 

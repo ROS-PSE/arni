@@ -144,6 +144,8 @@ class ConnectionItem(AbstractItem):
         :returns: str
         """
         data_dict = self.get_latest_data()
+        if Time.now() - data_dict["window_stop"] > Duration(secs=5):
+          return "No recent data"
 
         content = "<p class=\"detailed_data\">"
 
@@ -163,8 +165,8 @@ class ConnectionItem(AbstractItem):
 
         content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) + " " \
                    + self.tr("dropped_msgs_unit") + " <br>"
-        content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) + " " \
-                   + self.tr("traffic_unit") + " <br>"
+        #content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) + " " \
+        #           + self.tr("traffic_unit") + " <br>"
         if window_len is not 0:
             content += self.tr("bandwidth") + ": " + prepare_number_for_representation(data_dict["traffic"] /
                                                                                        window_len.to_sec()) \
@@ -203,6 +205,8 @@ class ConnectionItem(AbstractItem):
         :rtype: str
         """
         data_dict = self.get_latest_data()
+        if Time.now() - data_dict["window_stop"] > Duration(secs=5):
+          return "No recent data"
 
         content = ""
         if data_dict["state"] is "error":
@@ -212,8 +216,8 @@ class ConnectionItem(AbstractItem):
             content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(
                 data_dict["dropped_msgs"]) + " " \
                        + self.tr("dropped_msgs_unit") + " - "
-            content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) + " " \
-                       + self.tr("traffic_unit") + " - "
+            #content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) + " " \
+            #           + self.tr("traffic_unit") + " - "
             content += self.tr("period_mean") + ": " + prepare_number_for_representation(data_dict["period_mean"]) \
                        + " " + self.tr("period_mean_unit") + "  - "
             content += self.tr("stamp_age_mean") + ": " + prepare_number_for_representation(data_dict["stamp_age_mean"]) \

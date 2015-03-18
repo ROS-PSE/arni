@@ -31,8 +31,8 @@ class TopicItem(AbstractItem):
         self.__parent = parent
         self._type = "topic"
 
-        self.add_keys=["dropped_msgs", "traffic", "delivered_msgs"]
-        self.avg_keys=["period_mean", "period_stddev", "stamp_age_mean", "stamp_age_stddev", "bandwidth", "frequency"]
+        self.add_keys=["dropped_msgs", "traffic", "delivered_msgs", "bandwidth", "frequency"]
+        self.avg_keys=["period_mean", "period_stddev", "stamp_age_mean", "stamp_age_stddev"]
         self.max_keys=["period_max", "stamp_age_max"]
 
         self._attributes = []
@@ -56,9 +56,6 @@ class TopicItem(AbstractItem):
         self.__rated_attributes.append("alive.actual_value")
         self.__rated_attributes.append("alive.expected_value")
         self.__rated_attributes.append("alive.state")         
-
-        self._attributes.append("packages")
-        self._attributes.append("packages_per_second")
 
         self.__calculated_data = {}
         for key in self._attributes:
@@ -198,7 +195,7 @@ class TopicItem(AbstractItem):
 
         child_count = 0
         for connection in self.get_childs(): #!assuming all childs are connection items!
-            values = connection.aggregate_data((Time.now() - (Duration(secs=1) if int(Duration(secs=1).to_sec()) <= int(Time.now().to_sec()) else Time(0))).to_sec())
+            values = connection.aggregate_data(5) # average over N seconds
 
             if values:
                 for key in self.add_keys:
@@ -224,68 +221,6 @@ class TopicItem(AbstractItem):
 
 
         self._data_lock.release()
-
-
-
-        # self._data_lock.acquire()
-        #
-        # #entries = self.get_raw_items_younger_than(Time.now() - Duration(secs=10))
-        # entries = self.get_raw_items_younger_than(Time.now() - (Duration(secs=10) if int(Duration(secs=10).to_sec()) <= int(Time.now().to_sec()) else Time(0) ))
-        # # print(entries)
-        # #print(len(entries["window_stop"]))
-        # #print(entries["window_start"])
-        #
-        # #print(self.__calculated_data)
-        # for key in self.__calculated_data.keys():
-        #     self.__calculated_data[key].append(0)
-        #
-        # #print(self.__calculated_data)
-        # self.__calculated_data["window_start"][-1] = Time.now()
-        # #self.__calculated_data["window_stop"][-1] = Time.now() - Duration(secs=600)
-        # self.__calculated_data["window_stop"][-1] = Time.now() - (Duration(secs=600) if int(Duration(secs=600).to_sec()) <= int(Time.now().to_sec()) else Time(0))
-        #
-        # publisher_list = []
-        #
-        # for i in range(0, len(entries["window_stop"])):
-        #     #print("aggregating entry")
-        #     window_len = entries["window_stop"][i] - entries["window_start"][i]
-        #     #scale = 1 / window_len.to_sec()
-        #     if window_len is not 0:
-        #         self.__calculated_data["window_start"][-1] = min(entries["window_start"][i],
-        #                                                          self.__calculated_data["window_start"][-1])
-        #         self.__calculated_data["window_stop"][-1] = max(entries["window_stop"][i],
-        #                                                         self.__calculated_data["window_stop"][-1])
-        #
-        #     if "delivered_msgs" in self.__calculated_data:
-        #         # only care about the first connection for a publisher.
-        #         # this could be improved by looking for the minimum or something like that.
-        #         if not entries["node_pub"][i] in publisher_list:
-        #             publisher_list.append(entries["node_pub"][i])
-        #             # rospy.logwarn(publisher_list)
-        #             self.__calculated_data["delivered_msgs"][-1] += entries["delivered_msgs"][i]
-        #             if window_len is not 0:
-        #                 self.__calculated_data["frequency"][-1] += entries["delivered_msgs"][i] / window_len.to_sec()
-        #     self.__calculated_data["dropped_msgs"][-1] += entries["dropped_msgs"][i]
-        #     self.__calculated_data["traffic"][-1] += entries["traffic"][i]
-        #     self.__calculated_data["stamp_age_max"][-1] = max(entries["stamp_age_max"][i].to_sec(),
-        #                                                       self.__calculated_data["stamp_age_max"][-1])
-        #     self.__calculated_data["period_max"][-1] = max(entries["period_max"][i].to_sec(),
-        #                                                    self.__calculated_data["period_max"][-1])
-        #     self.__calculated_data["packages"][-1] += 1
-        #     #print("in loop")
-        #     #print(self.__calculated_data)
-        #
-        # window_len = self.__calculated_data["window_stop"][-1] - self.__calculated_data["window_start"][-1]
-        # #print(self.__calculated_data["window_stop"][-1])
-        # if window_len is not 0:
-        #     self.__calculated_data["bandwidth"][-1] = self.__calculated_data["traffic"][-1] / window_len.to_sec()
-        #     self.__calculated_data["packages_per_second"][-1] = self.__calculated_data["packages"][-1] / window_len.to_sec()
-        #
-        # self._data_lock.release()
-        # #print("PRINT")
-        # #for key in self.__calculated_data:
-        # #    print(key)
-        # #    print(self.__calculated_data[key][-1])
 
 
     def execute_action(self, action):
@@ -330,17 +265,14 @@ class TopicItem(AbstractItem):
 
         content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) \
                    + " " + self.tr("dropped_msgs_unit") + " <br>"
-        content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) \
-                   + " " + self.tr("traffic_unit") + " <br>"
+        #content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) \
+        #           + " " + self.tr("traffic_unit") + " <br>"
         content += self.tr("period_max") + ": " + prepare_number_for_representation(data_dict["period_max"]) \
                    + " " + self.tr("period_max_unit") + " <br>"
         content += self.tr("stamp_age_max") + ": " + prepare_number_for_representation(data_dict["stamp_age_max"]) \
                    + " " + self.tr("stamp_age_max_unit") + " <br>"
         content += self.tr("bandwidth") + ": " + prepare_number_for_representation(data_dict["bandwidth"]) \
                    + " " + self.tr("bandwidth_unit") + " <br>"
-        content += self.tr("packages_per_second") + ": " + prepare_number_for_representation(
-            data_dict["packages_per_second"]) \
-                   + " " + self.tr("packages_per_second_unit") + " <br>"
 
         content += "</p>"
         return content
@@ -353,11 +285,11 @@ class TopicItem(AbstractItem):
         :returns: str[]
         """
         if "delivered_msgs" in self.__calculated_data:
-            return ["dropped_msgs", "traffic", "stamp_age_max", "period_max", "packages",
+            return ["dropped_msgs", "traffic", "stamp_age_max", "period_max",
                     "bandwidth", "delivered_msgs", "frequency"]
 
         else:
-            return ["dropped_msgs", "traffic", "stamp_age_max", "period_max", "packages", "bandwidth"]
+            return ["dropped_msgs", "traffic", "stamp_age_max", "period_max", "bandwidth"]
 
 
     def get_short_data(self):
@@ -383,8 +315,8 @@ class TopicItem(AbstractItem):
             content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(
                 data_dict["dropped_msgs"]) + " " \
                        + self.tr("dropped_msgs_unit") + " - "
-            content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) + " " \
-                       + self.tr("traffic_unit") + " - "
+            #content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) + " " \
+            #           + self.tr("traffic_unit") + " - "
             content += self.tr("stamp_age_mean") + ": " + prepare_number_for_representation(data_dict["stamp_age_mean"]) \
                        + " " + self.tr("stamp_age_mean_unit")
 

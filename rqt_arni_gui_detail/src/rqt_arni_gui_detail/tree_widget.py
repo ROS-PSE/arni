@@ -85,6 +85,7 @@ class TreeWidget(QWidget):
         self.__marked_items_map = dict()
 
         self.__recording_running = False
+        self.loaded_specs = 0
 
     def connect_slots(self):
         """Connects the slots."""
@@ -120,13 +121,14 @@ class TreeWidget(QWidget):
     def __on_load_config_push_button_clicked(self):
         filename = QFileDialog.getOpenFileName(self)
 
-        os.system("rosparam load " + filename[0])
+        os.system("rosparam load " + filename[0] + " /arni/specifications/rqt_arni_loaded" + str(self.loaded_specs))
         os.system("rosservice call /monitoring_node/reload_specifications")
+        self.loaded_specs += 1
 
 
 
     def __on_recording_push_button_clicked(self):
-        storage = dict()
+        storage = []
 
         if self.__recording_running: #stop now
             self.recording_push_button.setText("Start recording")
@@ -134,7 +136,8 @@ class TreeWidget(QWidget):
             self.__recording_running = False
 
             for seuid, item in self.__marked_items_map.iteritems():
-                storage[seuid] = []
+                storage.append({})
+                storage[-1][seuid] = {}
 
                 plotable_items = item.get_plotable_items()
                 plotable_data = item.get_items_younger_than(self.start_time, "window_stop", *plotable_items)
@@ -170,7 +173,7 @@ class TreeWidget(QWidget):
                                             max = value
 
                             # add new min/max pair to the storage
-                            storage[seuid].append({key: [min, max] })
+                            storage[-1][seuid][key] = [min, max]
 
 
                 else:
