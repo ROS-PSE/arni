@@ -130,6 +130,7 @@ class TreeWidget(QWidget):
 
         if self.__recording_running: #stop now
             self.recording_push_button.setText("Start recording")
+            print("Stopping the recording and saving the data")
             self.__recording_running = False
 
             for seuid, item in self.__marked_items_map.iteritems():
@@ -145,31 +146,31 @@ class TreeWidget(QWidget):
 
                     for key in plotable_items:
 
+                        if key not in list_entries:
+                            min = sys.maxint
+                            max = 0
 
-                        min = sys.maxint
-                        max = 0
-
-                        if key in list_entries:
-                            #todo: currently not possible to track these!
-                            pass
-                        else:
-                            if key in time_entries:
-                                for i in range(0, length):
-                                    value = float(str(plotable_data[key][i]))/1000000000.0
-                                    if value < min:
-                                        min = value
-                                    if value > max:
-                                        max = value
+                            if key in list_entries:
+                                #todo: currently not possible to track these!
+                                pass
                             else:
-                                for i in range(0, length):
-                                    value = plotable_data[key][i]
-                                    if value < min:
-                                        min = value
-                                    if value > max:
-                                        max = value
+                                if key in time_entries:
+                                    for i in range(0, length):
+                                        value = float(str(plotable_data[key][i]))/1000000000.0
+                                        if value < min:
+                                            min = value
+                                        if value > max:
+                                            max = value
+                                else:
+                                    for i in range(0, length):
+                                        value = plotable_data[key][i]
+                                        if value < min:
+                                            min = value
+                                        if value > max:
+                                            max = value
 
-                        # add new min/max pair to the storage
-                        storage[seuid].append({key: [min, max] })
+                            # add new min/max pair to the storage
+                            storage[seuid].append({key: [min, max] })
 
 
                 else:
@@ -178,12 +179,11 @@ class TreeWidget(QWidget):
                                                          " or start further components. ")
 
             filename = QFileDialog.getSaveFileName(self)
-            print(type(filename))
-            print(filename)
             with open(filename[0], u"w") as outfile:
                 outfile.write(yaml.dump(storage, default_flow_style=False))
 
         else: #start now
+            print("Started recording")
             self.recording_push_button.setText("Stop recording")
             self.start_time = Time.now()
 
