@@ -1,6 +1,9 @@
 import os
+import sys
 import rospy
 import rospkg
+
+from rospy.rostime import Time, Duration
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import QObject, Qt, QRegExp
@@ -10,15 +13,17 @@ from arni_gui.ros_model import ROSModel
 from arni_gui.size_delegate import SizeDelegate
 from arni_gui.item_filter_proxy import ItemFilterProxy
 
-from python_qt_binding.QtGui import QSortFilterProxyModel
+from python_qt_binding.QtGui import QSortFilterProxyModel, QAction
+from python_qt_binding.QtCore import QPoint
 
+import yaml
 
 class TreeWidget(QWidget):
     """
     The TreeWidget of the ArniGuiDetail-Plugin.
     """
 
-    def __init__(self, model, selection_widget):
+    def __init__(self, model, selection_widget, parent):
         """
         Initializes the widget.
         
@@ -26,11 +31,14 @@ class TreeWidget(QWidget):
         :type model: ROSModel
         :param selection_widget: the selection_widget
         :type selection_widget: QWidget
+        :param parent:
+        :type parent:
         """
         super(TreeWidget, self).__init__()
         self.setObjectName('treewidget')
         self.__selection_widget = selection_widget
         self.__model = model
+        self.parent = parent
 
         # Get path to UI file which is a sibling of this file
         self.rp = rospkg.RosPack()
@@ -44,6 +52,7 @@ class TreeWidget(QWidget):
         self.__filter_proxy.setDynamicSortFilter(True)
         self.__filter_proxy.setFilterCaseSensitivity(Qt.CaseInsensitive)
         self.item_tree_view.setModel(self.__filter_proxy)
+        self.item_tree_view.setContextMenuPolicy(Qt.CustomContextMenu)
 
         self.item_tree_view.setRootIsDecorated(True)
         self.item_tree_view.setAlternatingRowColors(True)
@@ -71,6 +80,12 @@ class TreeWidget(QWidget):
         self.apply_push_button.setText(self.tr("Apply"))
         self.also_show_subscribers_check_box.setText(self.tr("Also show Subscribers"))
 
+        self.selected_item = self.__model.get_root_item()
+
+        self.__marked_items_map = dict()
+
+        self.__recording_running = False
+
     def connect_slots(self):
         """Connects the slots."""
         # : show_nodes_check_box
@@ -95,6 +110,121 @@ class TreeWidget(QWidget):
         self.filter_line_Edit.returnPressed.connect(self.__on_apply_push_button_clicked)
 
         self.expand_push_button.clicked.connect(self.__on_expand_push_button_clicked)
+
+        self.item_tree_view.customContextMenuRequested.connect(self.__contextual_menu)
+
+        self.load_config_push_button.clicked.connect(self.__on_load_config_push_button_clicked)
+        self.recording_push_button.clicked.connect(self.__on_recording_push_button_clicked)
+
+
+    def __on_load_config_push_button_clicked(self):
+        filename = QFileDialog.getOpenFileName(self)
+
+        os.system("rosparam load " + filename[0])
+        os.system("rosservice call /monitoring_node/reload_specifications")
+
+
+
+    def __on_recording_push_button_clicked(self):
+        storage = dict()
+
+        if self.__recording_running: #stop now
+            self.recording_push_button.setText("Start recording")
+            self.__recording_running = False
+
+            for seuid, item in self.__marked_items_map.iteritems():
+                storage[seuid] = []
+
+                plotable_items = item.get_plotable_items()
+                plotable_data = item.get_items_younger_than(self.start_time, "window_stop", *plotable_items)
+                list_entries = item.get_list_items()
+                time_entries = item.get_time_items()
+
+                if plotable_data["window_stop"]:
+                    length = len(plotable_data["window_stop"])
+
+                    for key in plotable_items:
+
+
+                        min = sys.maxint
+                        max = 0
+
+                        if key in list_entries:
+                            #todo: currently not possible to track these!
+                            pass
+                        else:
+                            if key in time_entries:
+                                for i in range(0, length):
+                                    value = float(str(plotable_data[key][i]))/1000000000.0
+                                    if value < min:
+                                        min = value
+                                    if value > max:
+                                        max = value
+                            else:
+                                for i in range(0, length):
+                                    value = plotable_data[key][i]
+                                    if value < min:
+                                        min = value
+                                    if value > max:
+                                        max = value
+
+                        # add new min/max pair to the storage
+                        storage[seuid].append({key: [min, max] })
+
+
+                else:
+                    QMessageBox.warning(self, "Warning", "Not enough data for elements provided. "
+                                                         "Please try recording for a longer period of time"
+                                                         " or start further components. ")
+
+            filename = QFileDialog.getSaveFileName(self)
+            print(type(filename))
+            print(filename)
+            with open(filename[0], u"w") as outfile:
+                outfile.write(yaml.dump(storage, default_flow_style=False))
+
+        else: #start now
+            self.recording_push_button.setText("Stop recording")
+            self.start_time = Time.now()
+
+            self.__recording_running = True
+
+
+    def __contextual_menu(self, point):
+        index = self.item_tree_view.indexAt(point)
+        src_index = index.model().mapToSource(index)
+        self.selected_item = src_index.internalPointer()
+
+        global_pos = self.item_tree_view.header().mapToGlobal(point)
+
+        action = QAction(self)
+        action.setText("Mark for Recording")
+        action.setCheckable(True)
+        if self.selected_item.marked:
+            action.setChecked(True)
+        else:
+            action.setChecked(False)
+        action.triggered.connect(self.__item_marked)
+
+        menu = QMenu()
+        menu.addAction(action)
+        menu.exec_(global_pos)
+
+
+
+    def __item_marked(self, marked):
+        if marked:
+            self.selected_item.marked = True
+            self.__marked_items_map[self.selected_item.seuid] = self.selected_item
+            print("marked")
+            pass
+        else:
+            self.selected_item.marked = False
+            self.__marked_items_map.pop(self.selected_item.seuid)
+            print("no longer marked")
+            pass
+
+
 
     def __on_show_nodes_check_box_state_changed(self, activated):
         """

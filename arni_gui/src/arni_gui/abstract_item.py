@@ -45,6 +45,9 @@ class AbstractItem(QObject):
         #self.__last_update = Time.now()
         self.__creation_time = Time.now()
 
+        self.marked = False
+        #self.markation_date = Time.now()
+
         self._add_data_list("window_start")
         self._add_data_list("window_stop")
         self._add_rated_data_list("window_start")

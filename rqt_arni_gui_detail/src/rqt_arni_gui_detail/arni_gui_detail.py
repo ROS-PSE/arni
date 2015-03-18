@@ -45,7 +45,7 @@ class ArniGuiDetail(Plugin):
         self.__selection_widget = SelectionWidget(self.__model)
         context.add_widget(self.__selection_widget)
 
-        self.__tree_widget = TreeWidget(self.__model, self.__selection_widget)
+        self.__tree_widget = TreeWidget(self.__model, self.__selection_widget, self)
         context.add_widget(self.__tree_widget)
         self.__tree_widget.connect_slots()
         self.__tree_widget.show_erroneous_check_box.setCheckState(0)
@@ -54,6 +54,8 @@ class ArniGuiDetail(Plugin):
         
         #: is handeld here for the widget communication
         self.__tree_widget.item_tree_view.clicked.connect(self.__on_item_in_item_tree_view_clicked)
+
+
 
 
     def __on_item_in_item_tree_view_clicked(self, index):
@@ -127,7 +129,7 @@ class ArniGuiDetail(Plugin):
         self.__tree_widget.also_show_subscribers_check_box.stateChanged.emit(state)
         #self.__tree_widget.__on_show_connections_check_box_state_changed(state)
 
-        state = 2 if show_erroneous_check_box is None else int(show_erroneous_check_box)
+        state = 0 if show_erroneous_check_box is None else int(show_erroneous_check_box)
         self.__tree_widget.show_erroneous_check_box.setCheckState(state)
         self.__tree_widget.show_erroneous_check_box.stateChanged.emit(state)
         #self.__tree_widget.__on_show_erroneous_check_box_state_changed(state)
