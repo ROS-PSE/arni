@@ -31,10 +31,16 @@ class TopicItem(AbstractItem):
         self.__parent = parent
         self._type = "topic"
 
+        self.add_keys=["dropped_msgs", "traffic", "delivered_msgs"]
+        self.avg_keys=["period_mean", "period_stddev", "stamp_age_mean", "stamp_age_stddev", "bandwidth", "frequency"]
+        self.max_keys=["period_max", "stamp_age_max"]
+
         self._attributes = []
-        # todo: currently probably only these 4 implemented
         self._attributes.extend(["dropped_msgs", "traffic",
-                                 "stamp_age_mean", "stamp_age_max", "stamp_age_stddev", "period_max", "node_pub", "node_sub"])
+                                 "period_mean", "period_stddev", "period_max", "stamp_age_mean",
+                                 "stamp_age_stddev", "stamp_age_max", "bandwidth", "frequency"])
+       #self._attributes.extend(["dropped_msgs", "traffic",
+        #                         "stamp_age_mean", "stamp_age_max", "stamp_age_stddev", "period_max", "node_pub", "node_sub"])
 
 
         if hasattr(first_message, "delivered_msgs"):
@@ -44,7 +50,7 @@ class TopicItem(AbstractItem):
             self._add_data_list(item)
 
         #self._attributes.remove("traffic")
-        self._attributes.append("bandwidth")
+        #self._attributes.append("bandwidth")
 
         self.__rated_attributes = []
         self.__rated_attributes.append("alive.actual_value")
@@ -53,7 +59,6 @@ class TopicItem(AbstractItem):
 
         self._attributes.append("packages")
         self._attributes.append("packages_per_second")
-        self._attributes.append("frequency")
 
         self.__calculated_data = {}
         for key in self._attributes:
@@ -76,7 +81,7 @@ class TopicItem(AbstractItem):
 
     def get_items_younger_than(self, time, *args):
         """
-        Used to overwrite the standart implementation in AbstractItem. This method provides the data from the
+        Used to overwrite the standard implementation in AbstractItem. This method provides the data from the
         calculated data and *not* from the raw input. This is especially wanted when plotting
         :param time:
         :param args:
@@ -184,64 +189,103 @@ class TopicItem(AbstractItem):
 
         :param event: containing information when this method was called - not used but needed for the interface
         """
-        self._data_lock.acquire()
-        #entries = self.get_raw_items_younger_than(Time.now() - Duration(secs=10))
-        entries = self.get_raw_items_younger_than(Time.now() - (Duration(secs=10) if int(Duration(secs=10).to_sec()) <= int(Time.now().to_sec()) else Time(0) ))
-        # print(entries)
-        #print(len(entries["window_stop"]))
-        #print(entries["window_start"])
+        aggregated_data = {}
+        for key in self._attributes:
+            aggregated_data[key] = 0
 
-        #print(self.__calculated_data)
         for key in self.__calculated_data.keys():
-            self.__calculated_data[key].append(0)
+             self.__calculated_data[key].append(0)
 
-        #print(self.__calculated_data)
+        child_count = 0
+        for connection in self.get_childs(): #!assuming all childs are connection items!
+            values = connection.aggregate_data((Time.now() - (Duration(secs=1) if int(Duration(secs=1).to_sec()) <= int(Time.now().to_sec()) else Time(0))).to_sec())
+
+            if values:
+                for key in self.add_keys:
+                     aggregated_data[key] += values[key]
+                for key in self.max_keys:
+                    if values[key] > aggregated_data[key]:
+                         aggregated_data[key] = values[key]
+                for key in self.avg_keys:
+                     aggregated_data[key] += values[key]
+                child_count += 1
+
+
+        for key in self.avg_keys:
+            aggregated_data[key] /= child_count
+
+        self._data_lock.acquire()
+
+        for key in self._attributes:
+            self.__calculated_data[key][-1] = aggregated_data[key]
+
         self.__calculated_data["window_start"][-1] = Time.now()
-        #self.__calculated_data["window_stop"][-1] = Time.now() - Duration(secs=600)
-        self.__calculated_data["window_stop"][-1] = Time.now() - (Duration(secs=600) if int(Duration(secs=600).to_sec()) <= int(Time.now().to_sec()) else Time(0))
+        self.__calculated_data["window_stop"][-1] = Time.now() - (Duration(secs=1) if int(Duration(secs=1).to_sec()) <= int(Time.now().to_sec()) else Time(0))
 
-        publisher_list = []
-
-        for i in range(0, len(entries["window_stop"])):
-            #print("aggregating entry")
-            window_len = entries["window_stop"][i] - entries["window_start"][i]
-            #scale = 1 / window_len.to_sec()
-            if window_len is not 0:
-                self.__calculated_data["window_start"][-1] = min(entries["window_start"][i],
-                                                                 self.__calculated_data["window_start"][-1])
-                self.__calculated_data["window_stop"][-1] = max(entries["window_stop"][i],
-                                                                self.__calculated_data["window_stop"][-1])
-
-            if "delivered_msgs" in self.__calculated_data:
-                # only care about the first connection for a publisher.
-                # this could be improved by looking for the minimum or something like that.
-                if not entries["node_pub"][i] in publisher_list:
-                    publisher_list.append(entries["node_pub"][i])
-                    # rospy.logwarn(publisher_list)
-                    self.__calculated_data["delivered_msgs"][-1] += entries["delivered_msgs"][i]
-                    if window_len is not 0:
-                        self.__calculated_data["frequency"][-1] += entries["delivered_msgs"][i] / window_len.to_sec()
-            self.__calculated_data["dropped_msgs"][-1] += entries["dropped_msgs"][i]
-            self.__calculated_data["traffic"][-1] += entries["traffic"][i]
-            self.__calculated_data["stamp_age_max"][-1] = max(entries["stamp_age_max"][i].to_sec(),
-                                                              self.__calculated_data["stamp_age_max"][-1])
-            self.__calculated_data["period_max"][-1] = max(entries["period_max"][i].to_sec(),
-                                                           self.__calculated_data["period_max"][-1])
-            self.__calculated_data["packages"][-1] += 1
-            #print("in loop")
-            #print(self.__calculated_data)
-
-        window_len = self.__calculated_data["window_stop"][-1] - self.__calculated_data["window_start"][-1]
-        #print(self.__calculated_data["window_stop"][-1])
-        if window_len is not 0:
-            self.__calculated_data["bandwidth"][-1] = self.__calculated_data["traffic"][-1] / window_len.to_sec()
-            self.__calculated_data["packages_per_second"][-1] = self.__calculated_data["packages"][-1] / window_len.to_sec()
 
         self._data_lock.release()
-        #print("PRINT")
-        #for key in self.__calculated_data:
-        #    print(key)
-        #    print(self.__calculated_data[key][-1])
+
+
+
+        # self._data_lock.acquire()
+        #
+        # #entries = self.get_raw_items_younger_than(Time.now() - Duration(secs=10))
+        # entries = self.get_raw_items_younger_than(Time.now() - (Duration(secs=10) if int(Duration(secs=10).to_sec()) <= int(Time.now().to_sec()) else Time(0) ))
+        # # print(entries)
+        # #print(len(entries["window_stop"]))
+        # #print(entries["window_start"])
+        #
+        # #print(self.__calculated_data)
+        # for key in self.__calculated_data.keys():
+        #     self.__calculated_data[key].append(0)
+        #
+        # #print(self.__calculated_data)
+        # self.__calculated_data["window_start"][-1] = Time.now()
+        # #self.__calculated_data["window_stop"][-1] = Time.now() - Duration(secs=600)
+        # self.__calculated_data["window_stop"][-1] = Time.now() - (Duration(secs=600) if int(Duration(secs=600).to_sec()) <= int(Time.now().to_sec()) else Time(0))
+        #
+        # publisher_list = []
+        #
+        # for i in range(0, len(entries["window_stop"])):
+        #     #print("aggregating entry")
+        #     window_len = entries["window_stop"][i] - entries["window_start"][i]
+        #     #scale = 1 / window_len.to_sec()
+        #     if window_len is not 0:
+        #         self.__calculated_data["window_start"][-1] = min(entries["window_start"][i],
+        #                                                          self.__calculated_data["window_start"][-1])
+        #         self.__calculated_data["window_stop"][-1] = max(entries["window_stop"][i],
+        #                                                         self.__calculated_data["window_stop"][-1])
+        #
+        #     if "delivered_msgs" in self.__calculated_data:
+        #         # only care about the first connection for a publisher.
+        #         # this could be improved by looking for the minimum or something like that.
+        #         if not entries["node_pub"][i] in publisher_list:
+        #             publisher_list.append(entries["node_pub"][i])
+        #             # rospy.logwarn(publisher_list)
+        #             self.__calculated_data["delivered_msgs"][-1] += entries["delivered_msgs"][i]
+        #             if window_len is not 0:
+        #                 self.__calculated_data["frequency"][-1] += entries["delivered_msgs"][i] / window_len.to_sec()
+        #     self.__calculated_data["dropped_msgs"][-1] += entries["dropped_msgs"][i]
+        #     self.__calculated_data["traffic"][-1] += entries["traffic"][i]
+        #     self.__calculated_data["stamp_age_max"][-1] = max(entries["stamp_age_max"][i].to_sec(),
+        #                                                       self.__calculated_data["stamp_age_max"][-1])
+        #     self.__calculated_data["period_max"][-1] = max(entries["period_max"][i].to_sec(),
+        #                                                    self.__calculated_data["period_max"][-1])
+        #     self.__calculated_data["packages"][-1] += 1
+        #     #print("in loop")
+        #     #print(self.__calculated_data)
+        #
+        # window_len = self.__calculated_data["window_stop"][-1] - self.__calculated_data["window_start"][-1]
+        # #print(self.__calculated_data["window_stop"][-1])
+        # if window_len is not 0:
+        #     self.__calculated_data["bandwidth"][-1] = self.__calculated_data["traffic"][-1] / window_len.to_sec()
+        #     self.__calculated_data["packages_per_second"][-1] = self.__calculated_data["packages"][-1] / window_len.to_sec()
+        #
+        # self._data_lock.release()
+        # #print("PRINT")
+        # #for key in self.__calculated_data:
+        # #    print(key)
+        # #    print(self.__calculated_data[key][-1])
 
 
     def execute_action(self, action):

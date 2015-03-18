@@ -518,7 +518,7 @@ class ROSModel(QAbstractItemModel):
                 raise UserWarning("The parent of the given topic statistics item cannot be found.")
         # now update these
         connection_item.append_data(item)
-        topic_item.append_data(item) 
+        #topic_item.append_data(item)
             
         self.__transform_subscriber(item)
         
