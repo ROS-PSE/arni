@@ -185,7 +185,7 @@ class SpecificationHandler:
             #TODO by_connection[seuid.identifier]["stamp_age_stddev"]
         for connection in by_connection:
             seuid = SEUID(connection)
-            for key in 'frequency', 'dropped_msgs', 'traffic', 'stamp_age_mean': # average
+            for key in 'frequency', 'bandwidth', 'dropped_msgs', 'traffic', 'stamp_age_mean': # average
               by_connection[connection][key] /= by_connection[connection]['count']
 
             topic = seuid.get_seuid('topic')
