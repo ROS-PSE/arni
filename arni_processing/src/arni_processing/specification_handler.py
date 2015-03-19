@@ -264,7 +264,8 @@ class SpecificationHandler:
             limits = None
         except AttributeError:
             limits = None
-        if limits is not None and field == "stamp_age_max":
+        convert_to_duration = ["stamp_age_max", "stamp_age_mean", "stamp_age_stddev", "period_max", "period_mean", "period_stddev"]
+        if limits is not None and field in convert_to_duration:
           limits = [rospy.Duration.from_sec(limits[0]), rospy.Duration.from_sec(limits[1])]
         self.__limit_cache[key] = limits
         return limits
