@@ -118,7 +118,9 @@ class SpecificationHandler:
                 value = data.traffic / window_len.to_sec()
             elif field == "frequency":
                 if hasattr(data, "delivered_msgs"):
+                    print(data.delivered_msgs)
                     value = data.delivered_msgs / window_len.to_sec()
+                    print(value)
             else:
                 value = getattr(data, field)
             if value is not None:
@@ -150,50 +152,78 @@ class SpecificationHandler:
         """
         if not data:
             data = []
+        by_connection = {}
         by_topic = {}
         result = []
         delivered_msgs_set = False
+        print('>>>>>>>>>>')
         for message in data:
             seuid = SEUID(message)
-            if not seuid.get_seuid("topic") in by_topic.keys():
-                by_topic[seuid.get_seuid("topic")] = {
+            if not seuid.identifier in by_connection.keys():
+                by_connection[seuid.identifier] = {
                     "window_min": rospy.Time.now(),
                     "window_max": rospy.Time(0),
                     "delivered_msgs": 0,
                     "dropped_msgs": 0,
-                    "frequency": {},
+                    "frequency": 0,
                     "traffic": 0,
-                    "stamp_age_mean": [],
-                    "stamp_age_stddev": [],
+                    "bandwidth": 0,
+                    "stamp_age_mean": rospy.Duration(0),
+                    "stamp_age_stddev": rospy.Duration(0),
                     "stamp_age_max": rospy.Duration(0),
+                    "count": 0,
                 }
+            by_connection[seuid.identifier]["count"] += 1
             window_len = message.window_stop - message.window_start
             if window_len.to_sec() == 0:
                 window_len = rospy.Duration(1)
-            # scale = window_len.to_sec() / window_len_max.to_sec()
-            scale = 1  # placeholder
-            by_topic[seuid.get_seuid("topic")]["window_min"] = min(message.window_start,
-                                                                   by_topic[seuid.get_seuid("topic")]["window_min"])
-            by_topic[seuid.get_seuid("topic")]["window_max"] = max(message.window_stop,
-                                                                   by_topic[seuid.get_seuid("topic")]["window_max"])
+            by_connection[seuid.identifier]["window_min"] = min(message.window_start, by_connection[seuid.identifier]["window_min"])
+            by_connection[seuid.identifier]["window_max"] = max(message.window_stop, by_connection[seuid.identifier]["window_max"])
             if hasattr(message, "delivered_msgs"):
                 delivered_msgs_set = True
-                by_topic[seuid.get_seuid("topic")]["delivered_msgs"] += message.delivered_msgs * scale
-                if seuid.get_seuid("publisher") not in by_topic[seuid.get_seuid("topic")]["frequency"].keys():
-                    by_topic[seuid.get_seuid("topic")]["frequency"][seuid.get_seuid("publisher")] = {
-                        "value": 0,
-                        "subscriber": seuid.get_seuid("subscriber")
-                    }
-                if seuid.get_seuid("subscriber") == \
-                        by_topic[seuid.get_seuid("topic")]["frequency"][seuid.get_seuid("publisher")]["subscriber"]:
-                    by_topic[seuid.get_seuid("topic")]["frequency"][seuid.get_seuid("publisher")]["value"] += \
-                        message.delivered_msgs / window_len.to_sec() * scale
-            by_topic[seuid.get_seuid("topic")]["dropped_msgs"] += message.dropped_msgs * scale
-            by_topic[seuid.get_seuid("topic")]["traffic"] += message.traffic * scale
-            by_topic[seuid.get_seuid("topic")]["stamp_age_max"] = max(message.stamp_age_max,
-                                                                      by_topic[seuid.get_seuid("topic")][
-                                                                          "stamp_age_max"])
-            by_topic[seuid.get_seuid("topic")]["stamp_age_mean"].append(message.stamp_age_mean * scale)
+                by_connection[seuid.identifier]["delivered_msgs"] += message.delivered_msgs
+                by_connection[seuid.identifier]["frequency"] += message.delivered_msgs / float(window_len.to_sec())
+            by_connection[seuid.identifier]["dropped_msgs"] += message.dropped_msgs
+            by_connection[seuid.identifier]["traffic"] += message.traffic
+            by_connection[seuid.identifier]["bandwidth"] += message.traffic / float(window_len.to_sec())
+            by_connection[seuid.identifier]["stamp_age_max"] = max(message.stamp_age_max, by_connection[seuid.identifier]["stamp_age_max"])
+            by_connection[seuid.identifier]["stamp_age_mean"] += message.stamp_age_mean
+            #TODO by_connection[seuid.identifier]["stamp_age_stddev"]
+        for connection in by_connection:
+            seuid = SEUID(connection)
+            for key in 'delivered_msgs', 'frequency', 'dropped_msgs', 'traffic', 'stamp_age_mean': # average
+              by_connection[connection][key] /= by_connection[connection]['count']
+
+            topic = seuid.get_seuid('topic')
+            if not topic in by_topic.keys():
+                by_topic[topic] = {
+                    "window_min": rospy.Time.now(),
+                    "window_max": rospy.Time(0),
+                    "delivered_msgs": 0,
+                    "dropped_msgs": 0,
+                    "frequency": 0,
+                    "traffic": 0,
+                    "bandwidth": 0,
+                    "stamp_age_mean": rospy.Duration(0),
+                    "stamp_age_stddev": rospy.Duration(0),
+                    "stamp_age_max": rospy.Duration(0),
+                    'count': 0,
+                }
+            by_topic[topic]['count'] += 1
+            by_topic[topic]["window_min"] = min(by_connection[connection]['window_min'], by_topic[topic]["window_min"])
+            by_topic[topic]["window_max"] = max(by_connection[connection]['window_max'], by_topic[topic]["window_max"])
+            if "delivered_msgs" in by_connection[connection]:
+                delivered_msgs_set = True
+                by_topic[topic]["delivered_msgs"] += by_connection[connection]['delivered_msgs']
+                by_topic[topic]["frequency"] += by_connection[connection]['frequency']
+            by_topic[topic]["dropped_msgs"] += by_connection[connection]['dropped_msgs']
+            by_topic[topic]["traffic"] += by_connection[connection]['traffic']
+            by_topic[topic]["bandwidth"] += by_connection[connection]['traffic']
+            by_topic[topic]["stamp_age_max"] = max(by_connection[connection]['stamp_age_max'], by_topic[topic]["stamp_age_max"])
+            by_topic[topic]["stamp_age_mean"] +=  by_connection[connection]['stamp_age_mean']
+            #TODO by_connection[seuid.identifier]["stamp_age_stddev"]
+        for topic in by_topic:
+          by_topic[topic]['stamp_age_mean'] /= by_topic[topic]['count']
         for topic, data in by_topic.iteritems():
             specification = self.get(topic)
             r = RatedStatistics()
@@ -203,28 +233,15 @@ class SpecificationHandler:
             if window_len.to_sec() == 0:
                 window_len = rospy.Duration(1)
             r.seuid = topic
-            fields = ["dropped_msgs", "traffic", "traffic_per_second", "stamp_age_max", "stamp_age_mean"]
+            fields = ["dropped_msgs", "traffic", "bandwidth", "stamp_age_max", "stamp_age_mean"]
             fields.remove("traffic")
             if delivered_msgs_set:
                 fields.append("delivered_msgs")
                 fields.append("frequency")
-            alt_names = {"traffic_per_second": "bandwidth"}
             for f in fields:
                 re = RatedStatisticsEntity()
                 re.statistic_type = f
-                if f in alt_names.keys():
-                    re.statistic_type = alt_names[f]
-                if f == "frequency":
-                    value = 0
-                    for pub, freq in data["frequency"].iteritems():
-                        value += freq["value"]
-                elif f[-10:] == "per_second":
-                    value = data[f[0:-11]] / window_len.to_sec()
-                elif f == "stamp_age_mean":
-                    x = data[f]
-                    value = sum(y.to_sec() for y in x) / len(x)
-                else:
-                    value = data[f]
+                value = data[f]
                 re.actual_value.append(str(value))
                 limits = self.__get_limits(specification, re.statistic_type)
                 re.expected_value.append(str(limits))
@@ -237,6 +254,9 @@ class SpecificationHandler:
             re.state = [2]
             r.rated_statistics_entity.append(re)
             result.append(r)
+        print(by_topic)
+        print(by_connection)
+        print('<<<<<<<<<<')
         return result
 
     def __get_limits(self, specification, field, offset=0):
