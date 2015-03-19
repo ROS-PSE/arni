@@ -30,7 +30,7 @@ class ConnectionItem(AbstractItem):
         self.__parent = parent
         self._type = "connection"
 
-        self.add_keys=["dropped_msgs", "traffic", "delivered_msgs"]
+        self.add_keys=["dropped_msgs", "traffic"]
         self.avg_keys=["period_mean", "period_stddev", "stamp_age_mean", "stamp_age_stddev", "bandwidth", "frequency"]
         self.max_keys=["period_max", "stamp_age_max"]
 
@@ -39,8 +39,6 @@ class ConnectionItem(AbstractItem):
                                  "period_mean", "period_stddev", "period_max", "stamp_age_mean",
                                  "stamp_age_stddev", "stamp_age_max", "bandwidth", "frequency"])
 
-        if hasattr(first_message, "delivered_msgs"):
-            self._attributes.append("delivered_msgs")
         for item in self._attributes:
             self._add_data_list(item)
 
@@ -155,22 +153,14 @@ class ConnectionItem(AbstractItem):
             window_len = data_dict["window_stop"] - data_dict["window_start"]
         else:
             window_len = 0
-        if "delivered_msgs" in self._attributes:
-            content += self.tr("delivered_msgs") + ": " + prepare_number_for_representation(data_dict["delivered_msgs"]) \
-                       + " " + self.tr("delivered_msgs_unit") + " <br>"
-            if window_len is not 0:
-                content += self.tr("frequency") + ": " + prepare_number_for_representation(data_dict["delivered_msgs"]
-                                                                                           / window_len.to_sec()) \
-                           + " " + self.tr("frequency_unit") + " <br>"
+        if "frequency" in self._attributes:
+            content += self.tr("frequency") + ": " + prepare_number_for_representation(data_dict["frequency"]) \
+                       + " " + self.tr("frequency_unit") + " <br>"
 
         content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) + " " \
                    + self.tr("dropped_msgs_unit") + " <br>"
-        #content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) + " " \
-        #           + self.tr("traffic_unit") + " <br>"
-        if window_len is not 0:
-            content += self.tr("bandwidth") + ": " + prepare_number_for_representation(data_dict["traffic"] /
-                                                                                       window_len.to_sec()) \
-                       + " " + self.tr("bandwidth_unit") + " <br>"
+        content += self.tr("bandwidth") + ": " + prepare_number_for_representation(data_dict["bandwith"]) + " " \
+                    + " " + self.tr("bandwidth_unit") + " <br>"
         content += self.tr("period_mean") + ": " + prepare_number_for_representation(data_dict["period_mean"]) \
                    + " " + self.tr("period_mean_unit") + " <br>"
         content += self.tr("period_stddev") + ": " + prepare_number_for_representation(data_dict["period_stddev"]) \
@@ -205,6 +195,8 @@ class ConnectionItem(AbstractItem):
         :rtype: str
         """
         data_dict = self.get_latest_data()
+        #print(data_dict["window_stop"])
+        #print(type(data_dict["window_stop"]))
         if Time.now() - data_dict["window_stop"] > Duration(secs=5):
           return "No recent data"
 
@@ -216,8 +208,6 @@ class ConnectionItem(AbstractItem):
             content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(
                 data_dict["dropped_msgs"]) + " " \
                        + self.tr("dropped_msgs_unit") + " - "
-            #content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) + " " \
-            #           + self.tr("traffic_unit") + " - "
             content += self.tr("period_mean") + ": " + prepare_number_for_representation(data_dict["period_mean"]) \
                        + " " + self.tr("period_mean_unit") + "  - "
             content += self.tr("stamp_age_mean") + ": " + prepare_number_for_representation(data_dict["stamp_age_mean"]) \

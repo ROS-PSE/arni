@@ -291,7 +291,9 @@ class AbstractItem(QObject):
                         if self._data[key]:
                             return_dict[key] = self._data[key][-1]
                         else:
-                            if key in self.get_list_items():
+                            if key == 'window_stop':
+                                return_dict[key] = rospy.Time.now()
+                            elif key in self.get_list_items():
                                 return_dict[key] = [self.tr("Currently no value available")]
                             else:
                                 return_dict[key] = self.tr("Currently no value available")
@@ -479,6 +481,7 @@ class AbstractItem(QObject):
             if "window_stop" not in args:
                 return_values["window_stop"] = None
         else:
+	    return_values["window_stop"] = None
             for key in self._data:
                 return_values[key] = None
 

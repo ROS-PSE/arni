@@ -97,7 +97,7 @@ class TreeWidget(QWidget):
         self.show_topics_check_box.stateChanged.connect(self.__on_show_topics_check_box_state_changed)
         #: show_connections_check_box
         self.show_connections_check_box.stateChanged.connect(self.__on_show_connections_check_box_state_changed)
-        #: show_erroneous_check_box
+        #: show_erroneous__marked_items_map_check_box
         self.show_erroneous_check_box.stateChanged.connect(self.__on_show_erroneous_check_box_state_changed)
         #: also_show_subscribers_check_box
         self.also_show_subscribers_check_box.stateChanged.connect(self.__on_also_show_subscribers_check_box_state_changed)
@@ -219,12 +219,12 @@ class TreeWidget(QWidget):
         if marked:
             self.selected_item.marked = True
             self.__marked_items_map[self.selected_item.seuid] = self.selected_item
-            print("marked")
+            #print("marked")
             pass
         else:
             self.selected_item.marked = False
             self.__marked_items_map.pop(self.selected_item.seuid)
-            print("no longer marked")
+            #print("no longer marked")
             pass
 
 

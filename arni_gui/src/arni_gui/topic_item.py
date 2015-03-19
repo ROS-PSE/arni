@@ -31,7 +31,7 @@ class TopicItem(AbstractItem):
         self.__parent = parent
         self._type = "topic"
 
-        self.add_keys=["dropped_msgs", "traffic", "delivered_msgs", "bandwidth", "frequency"]
+        self.add_keys=["dropped_msgs", "traffic", "bandwidth", "frequency"]
         self.avg_keys=["period_mean", "period_stddev", "stamp_age_mean", "stamp_age_stddev"]
         self.max_keys=["period_max", "stamp_age_max"]
 
@@ -42,9 +42,6 @@ class TopicItem(AbstractItem):
        #self._attributes.extend(["dropped_msgs", "traffic",
         #                         "stamp_age_mean", "stamp_age_max", "stamp_age_stddev", "period_max", "node_pub", "node_sub"])
 
-
-        if hasattr(first_message, "delivered_msgs"):
-            self._attributes.append("delivered_msgs")
 
         for item in self._attributes:
             self._add_data_list(item)
@@ -256,23 +253,18 @@ class TopicItem(AbstractItem):
 
         content += "Rounded to a second:<br>"
 
-        if "delivered_msgs" in self._attributes:
-            content += self.tr("delivered_msgs") + ": " + prepare_number_for_representation(data_dict["delivered_msgs"]) \
-                   + " " + self.tr("delivered_msgs_unit") + " <br>"
+        if "frequency" in self._attributes:
             content += self.tr("frequency") + ": " + prepare_number_for_representation(data_dict["frequency"]) \
                    + " " + self.tr("frequency_unit") + " <br>"
-
+        content += self.tr("bandwidth") + ": " + prepare_number_for_representation(data_dict["bandwidth"]) \
+                   + " " + self.tr("bandwidth_unit") + " <br>"
 
         content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) \
                    + " " + self.tr("dropped_msgs_unit") + " <br>"
-        #content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) \
-        #           + " " + self.tr("traffic_unit") + " <br>"
         content += self.tr("period_max") + ": " + prepare_number_for_representation(data_dict["period_max"]) \
                    + " " + self.tr("period_max_unit") + " <br>"
         content += self.tr("stamp_age_max") + ": " + prepare_number_for_representation(data_dict["stamp_age_max"]) \
                    + " " + self.tr("stamp_age_max_unit") + " <br>"
-        content += self.tr("bandwidth") + ": " + prepare_number_for_representation(data_dict["bandwidth"]) \
-                   + " " + self.tr("bandwidth_unit") + " <br>"
 
         content += "</p>"
         return content
@@ -284,9 +276,9 @@ class TopicItem(AbstractItem):
 
         :returns: str[]
         """
-        if "delivered_msgs" in self.__calculated_data:
-            return ["dropped_msgs", "traffic", "stamp_age_max", "period_max",
-                    "bandwidth", "delivered_msgs", "frequency"]
+        if "frequency" in self.__calculated_data:
+            return ["dropped_msgs","stamp_age_max", "period_max",
+                    "bandwidth", "frequency"]
 
         else:
             return ["dropped_msgs", "traffic", "stamp_age_max", "period_max", "bandwidth"]
@@ -315,8 +307,6 @@ class TopicItem(AbstractItem):
             content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(
                 data_dict["dropped_msgs"]) + " " \
                        + self.tr("dropped_msgs_unit") + " - "
-            #content += self.tr("traffic") + ": " + prepare_number_for_representation(data_dict["traffic"]) + " " \
-            #           + self.tr("traffic_unit") + " - "
             content += self.tr("stamp_age_mean") + ": " + prepare_number_for_representation(data_dict["stamp_age_mean"]) \
                        + " " + self.tr("stamp_age_mean_unit")
 

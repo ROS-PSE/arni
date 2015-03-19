@@ -22,4 +22,8 @@ class SizeDelegate(QStyledItemDelegate):
         :type index: QModelIndex
         """
         super(SizeDelegate,self).initStyleOption(option, index)
-        option.backgroundBrush = QBrush(choose_brush(index))
+        temp = index.model().mapToSource(index)
+        if temp.internalPointer().marked:
+	    option.backgroundBrush = QBrush(QColor(255, 165, 0, 70))
+	else:
+	  option.backgroundBrush = QBrush(choose_brush(index))

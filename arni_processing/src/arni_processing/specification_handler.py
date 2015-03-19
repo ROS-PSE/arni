@@ -102,10 +102,10 @@ class SpecificationHandler:
         if window_len.to_sec() == 0:
             window_len = rospy.Duration(1)
         fields = dir(data)
-        # exclude = ("window_start", "window_stop")
-        # for x in exclude:
-        # if x in fields:
-        # fields.remove(x)
+        exclude = ("delivered_msgs", "traffic")
+        for x in exclude:
+            if x in fields:
+                fields.remove(x)
         if identifier[0] == "c":
             fields.append("bandwidth")
             fields.append("frequency")
@@ -117,10 +117,7 @@ class SpecificationHandler:
             if field == "bandwidth":
                 value = data.traffic / window_len.to_sec()
             elif field == "frequency":
-                if hasattr(data, "delivered_msgs"):
-                    print(data.delivered_msgs)
-                    value = data.delivered_msgs / window_len.to_sec()
-                    print(value)
+               value = data.delivered_msgs / window_len.to_sec()
             else:
                 value = getattr(data, field)
             if value is not None:
@@ -155,15 +152,13 @@ class SpecificationHandler:
         by_connection = {}
         by_topic = {}
         result = []
-        delivered_msgs_set = False
-        print('>>>>>>>>>>')
+        frequency_set = False
         for message in data:
             seuid = SEUID(message)
             if not seuid.identifier in by_connection.keys():
                 by_connection[seuid.identifier] = {
                     "window_min": rospy.Time.now(),
                     "window_max": rospy.Time(0),
-                    "delivered_msgs": 0,
                     "dropped_msgs": 0,
                     "frequency": 0,
                     "traffic": 0,
@@ -180,8 +175,7 @@ class SpecificationHandler:
             by_connection[seuid.identifier]["window_min"] = min(message.window_start, by_connection[seuid.identifier]["window_min"])
             by_connection[seuid.identifier]["window_max"] = max(message.window_stop, by_connection[seuid.identifier]["window_max"])
             if hasattr(message, "delivered_msgs"):
-                delivered_msgs_set = True
-                by_connection[seuid.identifier]["delivered_msgs"] += message.delivered_msgs
+                frequency_set = True
                 by_connection[seuid.identifier]["frequency"] += message.delivered_msgs / float(window_len.to_sec())
             by_connection[seuid.identifier]["dropped_msgs"] += message.dropped_msgs
             by_connection[seuid.identifier]["traffic"] += message.traffic
@@ -191,7 +185,7 @@ class SpecificationHandler:
             #TODO by_connection[seuid.identifier]["stamp_age_stddev"]
         for connection in by_connection:
             seuid = SEUID(connection)
-            for key in 'delivered_msgs', 'frequency', 'dropped_msgs', 'traffic', 'stamp_age_mean': # average
+            for key in 'frequency', 'dropped_msgs', 'traffic', 'stamp_age_mean': # average
               by_connection[connection][key] /= by_connection[connection]['count']
 
             topic = seuid.get_seuid('topic')
@@ -199,7 +193,6 @@ class SpecificationHandler:
                 by_topic[topic] = {
                     "window_min": rospy.Time.now(),
                     "window_max": rospy.Time(0),
-                    "delivered_msgs": 0,
                     "dropped_msgs": 0,
                     "frequency": 0,
                     "traffic": 0,
@@ -212,9 +205,8 @@ class SpecificationHandler:
             by_topic[topic]['count'] += 1
             by_topic[topic]["window_min"] = min(by_connection[connection]['window_min'], by_topic[topic]["window_min"])
             by_topic[topic]["window_max"] = max(by_connection[connection]['window_max'], by_topic[topic]["window_max"])
-            if "delivered_msgs" in by_connection[connection]:
-                delivered_msgs_set = True
-                by_topic[topic]["delivered_msgs"] += by_connection[connection]['delivered_msgs']
+            if "frequency" in by_connection[connection]:
+                frequency_set = True
                 by_topic[topic]["frequency"] += by_connection[connection]['frequency']
             by_topic[topic]["dropped_msgs"] += by_connection[connection]['dropped_msgs']
             by_topic[topic]["traffic"] += by_connection[connection]['traffic']
@@ -235,8 +227,7 @@ class SpecificationHandler:
             r.seuid = topic
             fields = ["dropped_msgs", "traffic", "bandwidth", "stamp_age_max", "stamp_age_mean"]
             fields.remove("traffic")
-            if delivered_msgs_set:
-                fields.append("delivered_msgs")
+            if frequency_set:
                 fields.append("frequency")
             for f in fields:
                 re = RatedStatisticsEntity()
@@ -254,9 +245,6 @@ class SpecificationHandler:
             re.state = [2]
             r.rated_statistics_entity.append(re)
             result.append(r)
-        print(by_topic)
-        print(by_connection)
-        print('<<<<<<<<<<')
         return result
 
     def __get_limits(self, specification, field, offset=0):
