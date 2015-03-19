@@ -210,7 +210,7 @@ class SpecificationHandler:
                 by_topic[topic]["frequency"] += by_connection[connection]['frequency']
             by_topic[topic]["dropped_msgs"] += by_connection[connection]['dropped_msgs']
             by_topic[topic]["traffic"] += by_connection[connection]['traffic']
-            by_topic[topic]["bandwidth"] += by_connection[connection]['traffic']
+            by_topic[topic]["bandwidth"] += by_connection[connection]['bandwidth']
             by_topic[topic]["stamp_age_max"] = max(by_connection[connection]['stamp_age_max'], by_topic[topic]["stamp_age_max"])
             by_topic[topic]["stamp_age_mean"] +=  by_connection[connection]['stamp_age_mean']
             #TODO by_connection[seuid.identifier]["stamp_age_stddev"]
