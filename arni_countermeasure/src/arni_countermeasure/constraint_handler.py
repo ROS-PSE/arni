@@ -86,7 +86,7 @@ class ConstraintHandler(object):
                     if reaction.autonomy_level <= glob_level:
                         # run reactions parallel since
                         # they could take some time
-                        rospy.loginfo('Running countermeasure %s' % constraint)
+                        rospy.loginfo('Running countermeasure %s' % str(constraint))
                         thread.start_new_thread(reaction.execute_reaction, ())
                         #reaction.execute_reaction()
 

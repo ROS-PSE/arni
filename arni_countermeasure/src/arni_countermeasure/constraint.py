@@ -83,3 +83,6 @@ class Constraint(object):
         """
         self.evaluation_result = False
         self.__last_reaction = rospy.Time.now()
+
+    def __str__(self):
+        return self.__name
