@@ -379,11 +379,12 @@ class ROSModel(QAbstractItemModel):
                             if type(entry) is not unicode:
                                 if entry is not 0:
                                     data_dict["total_traffic"] += entry
-                    elif key is "cpu_temp_max" or key is "cpu_temp_mean":
+                    elif key is "cpu_temp_max" or key is "ram_usage_max":
                         # very unprobably the temp might be 0 then the programm is not showing this value!
                         if type(last_entry[key]) is not unicode:
                             if last_entry[key] is not 0:
-                                data_dict[key] += last_entry[key]
+                                if data_dict[key] < last_entry[key]:
+				  data_dict[key] = last_entry[key]
                     else:
                         if type(last_entry[key]) is not unicode:
                             if last_entry[key] is not 0:
@@ -414,7 +415,11 @@ class ROSModel(QAbstractItemModel):
                             state = "warning"
                         elif connection_item.get_state() is "error":
                             state = "error"
-
+	
+	for key in data_dict:
+	    if key != "state" and key != "cpu_temp_max" and key != "total_traffic" and key != "ram_usage_max":
+	        data_dict[key] = data_dict[key] / self.__root_item.child_count()
+	
         data_dict["connected_hosts"] = connected_hosts
         data_dict["connected_nodes"] = connected_nodes
         data_dict["topic_counter"] = topic_counter

@@ -183,7 +183,7 @@ class ConnectionItem(AbstractItem):
         
         :returns: str[]
         """
-        return ["dropped_msgs", "traffic", "period_mean", "period_stddev", "period_max", "stamp_age_mean",
+        return ["dropped_msgs", "bandwidth", "frequency", "period_mean", "period_stddev", "period_max", "stamp_age_mean",
                 "stamp_age_stddev", "stamp_age_max"]
 
 
