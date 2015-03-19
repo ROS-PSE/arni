@@ -274,6 +274,7 @@ class HostStatisticsHandler(StatisticsHandler):
             msg = self.__node_manager.execute_command(reaction.command)
         else:
             msg = 'Failed to execute reaction, %s is no valid argument' % reaction.action
+        rospy.loginfo('Executing reaction: %s' % msg)
         return msg
 
     def remove_node(self, node):
