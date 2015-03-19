@@ -40,11 +40,11 @@ cpu_temp_core_max: [49.3, 52.1]
 # int32[] message_frequency_stddev
 # int32[] message_frequency_max
 
-# bandwith of each network interface
+# bandwidth of each network interface
 
-# int32[] bandwith_mean
-# int32[] bandwith_stddev
-# int32[] bandwith_max
+# int32[] bandwidth_mean
+# int32[] bandwidth_stddev
+# int32[] bandwidth_max
 
 # drive
 # string[] drive_name

@@ -62,9 +62,9 @@ class SelectionWidget(QWidget):
 
         #TODO fill the dict
         self.__values_dict = {
-            "bandwith_mean": 0,
-            "bandwith_stddev": 0,
-            "bandwith_max": 0,
+            "bandwidth_mean": 0,
+            "bandwidth_stddev": 0,
+            "bandwidth_max": 0,
         }
 
         self.__logger = self.__model.get_logger()

@@ -96,7 +96,7 @@ class ConnectionItem(AbstractItem):
         entries = self.get_items_younger_than(Time.now() - (Duration(secs=period) if int(Duration(secs=period).to_sec()) <= int(Time.now().to_sec()) else Time(0) ))
 
 
-        length = len(entries["window_stop"])
+        length = len(entries["window_stop"]) if entries["window_stop"] else 0
 
         if length > 0:
             for key in self.add_keys:
@@ -159,7 +159,7 @@ class ConnectionItem(AbstractItem):
 
         content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) + " " \
                    + self.tr("dropped_msgs_unit") + " <br>"
-        content += self.tr("bandwidth") + ": " + prepare_number_for_representation(data_dict["bandwith"]) + " " \
+        content += self.tr("bandwidth") + ": " + prepare_number_for_representation(data_dict["bandwidth"]) + " " \
                     + " " + self.tr("bandwidth_unit") + " <br>"
         content += self.tr("period_mean") + ": " + prepare_number_for_representation(data_dict["period_mean"]) \
                    + " " + self.tr("period_mean_unit") + " <br>"

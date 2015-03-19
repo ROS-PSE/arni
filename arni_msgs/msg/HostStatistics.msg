@@ -50,7 +50,7 @@ int32[] message_frequency_mean
 int32[] message_frequency_stddev
 int32[] message_frequency_max
 
-# bandwith of each network interface
+# bandwidth of each network interface
 # bytes/s
 float32[] bandwidth_mean
 float32[] bandwidth_stddev
