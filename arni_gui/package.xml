@@ -21,12 +21,12 @@
 
   <build_depend>arni_msgs</build_depend>
   <build_depend>arni_core</build_depend>
-  <build_depend>rosgraph_msg</build_depend>
+  <build_depend>rosgraph_msgs</build_depend>
   <build_depend>rospy</build_depend>
   
   <run_depend>arni_msgs</run_depend>
   <run_depend>arni_core</run_depend>
-  <run_depend>rosgraph_msg</run_depend>
+  <run_depend>rosgraph_msgs</run_depend>
   <run_depend>rospy</run_depend>
 
   <buildtool_depend>catkin</buildtool_depend>
