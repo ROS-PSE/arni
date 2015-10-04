@@ -417,7 +417,7 @@ class ROSModel(QAbstractItemModel):
                             state = "error"
 	
 	for key in data_dict:
-	    if key != "state" and key != "cpu_temp_max" and key != "total_traffic" and key != "ram_usage_max":
+	    if key != "state" and key != "cpu_temp_max" and key != "total_traffic" and key != "ram_usage_max" and self.__root_item.child_count():
 	        data_dict[key] = data_dict[key] / self.__root_item.child_count()
 	
         data_dict["connected_hosts"] = connected_hosts
