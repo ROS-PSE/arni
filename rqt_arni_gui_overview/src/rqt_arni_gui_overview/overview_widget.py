@@ -299,10 +299,6 @@ class OverviewWidget(QWidget):
             self.information_tab_text_browser.setHtml(self.__model.get_overview_text())
             self.information_tab_text_browser.verticalScrollBar().setSliderPosition(scroll_value)
 
-        #todo: currently not needed
-        self.__last_update = rospy.Time.now()
-
-
     def update_graphs(self, event):
         """
         Updates and redraws the graphs.
@@ -314,7 +310,6 @@ class OverviewWidget(QWidget):
                                 self.__items_per_group, len(self.__plotable_items)):min((self.__current_selected_combo_box_index + 1)
                                                         * self.__items_per_group, len(self.__plotable_items))]
             plotable_data = self.__model.get_root_item().get_items_younger_than(
-                #Time.now() - Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)),
                 Time.now() - (Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)) if int(Duration(secs=self.__combo_box_index_to_seconds(self.__current_range_combo_box_index)).to_sec()) <= int(Time.now().to_sec()) else Time(0) ),
                 "window_stop", *plotable_items)
             temp_time = []
@@ -336,9 +331,6 @@ class OverviewWidget(QWidget):
             for key in plotable_items:
                 for i in range(0, length, modulo):
                     temp_content.append(plotable_data[key][i])
-                #todo: does this also work, when ints are inputed (or None values^^). is f8 needed here?
-                #print("length content before:" + str(len(temp_content)))
-                #print(key + "   y   ")
                 y = np.array(temp_content)
                 del temp_content[:]
 

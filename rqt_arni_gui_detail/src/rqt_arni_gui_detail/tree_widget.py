@@ -18,6 +18,7 @@ from python_qt_binding.QtCore import QPoint
 
 import yaml
 
+
 class TreeWidget(QWidget):
     """
     The TreeWidget of the ArniGuiDetail-Plugin.
@@ -100,7 +101,8 @@ class TreeWidget(QWidget):
         #: show_erroneous__marked_items_map_check_box
         self.show_erroneous_check_box.stateChanged.connect(self.__on_show_erroneous_check_box_state_changed)
         #: also_show_subscribers_check_box
-        self.also_show_subscribers_check_box.stateChanged.connect(self.__on_also_show_subscribers_check_box_state_changed)
+        self.also_show_subscribers_check_box.stateChanged.connect(
+            self.__on_also_show_subscribers_check_box_state_changed)
         #: apply_push_button
         self.apply_push_button.clicked.connect(self.__on_apply_push_button_clicked)
         #: minus_push_button
@@ -117,7 +119,6 @@ class TreeWidget(QWidget):
         self.load_config_push_button.clicked.connect(self.__on_load_config_push_button_clicked)
         self.recording_push_button.clicked.connect(self.__on_recording_push_button_clicked)
 
-
     def __on_load_config_push_button_clicked(self):
         filename = QFileDialog.getOpenFileName(self)
 
@@ -125,12 +126,10 @@ class TreeWidget(QWidget):
         os.system("rosservice call /monitoring_node/reload_specifications")
         self.loaded_specs += 1
 
-
-
     def __on_recording_push_button_clicked(self):
         storage = []
 
-        if self.__recording_running: #stop now
+        if self.__recording_running:  # stop now
             self.recording_push_button.setText("Start recording")
             print("Stopping the recording and saving the data")
             self.__recording_running = False
@@ -154,12 +153,12 @@ class TreeWidget(QWidget):
                             max = 0
 
                             if key in list_entries:
-                                #todo: currently not possible to track these!
+                                # todo: currently not possible to track these!
                                 pass
                             else:
                                 if key in time_entries:
                                     for i in range(0, length):
-                                        value = float(str(plotable_data[key][i]))/1000000000.0
+                                        value = float(str(plotable_data[key][i])) / 1000000000.0
                                         if value < min:
                                             min = value
                                         if value > max:
@@ -185,13 +184,12 @@ class TreeWidget(QWidget):
             with open(filename[0], u"w") as outfile:
                 outfile.write(yaml.dump(storage, default_flow_style=False))
 
-        else: #start now
+        else:  # start now
             print("Started recording")
             self.recording_push_button.setText("Stop recording")
             self.start_time = Time.now()
 
             self.__recording_running = True
-
 
     def __contextual_menu(self, point):
         index = self.item_tree_view.indexAt(point)
@@ -213,21 +211,17 @@ class TreeWidget(QWidget):
         menu.addAction(action)
         menu.exec_(global_pos)
 
-
-
     def __item_marked(self, marked):
         if marked:
             self.selected_item.marked = True
             self.__marked_items_map[self.selected_item.seuid] = self.selected_item
-            #print("marked")
+            # print("marked")
             pass
         else:
             self.selected_item.marked = False
             self.__marked_items_map.pop(self.selected_item.seuid)
-            #print("no longer marked")
+            # print("no longer marked")
             pass
-
-
 
     def __on_show_nodes_check_box_state_changed(self, activated):
         """
@@ -241,14 +235,13 @@ class TreeWidget(QWidget):
             if not self.show_hosts_check_box.checkState():
                 self.show_hosts_check_box.click()
         else:
-            self.__filter_proxy.show_nodes(False)            
-	    if self.show_topics_check_box.checkState():
-	        self.show_topics_check_box.click()
+            self.__filter_proxy.show_nodes(False)
+            if self.show_topics_check_box.checkState():
+                self.show_topics_check_box.click()
             if self.show_connections_check_box.checkState():
-	        self.show_connections_check_box.click()
-	    if self.also_show_subscribers_check_box.checkState():
-	        self.also_show_subscriber_check_box.click()
-	        
+                self.show_connections_check_box.click()
+            if self.also_show_subscribers_check_box.checkState():
+                self.also_show_subscriber_check_box.click()
 
     def __on_show_hosts_check_box_state_changed(self, activated):
         """
@@ -264,12 +257,11 @@ class TreeWidget(QWidget):
             if self.show_nodes_check_box.checkState():
                 self.show_nodes_check_box.click()
             if self.show_topics_check_box.checkState():
-	        self.show_topics_check_box.click()
+                self.show_topics_check_box.click()
             if self.show_connections_check_box.checkState():
-	        self.show_connections_check_box.click()
-	    if self.also_show_subscribers_check_box.checkState():
-	        self.also_show_subscribers_check_box.click()	     
-
+                self.show_connections_check_box.click()
+            if self.also_show_subscribers_check_box.checkState():
+                self.also_show_subscribers_check_box.click()
 
     def __on_show_topics_check_box_state_changed(self, activated):
         """
@@ -283,14 +275,13 @@ class TreeWidget(QWidget):
             if not self.show_hosts_check_box.checkState():
                 self.show_hosts_check_box.click()
             if not self.show_nodes_check_box.checkState():
-	        self.show_nodes_check_box.click()
+                self.show_nodes_check_box.click()
         else:
             self.__filter_proxy.show_topics(False)
             if self.show_connections_check_box.checkState():
-	        self.show_connections_check_box.click()
-	    if self.also_show_subscribers_check_box.checkState():
-	        self.also_show_check_box.click()
-
+                self.show_connections_check_box.click()
+            if self.also_show_subscribers_check_box.checkState():
+                self.also_show_check_box.click()
 
     def __on_show_connections_check_box_state_changed(self, activated):
         """
@@ -304,14 +295,13 @@ class TreeWidget(QWidget):
             if not self.show_hosts_check_box.checkState():
                 self.show_hosts_check_box.click()
             if not self.show_nodes_check_box.checkState():
-	        self.show_nodes_check_box.click()
-	    if not self.show_topics_check_box.checkState():
-	        self.show_topics_check_box.click()
+                self.show_nodes_check_box.click()
+            if not self.show_topics_check_box.checkState():
+                self.show_topics_check_box.click()
         else:
             self.__filter_proxy.show_connections(False)
             if self.also_show_subscribers_check_box.checkState():
-	        self.also_show_subscribers_check_box.click()
-
+                self.also_show_subscribers_check_box.click()
 
     def __on_show_erroneous_check_box_state_changed(self, activated):
         """
@@ -325,8 +315,7 @@ class TreeWidget(QWidget):
             self.__filter_proxy.setFilterKeyColumn(2)
         else:
             self.__filter_proxy.setFilterRegExp(QRegExp(""))
-            
-    
+
     def __on_also_show_subscribers_check_box_state_changed(self, activated):
         """
         If this checkBox is set, also subscribers will be displayed.
@@ -339,23 +328,19 @@ class TreeWidget(QWidget):
             if not self.show_hosts_check_box.checkState():
                 self.show_hosts_check_box.click()
             if not self.show_nodes_check_box.checkState():
-	        self.show_nodes_check_box.click()
-	    if not self.show_topics_check_box.checkState():
-	        self.show_topics_check_box.click()
-	    if not self.show_connections_check_box.checkState():
-	        self.show_connections_check_box.click()
+                self.show_nodes_check_box.click()
+            if not self.show_topics_check_box.checkState():
+                self.show_topics_check_box.click()
+            if not self.show_connections_check_box.checkState():
+                self.show_connections_check_box.click()
         else:
-	    self.__filter_proxy.show_subscribers(False)
-	   
-	    
-
+            self.__filter_proxy.show_subscribers(False)
 
     def __on_apply_push_button_clicked(self):
         """
         Filters the content in the box according to the content of the filter_line_edit.
         """
         self.__filter_proxy.set_filter_string(self.filter_line_Edit.text())
-
 
     def __on_minus_push_button_clicked(self):
         """
@@ -365,7 +350,6 @@ class TreeWidget(QWidget):
             self.__font_size -= 1
             self.item_tree_view.setStyleSheet("font-size: %dpt;" % self.__font_size)
             self.__resize_columns()
-
 
     def __on_plus_push_button_clicked(self):
         """
@@ -384,16 +368,15 @@ class TreeWidget(QWidget):
             self.__is_expanded = False
             self.item_tree_view.collapseAll()
             # set new icon
-            #pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
+            # pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
             #                                          'expand.png'))
         else:
             self.__is_expanded = True
             self.item_tree_view.expandAll()
-            #set new icon
-            #pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
+            # set new icon
+            # pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
             #                                          'collaps.png'))
-        #self.expand_push_button.setPixmap(pixmap)
-
+            # self.expand_push_button.setPixmap(pixmap)
 
     def get_relative_font_size(self):
         """
@@ -403,7 +386,6 @@ class TreeWidget(QWidget):
         :rtype: int
         """
         return self.__relative_font_size
-
 
     def set_relative_font_size(self, relative_font_size):
         """
@@ -419,7 +401,6 @@ class TreeWidget(QWidget):
             for i in range(relative_font_size, 0):
                 self.__on_minus_push_button_clicked()
 
-
     def __resize_columns(self):
         """
         Resizes the columns according to their content
@@ -427,4 +408,4 @@ class TreeWidget(QWidget):
         for i in range(0, self.__filter_proxy.columnCount() - 1):
             self.item_tree_view.resizeColumnToContents(i)
         size = self.item_tree_view.columnWidth(1)
-        self.item_tree_view.setColumnWidth(1, size/2 if size > 120 else 160)
+        self.item_tree_view.setColumnWidth(1, size / 2 if size > 120 else 160)
