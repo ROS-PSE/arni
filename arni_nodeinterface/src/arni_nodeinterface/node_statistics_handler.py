@@ -27,7 +27,7 @@ class NodeStatisticsHandler(StatisticsHandler):
         self._status = NodeStatus(rospy.Time.now())
 
         self.__node_process = node_process
-        self.pub = rospy.Publisher('/statistics_node', NodeStatistics)
+        self.pub = rospy.Publisher('/statistics_node', NodeStatistics, queue_size=2)
         self.update_interval = rospy.get_param('~publish_interval', 10) /\
             float(rospy.get_param('~window_max_elements', 10))
         self.register_subscriber()

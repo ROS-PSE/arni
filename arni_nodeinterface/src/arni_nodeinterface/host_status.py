@@ -77,7 +77,7 @@ class HostStatus(Status):
         :param interface: name of the network interface
         :type interface: string
         :param bytes: measured bytes
-        :type bytes: int
+        :type bytes: float
         """
         if interface not in self.__bandwidth:
             self.__bandwidth[interface] = []
@@ -92,7 +92,7 @@ class HostStatus(Status):
         :param interface: name of the network interface
         :type interface: string
         :param freq: measured frequency
-        :type freq: int 
+        :type freq: float
         """
         if interface not in self.__msg_frequency:
             self.__msg_frequency[interface] = []
@@ -107,7 +107,7 @@ class HostStatus(Status):
         :param disk: name of the disk
         :type disk: string
         :param byte: bytes written
-        :type byte: int 
+        :type byte: float
         """
         if disk not in self.__drive_write:
             self.__drive_write[disk] = []
@@ -122,7 +122,7 @@ class HostStatus(Status):
         :param disk: name of the disk
         :type disk: string
         :param byte: bytes read
-        :type byte: int 
+        :type byte: float
         """
         if disk not in self.__drive_read:
             self.__drive_read[disk] = []

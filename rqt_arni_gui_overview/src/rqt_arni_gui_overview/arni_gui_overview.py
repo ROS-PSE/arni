@@ -38,6 +38,14 @@ class ArniGuiOverview(Plugin):
             print 'arguments: ', args
             print 'unknowns: ', unknowns
 
+        try:
+            if rospy.get_param("/enable_statistics") == False:
+                raise KeyError('/enable_statistics')
+        except KeyError:
+            self.__overview_widget = None
+            raise EnvironmentError("/enable_statistics is either not set or set to false - arni gui would not work correctly. Please make sure to start "
+                             "roscore with the neccesary parameters or to load these while running (see init_params.launch)")
+
         self.__overview_widget = OverviewWidget()
         context.add_widget(self.__overview_widget)
 

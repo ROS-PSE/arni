@@ -57,10 +57,14 @@ class SelectionWidget(QWidget):
 
         self.__last_update = rospy.Time.now()
 
-        # TODO self.__graph_layout =
-        #TODO self.__graph_dict =
+        try:
+            if rospy.get_param("/enable_statistics") == False:
+                raise KeyError('/enable_statistics')
+        except KeyError:
+            self.__overview_widget = None
+            raise EnvironmentError("/enable_statistics is either not set or set to false - arni gui would not work correctly. Please make sure to start "
+                             "roscore with the neccesary parameters or to load these while running (see init_params.launch)")
 
-        #TODO fill the dict
         self.__values_dict = {
             "bandwidth_mean": 0,
             "bandwidth_stddev": 0,

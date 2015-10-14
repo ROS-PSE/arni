@@ -11,6 +11,8 @@ import socket
 import rosnode
 import rospy
 import sys
+import threading
+
 try:
     import sensors
     import psutil
@@ -23,8 +25,6 @@ if psutil.__version__ < '2.1.1':
     sys.stderr.write(
         'Installed psutil version is outdated. Update Psutil to 2.1.1 or newer')
     sys.exit(1)
-
-import threading
 
 
 class HostStatisticsHandler(StatisticsHandler):
@@ -91,10 +91,10 @@ class HostStatisticsHandler(StatisticsHandler):
             self.__bandwidth_base[interface] = total_bytes
             self.__msg_freq_base[interface] = total_packages
 
-        dev_names = ''
+        dev_names = []
         for disk in psutil.disk_partitions():
             if all(['cdrom' not in disk.opts, 'sr' not in disk.device]):
-                dev_names += disk.device + ';'
+                dev_names.append(disk.device)
 
         for key in psutil.disk_io_counters(True):
             if key in dev_names:
@@ -166,28 +166,33 @@ class HostStatisticsHandler(StatisticsHandler):
         """
         # Free Space on disks
         disks = psutil.disk_partitions()
-        dev_name = ''
-        for x in disks:
-            if 'cdrom' not in x.opts and 'sr' not in x.device:
-                free_space = psutil.disk_usage(x.mountpoint).free / 2 ** 20
-                self._status.add_drive_space(x.device, free_space)
-                dev_name += x.device + ';'
+        dev_name = []
+        for disk in disks:
+            if 'cdrom' not in disk.opts and 'sr' not in disk.device:
+                free_space = psutil.disk_usage(disk.mountpoint).free / 2 ** 20
+                self._status.add_drive_space(disk.device, free_space)
+                dev_name.append(disk.device)
 
         # Drive I/O
         drive_io = psutil.disk_io_counters(True)
-        for key in drive_io:
-            if key in dev_name:
-                readb = drive_io[key].read_bytes - self.__disk_read_base[key]
-                writeb = drive_io[key].write_bytes - \
-                    self.__disk_write_base[key]
+
+        for disk in dev_name:
+            if disk in drive_io:
+                readb = drive_io[disk].read_bytes - self.__disk_read_base[disk]
+                writeb = drive_io[disk].write_bytes - \
+                    self.__disk_write_base[disk]
 
                 read_rate = readb / self.__update_interval
                 write_rate = writeb / self.__update_interval
-                self._status.add_drive_read(key, read_rate)
-                self._status.add_drive_write(key, write_rate)
+                self._status.add_drive_read(disk, read_rate)
+                self._status.add_drive_write(disk, write_rate)
                 # update base stats for next iteration
-                self.__disk_read_base[key] += readb
-                self.__disk_write_base[key] += writeb
+                self.__disk_read_base[disk] += readb
+                self.__disk_write_base[disk] += writeb
+            else:
+                # No information available - push None's
+                self._status.add_drive_read(disk, None)
+                self._status.add_drive_write(disk, None)
 
     def publish_status(self, event):
         """
@@ -201,7 +206,6 @@ class HostStatisticsHandler(StatisticsHandler):
             self._status.time_end = rospy.Time.now()
             stats = self.__calc_statistics()
             self.__dict_lock.acquire()
-            #rospy.logdebug('Publishing Host ')
             self.__publish_nodes()
             self.__dict_lock.release()
             self.pub.publish(stats)
@@ -308,11 +312,12 @@ class HostStatisticsHandler(StatisticsHandler):
 
             for node in nodes:
                 if node not in self.__node_list:
-                    try:
-                        node_api = rosnode.get_api_uri(
-                        rospy.get_master(), node, skip_cache=True)
-                    except:
-                        pass
+                    """TODO currently not catching the exception here - master not running is a hard error so it does
+                    not make sense to continue running.."""
+
+                    node_api = rosnode.get_api_uri(
+                    rospy.get_master(), node, skip_cache=True)
+
                     try:
                         pid = self.get_node_pid(node_api, node)
                         if not pid:
@@ -336,8 +341,6 @@ class HostStatisticsHandler(StatisticsHandler):
             for node_name in to_remove:
                 self.remove_node(node_name)
             self.__dict_lock.release()
-
-            #rospy.logdebug([key for key in self.__node_list])
 
     def get_node_pid(self, node_api, node):
         """
