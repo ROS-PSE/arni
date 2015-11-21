@@ -206,7 +206,10 @@ class TopicItem(AbstractItem):
 
 
         for key in self.avg_keys:
-            aggregated_data[key] /= child_count
+            if child_count == 0:
+                aggregated_data[key] = 0
+            else:
+                aggregated_data[key] /= child_count
 
         self._data_lock.acquire()
 

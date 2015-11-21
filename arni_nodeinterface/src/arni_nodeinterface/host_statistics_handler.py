@@ -54,8 +54,7 @@ class HostStatisticsHandler(StatisticsHandler):
         self.__lock = threading.Lock()
         self.__dict_lock = threading.Lock()
 
-        self.pub = rospy.Publisher(
-            '/statistics_host', HostStatistics, queue_size=500)
+        self.pub = rospy.Publisher('/statistics_host', HostStatistics, queue_size=500)
         #: Used to store information about the host's status.
         self._status = HostStatus(rospy.Time.now())
 
@@ -303,8 +302,7 @@ class HostStatisticsHandler(StatisticsHandler):
             nodes = []
             for node_name in rosnode.get_node_names():
                 try:
-                    node_api = rosnode.get_api_uri(
-                    rospy.get_master(), node_name, skip_cache=True)
+                    node_api = rosnode.get_api_uri(rospy.get_master(), node_name, skip_cache=True)
                     if self._id in node_api[2]:
                         nodes.append(node_name)
                 except :
@@ -314,9 +312,7 @@ class HostStatisticsHandler(StatisticsHandler):
                 if node not in self.__node_list:
                     """TODO currently not catching the exception here - master not running is a hard error so it does
                     not make sense to continue running.."""
-
-                    node_api = rosnode.get_api_uri(
-                    rospy.get_master(), node, skip_cache=True)
+                    node_api = rosnode.get_api_uri(rospy.get_master(), node, skip_cache=True)
 
                     try:
                         pid = self.get_node_pid(node_api, node)
@@ -329,7 +325,7 @@ class HostStatisticsHandler(StatisticsHandler):
                         self.__node_list[node] = new_node
                         self.__dict_lock.release()
                     except psutil.NoSuchProcess:
-                        rospy.loginfo('pid %d does not exit' % pid)
+                        rospy.loginfo('pid of node %s could not be fetched' % node)
                         continue
 
             self.__dict_lock.acquire()

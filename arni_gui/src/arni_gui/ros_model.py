@@ -17,6 +17,7 @@ from root_item import RootItem
 import rospy
 from rospy.rostime import Duration, Time
 from rospy.timer import Timer
+import std_msgs.msg
 
 from arni_core.singleton import Singleton
 
@@ -29,9 +30,15 @@ from model_logger import ModelLogger
 
 from arni_core.helper import SEUID, SEUID_DELIMITER
 
+import rosgraph.impl.graph
+import rosgraph.masterapi
+
+_ROS_NAME = '/rosviz'
+
 import time
 
-from helper_functions import UPDATE_FREQUENCY, MAXIMUM_AMOUNT_OF_ENTRIES, MINIMUM_RECORDING_TIME, topic_statistics_state_to_string, find_qm_files
+from helper_functions import UPDATE_FREQUENCY, MAXIMUM_AMOUNT_OF_ENTRIES, MINIMUM_RECORDING_TIME, \
+    topic_statistics_state_to_string, find_qm_files
 
 import rospkg
 import os
@@ -71,7 +78,7 @@ class ROSModel(QAbstractItemModel):
         directory = os.path.join(self.rp.get_path('arni_gui'), 'translations')
         files = find_qm_files(directory)
         translator = self.get_translator()
-        #todo: make this more intelligent
+        # todo: make this more intelligent
         print("chose translation " + files[0])
         translator.load(files[0])
         qApp.installTranslator(translator)
@@ -91,7 +98,7 @@ class ROSModel(QAbstractItemModel):
             2: 'state',
             3: 'data'
         }
-        
+
         self.__last_time_error_occured = 0
         self.__logger.log("info", Time.now(), "ROSModel", "ROSModel initialization finished")
 
@@ -100,7 +107,9 @@ class ROSModel(QAbstractItemModel):
         self.__find_host = HostLookup()
 
         self.__buffer_thread = BufferThread(self)
-        
+
+        pub = rospy.Publisher('temp', std_msgs.msg.String, queue_size=10)
+        pub.publish(std_msgs.msg.String("foo"))
 
     def get_overview_data_since(self, time=None):
         """
@@ -118,7 +127,6 @@ class ROSModel(QAbstractItemModel):
             data_dict = self.__root_item.get_items_younger_than(time)
 
         return data_dict
-
 
     def data(self, index, role=Qt.DisplayRole):
         """
@@ -140,9 +148,8 @@ class ROSModel(QAbstractItemModel):
                 raise IndexError("item is None")
             if self.__mapping[index.column()] is "data":
                 return item.get_short_data()
-            return item.get_latest_data(self.__mapping[index.column()])[self.__mapping[index.column()]]	  
+            return item.get_latest_data(self.__mapping[index.column()])[self.__mapping[index.column()]]
         return None
-
 
     def flags(self, index):
         """
@@ -158,7 +165,6 @@ class ROSModel(QAbstractItemModel):
             return Qt.NoItemFlags
 
         return Qt.ItemIsEnabled | Qt.ItemIsSelectable
-
 
     def headerData(self, section, orientation, role):
         """
@@ -184,7 +190,6 @@ class ROSModel(QAbstractItemModel):
             else:
                 return " " + self.tr('Data')
         return None
-
 
     def index(self, row, column, parent):
         """
@@ -214,7 +219,6 @@ class ROSModel(QAbstractItemModel):
         else:
             return QModelIndex()
 
-
     def parent(self, index):
         """
         Returns the QModelIndex of the parent from the child item specied via its index.
@@ -236,7 +240,6 @@ class ROSModel(QAbstractItemModel):
 
         return self.createIndex(parent_item.row(), 0, parent_item)
 
-
     def rowCount(self, parent):
         """
         Returns the amount of rows in the model.
@@ -257,7 +260,6 @@ class ROSModel(QAbstractItemModel):
 
         return parent_item.child_count()
 
-
     def columnCount(self, parent):
         """
         Returns the amount of columns in the model.
@@ -268,10 +270,9 @@ class ROSModel(QAbstractItemModel):
         :returns: int
         """
         if parent.isValid():
-           return parent.internalPointer().column_count()
+            return parent.internalPointer().column_count()
         else:
-           return self.__root_item.column_count()
-
+            return self.__root_item.column_count()
 
     def update_model(self, rated_statistics, topic_statistics, host_statistics, node_statistics):
         """
@@ -299,12 +300,15 @@ class ROSModel(QAbstractItemModel):
             if amount_of_entries > MAXIMUM_AMOUNT_OF_ENTRIES:
                 for item in self.__identifier_dict.values():
                     if item is not self.__root_item:
-		        #item.delete_items_older_than(Time.now() - Duration(secs=i * MINIMUM_RECORDING_TIME))
-                        item.delete_items_older_than(Time.now() - (Duration(secs=i * MINIMUM_RECORDING_TIME) if int(Duration(secs=i * MINIMUM_RECORDING_TIME).to_sec()) <= int(Time.now().to_sec()) else Time(0))  )
+                        # item.delete_items_older_than(Time.now() - Duration(secs=i * MINIMUM_RECORDING_TIME))
+                        item.delete_items_older_than(Time.now() - (Duration(secs=i * MINIMUM_RECORDING_TIME) if int(
+                            Duration(secs=i * MINIMUM_RECORDING_TIME).to_sec()) <= int(Time.now().to_sec()) else Time(
+                            0)))
 
         if self.__root_item.get_amount_of_entries() > MAXIMUM_AMOUNT_OF_ENTRIES:
-            #self.__root_item.delete_items_older_than(Time.now() - Duration(secs=360))
-            self.__root_item.delete_items_older_than(Time.now() - (Duration(secs=360) if int(Duration(secs=360).to_sec()) <= int(Time.now().to_sec()) else Time(0)) )
+            # self.__root_item.delete_items_older_than(Time.now() - Duration(secs=360))
+            self.__root_item.delete_items_older_than(Time.now() - (
+                Duration(secs=360) if int(Duration(secs=360).to_sec()) <= int(Time.now().to_sec()) else Time(0)))
 
         # in order of their appearance in the treeview for always having valid parents
         for item in host_statistics:
@@ -316,7 +320,9 @@ class ROSModel(QAbstractItemModel):
         for item in topic_statistics:
             self.__transform_topic_statistics_item(item)
 
-        #rating last because it needs the time of the items before
+        self.__add_hidden_topics()
+
+        # rating last because it needs the time of the items before
         for item in rated_statistics:
             self.__transform_rated_statistics_item(item)
 
@@ -341,16 +347,9 @@ class ROSModel(QAbstractItemModel):
         connection_counter = 0
         state = "ok"
 
-        #todo: remove all items older than 5 minuten (or similar) here!
-        #for item in self.__identifier_dict:
-        #   item.delete_items_older_than(Time.now() - Duration(secs=360))
-
-        #time window
-        #todo: where should total_traffic be calculated? currently sum of the bandwidth of the nics
-        #todo: extract in own method????
-        #generate the general information
+        # generate the general information
         for host_item in self.__root_item.get_childs():
-            #hostinfo
+            # hostinfo
             connected_hosts += 1
             if host_item.get_state() is "warning" and state is not "error":
                 state = "warning"
@@ -358,17 +357,19 @@ class ROSModel(QAbstractItemModel):
                 state = "error"
 
             last_entry = {}
-            #data = host_item.get_items_younger_than(Time.now() - Duration(secs=10), "bandwidth_mean", "cpu_usage_max",
-            data = host_item.get_items_younger_than(Time.now() - (Duration(secs=10) if int(Duration(secs=10).to_sec()) <= int(Time.now().to_sec()) else Time(0)) , "bandwidth_mean", "cpu_usage_max",
+            # data = host_item.get_items_younger_than(Time.now() - Duration(secs=10), "bandwidth_mean", "cpu_usage_max",
+            data = host_item.get_items_younger_than(Time.now() - (
+                Duration(secs=10) if int(Duration(secs=10).to_sec()) <= int(Time.now().to_sec()) else Time(0)),
+                                                    "bandwidth_mean", "cpu_usage_max",
                                                     "cpu_temp_mean", "cpu_usage_mean", "cpu_temp_max", "ram_usage_max",
                                                     "ram_usage_mean")
             if data["window_stop"]:
                 for key in data:
-		    if key is not "window_stop":
+                    if key is not "window_stop":
                         last_entry[key] = data[key][-1]
             else:
                 data = host_item.get_latest_data("bandwidth_mean", "cpu_usage_max", "cpu_temp_mean", "cpu_usage_mean",
-                                             "cpu_temp_max", "ram_usage_max", "ram_usage_mean")
+                                                 "cpu_temp_max", "ram_usage_max", "ram_usage_mean")
                 for key in data:
                     last_entry[key] = data[key]
 
@@ -384,13 +385,13 @@ class ROSModel(QAbstractItemModel):
                         if type(last_entry[key]) is not unicode:
                             if last_entry[key] is not 0:
                                 if data_dict[key] < last_entry[key]:
-				  data_dict[key] = last_entry[key]
+                                    data_dict[key] = last_entry[key]
                     else:
                         if type(last_entry[key]) is not unicode:
                             if last_entry[key] is not 0:
                                 data_dict[key] += last_entry[key]
             for node_item in host_item.get_childs():
-                #nodeinfo
+                # nodeinfo
                 connected_nodes += 1
 
                 if node_item.get_state() is "warning" and state is not "error":
@@ -399,7 +400,7 @@ class ROSModel(QAbstractItemModel):
                     state = "error"
 
                 for topic_item in node_item.get_childs():
-                    #topic info
+                    # topic info
                     topic_counter += 1
 
                     if topic_item.get_state() is "warning" and state is not "error":
@@ -408,18 +409,18 @@ class ROSModel(QAbstractItemModel):
                         state = "error"
 
                     for connection_item in topic_item.get_childs():
-                        #connection info
+                        # connection info
                         connection_counter += 1
 
                         if connection_item.get_state() is "warning" and state is not "error":
                             state = "warning"
                         elif connection_item.get_state() is "error":
                             state = "error"
-	
-	for key in data_dict:
-	    if key != "state" and key != "cpu_temp_max" and key != "total_traffic" and key != "ram_usage_max" and self.__root_item.child_count():
-	        data_dict[key] = data_dict[key] / self.__root_item.child_count()
-	
+
+        for key in data_dict:
+            if key != "state" and key != "cpu_temp_max" and key != "total_traffic" and key != "ram_usage_max" and self.__root_item.child_count():
+                data_dict[key] = data_dict[key] / self.__root_item.child_count()
+
         data_dict["connected_hosts"] = connected_hosts
         data_dict["connected_nodes"] = connected_nodes
         data_dict["topic_counter"] = topic_counter
@@ -427,11 +428,10 @@ class ROSModel(QAbstractItemModel):
         data_dict["state"] = state
         data_dict["window_end"] = Time.now()
 
-        #now give this information to the root :)
+        # now give this information to the root :)
         self.__root_item.append_data_dict(data_dict)
 
         self.layoutChanged.emit()
-
 
     def __transform_rated_statistics_item(self, item):
         """
@@ -444,13 +444,88 @@ class ROSModel(QAbstractItemModel):
         seuid = item.seuid
         # check if avaiable
         if seuid not in self.__identifier_dict:
-            #having a problem, item doesn't exist but should not be created here
+            # having a problem, item doesn't exist but should not be created here
             pass
         else:
-            #update it
+            # update it
             current_item = self.__identifier_dict[seuid]
             current_item.update_rated_data(item)
 
+    def __add_hidden_topics(self):
+        """
+        Used to add further topics that have not been added by __transform_topic_statistics_item. A new TopicItem
+        will only be created if it does not yet exist. This is especially the case for existing topics that don't send
+        any data.
+        """
+        self.master = rosgraph.masterapi.Master(_ROS_NAME)
+        try:
+            val = self.master.getSystemState()
+        except rosgraph.masterapi.MasterException as e:
+            print("Unable to contact master", str(e))
+            return
+
+        pubs, subs, srvs = val
+
+        for (topic, l) in pubs:
+            topic_seuid = "t" + SEUID_DELIMITER + topic
+            if topic_seuid not in self.__identifier_dict:
+                node_seuid = "n" + SEUID_DELIMITER + l[0]
+                parent = None
+                try:
+                    parent = self.__identifier_dict[node_seuid]
+                except KeyError:
+                    # add the node
+                    # self.__logger.log("warning", Time.now(), "RosModel", "Error: Node of hidden topic (no msgs"
+                    #                                                      " send so far) could not be "
+                    #                                                      "determined "
+                    #                                                      "- please run nodeinterface on all"
+                    #                                                      " hosts. ")
+                    host_seuid = "h" + SEUID_DELIMITER + self.__find_host.get_host(l[0])
+                    host_item = None
+                    if host_seuid not in self.__identifier_dict:
+                        host_item = HostItem(self.__logger, host_seuid, self.__root_item)
+                        self.__identifier_dict[host_seuid] = host_item
+                        self.__root_item.append_child(host_item)
+                    else:
+                        host_item = self.__identifier_dict[host_seuid]
+
+                    node_item = NodeItem(self.__logger, node_seuid, host_item)
+                    self.__identifier_dict[node_seuid] = node_item
+                    host_item.append_child(node_item)
+                    parent = node_item
+                topic_item = TopicItem(self.__logger, topic_seuid, None, parent)
+                parent.append_child(topic_item)
+                self.__identifier_dict[topic_seuid] = topic_item
+
+                for (topic_tmp, l_tmp) in subs:
+                    if topic_tmp == topic:
+                        for sub in l_tmp:
+                            connection_seuid = "c" + SEUID_DELIMITER + sub + SEUID_DELIMITER + topic \
+                                               + SEUID_DELIMITER + l[0]
+                            if connection_seuid not in self.__identifier_dict:
+                                connection_item = ConnectionItem(self.__logger, connection_seuid, None,
+                                                                 topic_item)
+                                topic_item.append_child(connection_item)
+                                self.__identifier_dict[connection_seuid] = connection_item
+            for (topic, l) in subs:
+                pass
+                # nodes.extend([n for n in l if n.startswith(self.node_ns)])
+                # nt_nodes.add(topic_node(topic))
+                # for node in l:
+                #     updated = nt_all_edges.add_edges(
+                #         node, topic_node(topic), direction) or updated
+
+
+
+                # for item in items:
+                #     if item[0] == "/statistics" or item[0] == "/rosout_agg":
+                #         continue
+                #     topic_seuid = "t" + SEUID_DELIMITER + item[0]
+                #
+                #     # check if available
+                #     if topic_seuid not in self.__identifier_dict:
+                #         # creating a topic item
+                #         print("topic has not been found: " + topic_seuid)
 
     def __transform_topic_statistics_item(self, item):
         """
@@ -462,14 +537,14 @@ class ROSModel(QAbstractItemModel):
         # get identifier
         topic_seuid = "t" + SEUID_DELIMITER + item.topic
         connection_seuid = "c" + SEUID_DELIMITER + item.node_sub + SEUID_DELIMITER + item.topic \
-                              + SEUID_DELIMITER + item.node_pub
-	
+                           + SEUID_DELIMITER + item.node_pub
+
         topic_item = None
-        connection_item = None        
-        
+        connection_item = None
+
         # check if avaiable
         if topic_seuid not in self.__identifier_dict:
-            #creating a topic item
+            # creating a topic item
             try:
                 parent = self.__identifier_dict[item.node_pub]
             except KeyError:
@@ -492,8 +567,8 @@ class ROSModel(QAbstractItemModel):
                 else:
                     node_item = self.__identifier_dict[node_seuid]
 
-                parent = self.__identifier_dict["n" + SEUID_DELIMITER + item.node_pub]               
-                
+                parent = self.__identifier_dict["n" + SEUID_DELIMITER + item.node_pub]
+
             if parent is None:
                 # having a problem, there is no node with the given name
                 raise UserWarning("The parent of the given topic statistics item cannot be found.")
@@ -501,13 +576,13 @@ class ROSModel(QAbstractItemModel):
             topic_item = TopicItem(self.__logger, topic_seuid, item, parent)
             parent.append_child(topic_item)
             self.__identifier_dict[topic_seuid] = topic_item
-            #creating a connection item
+            # creating a connection item
             connection_item = ConnectionItem(self.__logger, connection_seuid, item, topic_item)
             topic_item.append_child(connection_item)
-            self.__identifier_dict[connection_seuid] = connection_item                 
+            self.__identifier_dict[connection_seuid] = connection_item
         elif connection_seuid not in self.__identifier_dict:
             topic_item = self.__identifier_dict[topic_seuid]
-            #creating a new connection item
+            # creating a new connection item
             connection_item = ConnectionItem(self.__logger, connection_seuid, item, topic_item)
             topic_item.append_child(connection_item)
             self.__identifier_dict[connection_seuid] = connection_item
@@ -515,7 +590,7 @@ class ROSModel(QAbstractItemModel):
             # get topic and connection item
             topic_item = self.__identifier_dict[topic_seuid]
             connection_item = self.__identifier_dict[connection_seuid]
-          
+
             if topic_item is None or connection_item is None:
                 for item in self.__identifier_dict:
                     if self.__identifier_dict[item] is None:
@@ -523,35 +598,34 @@ class ROSModel(QAbstractItemModel):
                 raise UserWarning("The parent of the given topic statistics item cannot be found.")
         # now update these
         connection_item.append_data(item)
-        #topic_item.append_data(item)
-            
+        # topic_item.append_data(item)
+
         self.__transform_subscriber(item)
-        
-        
-    def __transform_subscriber(self, item):   
+
+    def __transform_subscriber(self, item):
         """
         Integrates the subscribers in the model.
 
         :param item: the TopicStatistics item
         :type item: TopicStatistics
         """
-	
-	node_seuid_sub = "n" + SEUID_DELIMITER + item.node_sub
-	
-	topic_seuid_sub = "t" + SEUID_DELIMITER + item.topic + "--sub"
-	
-	connection_seuid_sub = "c" + SEUID_DELIMITER + item.node_sub + SEUID_DELIMITER + item.topic \
-                              + SEUID_DELIMITER + item.node_pub + "--sub"
-			    
-	topic_item_sub = None
+
+        node_seuid_sub = "n" + SEUID_DELIMITER + item.node_sub
+
+        topic_seuid_sub = "t" + SEUID_DELIMITER + item.topic + "--sub"
+
+        connection_seuid_sub = "c" + SEUID_DELIMITER + item.node_sub + SEUID_DELIMITER + item.topic \
+                               + SEUID_DELIMITER + item.node_pub + "--sub"
+
+        topic_item_sub = None
         connection_item_sub = None
-	
-	if topic_seuid_sub not in self.__identifier_dict:
-	    try:
-	        parent_sub = self.__identifier_dict[item.node_sub]
-	    except KeyError:
-	        host_ip = self.__find_host.get_host(item.node_sub)
-	        if host_ip is not None:
+
+        if topic_seuid_sub not in self.__identifier_dict:
+            try:
+                parent_sub = self.__identifier_dict[item.node_sub]
+            except KeyError:
+                host_ip = self.__find_host.get_host(item.node_sub)
+                if host_ip is not None:
                     host_seuid = "h" + SEUID_DELIMITER + host_ip
                     host_item = None
                     if host_seuid not in self.__identifier_dict:
@@ -571,30 +645,29 @@ class ROSModel(QAbstractItemModel):
                         node_item = self.__identifier_dict[node_seuid_sub]
 
                     parent_sub = self.__identifier_dict[node_seuid_sub]
-                else: 
-		    return
-            
+                else:
+                    return
+
             topic_item_sub = TopicItemSub(self.__logger, topic_seuid_sub, item, parent_sub)
             parent_sub.append_child(topic_item_sub)
             self.__identifier_dict[topic_seuid_sub] = topic_item_sub
-                    
+
             connection_item_sub = ConnectionItemSub(self.__logger, connection_seuid_sub, item, topic_item_sub)
             topic_item_sub.append_child(connection_item_sub)
-            self.__identifier_dict[connection_seuid_sub] = connection_item_sub          
+            self.__identifier_dict[connection_seuid_sub] = connection_item_sub
         elif connection_seuid_sub not in self.__identifier_dict:
-	    topic_item_sub = self.__identifier_dict[topic_seuid_sub]
-	    
-	    connection_item_sub = ConnectionItemSub(self.__logger, connection_seuid_sub, item, topic_item_sub)
-            topic_item_sub.append_child(connection_item_sub)
-            self.__identifier_dict[connection_seuid_sub] = connection_item_sub        
-	
-        else:
-	    topic_item_sub = self.__identifier_dict[topic_seuid_sub]
-	    connection_item_sub = self.__identifier_dict[connection_seuid_sub] 
-	    
-        #connection_item_sub.append_data(item)
-        #topic_item_sub.append_data(item)
+            topic_item_sub = self.__identifier_dict[topic_seuid_sub]
 
+            connection_item_sub = ConnectionItemSub(self.__logger, connection_seuid_sub, item, topic_item_sub)
+            topic_item_sub.append_child(connection_item_sub)
+            self.__identifier_dict[connection_seuid_sub] = connection_item_sub
+
+        else:
+            topic_item_sub = self.__identifier_dict[topic_seuid_sub]
+            connection_item_sub = self.__identifier_dict[connection_seuid_sub]
+
+            # connection_item_sub.append_data(item)
+            # topic_item_sub.append_data(item)
 
     def __transform_node_statistics_item(self, item):
         """
@@ -605,7 +678,7 @@ class ROSModel(QAbstractItemModel):
         """
         item_seuid = "n" + SEUID_DELIMITER + item.node
         if item_seuid not in self.__identifier_dict:
-            #create item
+            # create item
             host_seuid = "h" + SEUID_DELIMITER + item.host
             host_item = None
             if host_seuid not in self.__identifier_dict:
@@ -623,7 +696,6 @@ class ROSModel(QAbstractItemModel):
 
         node_item.append_data(item)
 
-
     def __transform_host_statistics_item(self, item):
         """
         Integrates HostStatistics in the model by moding its item/s by adding a new dict to the corresponding item.
@@ -631,11 +703,11 @@ class ROSModel(QAbstractItemModel):
         :param item: the HostStatistics item
         :type item: HostStatistics
         """
-        #print("got host data")
+        # print("got host data")
         host_item = None
         item_seuid = "h" + SEUID_DELIMITER + item.host
         if item_seuid not in self.__identifier_dict:
-            #create item
+            # create item
             host_item = HostItem(self.__logger, item_seuid, self.__root_item)
             self.__identifier_dict[item_seuid] = host_item
             self.__root_item.append_child(host_item)
@@ -643,7 +715,6 @@ class ROSModel(QAbstractItemModel):
             host_item = self.__identifier_dict[item_seuid]
 
         host_item.append_data(item)
-
 
     def get_item_by_seuid(self, seuid):
         """
@@ -660,7 +731,6 @@ class ROSModel(QAbstractItemModel):
         except KeyError:
             print("There is no item with this seuid")
             raise
-
 
     def __get_item_by_seuid(self, seuid, current_item):
         """
@@ -679,7 +749,6 @@ class ROSModel(QAbstractItemModel):
         for item in current_item.get_childs():
             self.__get_item_by_name(item.seuid, item)
         return None
-
 
     def get_log_model(self):
         """
@@ -707,7 +776,6 @@ class ROSModel(QAbstractItemModel):
         :rtype: str
         """
         return self.__root_item.get_detailed_data()
-
 
     def get_root_item(self):
         """

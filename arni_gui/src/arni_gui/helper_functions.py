@@ -22,7 +22,10 @@ The maximal amount of entries allowed in the model (for not crashing it).
 Entries are the data_entries in the childs of the model
 """
 
-# todo: apapt to a good number by trial and failure :)
+"""
+Note: This value was found by simply guessing. Changing it might result in lower speed / higher memory footprint.
+It affects the number of entries in the model.
+"""
 MAXIMUM_AMOUNT_OF_ENTRIES = 10000
 
 """
@@ -56,47 +59,33 @@ class ResizeableGraphicsLayoutWidget(pg.GraphicsLayoutWidget):
             try:
                 self.function_to_call()
             except AttributeError:
-                #only occurs when widget is resized before the set_function method is called
+                # only occurs when widget is resized before the set_function method is called
                 pass
         pg.GraphicsLayoutWidget.resizeEvent(self, ev)
 
 
 class DateAxis(pg.AxisItem):
     def tickStrings(self, values, scale, spacing):
-        if values is None or len(values) is 0:
-            raise UserWarning("DateAxis::tickStrings: values is empty!")
-
         strns = []
-        rng = max(values) - min(values)
-        string = '%Y'
-        label1 = ''
-        label2 = ''
-        if rng < 3600 * 24:
-            string = '%H:%M:%S'
-            label1 = '%b %d -'
-            label2 = ' %b %d, %Y'
-        elif 3600 * 24 <= rng < 3600 * 24 * 30:
-            string = '%d'
-            label1 = '%b - '
-            label2 = '%b, %Y'
-        elif 3600 * 24 * 30 <= rng < 3600 * 24 * 30 * 24:
-            string = '%b'
-            label1 = '%Y -'
-            label2 = ' %Y'
-        elif rng >= 3600 * 24 * 30 * 24:
+        if values is None or len(values) is 0:
+            pass
+            #raise UserWarning("DateAxis::tickStrings: values is empty!")
+        else:
+            rng = max(values) - min(values)
             string = '%Y'
-            label1 = ''
-            label2 = ''
-        for x in values:
-            try:
-                strns.append(time.strftime(string, time.localtime(x)))
-            except ValueError:  ## Windows can't handle dates before 1970
-                strns.append('')
-        try:
-            label = time.strftime(label1, time.localtime(min(values))) + time.strftime(label2,
-                                                                                       time.localtime(max(values)))
-        except ValueError:
-            label = ''
+            if rng < 3600 * 24:
+                string = '%H:%M:%S'
+            elif 3600 * 24 <= rng < 3600 * 24 * 30:
+                string = '%d'
+            elif 3600 * 24 * 30 <= rng < 3600 * 24 * 30 * 24:
+                string = '%b'
+            elif rng >= 3600 * 24 * 30 * 24:
+                string = '%Y'
+            for x in values:
+                try:
+                    strns.append(time.strftime(string, time.localtime(x)))
+                except ValueError:  # Windows can't handle dates before 1970
+                    strns.append('')
         return strns
 
 
