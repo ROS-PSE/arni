@@ -110,3 +110,15 @@ class ConnectionItemSub(AbstractItem):
 
     def get_time_items(self):
         return [""]
+
+    def aggregate_data(self, period):
+        """
+        :param period: The amount in seconds over which the data should be aggregated.
+        :return:
+        """
+
+        values = {}
+        for key in self._attributes:
+            values[key] = 0
+
+        return values
