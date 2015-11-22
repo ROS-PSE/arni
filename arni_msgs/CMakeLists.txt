@@ -49,6 +49,8 @@ add_message_files(
     NodeStatistics.msg
     RatedStatisticsEntity.msg
     RatedStatistics.msg
+    MasterApiEntity.msg
+    MasterApi.msg
 )
 
 ## Generate services in the 'srv' folder

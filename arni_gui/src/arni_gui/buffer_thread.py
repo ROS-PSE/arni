@@ -11,8 +11,8 @@ from rosgraph_msgs.msg import TopicStatistics
 from arni_msgs.msg import RatedStatistics
 from arni_msgs.msg import NodeStatistics
 from arni_msgs.msg import HostStatistics
-
 from arni_msgs.srv import StatisticHistory
+from arni_msgs.msg import MasterApi
 
 from ros_model import *
 from helper_functions import UPDATE_FREQUENCY
@@ -46,7 +46,6 @@ class BufferThread(Thread):
         """
         The Destructor of the BufferThread
         """
-        # todo: I think this does not work as intended :(
         self.__timer.stop()
         del self.__timer
 
@@ -65,12 +64,14 @@ class BufferThread(Thread):
         try:
             get_statistic_history = rospy.ServiceProxy('monitoring_node/get_statistic_history', StatisticHistory)
             response = get_statistic_history(rospy.Time(0))
-            rated_statistics_history = response.rated_topic_statistics + response.rated_node_statistics + response.rated_host_statistics + response.rated_node_statistics
+            rated_statistics_history = response.rated_topic_statistics + response.rated_node_statistics + \
+                                       response.rated_host_statistics + response.rated_node_statistics
             self.__model.update_model(rated_statistics_history, response.topic_statistics,
-                                      response.host_statistics, response.node_statistics)
+                                      response.host_statistics, response.node_statistics, None)
         except ServiceException as msg:
             self.__model.get_logger().log("info", Time.now(), "BufferThread",
-                                          "get_statistic_history is not available, probably monitoring_node is not running. Will continue without the information about the past")
+                                          "get_statistic_history is not available, probably monitoring_node is not "
+                                          "running. Will continue without the information about the past")
 
 
     def __register_subscribers(self):
@@ -89,7 +90,14 @@ class BufferThread(Thread):
         rospy.Subscriber(
             "/statistics_host", HostStatistics,
             self.__add_host_statistics_item)
+        rospy.Subscriber('/statistics_master', MasterApi, self.receive_master_api_data)
 
+
+    def receive_master_api_data(self, data):
+        """
+        Topic callback for incoming master api messages.
+        """
+        self.__master_api_data = data
 
     def __update_model(self, event):
         """
@@ -98,7 +106,7 @@ class BufferThread(Thread):
         afterwards use the *rated_buffer* to add a rating to these entries.
         """
         self.__model.update_model(self.__rated_statistics_buffer, self.__topic_statistics_buffer,
-                                  self.__host_statistics_buffer, self.__node_statistics_buffer)
+                                  self.__host_statistics_buffer, self.__node_statistics_buffer, self.__master_api_data)
 
         del self.__rated_statistics_buffer[:]
         del self.__topic_statistics_buffer[:]

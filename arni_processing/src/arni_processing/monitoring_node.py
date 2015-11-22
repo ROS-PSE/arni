@@ -4,7 +4,7 @@ import rosgraph_msgs
 import std_srvs.srv
 from std_srvs.srv import Empty
 import arni_msgs
-from arni_msgs.msg import HostStatistics, NodeStatistics, RatedStatistics, RatedStatisticsEntity
+from arni_msgs.msg import HostStatistics, NodeStatistics, RatedStatistics, RatedStatisticsEntity, MasterApi, MasterApiEntity
 from arni_msgs.srv import StatisticHistory, StatisticHistoryResponse
 from arni_core.helper import *
 from rosgraph_msgs.msg import TopicStatistics
@@ -12,7 +12,7 @@ from metadata_storage import MetadataStorage
 from specification_handler import SpecificationHandler
 from rated_statistics import RatedStatisticsContainer
 from storage_container import StorageContainer
-
+import rosgraph
 
 class MonitoringNode:
     """
@@ -24,7 +24,9 @@ class MonitoringNode:
         self.__metadata_storage = MetadataStorage()
         self.__specification_handler = SpecificationHandler()
         self.__publisher = rospy.Publisher('/statistics_rated', arni_msgs.msg.RatedStatistics, queue_size=50)
+        self.__master_api_publisher = rospy.Publisher('/statistics_master', arni_msgs.msg.MasterApi, queue_size=10)
         self.__pub_queue = []
+        self.__master_api_queue =[]
         self.__aggregate = []
         self.__aggregate_start = rospy.Time.now()
         self.__processing_enabled = rospy.get_param("/enable_statistics", False)
@@ -32,10 +34,50 @@ class MonitoringNode:
         self.__alive_countdown = {}
         rospy.Timer(rospy.Duration(rospy.get_param("~publish_interval", 5)), self.__publish_queue)
         rospy.Timer(rospy.Duration(rospy.get_param("~alive_interval", 5)), self.__check_alive)
+        rospy.Timer(rospy.Duration(1), self.__pollMasterAPI)
         rospy.Timer(rospy.Duration(rospy.get_param("/arni/check_enabled_interval", 10)), self.__update_enabled)
+
+    def __pollMasterAPI(self, event):
+        """
+        Regularly polls the master api to get the most recent system state from rosgraph. This data is then published
+        on the /statistics_master topic.
+        """
+        # poll master api and get most recent data
+        self.master = rosgraph.masterapi.Master("")
+        state = None
+        try:
+            state = self.master.getSystemState()
+        except rosgraph.masterapi.MasterException as e:
+            rospy.logerr("an error occured trying to connect to the master:\n%s\n%s" % (str(e), traceback.format_exc()))
+            return
+
+        pubs, subs, srvs = state
+        msg = MasterApi()
+        ent = MasterApiEntity()
+        for (topic, publisher) in pubs:
+            ent.name = topic
+            ent.content = publisher
+            msg.pubs.append(ent)
+        for (topic, subscriber) in subs:
+            ent.name = topic
+            ent.content = subscriber
+            msg.subs.append(ent)
+        for (service, provider) in srvs:
+            ent.name = service
+            ent.content = provider
+            msg.srvs.append(ent)
+
+        # publish this data on /statistics_master
+        self.__master_api_publisher.publish(msg)
 
     def __update_enabled(self, event):
         self.__processing_enabled = rospy.get_param("/enable_statistics", False)
+
+    def receive_master_api_data(self, data):
+        """
+        Topic callback for incoming master api messages.
+        """
+        pass
 
     def receive_data(self, data):
         """
@@ -180,6 +222,8 @@ class MonitoringNode:
         rospy.Subscriber('/statistics', rosgraph_msgs.msg.TopicStatistics, self.receive_data)
         rospy.Subscriber('/statistics_host', arni_msgs.msg.HostStatistics, self.receive_data)
         rospy.Subscriber('/statistics_node', arni_msgs.msg.NodeStatistics, self.receive_data)
+        rospy.Subscriber('/statistics_master', arni_msgs.msg.MasterApi, self.receive_master_api_data)
         rospy.Service('~reload_specifications', std_srvs.srv.Empty, self.__specification_handler.reload_specifications)
         rospy.Service('~get_statistic_history', arni_msgs.srv.StatisticHistory, self.storage_server)
+        # TODO abbonate /statistics_master
         rospy.spin()

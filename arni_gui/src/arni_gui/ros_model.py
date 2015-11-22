@@ -20,6 +20,7 @@ from rospy.timer import Timer
 import std_msgs.msg
 
 from arni_core.singleton import Singleton
+import arni_msgs
 
 from rosgraph_msgs.msg import TopicStatistics
 from arni_msgs.msg import RatedStatistics
@@ -107,9 +108,6 @@ class ROSModel(QAbstractItemModel):
         self.__find_host = HostLookup()
 
         self.__buffer_thread = BufferThread(self)
-
-        pub = rospy.Publisher('temp', std_msgs.msg.String, queue_size=10)
-        pub.publish(std_msgs.msg.String("foo"))
 
     def get_overview_data_since(self, time=None):
         """
@@ -274,7 +272,7 @@ class ROSModel(QAbstractItemModel):
         else:
             return self.__root_item.column_count()
 
-    def update_model(self, rated_statistics, topic_statistics, host_statistics, node_statistics):
+    def update_model(self, rated_statistics, topic_statistics, host_statistics, node_statistics, master_api_data):
         """
         Updates the model by using the items of the list. The items will be of the message types.
 
@@ -286,6 +284,8 @@ class ROSModel(QAbstractItemModel):
         :type node_statistics: list
         :param host_statistics: the host_statistics buffer
         :type host_statistics: list
+        :param master_api_data: data from the master api
+        :type master_api_data: MasterApi
         """
         self.layoutAboutToBeChanged.emit()
 
@@ -320,7 +320,8 @@ class ROSModel(QAbstractItemModel):
         for item in topic_statistics:
             self.__transform_topic_statistics_item(item)
 
-        self.__add_hidden_topics()
+        if master_api_data is not None:
+            self.__transform_master_api_data(master_api_data)
 
         # rating last because it needs the time of the items before
         for item in rated_statistics:
@@ -451,31 +452,32 @@ class ROSModel(QAbstractItemModel):
             current_item = self.__identifier_dict[seuid]
             current_item.update_rated_data(item)
 
-    def __add_hidden_topics(self):
+    def __transform_master_api_data(self, master_api_data):
         """
         Used to add further topics that have not been added by __transform_topic_statistics_item. A new TopicItem
         will only be created if it does not yet exist. This is especially the case for existing topics that don't send
         any data.
+        :type master_api_data: MasterApi
         """
-        self.master = rosgraph.masterapi.Master(_ROS_NAME)
-        try:
-            val = self.master.getSystemState()
-        except rosgraph.masterapi.MasterException as e:
-            print("Unable to contact master", str(e))
-            return
+        # self.master = rosgraph.masterapi.Master(_ROS_NAME)
+        # try:
+        #     val = self.master.getSystemState()
+        # except rosgraph.masterapi.MasterException as e:
+        #     print("Unable to contact master", str(e))
+        #     return
 
-        pubs, subs, srvs = val
-
-        for (topic, l) in pubs:
-            topic_seuid = "t" + SEUID_DELIMITER + topic
+        pubs, subs, srvs = master_api_data.pubs, master_api_data.subs, master_api_data.srvs
+        ent = arni_msgs.msg.MasterApiEntity()
+        for ent in pubs:
+            topic_seuid = "t" + SEUID_DELIMITER + ent.name
             connection_item = None
             if topic_seuid not in self.__identifier_dict:
-                node_seuid = "n" + SEUID_DELIMITER + l[0]
+                node_seuid = "n" + SEUID_DELIMITER + ent.content[0]
                 parent = None
                 try:
                     parent = self.__identifier_dict[node_seuid]
                 except KeyError:
-                    host_seuid = "h" + SEUID_DELIMITER + self.__find_host.get_host(l[0])
+                    host_seuid = "h" + SEUID_DELIMITER + self.__find_host.get_host(ent.content[0])
                     host_item = None
                     if host_seuid not in self.__identifier_dict:
                         host_item = HostItem(self.__logger, host_seuid, self.__root_item)
@@ -495,11 +497,11 @@ class ROSModel(QAbstractItemModel):
                 parent.append_child(topic_item)
                 self.__identifier_dict[topic_seuid] = topic_item
 
-            for (topic_sub, l_sub) in subs:
-                if topic_sub == topic:
-                    for sub in l_sub:
+            for ent_sub in subs:
+                if ent_sub.name == ent.name:
+                    for sub in ent_sub.content:
                         # add the topic as subscription topic
-                        sub_topic_seuid = "t" + SEUID_DELIMITER + topic + "--sub"
+                        sub_topic_seuid = "t" + SEUID_DELIMITER + ent.name + "--sub"
                         sub_topic = None
                         try:
                             sub_topic = self.__identifier_dict[sub_topic_seuid]
@@ -513,7 +515,7 @@ class ROSModel(QAbstractItemModel):
                             else:
                                 host_item_sub = self.__identifier_dict[host_seuid]
                             node_item_sub = None
-                            node_seuid_sub = "n" + SEUID_DELIMITER + sub + "--sub"
+                            node_seuid_sub = "n" + SEUID_DELIMITER + sub
                             if node_seuid_sub not in self.__identifier_dict:
                                 node_item_sub = NodeItem(self.__logger, node_seuid_sub, host_item_sub)
                                 self.__identifier_dict[node_seuid_sub] = node_item_sub
@@ -525,8 +527,8 @@ class ROSModel(QAbstractItemModel):
                             node_item_sub.append_child(sub_topic)
                             self.__identifier_dict[sub_topic_seuid] = sub_topic
                         # add the subcriber connection
-                        connection_seuid_sub = "c" + SEUID_DELIMITER + sub + SEUID_DELIMITER + topic \
-                                           + SEUID_DELIMITER + l[0] + "--sub"
+                        connection_seuid_sub = "c" + SEUID_DELIMITER + sub + SEUID_DELIMITER + ent.name \
+                                           + SEUID_DELIMITER + ent.content[0] + "--sub"
                         if connection_seuid_sub not in self.__identifier_dict:
                             connection_item_sub = ConnectionItem(self.__logger, connection_seuid_sub, None,
                                                              sub_topic)
@@ -534,8 +536,8 @@ class ROSModel(QAbstractItemModel):
                             self.__identifier_dict[connection_seuid_sub] = connection_item_sub
 
                         # add the publisher connection
-                        connection_seuid = "c" + SEUID_DELIMITER + sub + SEUID_DELIMITER + topic \
-                                           + SEUID_DELIMITER + l[0]
+                        connection_seuid = "c" + SEUID_DELIMITER + sub + SEUID_DELIMITER + ent.name \
+                                           + SEUID_DELIMITER + ent.content[0]
                         if connection_seuid not in self.__identifier_dict:
                             connection_item = ConnectionItem(self.__logger, connection_seuid, None,
                                                              topic_item)
