@@ -469,80 +469,88 @@ class ROSModel(QAbstractItemModel):
         pubs, subs, srvs = master_api_data.pubs, master_api_data.subs, master_api_data.srvs
         ent = arni_msgs.msg.MasterApiEntity()
         for ent in pubs:
-            topic_seuid = "t" + SEUID_DELIMITER + ent.name
-            connection_item = None
-            if topic_seuid not in self.__identifier_dict:
-                node_seuid = "n" + SEUID_DELIMITER + ent.content[0]
-                parent = None
-                try:
-                    parent = self.__identifier_dict[node_seuid]
-                except KeyError:
-                    host_seuid = "h" + SEUID_DELIMITER + self.__find_host.get_host(ent.content[0])
-                    host_item = None
-                    if host_seuid not in self.__identifier_dict:
-                        host_item = HostItem(self.__logger, host_seuid, self.__root_item)
-                        self.__identifier_dict[host_seuid] = host_item
-                        self.__root_item.append_child(host_item)
-                    else:
-                        host_item = self.__identifier_dict[host_seuid]
-                    node_item = None
-                    if node_seuid not in self.__identifier_dict:
-                        node_item = NodeItem(self.__logger, node_seuid, host_item)
-                        self.__identifier_dict[node_seuid] = node_item
-                        host_item.append_child(node_item)
-                    else:
-                        node_item = self.__identifier_dict[node_seuid]
-                    parent = node_item
-                topic_item = TopicItem(self.__logger, topic_seuid, None, parent)
-                parent.append_child(topic_item)
-                self.__identifier_dict[topic_seuid] = topic_item
+            for publisher in ent.content:
+                topic_seuid = "t" + SEUID_DELIMITER + ent.name
+                connection_item = None
+                # check if host exists
 
-            for ent_sub in subs:
-                if ent_sub.name == ent.name:
-                    for sub in ent_sub.content:
-                        # add the topic as subscription topic
-                        sub_topic_seuid = "t" + SEUID_DELIMITER + ent.name + "--sub"
-                        sub_topic = None
-                        try:
-                            sub_topic = self.__identifier_dict[sub_topic_seuid]
-                        except KeyError:
-                            host_seuid = "h" + SEUID_DELIMITER + self.__find_host.get_host(sub)
-                            host_item_sub = None
-                            if host_seuid not in self.__identifier_dict:
-                                host_item_sub = HostItem(self.__logger, host_seuid, self.__root_item)
-                                self.__identifier_dict[host_seuid] = host_item
-                                self.__root_item.append_child(host_item)
-                            else:
-                                host_item_sub = self.__identifier_dict[host_seuid]
-                            node_item_sub = None
-                            node_seuid_sub = "n" + SEUID_DELIMITER + sub
-                            if node_seuid_sub not in self.__identifier_dict:
-                                node_item_sub = NodeItem(self.__logger, node_seuid_sub, host_item_sub)
-                                self.__identifier_dict[node_seuid_sub] = node_item_sub
-                                host_item.append_child(node_item_sub)
-                            else:
-                                node_item_sub = self.__identifier_dict[node_seuid]
-                            # create this subtopic
-                            sub_topic = TopicItem(self.__logger, sub_topic_seuid, None, node_item_sub)
-                            node_item_sub.append_child(sub_topic)
-                            self.__identifier_dict[sub_topic_seuid] = sub_topic
-                        # add the subcriber connection
-                        connection_seuid_sub = "c" + SEUID_DELIMITER + sub + SEUID_DELIMITER + ent.name \
-                                           + SEUID_DELIMITER + ent.content[0] + "--sub"
-                        if connection_seuid_sub not in self.__identifier_dict:
-                            connection_item_sub = ConnectionItem(self.__logger, connection_seuid_sub, None,
-                                                             sub_topic)
-                            sub_topic.append_child(connection_item_sub)
-                            self.__identifier_dict[connection_seuid_sub] = connection_item_sub
+                # check if node exists
 
-                        # add the publisher connection
-                        connection_seuid = "c" + SEUID_DELIMITER + sub + SEUID_DELIMITER + ent.name \
-                                           + SEUID_DELIMITER + ent.content[0]
-                        if connection_seuid not in self.__identifier_dict:
-                            connection_item = ConnectionItem(self.__logger, connection_seuid, None,
-                                                             topic_item)
-                            topic_item.append_child(connection_item)
-                            self.__identifier_dict[connection_seuid] = connection_item
+
+                if topic_seuid not in self.__identifier_dict:
+                    node_seuid = "n" + SEUID_DELIMITER + publisher
+                    parent = None
+                    try:
+                        parent = self.__identifier_dict[node_seuid]
+                    except KeyError:
+                        host_seuid = "h" + SEUID_DELIMITER + self.__find_host.get_host(publisher)
+                        host_item = None
+                        if host_seuid not in self.__identifier_dict:
+                            host_item = HostItem(self.__logger, host_seuid, self.__root_item)
+                            self.__identifier_dict[host_seuid] = host_item
+                            self.__root_item.append_child(host_item)
+                        else:
+                            host_item = self.__identifier_dict[host_seuid]
+                        node_item = None
+                        if node_seuid not in self.__identifier_dict:
+                            node_item = NodeItem(self.__logger, node_seuid, host_item)
+                            self.__identifier_dict[node_seuid] = node_item
+                            host_item.append_child(node_item)
+                        else:
+                            node_item = self.__identifier_dict[node_seuid]
+                        parent = node_item
+                    topic_item = TopicItem(self.__logger, topic_seuid, None, parent)
+                    parent.append_child(topic_item)
+                    self.__identifier_dict[topic_seuid] = topic_item
+                else:
+                    # topic exists
+                    pass
+                for ent_sub in subs:
+                    if ent_sub.name == ent.name:
+                        for sub in ent_sub.content:
+                            # add the topic as subscription topic
+                            sub_topic_seuid = "t" + SEUID_DELIMITER + ent.name + "--sub"
+                            sub_topic = None
+                            try:
+                                sub_topic = self.__identifier_dict[sub_topic_seuid]
+                            except KeyError:
+                                host_seuid = "h" + SEUID_DELIMITER + self.__find_host.get_host(sub)
+                                host_item_sub = None
+                                if host_seuid not in self.__identifier_dict:
+                                    host_item_sub = HostItem(self.__logger, host_seuid, self.__root_item)
+                                    self.__identifier_dict[host_seuid] = host_item
+                                    self.__root_item.append_child(host_item)
+                                else:
+                                    host_item_sub = self.__identifier_dict[host_seuid]
+                                node_item_sub = None
+                                node_seuid_sub = "n" + SEUID_DELIMITER + sub
+                                if node_seuid_sub not in self.__identifier_dict:
+                                    node_item_sub = NodeItem(self.__logger, node_seuid_sub, host_item_sub)
+                                    self.__identifier_dict[node_seuid_sub] = node_item_sub
+                                    host_item.append_child(node_item_sub)
+                                else:
+                                    node_item_sub = self.__identifier_dict[node_seuid]
+                                # create this subtopic
+                                sub_topic = TopicItem(self.__logger, sub_topic_seuid, None, node_item_sub)
+                                node_item_sub.append_child(sub_topic)
+                                self.__identifier_dict[sub_topic_seuid] = sub_topic
+                            # add the subcriber connection
+                            connection_seuid_sub = "c" + SEUID_DELIMITER + sub + SEUID_DELIMITER + ent.name \
+                                               + SEUID_DELIMITER + ent.content[0] + "--sub"
+                            if connection_seuid_sub not in self.__identifier_dict:
+                                connection_item_sub = ConnectionItem(self.__logger, connection_seuid_sub, None,
+                                                                 sub_topic)
+                                sub_topic.append_child(connection_item_sub)
+                                self.__identifier_dict[connection_seuid_sub] = connection_item_sub
+
+                            # add the publisher connection
+                            connection_seuid = "c" + SEUID_DELIMITER + sub + SEUID_DELIMITER + ent.name \
+                                               + SEUID_DELIMITER + ent.content[0]
+                            if connection_seuid not in self.__identifier_dict:
+                                connection_item = ConnectionItem(self.__logger, connection_seuid, None,
+                                                                 topic_item)
+                                topic_item.append_child(connection_item)
+                                self.__identifier_dict[connection_seuid] = connection_item
 
 
 

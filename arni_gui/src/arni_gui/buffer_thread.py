@@ -38,6 +38,7 @@ class BufferThread(Thread):
         self.__host_statistics_buffer = list()
         self.__running = False
         self.__model = model
+        self.__master_api_data = None
         self.start()
         self.__timer = Timer(Duration(nsecs=UPDATE_FREQUENCY), self.__update_model)
 
