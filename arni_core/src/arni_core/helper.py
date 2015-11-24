@@ -73,7 +73,7 @@ class SEUID:
         :raises KeyError: When the current SEUID does not contain the given field since it has a different type
         :raises AttributeError: When the given parameter is none of the above.
         """
-        fields = ("host", "topic", "subscriber", "publisher", "node")
+        fields = ("host", "topic", "subscriber", "node", "publisher")
         if field in fields and hasattr(self, field):
             if getattr(self, field) is None:
                 raise KeyError(
@@ -85,12 +85,14 @@ class SEUID:
         else:
             raise AttributeError("[SEUID] %s is not a public field" % field)
 
-    def from_message(self, msg):
+    def from_message(self, msg, topic=False, sub=False):
         """
         Creates a SEUID from a Message object.
 
         :param msg: A Message object of type arni_msgs.msg.HostStatistics, arni_msgs.msg.NodeStatistics or
             rosgraph_msgs.msg.TopicStatistics
+        :param topic: if true a topic seuid will be return instead of a connection seuid
+        :param sub: if true "--sub" will be appended to the connection seuid
         :raises TypeError: If the parameter is none of the mentioned messagestypes.
         """
         if isinstance(msg, arni_msgs.msg.HostStatistics):
@@ -98,7 +100,15 @@ class SEUID:
         elif isinstance(msg, arni_msgs.msg.NodeStatistics):
             self.identifier = "n" + SEUID_DELIMITER + msg.node
         elif isinstance(msg, rosgraph_msgs.msg.TopicStatistics):
-            self.identifier = "c" + SEUID_DELIMITER + msg.node_sub \
+            if topic:
+                self.identifier = "t" + SEUID_DELIMITER + msg.topic
+            else:
+                if sub:
+                    self.identifier = "c" + SEUID_DELIMITER + msg.node_sub \
+                              + SEUID_DELIMITER + msg.topic \
+                              + SEUID_DELIMITER + msg.node_pub + "--sub"
+                else:
+                    self.identifier = "c" + SEUID_DELIMITER + msg.node_sub \
                               + SEUID_DELIMITER + msg.topic \
                               + SEUID_DELIMITER + msg.node_pub
         else:

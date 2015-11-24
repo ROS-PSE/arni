@@ -134,6 +134,84 @@ class ConnectionItem(AbstractItem):
         """
         pass
 
+    def get_latest_data(self, parent, *args):
+        """
+        Returns the latest dict of the data_list or the item of the dict with the given key.
+        IMPORTANT: This was reimplemented here because the code needs to be adapted to the current parent in
+        the QT Model.
+
+        :param kwargs: the keys to the dict
+        :type kwargs: str
+        :type parent: TopicItem
+
+        :returns: dict of the item
+        :rtype: dict
+        :raises KeyError: if an element in args cannot be found in any of the dictionaries (data vs rated data) or attributes (namely name, type, data and state)
+        """
+        self._data_lock.acquire()
+        return_dict = {}
+
+        if parent.is_subscriber(ROSModel().parent())
+
+        if args:
+            for key in args:
+                if key is 'name':
+                    return_dict['name'] = self.seuid
+                elif key is 'type':
+                    return_dict['type'] = self._type
+                    # elif key is 'data':
+                    # return_dict['data'] = self.get_short_data()
+                elif key is 'state':
+                    if self.__state:
+                        return_dict['state'] = self.get_state()
+                    else:
+                        return_dict["state"] = "unknown"
+                else:
+                    if key in self._data:
+                        if self._data[key]:
+                            return_dict[key] = self._data[key][-1]
+                        else:
+                            if key == 'window_stop':
+                                return_dict[key] = Time(0)
+                            elif key in self.get_list_items():
+                                return_dict[key] = [self.tr("Currently no value available")]
+                            else:
+                                return_dict[key] = self.tr("Currently no value available")
+                    elif key in self._rated_data:
+                        if self._rated_data[key]:
+                            return_dict[key] = self._rated_data[key][-1]
+                    else:
+                        raise KeyError("item " + key + "was not found")
+        else:
+            return_dict['name'] = self.seuid
+            return_dict['type'] = self._type
+            # return_dict['data'] = self.get_short_data()
+            for entry in self._data:
+                if self._data[entry]:
+                    return_dict[entry] = self._data[entry][-1]
+                else:
+                    if entry == 'window_stop':
+                        return_dict[entry] = Time(0)
+                    elif entry in self.get_list_items():
+                        return_dict[entry] = [self.tr("Currently no value available")]
+                    else:
+                        return_dict[entry] = self.tr("Currently no value available")
+            for entry in self._rated_data:
+                if entry == 'window_start' or entry == 'window_stop':
+                    continue
+                if self._rated_data[entry]:
+                    return_dict[entry] = self._rated_data[entry][-1]
+                else:
+                    return_dict[entry] = self.tr("Currently no value available")
+            if self.__state:
+                return_dict['state'] = self.get_state()
+            else:
+                return_dict['state'] = "unknown"
+
+        self._data_lock.release()
+        return return_dict
+
+
 
     def get_detailed_data(self):
         """

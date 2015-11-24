@@ -34,7 +34,7 @@ class MonitoringNode:
         self.__alive_countdown = {}
         rospy.Timer(rospy.Duration(rospy.get_param("~publish_interval", 5)), self.__publish_queue)
         rospy.Timer(rospy.Duration(rospy.get_param("~alive_interval", 5)), self.__check_alive)
-        rospy.Timer(rospy.Duration(1), self.__pollMasterAPI)
+        rospy.Timer(rospy.Duration(rospy.get_param("~master_api_publish_interval", 1)), self.__pollMasterAPI)
         rospy.Timer(rospy.Duration(rospy.get_param("/arni/check_enabled_interval", 10)), self.__update_enabled)
 
     def __pollMasterAPI(self, event):
