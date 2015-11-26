@@ -146,6 +146,13 @@ class ROSModel(QAbstractItemModel):
                 raise IndexError("item is None")
             if self.__mapping[index.column()] is "data":
                 return item.get_short_data()
+            if self.__mapping[index.column()] is "name":
+                if isinstance(item, ConnectionItem):
+                    if item.show_as_subscriber:
+                        # we found a subscriber
+                        print("here")
+                        return item.get_latest_data(self.__mapping[index.column()])[self.__mapping[index.column()]]\
+                               + "--sub"
             return item.get_latest_data(self.__mapping[index.column()])[self.__mapping[index.column()]]
         return None
 
@@ -211,7 +218,11 @@ class ROSModel(QAbstractItemModel):
         else:
             parent_item = parent.internalPointer()
 
-        child_item = parent_item.get_child(row)
+        if isinstance(parent_item, TopicItem):
+            print(self.parent(parent).internalPointer().seuid)
+            child_item = parent_item.get_child(row, self.parent(parent).internalPointer())
+        else:
+            child_item = parent_item.get_child(row)
         if child_item:
             return self.createIndex(row, column, child_item)
         else:
@@ -256,6 +267,8 @@ class ROSModel(QAbstractItemModel):
         else:
             parent_item = parent.internalPointer()
 
+        if isinstance(parent_item, TopicItem):
+            return parent_item.child_count(self.parent(parent).internalPointer())
         return parent_item.child_count()
 
     def columnCount(self, parent):
@@ -458,8 +471,9 @@ class ROSModel(QAbstractItemModel):
         any data.
         :type master_api_data: MasterApi
         """
+        pass
         # TODO fix this code!
-        pubs, subs, srvs = master_api_data.pubs, master_api_data.subs, master_api_data.srvs
+        """pubs, subs, srvs = master_api_data.pubs, master_api_data.subs, master_api_data.srvs
         ent = arni_msgs.msg.MasterApiEntity()
         for ent in pubs:
             for publisher in ent.content:
@@ -470,8 +484,6 @@ class ROSModel(QAbstractItemModel):
                 # check if host exists
 
                 # check if node exists
-
-
                 if topic_seuid not in self.__identifier_dict:
                     node_seuid = "n" + SEUID_DELIMITER + publisher
                     parent = None
@@ -545,18 +557,18 @@ class ROSModel(QAbstractItemModel):
                                 connection_item = ConnectionItem(self.__logger, connection_seuid, None,
                                                                  topic_item)
                                 topic_item.append_child(connection_item)
-                                self.__identifier_dict[connection_seuid] = connection_item
+                                self.__identifier_dict[connection_seuid] = connection_item"""
 
     def __transform_topic_statistics_item(self, item):
         """
-        Integrates TopicStatistics in the model by moding its item/s by adding a new dict to the corresponding item.
+        Integrates TopicStatistics in the model by modifying its item/s by adding a new dict to the corresponding item.
 
         :param item: the TopicStatistics item
         :type item: TopicStatistics
         """
-        topic_seuid = self.__seuid_helper.from_message(item, True).identifier()
-        connection_seuid = self.__seuid_helper.from_message(item).identifier()
-        connection_seuid_sub = self.__seuid_helper.from_message(item, False, True).identifier()
+        topic_seuid = self.__seuid_helper.from_message(item, True)
+        connection_seuid = self.__seuid_helper.from_message(item)
+        # connection_seuid_sub = self.__seuid_helper.from_message(item, False, True)
 
         topic_item = None
         connection_item = None
@@ -569,7 +581,7 @@ class ROSModel(QAbstractItemModel):
             except KeyError:
                 host = HostStatistics()
                 host.host = self.__find_host.get_host(item.node_pub)
-                host_seuid = self.__seuid_helper.from_message(host).identifier()
+                host_seuid = self.__seuid_helper.from_message(host)
                 host_item = None
                 if host_seuid not in self.__identifier_dict:
                     host_item = HostItem(self.__logger, host_seuid, self.__root_item)
@@ -580,7 +592,7 @@ class ROSModel(QAbstractItemModel):
 
                 node = NodeStatistics()
                 node.node = item.node_pub
-                node_seuid = self.__seuid_helper.from_message(node).identifier()
+                node_seuid = self.__seuid_helper.from_message(node)
                 node_item = None
                 if node_seuid not in self.__identifier_dict:
                     node_item = NodeItem(self.__logger, node_seuid, host_item)
@@ -590,10 +602,33 @@ class ROSModel(QAbstractItemModel):
                 else:
                     node_item = self.__identifier_dict[node_seuid]
                 parent = node_item
-            topic_item = TopicItem(self.__logger, topic_seuid, item, parent)
-            parent.append_child(topic_item)
-            self.__identifier_dict[topic_seuid] = topic_item
+                topic_item = TopicItem(self.__logger, topic_seuid, item, parent)
+                parent.append_child(topic_item)
+                self.__identifier_dict[topic_seuid] = topic_item
 
+
+                # subscriber
+                node_sub = NodeStatistics()
+                node_sub.node = item.node_sub
+                node_seuid = self.__seuid_helper.from_message(node_sub)
+                node_item = None
+                if node_seuid not in self.__identifier_dict:
+                    host = HostStatistics()
+                    host.host = self.__find_host.get_host(item.node_sub)
+                    host_seuid = self.__seuid_helper.from_message(host)
+                    if host_seuid not in self.__identifier_dict:
+                        host_item = HostItem(self.__logger, host_seuid, self.__root_item)
+                        self.__identifier_dict[host_seuid] = host_item
+                        self.__root_item.append_child(host_item)
+                    else:
+                        host_item = self.__identifier_dict[host_seuid]
+                    node_item = NodeItem(self.__logger, node_seuid, host_item)
+                    self.__identifier_dict[node_seuid] = node_item
+                    host_item.append_child(node_item)
+                    self.__find_host.add_node(item.node_pub, self.__find_host.get_host(item.node_pub))
+                else:
+                    node_item = self.__identifier_dict[node_seuid]
+                node_item.append_child(topic_item)
         #     # creating the publishing connection item
         #     connection_item = ConnectionItem(self.__logger, connection_seuid, item, topic_item)
         #     topic_item.append_child(connection_item)
@@ -691,12 +726,12 @@ class ROSModel(QAbstractItemModel):
         :param item: the NodeStatistics item
         :type item: NodeStatistics
         """
-        node_seuid = self.__seuid_helper.from_message(item).identifier()
+        node_seuid = self.__seuid_helper.from_message(item)
         if node_seuid not in self.__identifier_dict:
             # create item
             host = HostStatistics()
             host.host = item.host
-            host_seuid = self.__seuid_helper.from_message(host).identifier()
+            host_seuid = self.__seuid_helper.from_message(host)
             host_item = None
             if host_seuid not in self.__identifier_dict:
                 host_item = HostItem(self.__logger, host_seuid, self.__root_item)
@@ -721,7 +756,7 @@ class ROSModel(QAbstractItemModel):
         :type item: HostStatistics
         """
         host_item = None
-        host_seuid = self.__seuid_helper.from_message(item).identifier()
+        host_seuid = self.__seuid_helper.from_message(item)
         if host_seuid not in self.__identifier_dict:
             # create item
             host_item = HostItem(self.__logger, host_seuid, self.__root_item)

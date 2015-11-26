@@ -1,6 +1,9 @@
 from python_qt_binding.QtGui import QSortFilterProxyModel
 from python_qt_binding.QtCore import QObject, QModelIndex
 
+from arni_gui.topic_item import TopicItem
+from arni_gui.ros_model import ROSModel
+
 import sys
 
 if sys.version_info[0] is 2 or (sys.version_info[0] is 3 and sys.version_info[1] < 2):
@@ -67,7 +70,10 @@ class ItemFilterProxy(QSortFilterProxyModel):
         item = source_parent.internalPointer()
         child = None
         if item is not None:
-            child = source_parent.internalPointer().get_child(source_row)
+            if isinstance(item, TopicItem):
+                child = source_parent.internalPointer().get_child(source_row, self.sourceModel().parent(source_parent).internalPointer())
+            else:
+                child = source_parent.internalPointer().get_child(source_row)
             entries = [child.get_type(), child.get_seuid(), child.get_state(), child.get_short_data()]
         else:
             child = self.sourceModel().get_root_item().get_child(source_row)

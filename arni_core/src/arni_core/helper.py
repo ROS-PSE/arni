@@ -36,11 +36,11 @@ class SEUID:
             if not self.is_valid():
                 raise NameError("Given seuid is not of valid form.")
             else:
-                self.__set_fields()
+                self.set_fields()
         else:
             self.identifier = identifier
 
-    def __set_fields(self):
+    def set_fields(self):
         self.host = None
         """The host name if SEUID describes a host."""
         self.topic = None
@@ -114,6 +114,7 @@ class SEUID:
         else:
             raise TypeError("Cannot create SEUID from an object other than a HostStatistics,\
                 NodeStatistics or TopicStatistics message.")
+        return self.identifier
 
     def is_valid(self, identifier=None):
         """

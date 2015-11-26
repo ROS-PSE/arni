@@ -6,13 +6,14 @@ from python_qt_binding.QtCore import QTranslator
 from abstract_item import AbstractItem
 from helper_functions import prepare_number_for_representation, UPDATE_FREQUENCY, TOPIC_AGGREGATION_FREQUENCY
 from arni_core.helper import SEUID, SEUID_DELIMITER
-
+from node_item import NodeItem
 
 from rospy.timer import Timer
 from rospy.impl.tcpros_service import ServiceProxy
 from rospy.rostime import Duration
 from rospy.rostime import Time
 from connection_item import ConnectionItem
+
 
 import re
 
@@ -77,58 +78,63 @@ class TopicItem(AbstractItem):
 
         self.__timer = Timer(Duration(nsecs=TOPIC_AGGREGATION_FREQUENCY), self.__aggregate_topic_data)
 
-    def is_subscriber(self, item, parent):
-        """
-        Checks for a ConnectionItem if it is
+    # def is_subscriber(self, item, parent):
+    #     """
+    #     Checks for a ConnectionItem if it is
+    #
+    #     :param item: the item which shall be checked
+    #     :type item: ConnectionItem
+    #     :type parent: NodeItem
+    #     :param parent: the node of the connection in the GUI
+    #     :return:
+    #     """
+    #     if not isinstance(item, ConnectionItem):
+    #         raise UserWarning()
+    #     if not item in self.get_childs():
+    #         raise UserWarning()
+    #     else:
+    #         seuid = parent.get_seuid()
+    #         seuid_helper = SEUID()
+    #         seuid_helper.identifier = seuid
+    #         seuid_helper.set_fields()
+    #         node = seuid_helper.node
+    #
+    #         child_seuid = item.get_seuid()
+    #         seuid_helper.identifier = child_seuid
+    #         seuid_helper.set_fields()
+    #         node_comp = seuid_helper.publisher
+    #         if node == node_comp:
+    #             return False
+    #         node_comp = seuid_helper.subscriber
+    #
+    #         if node == node_comp:
+    #             return True
+    #         else:
+    #             raise UserWarning()
 
-        :param item: the item which shall be checked
-        :type item: ConnectionItem
-        :return:
-        """
-        if not isinstance(item, ConnectionItem):
-            raise UserWarning()
-        if not item in self.get_childs():
-            raise UserWarning()
-        else:
-            seuid = parent.get_seuid()
-            seuid_helper = SEUID()
-            seuid_helper.identifier = seuid
-            seuid_helper.__set_fields()
-            node = seuid_helper.getattr("node")
 
-            child_seuid = item.get_seuid()
-            seuid_helper.identifier = child_seuid
-            seuid_helper.__set_fields()
-            node_comp = seuid_helper.getattr("publisher")
-            if node == node_comp:
-                return False
-            node_comp = seuid_helper.getattr("subscriber")
-            if node == node_comp:
-                return True
-            else:
-                raise UserWarning()
-
-
-    def get_child(self, row, parent=None, sub_activated=False):
+    def get_child(self, row, parent=None):
         """
         Returns the child at the position row.
 
         :param row: the index of the row
         :type row: int
-        :param parent: the model parten at the given index (not global / logical parent)
+        :param parent: the model parent at the given index (not global / logical parent)
         :type parent: NodeItem
-        :param sub_activated: Defines if subscriber shall be shown too.
 
         :returns: the child at the position row
         :rtype: AbstractItem
         """
-        return self.__get_local_childs(parent, sub_activated)[row]
+        if not isinstance(parent, NodeItem):
+            print(type(parent))
+            raise UserWarning
+        return self.__get_local_childs(parent)[row]
 
-    def __get_local_childs(self, parent=None, sub_activated=False):
+    def __get_local_childs(self, parent=None):
         """
         Returns all childs of the topic item at the given position in the gui.
 
-        :param parent: the model parten at the given index (not global / logical parent)
+        :param parent: the model parent at the given index (not global / logical parent)
         :type parent: NodeItem
         :param sub_activated: Defines if subscriber shall be shown too.
         :returns: the child at the position row
@@ -140,33 +146,47 @@ class TopicItem(AbstractItem):
             # use the seuid to determine the node and compare this to the parts in the connections item (child of this
             # item.
             seuid = parent.get_seuid()
+
             seuid_helper = SEUID()
             seuid_helper.identifier = seuid
-            seuid_helper.__set_fields()
-            node = seuid_helper.getattr("node")
+            seuid_helper.set_fields()
+            node = seuid_helper.node
             for child in self.get_childs():
                 child_seuid = child.get_seuid()
                 seuid_helper.identifier = child_seuid
-                seuid_helper.__set_fields()
-                node_comp = seuid_helper.getattr("publisher")
-                added = False
+                seuid_helper.set_fields()
+                node_comp = seuid_helper.publisher
+
+                if seuid == "n!/mole":
+                    print(seuid)
+                    print(child_seuid)
+                    print(self.seuid)
+                    print(node)
+                    print(node_comp)
 
                 # do the check on the publisher
                 if node == node_comp:
                     # match.
                     childs.append(child)
-                    added = True
+                    child.show_as_subscriber = False
+                    continue
 
-                node_comp = seuid_helper.getattr("subscriber")
-                if not added and sub_activated:
-                    if node == node_comp:
-                        # match.
-                        childs.append(child)
+                node_comp = seuid_helper.subscriber
+
+                if node == node_comp:
+                    print("match2")
+                    # match.
+                    childs.append(child)
+                    # adds a state to the connection so that it is shown in the gui as a subscriber
+                    child.show_as_subscriber = True
             return childs
         else:
-            return self.__child_items
+            print("none")
+            print(self.seuid)
+            print(len(self._child_items))
+            return self._child_items
 
-    def row(self, parent=None, sub_activated=False):
+    def row(self, parent=None):
         """
         Returns the index of the Item.
 
@@ -178,14 +198,14 @@ class TopicItem(AbstractItem):
         return 0
 
 
-    def child_count(self, parent=None, sub_activated=False):
+    def child_count(self, parent=None):
         """
         Returns the number of children from the AbstractItem.
 
         :returns: number of childs
         :rtype: int
         """
-        return len(self.__get_local_childs())
+        return len(self.__get_local_childs(parent))
 
     def get_childs(self):
         """
@@ -197,7 +217,7 @@ class TopicItem(AbstractItem):
         :returns: list of children
         :rtype: list
         """
-        return self.__child_items
+        return self._child_items
 
 
 
@@ -319,8 +339,8 @@ class TopicItem(AbstractItem):
              self.__calculated_data[key].append(0)
 
         child_count = 0
-        for connection in self.get_childs(): #!assuming all childs are connection items!
-            values = connection.aggregate_data(5) # average over N seconds
+        for connection in self.get_childs():  # !assuming all childs are connection items!
+            values = connection.aggregate_data(5)  # average over N seconds
 
             if values:
                 for key in self.add_keys:

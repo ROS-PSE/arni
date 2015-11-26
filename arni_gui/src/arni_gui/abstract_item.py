@@ -36,7 +36,7 @@ class AbstractItem(QObject):
          values. This is equivalent to the representation in the RatedStatistics/Entity.
         """
         self._rated_data = {}
-        self.__child_items = []
+        self._child_items = []
         self.__parent = parent
         self.seuid = seuid
         self._type = "type"
@@ -121,7 +121,7 @@ class AbstractItem(QObject):
         :param child: the child item
         :type child: AbstractItem
         """
-        self.__child_items.append(child)
+        self._child_items.append(child)
 
     def _update_current_state(self):
         """
@@ -204,7 +204,7 @@ class AbstractItem(QObject):
         :returns: number of childs
         :rtype: int
         """
-        return len(self.__child_items)
+        return len(self._child_items)
 
     def column_count(self):
         """
@@ -222,7 +222,7 @@ class AbstractItem(QObject):
         :returns: list of children
         :rtype: list
         """
-        return self.__child_items
+        return self._child_items
 
     def get_child(self, row, parent=None):
         """
@@ -234,7 +234,7 @@ class AbstractItem(QObject):
         :returns: the child at the position row
         :rtype: AbstractItem
         """
-        return self.__child_items[row]
+        return self._child_items[row]
 
     def row(self, parent=None):
         """
@@ -256,14 +256,12 @@ class AbstractItem(QObject):
         """
         return self._length_of_data
 
-    def get_latest_data(self, parent, *args):
+    def get_latest_data(self, *args):
         """
         Returns the latest dict of the data_list or the item of the dict with the given key.
 
         :param kwargs: the keys to the dict
         :type kwargs: str
-        :param parent: the parent of the current item
-        :type parent: QModelIndex
 
         :returns: dict of the item
         :rtype: dict
