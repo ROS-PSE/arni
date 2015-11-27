@@ -1,7 +1,7 @@
 import re
 import rospy
 import arni_msgs
-from arni_msgs.msg import HostStatistics, NodeStatistics
+from arni_msgs.msg import HostStatistics, NodeStatistics, MasterApiEntity
 import rosgraph_msgs
 from rosgraph_msgs.msg import TopicStatistics
 from rospy.exceptions import ROSInitException
@@ -116,6 +116,7 @@ class SEUID:
                 NodeStatistics or TopicStatistics message.")
         return self.identifier
 
+
     def is_valid(self, identifier=None):
         """
         Determines whether the given parameter is a valid seuid.
@@ -211,3 +212,43 @@ def older_than(time1, duration, time2=None):
     except ROSInitException:
         return False
     return time2 > time1 and time2 - time1 > duration
+
+
+def generate_seuids_from_master_api_data(master_api_data):
+    """
+    Will only return the seuids of subscribers and publisher, not the of services
+
+    :param master_api_data:
+    :return:
+    """
+    pubs, subs, srvs = master_api_data.pubs, master_api_data.subs, master_api_data.srvs
+
+
+    conn = TopicStatistics()
+    seuid_helper = SEUID()
+
+
+    seuids = []
+    found = False
+    # for sub in subs:
+    #     # add topic
+    #     conn.topic = sub.name
+    #     seuid_helper.from_message(conn, True)
+    #     seuids.append(seuid_helper.identifier)
+
+    for pub in pubs:
+        # # add topic
+        # conn.topic = pub.name
+        # seuid_helper.from_message(conn, True)
+        # seuids.append(seuid_helper.identifier)
+        for sub in subs:
+            if pub is sub:
+                # found the subscribers and publishers of the same topic, now create n*m connections
+                for real_pub in pub.content:
+                    for real_sub in sub.content:
+                        # create seuid
+                        # add it
+                        conn.node_sub = real_sub
+                        conn.node_pub = real_pub
+                        seuid_helper.from_message(conn)
+                        seuids.append(seuid_helper.identifier)

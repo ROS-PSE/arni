@@ -90,6 +90,12 @@ class ROSModel(QAbstractItemModel):
         self.__parent = parent
         self.__model_lock = Lock()
 
+
+        """
+        IMPORTANT: Does not contain the models nodes but the logical nodes. E.g. a ConnectionItem splits up to two
+        TreeConnectionItems where the identifier_dict only contains the connectionitem. This allows to push
+        data into one item but to show it at two places in the Qt GUI.
+        """
         self.__identifier_dict = {"root": self.__root_item}
         self.__item_delegate = SizeDelegate()
 
@@ -307,7 +313,7 @@ class ROSModel(QAbstractItemModel):
             if item is not self.__root_item:
                 amount_of_entries += item.get_amount_of_entries()
 
-        # enables "intellgent" updates when there are only few elements in the model so that most of the history is kept
+        # enables "intelligent" updates when there are only few elements in the model so that most of the history is kept
         # maybe use something loglike for the range
         for i in range(5, 0, -1):
             if amount_of_entries > MAXIMUM_AMOUNT_OF_ENTRIES:
@@ -471,93 +477,95 @@ class ROSModel(QAbstractItemModel):
         any data.
         :type master_api_data: MasterApi
         """
-        pass
-        # TODO fix this code!
-        """pubs, subs, srvs = master_api_data.pubs, master_api_data.subs, master_api_data.srvs
-        ent = arni_msgs.msg.MasterApiEntity()
-        for ent in pubs:
-            for publisher in ent.content:
+        # pubs, subs, srvs = master_api_data.pubs, master_api_data.subs, master_api_data.srvs
 
-                # TODO adapt this code ! self.__seuid_helper.from_message()
-                topic_seuid = "t" + SEUID_DELIMITER + ent.name
-                connection_item = None
-                # check if host exists
+        seuids = generate_seuids_from_master_api_data(master_api_data)
 
-                # check if node exists
-                if topic_seuid not in self.__identifier_dict:
-                    node_seuid = "n" + SEUID_DELIMITER + publisher
-                    parent = None
-                    try:
-                        parent = self.__identifier_dict[node_seuid]
-                    except KeyError:
-                        host_seuid = "h" + SEUID_DELIMITER + self.__find_host.get_host(publisher)
-                        host_item = None
-                        if host_seuid not in self.__identifier_dict:
-                            host_item = HostItem(self.__logger, host_seuid, self.__root_item)
-                            self.__identifier_dict[host_seuid] = host_item
-                            self.__root_item.append_child(host_item)
-                        else:
-                            host_item = self.__identifier_dict[host_seuid]
-                        node_item = None
-                        if node_seuid not in self.__identifier_dict:
-                            node_item = NodeItem(self.__logger, node_seuid, host_item)
-                            self.__identifier_dict[node_seuid] = node_item
-                            host_item.append_child(node_item)
-                        else:
-                            node_item = self.__identifier_dict[node_seuid]
-                        parent = node_item
-                    topic_item = TopicItem(self.__logger, topic_seuid, None, parent)
-                    parent.append_child(topic_item)
-                    self.__identifier_dict[topic_seuid] = topic_item
-                else:
-                    # topic exists
-                    pass
-                for ent_sub in subs:
-                    if ent_sub.name == ent.name:
-                        for sub in ent_sub.content:
-                            # add the topic as subscription topic
-                            sub_topic_seuid = "t" + SEUID_DELIMITER + ent.name + "--sub"
-                            sub_topic = None
-                            try:
-                                sub_topic = self.__identifier_dict[sub_topic_seuid]
-                            except KeyError:
-                                host_seuid = "h" + SEUID_DELIMITER + self.__find_host.get_host(sub)
-                                host_item_sub = None
-                                if host_seuid not in self.__identifier_dict:
-                                    host_item_sub = HostItem(self.__logger, host_seuid, self.__root_item)
-                                    self.__identifier_dict[host_seuid] = host_item
-                                    self.__root_item.append_child(host_item)
-                                else:
-                                    host_item_sub = self.__identifier_dict[host_seuid]
-                                node_item_sub = None
-                                node_seuid_sub = "n" + SEUID_DELIMITER + sub
-                                if node_seuid_sub not in self.__identifier_dict:
-                                    node_item_sub = NodeItem(self.__logger, node_seuid_sub, host_item_sub)
-                                    self.__identifier_dict[node_seuid_sub] = node_item_sub
-                                    host_item.append_child(node_item_sub)
-                                else:
-                                    node_item_sub = self.__identifier_dict[node_seuid]
-                                # create this subtopic
-                                sub_topic = TopicItem(self.__logger, sub_topic_seuid, None, node_item_sub)
-                                node_item_sub.append_child(sub_topic)
-                                self.__identifier_dict[sub_topic_seuid] = sub_topic
-                            # add the subcriber connection
-                            connection_seuid_sub = "c" + SEUID_DELIMITER + sub + SEUID_DELIMITER + ent.name \
-                                               + SEUID_DELIMITER + ent.content[0] + "--sub"
-                            if connection_seuid_sub not in self.__identifier_dict:
-                                connection_item_sub = ConnectionItem(self.__logger, connection_seuid_sub, None,
-                                                                 sub_topic)
-                                sub_topic.append_child(connection_item_sub)
-                                self.__identifier_dict[connection_seuid_sub] = connection_item_sub
+        for seuid in seuids:
+            self.get_or_add_item_by_seuid(seuid)
 
-                            # add the publisher connection
-                            connection_seuid = "c" + SEUID_DELIMITER + sub + SEUID_DELIMITER + ent.name \
-                                               + SEUID_DELIMITER + ent.content[0]
-                            if connection_seuid not in self.__identifier_dict:
-                                connection_item = ConnectionItem(self.__logger, connection_seuid, None,
-                                                                 topic_item)
-                                topic_item.append_child(connection_item)
-                                self.__identifier_dict[connection_seuid] = connection_item"""
+        # for ent in pubs:
+        #     for pub in ent.content:
+        #         # TODO adapt this code ! self.__seuid_helper.from_message()
+        #         topic_seuid = "t" + SEUID_DELIMITER + ent.name
+        #         connection_item = None
+        #         # check if host exists
+        #
+        #         # check if node exists
+        #         if topic_seuid not in self.__identifier_dict:
+        #             node_seuid = "n" + SEUID_DELIMITER + publisher
+        #             parent = None
+        #             try:
+        #                 parent = self.__identifier_dict[node_seuid]
+        #             except KeyError:
+        #                 host_seuid = "h" + SEUID_DELIMITER + self.__find_host.get_host(publisher)
+        #                 host_item = None
+        #                 if host_seuid not in self.__identifier_dict:
+        #                     host_item = HostItem(self.__logger, host_seuid, self.__root_item)
+        #                     self.__identifier_dict[host_seuid] = host_item
+        #                     self.__root_item.append_child(host_item)
+        #                 else:
+        #                     host_item = self.__identifier_dict[host_seuid]
+        #                 node_item = None
+        #                 if node_seuid not in self.__identifier_dict:
+        #                     node_item = NodeItem(self.__logger, node_seuid, host_item)
+        #                     self.__identifier_dict[node_seuid] = node_item
+        #                     host_item.append_child(node_item)
+        #                 else:
+        #                     node_item = self.__identifier_dict[node_seuid]
+        #                 parent = node_item
+        #             topic_item = TopicItem(self.__logger, topic_seuid, None, parent)
+        #             parent.append_child(topic_item)
+        #             self.__identifier_dict[topic_seuid] = topic_item
+        #         else:
+        #             # topic exists
+        #             pass
+        #         for ent_sub in subs:
+        #             if ent_sub.name == ent.name:
+        #                 for sub in ent_sub.content:
+        #                     # add the topic as subscription topic
+        #                     sub_topic_seuid = "t" + SEUID_DELIMITER + ent.name + "--sub"
+        #                     sub_topic = None
+        #                     try:
+        #                         sub_topic = self.__identifier_dict[sub_topic_seuid]
+        #                     except KeyError:
+        #                         host_seuid = "h" + SEUID_DELIMITER + self.__find_host.get_host(sub)
+        #                         host_item_sub = None
+        #                         if host_seuid not in self.__identifier_dict:
+        #                             host_item_sub = HostItem(self.__logger, host_seuid, self.__root_item)
+        #                             self.__identifier_dict[host_seuid] = host_item
+        #                             self.__root_item.append_child(host_item)
+        #                         else:
+        #                             host_item_sub = self.__identifier_dict[host_seuid]
+        #                         node_item_sub = None
+        #                         node_seuid_sub = "n" + SEUID_DELIMITER + sub
+        #                         if node_seuid_sub not in self.__identifier_dict:
+        #                             node_item_sub = NodeItem(self.__logger, node_seuid_sub, host_item_sub)
+        #                             self.__identifier_dict[node_seuid_sub] = node_item_sub
+        #                             host_item.append_child(node_item_sub)
+        #                         else:
+        #                             node_item_sub = self.__identifier_dict[node_seuid]
+        #                         # create this subtopic
+        #                         sub_topic = TopicItem(self.__logger, sub_topic_seuid, None, node_item_sub)
+        #                         node_item_sub.append_child(sub_topic)
+        #                         self.__identifier_dict[sub_topic_seuid] = sub_topic
+        #                     # add the subcriber connection
+        #                     connection_seuid_sub = "c" + SEUID_DELIMITER + sub + SEUID_DELIMITER + ent.name \
+        #                                        + SEUID_DELIMITER + ent.content[0] + "--sub"
+        #                     if connection_seuid_sub not in self.__identifier_dict:
+        #                         connection_item_sub = ConnectionItem(self.__logger, connection_seuid_sub, None,
+        #                                                          sub_topic)
+        #                         sub_topic.append_child(connection_item_sub)
+        #                         self.__identifier_dict[connection_seuid_sub] = connection_item_sub
+        #
+        #                     # add the publisher connection
+        #                     connection_seuid = "c" + SEUID_DELIMITER + sub + SEUID_DELIMITER + ent.name \
+        #                                        + SEUID_DELIMITER + ent.content[0]
+        #                     if connection_seuid not in self.__identifier_dict:
+        #                         connection_item = ConnectionItem(self.__logger, connection_seuid, None,
+        #                                                          topic_item)
+        #                         topic_item.append_child(connection_item)
+        #                         self.__identifier_dict[connection_seuid] = connection_item
 
     def __transform_topic_statistics_item(self, item):
         """
@@ -570,83 +578,88 @@ class ROSModel(QAbstractItemModel):
         connection_seuid = self.__seuid_helper.from_message(item)
         # connection_seuid_sub = self.__seuid_helper.from_message(item, False, True)
 
-        topic_item = None
-        connection_item = None
+        topic_item = self.get_or_add_item_by_seuid(topic_seuid)
+        connection_item = self.get_or_add_item_by_seuid(connection_seuid)
+        connection_item.append_data(item)
+
+
+        # topic_item = None
+        # connection_item = None
 
         # check if avaiable
-        if topic_seuid not in self.__identifier_dict:
-            # creating the topic item
-            try:
-                parent = self.__identifier_dict[item.node_pub]
-            except KeyError:
-                host = HostStatistics()
-                host.host = self.__find_host.get_host(item.node_pub)
-                host_seuid = self.__seuid_helper.from_message(host)
-                host_item = None
-                if host_seuid not in self.__identifier_dict:
-                    host_item = HostItem(self.__logger, host_seuid, self.__root_item)
-                    self.__identifier_dict[host_seuid] = host_item
-                    self.__root_item.append_child(host_item)
-                else:
-                    host_item = self.__identifier_dict[host_seuid]
-
-                node = NodeStatistics()
-                node.node = item.node_pub
-                node_seuid = self.__seuid_helper.from_message(node)
-                node_item = None
-                if node_seuid not in self.__identifier_dict:
-                    node_item = NodeItem(self.__logger, node_seuid, host_item)
-                    self.__identifier_dict[node_seuid] = node_item
-                    host_item.append_child(node_item)
-                    self.__find_host.add_node(item.node_pub, self.__find_host.get_host(item.node_pub))
-                else:
-                    node_item = self.__identifier_dict[node_seuid]
-                parent = node_item
-                topic_item = TopicItem(self.__logger, topic_seuid, item, parent)
-                parent.append_child(topic_item)
-                self.__identifier_dict[topic_seuid] = topic_item
-
-
-                # subscriber
-                node_sub = NodeStatistics()
-                node_sub.node = item.node_sub
-                node_seuid = self.__seuid_helper.from_message(node_sub)
-                node_item = None
-                if node_seuid not in self.__identifier_dict:
-                    host = HostStatistics()
-                    host.host = self.__find_host.get_host(item.node_sub)
-                    host_seuid = self.__seuid_helper.from_message(host)
-                    if host_seuid not in self.__identifier_dict:
-                        host_item = HostItem(self.__logger, host_seuid, self.__root_item)
-                        self.__identifier_dict[host_seuid] = host_item
-                        self.__root_item.append_child(host_item)
-                    else:
-                        host_item = self.__identifier_dict[host_seuid]
-                    node_item = NodeItem(self.__logger, node_seuid, host_item)
-                    self.__identifier_dict[node_seuid] = node_item
-                    host_item.append_child(node_item)
-                    self.__find_host.add_node(item.node_pub, self.__find_host.get_host(item.node_pub))
-                else:
-                    node_item = self.__identifier_dict[node_seuid]
-                node_item.append_child(topic_item)
-        #     # creating the publishing connection item
+        # if topic_seuid not in self.__identifier_dict:
+        #     # creating the topic item
+        #     try:
+        #         parent = self.__identifier_dict[item.node_pub]
+        #     except KeyError:
+        #         host = HostStatistics()
+        #         host.host = self.__find_host.get_host(item.node_pub)
+        #         host_seuid = self.__seuid_helper.from_message(host)
+        #         host_item = None
+        #         if host_seuid not in self.__identifier_dict:
+        #             host_item = HostItem(self.__logger, host_seuid, self.__root_item)
+        #             self.__identifier_dict[host_seuid] = host_item
+        #             self.__root_item.append_child(host_item)
+        #         else:
+        #             host_item = self.__identifier_dict[host_seuid]
+        #
+        #         node = NodeStatistics()
+        #         node.node = item.node_pub
+        #         node_seuid = self.__seuid_helper.from_message(node)
+        #         node_item = None
+        #         if node_seuid not in self.__identifier_dict:
+        #             node_item = NodeItem(self.__logger, node_seuid, host_item)
+        #             self.__identifier_dict[node_seuid] = node_item
+        #             host_item.append_child(node_item)
+        #             self.__find_host.add_node(item.node_pub, self.__find_host.get_host(item.node_pub))
+        #         else:
+        #             node_item = self.__identifier_dict[node_seuid]
+        #         parent = node_item
+        #         topic_item = TopicItem(self.__logger, topic_seuid, item, parent)
+        #         parent.append_child(topic_item)
+        #         self.__identifier_dict[topic_seuid] = topic_item
+        #
+        #
+        #         # subscriber
+        #         node_sub = NodeStatistics()
+        #         node_sub.node = item.node_sub
+        #         node_seuid = self.__seuid_helper.from_message(node_sub)
+        #         node_item = None
+        #         if node_seuid not in self.__identifier_dict:
+        #             host = HostStatistics()
+        #             host.host = self.__find_host.get_host(item.node_sub)
+        #             host_seuid = self.__seuid_helper.from_message(host)
+        #             if host_seuid not in self.__identifier_dict:
+        #                 host_item = HostItem(self.__logger, host_seuid, self.__root_item)
+        #                 self.__identifier_dict[host_seuid] = host_item
+        #                 self.__root_item.append_child(host_item)
+        #             else:
+        #                 host_item = self.__identifier_dict[host_seuid]
+        #             node_item = NodeItem(self.__logger, node_seuid, host_item)
+        #             self.__identifier_dict[node_seuid] = node_item
+        #             host_item.append_child(node_item)
+        #             self.__find_host.add_node(item.node_pub, self.__find_host.get_host(item.node_pub))
+        #         else:
+        #             node_item = self.__identifier_dict[node_seuid]
+        #         node_item.append_child(topic_item)
+        # #     # creating the publishing connection item
+        # #     connection_item = ConnectionItem(self.__logger, connection_seuid, item, topic_item)
+        # #     topic_item.append_child(connection_item)
+        # #     self.__identifier_dict[connection_seuid] = connection_item
+        # # else:
+        # if connection_seuid not in self.__identifier_dict:
+        #     topic_item = self.__identifier_dict[topic_seuid]
+        #     # creating a new connection item
         #     connection_item = ConnectionItem(self.__logger, connection_seuid, item, topic_item)
         #     topic_item.append_child(connection_item)
         #     self.__identifier_dict[connection_seuid] = connection_item
         # else:
-        if connection_seuid not in self.__identifier_dict:
-            topic_item = self.__identifier_dict[topic_seuid]
-            # creating a new connection item
-            connection_item = ConnectionItem(self.__logger, connection_seuid, item, topic_item)
-            topic_item.append_child(connection_item)
-            self.__identifier_dict[connection_seuid] = connection_item
-        else:
-            # get topic and connection item
-            topic_item = self.__identifier_dict[topic_seuid]
-            connection_item = self.__identifier_dict[connection_seuid]
-        # now update these
-        connection_item.append_data(item)
-        # topic_item.append_data(item)
+        #     # get topic and connection item
+        #     topic_item = self.__identifier_dict[topic_seuid]
+        #     connection_item = self.__identifier_dict[connection_seuid]
+        # # now update these
+        # connection_item.append_data(item)
+        # # topic_item.append_data(item)
 
         # self.__transform_subscriber(item)
 
@@ -727,26 +740,30 @@ class ROSModel(QAbstractItemModel):
         :type item: NodeStatistics
         """
         node_seuid = self.__seuid_helper.from_message(item)
-        if node_seuid not in self.__identifier_dict:
-            # create item
-            host = HostStatistics()
-            host.host = item.host
-            host_seuid = self.__seuid_helper.from_message(host)
-            host_item = None
-            if host_seuid not in self.__identifier_dict:
-                host_item = HostItem(self.__logger, host_seuid, self.__root_item)
-                self.__identifier_dict[host_seuid] = host_item
-                self.__root_item.append_child(host_item)
-            else:
-                host_item = self.__identifier_dict[host_seuid]
-            node_item = NodeItem(self.__logger, node_seuid, host_item)
-            self.__identifier_dict[node_seuid] = node_item
-            host_item.append_child(node_item)
-            self.__find_host.add_node(item.node, item.host)
-        else:
-            node_item = self.__identifier_dict[node_seuid]
+        node_item = self.get_or_add_item_by_seuid(node_seuid)
 
         node_item.append_data(item)
+        #
+        # if node_seuid not in self.__identifier_dict:
+        #     # create item
+        #     host = HostStatistics()
+        #     host.host = item.host
+        #     host_seuid = self.__seuid_helper.from_message(host)
+        #     host_item = None
+        #     if host_seuid not in self.__identifier_dict:
+        #         host_item = HostItem(self.__logger, host_seuid, self.__root_item)
+        #         self.__identifier_dict[host_seuid] = host_item
+        #         self.__root_item.append_child(host_item)
+        #     else:
+        #         host_item = self.__identifier_dict[host_seuid]
+        #     node_item = NodeItem(self.__logger, node_seuid, host_item)
+        #     self.__identifier_dict[node_seuid] = node_item
+        #     host_item.append_child(node_item)
+        #     self.__find_host.add_node(item.node, item.host)
+        # else:
+        #     node_item = self.__identifier_dict[node_seuid]
+
+
 
     def __transform_host_statistics_item(self, item):
         """
@@ -755,17 +772,21 @@ class ROSModel(QAbstractItemModel):
         :param item: the HostStatistics item
         :type item: HostStatistics
         """
-        host_item = None
         host_seuid = self.__seuid_helper.from_message(item)
-        if host_seuid not in self.__identifier_dict:
-            # create item
-            host_item = HostItem(self.__logger, host_seuid, self.__root_item)
-            self.__identifier_dict[host_seuid] = host_item
-            self.__root_item.append_child(host_item)
-        else:
-            host_item = self.__identifier_dict[host_seuid]
-
+        host_item = self.get_or_add_item_by_seuid(host_seuid)
         host_item.append_data(item)
+
+        # host_item = None
+        # host_seuid = self.__seuid_helper.from_message(item)
+        # if host_seuid not in self.__identifier_dict:
+        #     # create item
+        #     host_item = HostItem(self.__logger, host_seuid, self.__root_item)
+        #     self.__identifier_dict[host_seuid] = host_item
+        #     self.__root_item.append_child(host_item)
+        # else:
+        #     host_item = self.__identifier_dict[host_seuid]
+        #
+        # host_item.append_data(item)
 
     def get_item_by_seuid(self, seuid):
         """
@@ -845,3 +866,70 @@ class ROSModel(QAbstractItemModel):
         :rtype: QTranslator
         """
         return self._translator
+
+    def get_or_add_item_by_seuid(self, seuid):
+        """
+        Takes a seuid, checks if it already exists. If it does, the item is simply returned. If it does not
+        a new item is generated and added to the tree.
+
+        :param seuid:
+        :return:
+        """
+        results = []
+        if seuid not in self.__identifier_dict:
+            parent = None
+            item = None
+            if seuid[0] == "h":
+                item = HostItem(self.__logger, seuid, None, self.__root_item)
+                parent = self.__root_item
+                results.append(item)
+            elif seuid[0] == "n":
+                # does host exist
+                # call helper to get the host
+                self.__seuid_helper.identifer = seuid
+                self.__seuid_helper.__set_fields()
+                host = HostStatistics()
+                host.host = self.__find_host.get_host(self.__seuid_helper.node)
+                host_seuid = self.__seuid_helper.from_message(host)
+                parent = self.get_or_add_item_by_seuid(host_seuid)
+                item = NodeItem(self.__logger, seuid, None, parent)
+                results.append(item)
+            elif seuid[0] == "t":
+                # use node information
+                self.__seuid_helper.identifer = seuid
+                self.__seuid_helper.__set_fields()
+                node = NodeStatistics()
+                node.node = self.__seuid_helper.publisher
+                node_seuid = self.__seuid_helper.from_message(node)
+                parent = self.get_or_add_item_by_seuid(node_seuid)
+
+                item = TopicItem(self.__logger, seuid, None, parent)
+                results.append(item)
+                parent.append_child(item)
+
+                # subscriber node
+                node = NodeStatistics()
+                node.node = self.__seuid_helper.subscriber
+                node_seuid = self.__seuid_helper.from_message(node)
+                parent = self.get_or_add_item_by_seuid(node_seuid)
+
+            elif seuid[0] == "c":
+                self.__seuid_helper.identifer = seuid
+                self.__seuid_helper.__set_fields()
+                topic = TopicStatistics()
+                topic.topic = self.__seuid_helper.topic
+                topic_seuid = self.__seuid_helper.from_message(topic)
+                parent = self.get_or_add_item_by_seuid(topic_seuid)
+                item = ConnectionItem(self.__logger, seuid, None, parent)
+
+                # Todo name hier noch einfuegen, so dass das zweite ein --sub suffix hat.
+                tree_item1 = TreeConnectionItem(item)
+                tree_item2 = TreeConnectionItem(item)
+                results.append(tree_item1)
+                results.append(tree_item2)
+
+            self.__identifier_dict[seuid] = item
+            parent.append_child(item)
+        else:
+            return self.__identifier_dict[seuid]
+        raise UserWarning("get_or_add_item_by_seuid neither found nor created an item.")

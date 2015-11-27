@@ -77,7 +77,28 @@ class MonitoringNode:
         """
         Topic callback for incoming master api messages.
         """
-        pass
+        # pubs, subs, srvs = data.pubs, data.subs, data.srvs
+
+        seuids = generate_seuids_from_master_api_data(data)
+
+        for seuid in seuids:
+            # for now only report that this connection is still alive - even though it might no longer transport
+            # any data
+            # TODO does this chage the current behaviour of the program? And how could I prevent it
+            self.__report_alive(seuid)
+            # if seuid[0] == "t":
+           # if seuid not in self.__alive_timers.keys():
+           #      spec = self.__specification_handler.get(seuid)
+           #      alive_timer = spec.get("alive_timer")
+           #      if not alive_timer:
+           #          alive_timer = rospy.get_param("~alive_timer", 10)
+           #      else:
+           #          alive_timer = alive_timer[1]
+           #      self.__alive_timers[seuid] = rospy.Duration(alive_timer)
+           #  if seuid not in self.__alive_countdown.keys():
+           #      self.__alive_countdown[seuid] = rospy.Time.now()
+           #  if rospy.Time.now() >= self.__alive_countdown[seuid] + self.__alive_timers[seuid]:
+           #      self.__process_data(TopicStatistics(), seuid)
 
     def receive_data(self, data):
         """
@@ -225,5 +246,4 @@ class MonitoringNode:
         rospy.Subscriber('/statistics_master', arni_msgs.msg.MasterApi, self.receive_master_api_data)
         rospy.Service('~reload_specifications', std_srvs.srv.Empty, self.__specification_handler.reload_specifications)
         rospy.Service('~get_statistic_history', arni_msgs.srv.StatisticHistory, self.storage_server)
-        # TODO abbonate /statistics_master
         rospy.spin()
