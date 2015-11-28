@@ -61,6 +61,8 @@ class ConnectionItem(AbstractItem):
         self._logger.log("info", Time.now(), seuid, "Created a new ConnectionItem")
 
         self.show_as_subscriber = False
+        self.tree_item1 = None
+        self.tree_item2 = None
 
     def append_data(self, message):
         """

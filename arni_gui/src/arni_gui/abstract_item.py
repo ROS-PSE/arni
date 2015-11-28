@@ -59,6 +59,8 @@ class AbstractItem(QObject):
         self._data_lock = Lock()
         self._rated_data_lock = Lock()
 
+        self.is_subscriber = False
+
     def get_type(self):
         """
         Returns the type of the item
@@ -215,7 +217,7 @@ class AbstractItem(QObject):
         """
         return 4
 
-    def get_childs(self):
+    def get_childs(self, parent=None):
         """
         Returns a list with all children.
 
@@ -298,7 +300,8 @@ class AbstractItem(QObject):
                         if self._rated_data[key]:
                             return_dict[key] = self._rated_data[key][-1]
                     else:
-                        raise KeyError("item " + key + "was not found")
+                        return_dict[key] = self.tr("Currently no value available")
+                        # raise KeyError("item " + key + "was not found")
         else:
             return_dict['name'] = self.seuid
             return_dict['type'] = self._type

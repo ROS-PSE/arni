@@ -389,7 +389,11 @@ class SelectionWidget(QWidget):
                                 y = np.array(temp_content)
                                 del temp_content[:]
 
-                                self.__plotted_curves[key].setData(x=x, y=y)
+                                try:
+                                    self.__plotted_curves[key].setData(x=x, y=y)
+                                except KeyError:
+                                    print("KeyError in Selection Widget. Probably uninitialized __plotted_curves -"
+                                          " fix your code :D")
                     else:
                         pass
 

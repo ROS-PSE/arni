@@ -6,13 +6,16 @@ from threading import Lock
 from size_delegate import SizeDelegate
 from abstract_item import AbstractItem
 
+from tree_connection_item import TreeConnectionItem
 from connection_item import ConnectionItem
-from connection_item_sub import ConnectionItemSub
+# from connection_item_sub import ConnectionItemSub
 from topic_item import TopicItem
 from topic_item_sub import TopicItemSub
 from host_item import HostItem
 from node_item import NodeItem
 from root_item import RootItem
+from tree_topic_item import TreeTopicItem
+
 
 import rospy
 from rospy.rostime import Duration, Time
@@ -152,13 +155,14 @@ class ROSModel(QAbstractItemModel):
                 raise IndexError("item is None")
             if self.__mapping[index.column()] is "data":
                 return item.get_short_data()
-            if self.__mapping[index.column()] is "name":
-                if isinstance(item, ConnectionItem):
-                    if item.show_as_subscriber:
-                        # we found a subscriber
-                        print("here")
-                        return item.get_latest_data(self.__mapping[index.column()])[self.__mapping[index.column()]]\
-                               + "--sub"
+            # if self.__mapping[index.column()] is "name":
+            #     if isinstance(item, ConnectionItem):
+            #         if item.show_as_subscriber:
+            #             # we found a subscriber
+            #             print("here")
+            #             return item.get_latest_data(self.__mapping[index.column()])[self.__mapping[index.column()]]\
+            #                    + "--sub"
+            # print(item.get_latest_data(self.__mapping[index.column()]))
             return item.get_latest_data(self.__mapping[index.column()])[self.__mapping[index.column()]]
         return None
 
@@ -224,8 +228,8 @@ class ROSModel(QAbstractItemModel):
         else:
             parent_item = parent.internalPointer()
 
-        if isinstance(parent_item, TopicItem):
-            print(self.parent(parent).internalPointer().seuid)
+        if isinstance(parent_item, TreeTopicItem):
+            # print(self.parent(parent).internalPointer().seuid)
             child_item = parent_item.get_child(row, self.parent(parent).internalPointer())
         else:
             child_item = parent_item.get_child(row)
@@ -248,11 +252,17 @@ class ROSModel(QAbstractItemModel):
             return QModelIndex()
 
         child_item = index.internalPointer()
+        #print(child_item)
+        #print(type(child_item))
+        #print(child_item.parent())
         parent_item = child_item.parent()
 
         if parent_item == self.__root_item:
             return QModelIndex()
 
+        # row of treetopicItems depends on their position in the model..
+        if isinstance(parent_item, TreeTopicItem):
+            return self.createIndex(parent_item.row(parent_item.parent()), 0, parent_item)
         return self.createIndex(parent_item.row(), 0, parent_item)
 
     def rowCount(self, parent):
@@ -273,8 +283,8 @@ class ROSModel(QAbstractItemModel):
         else:
             parent_item = parent.internalPointer()
 
-        if isinstance(parent_item, TopicItem):
-            return parent_item.child_count(self.parent(parent).internalPointer())
+        if isinstance(parent_item, TreeTopicItem):
+            return parent_item.child_count(parent_item.parent())
         return parent_item.child_count()
 
     def columnCount(self, parent):
@@ -574,11 +584,9 @@ class ROSModel(QAbstractItemModel):
         :param item: the TopicStatistics item
         :type item: TopicStatistics
         """
-        topic_seuid = self.__seuid_helper.from_message(item, True)
+        topic_seuid = self.__seuid_helper.from_message(item)
         connection_seuid = self.__seuid_helper.from_message(item)
-        # connection_seuid_sub = self.__seuid_helper.from_message(item, False, True)
 
-        topic_item = self.get_or_add_item_by_seuid(topic_seuid)
         connection_item = self.get_or_add_item_by_seuid(connection_seuid)
         connection_item.append_data(item)
 
@@ -660,7 +668,6 @@ class ROSModel(QAbstractItemModel):
         # # now update these
         # connection_item.append_data(item)
         # # topic_item.append_data(item)
-
         # self.__transform_subscriber(item)
 
     # def __transform_subscriber(self, item):
@@ -867,69 +874,67 @@ class ROSModel(QAbstractItemModel):
         """
         return self._translator
 
-    def get_or_add_item_by_seuid(self, seuid):
+    def get_or_add_item_by_seuid(self, seuid, node1="", node2=""):
         """
         Takes a seuid, checks if it already exists. If it does, the item is simply returned. If it does not
-        a new item is generated and added to the tree.
+        a new item is generated and added to the tree. Does return the GUI items which is equal to the model items
+        for host and node but different for topic and connections (2 gui items are created, whereas they access one
+        model item)
 
         :param seuid:
         :return:
         """
-        results = []
         if seuid not in self.__identifier_dict:
             parent = None
             item = None
             if seuid[0] == "h":
-                item = HostItem(self.__logger, seuid, None, self.__root_item)
+                item = HostItem(self.__logger, seuid, self.__root_item)
                 parent = self.__root_item
-                results.append(item)
+                parent.append_child(item)
+
             elif seuid[0] == "n":
                 # does host exist
                 # call helper to get the host
-                self.__seuid_helper.identifer = seuid
-                self.__seuid_helper.__set_fields()
-                host = HostStatistics()
-                host.host = self.__find_host.get_host(self.__seuid_helper.node)
-                host_seuid = self.__seuid_helper.from_message(host)
-                parent = self.get_or_add_item_by_seuid(host_seuid)
-                item = NodeItem(self.__logger, seuid, None, parent)
-                results.append(item)
-            elif seuid[0] == "t":
-                # use node information
-                self.__seuid_helper.identifer = seuid
-                self.__seuid_helper.__set_fields()
-                node = NodeStatistics()
-                node.node = self.__seuid_helper.publisher
-                node_seuid = self.__seuid_helper.from_message(node)
-                parent = self.get_or_add_item_by_seuid(node_seuid)
+                node = self.__seuid_helper.get_field("n", seuid)
+                host_seuid = self.__seuid_helper.from_string("h", self.__find_host.get_host(node))
 
-                item = TopicItem(self.__logger, seuid, None, parent)
-                results.append(item)
+                parent = self.get_or_add_item_by_seuid(host_seuid)
+                item = NodeItem(self.__logger, seuid, parent)
                 parent.append_child(item)
 
-                # subscriber node
-                node = NodeStatistics()
-                node.node = self.__seuid_helper.subscriber
-                node_seuid = self.__seuid_helper.from_message(node)
-                parent = self.get_or_add_item_by_seuid(node_seuid)
+            elif seuid[0] == "t":
+                if node1 == "":
+                    raise UserWarning("node was empty - topic does not know its parent!")
+                else:
+                    # use node information - first add publisher
+                    node_seuid = self.__seuid_helper.from_string("n", node1)
+                    parent = self.get_or_add_item_by_seuid(node_seuid)
+
+                    item = TopicItem(self.__logger, seuid, None, parent)
+
+                    topic_item1 = TreeTopicItem(parent, item, False)
+                    parent.append_child(topic_item1)
+
+                    # then subscriber node
+                    node_seuid = self.__seuid_helper.from_string("n", node2)
+                    parent = self.get_or_add_item_by_seuid(node_seuid)
+                    topic_item2 = TreeTopicItem(parent, item, False)
+                    parent.append_child(topic_item2)
+                    item.tree_item2 = topic_item2
+                    item.tree_item1 = topic_item1
 
             elif seuid[0] == "c":
-                self.__seuid_helper.identifer = seuid
-                self.__seuid_helper.__set_fields()
-                topic = TopicStatistics()
-                topic.topic = self.__seuid_helper.topic
-                topic_seuid = self.__seuid_helper.from_message(topic)
-                parent = self.get_or_add_item_by_seuid(topic_seuid)
+
+                topic_seuid = self.__seuid_helper.from_string("t", self.__seuid_helper.get_field("t", seuid))
+                parent = self.get_or_add_item_by_seuid(topic_seuid, self.__seuid_helper.publisher, self.__seuid_helper.subscriber)
                 item = ConnectionItem(self.__logger, seuid, None, parent)
 
-                # Todo name hier noch einfuegen, so dass das zweite ein --sub suffix hat.
-                tree_item1 = TreeConnectionItem(item)
-                tree_item2 = TreeConnectionItem(item)
-                results.append(tree_item1)
-                results.append(tree_item2)
+                item.tree_item1 = TreeConnectionItem(parent.tree_item1, item, False)
+                parent.tree_item1.append_child(item.tree_item1)
+                item.tree_item2 = TreeConnectionItem(parent.tree_item2, item, True)
+                parent.tree_item2.append_child(item.tree_item2)
 
             self.__identifier_dict[seuid] = item
-            parent.append_child(item)
+            return item
         else:
             return self.__identifier_dict[seuid]
-        raise UserWarning("get_or_add_item_by_seuid neither found nor created an item.")

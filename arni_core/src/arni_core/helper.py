@@ -85,6 +85,42 @@ class SEUID:
         else:
             raise AttributeError("[SEUID] %s is not a public field" % field)
 
+    def from_string(self, type, string, topic="", pub=""):
+        if type == "h":
+            self.identifier = "h" + SEUID_DELIMITER + string
+        elif type == "n":
+            self.identifier = "n" + SEUID_DELIMITER + string
+        elif type == "t":
+            self.identifier = "t" + SEUID_DELIMITER + string
+        elif type == "c":
+            if topic is "" or pub is "":
+                raise UserWarning("empty strings to from_string")
+            self.identifier = "c" + SEUID_DELIMITER + string \
+                      + SEUID_DELIMITER + topic \
+                      + SEUID_DELIMITER + pub
+        else:
+            raise UserWarning()
+        return self.identifier
+
+    def get_field(self, type, seuid):
+        if not self.is_valid(seuid):
+            raise UserWarning("seuid was not valid")
+        self.identifier = seuid
+        self.set_fields()
+
+        if type == "h":
+            return self.host
+        elif type == "n":
+            return self.node
+        elif type == "t":
+            return self.topic
+        elif type == "s":
+            return self.subscriber
+        elif type == "p":
+            return self.publisher
+        else:
+            raise UserWarning("invalid type was chosen.")
+
     def from_message(self, msg, topic=False, sub=False):
         """
         Creates a SEUID from a Message object.

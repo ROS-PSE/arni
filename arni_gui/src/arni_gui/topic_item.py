@@ -78,6 +78,9 @@ class TopicItem(AbstractItem):
 
         self.__timer = Timer(Duration(nsecs=TOPIC_AGGREGATION_FREQUENCY), self.__aggregate_topic_data)
 
+        self.tree_item1 = None
+        self.tree_item2 = None
+
     # def is_subscriber(self, item, parent):
     #     """
     #     Checks for a ConnectionItem if it is
@@ -156,14 +159,6 @@ class TopicItem(AbstractItem):
                 seuid_helper.identifier = child_seuid
                 seuid_helper.set_fields()
                 node_comp = seuid_helper.publisher
-
-                if seuid == "n!/mole":
-                    print(seuid)
-                    print(child_seuid)
-                    print(self.seuid)
-                    print(node)
-                    print(node_comp)
-
                 # do the check on the publisher
                 if node == node_comp:
                     # match.
@@ -174,16 +169,12 @@ class TopicItem(AbstractItem):
                 node_comp = seuid_helper.subscriber
 
                 if node == node_comp:
-                    print("match2")
                     # match.
                     childs.append(child)
                     # adds a state to the connection so that it is shown in the gui as a subscriber
                     child.show_as_subscriber = True
             return childs
         else:
-            print("none")
-            print(self.seuid)
-            print(len(self._child_items))
             return self._child_items
 
     def row(self, parent=None):
@@ -193,9 +184,10 @@ class TopicItem(AbstractItem):
         :returns: the index of the Item
         :rtype: int
         """
-        if self.__parent:
+        if parent:
+            return parent.get_childs().index(self)
+        elif self.__parent:
             return self.__parent.get_childs().index(self)
-        return 0
 
 
     def child_count(self, parent=None):
@@ -207,7 +199,7 @@ class TopicItem(AbstractItem):
         """
         return len(self.__get_local_childs(parent))
 
-    def get_childs(self):
+    def get_childs(self, parent=None):
         """
         Returns a list with all children.
         WARNING: This is the same method as in AbstractItem (superclass) to warn you using this function in the gui
@@ -217,6 +209,8 @@ class TopicItem(AbstractItem):
         :returns: list of children
         :rtype: list
         """
+        if parent is not None:
+            return self.__get_local_childs(parent)
         return self._child_items
 
 
