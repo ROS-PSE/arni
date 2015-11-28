@@ -134,7 +134,8 @@ class AbstractItem(QObject):
         if self.get_state():
             if self.get_state() is not "error":
                 last_states = self.get_rated_items_younger_than(Time.now() - (
-                Duration(secs=5) if int(Duration(secs=5).to_sec()) <= int(Time.now().to_sec()) else Time(0)), "state")
+                    Duration(secs=5) if int(Duration(secs=5).to_sec()) <= int(Time.now().to_sec()) else Time(0)),
+                                                                "state")
 
                 try:
                     for i in range(0, len(last_states["state"])):
@@ -160,9 +161,7 @@ class AbstractItem(QObject):
                 print("KeyError occurred when trying to access %s", attribute)
                 raise
 
-        # self.__state.append("unknown")
         self._length_of_data += 1
-        # self._update_current_state()
         self._data_lock.release()
 
     def update_rated_data(self, data):
@@ -394,10 +393,7 @@ class AbstractItem(QObject):
             for j in range(0, len(entries_to_delete["window_stop"])):
                 for value in self._data.values():
                     del value[0]
-                    # del self.__state[0]
-
             self._length_of_data -= i
-        # todo: add state and rated data here
         self.delete_rated_items_older_than(time)
         self._rated_data_lock.release()
         self._data_lock.release()
@@ -530,8 +526,6 @@ class AbstractItem(QObject):
         :rtype: dict
         :raises KeyError: if an element in args cannot be found in any of the dictionaries (data vs rated data)
         """
-        # print("get_rated_items_younger_than")
-        # self._rated_data_lock.acquire()
         return_values = {}
 
         if args:
@@ -543,8 +537,6 @@ class AbstractItem(QObject):
             for key in self._rated_data:
                 return_values[key] = None
 
-        # print("3end get_rated_items_younger_than")
-
         return_values["state"] = None
 
         breakpoint = 0
@@ -553,7 +545,6 @@ class AbstractItem(QObject):
 
         if length is not 0:
             if list_of_time[0] >= time:
-                # print("1end get_rated_items_younger_than")
                 for key in return_values:
                     if key is 'state':
                         return_values[key] = self.__state
@@ -565,7 +556,6 @@ class AbstractItem(QObject):
                             print(self._rated_data)
                             raise
             else:
-                # print("2end get_rated_items_younger_than")
                 for i in range(length - 1, -1, -1):
                     if list_of_time[i] < time:
                         breakpoint = i + 1
@@ -579,8 +569,6 @@ class AbstractItem(QObject):
                                                  " at given point %s, key is %s", length, i, len(self._data[key]), key)
                         break
 
-        # self._rated_data_lock.release()
-        # print("end get_rated_items_younger_than")
         return return_values
 
     def execute_action(self, action):

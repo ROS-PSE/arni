@@ -60,13 +60,10 @@ class NodeItem(AbstractItem):
             self.__rated_attributes.append(item + ".expected_value")
             self.__rated_attributes.append(item + ".state")
 
-        #del self._attributes
-
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)
 
         self._logger.log("info", Time.now(), seuid, "Created a new NodeItem")
-
 
     def execute_action(self, action):
         """
@@ -195,7 +192,6 @@ class NodeItem(AbstractItem):
                                  "node_read_mean",
                                  "node_read_stddev", "node_read_max"]
 
-
     def get_short_data(self):
         """
         Returns a shortend version of the item data.
@@ -223,8 +219,6 @@ class NodeItem(AbstractItem):
                    + " " + self.tr("node_bandwidth_mean_unit")
 
         return content
-
-
 
     def can_execute_actions(self):
         """

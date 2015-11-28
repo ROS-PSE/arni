@@ -18,7 +18,6 @@ class ItemFilterProxy(QSortFilterProxyModel):
     The ItemFilterProxy which is a QSortFilterProxyModel helps to filter the data going to the view so the user only sees what he wants to see (which he can modified by telling the view).
      """
 
-    # todo: will call to setFilterRegEx be redirected to the parent automatically?
 
     def __init__(self, parent=None):
         """
@@ -28,7 +27,6 @@ class ItemFilterProxy(QSortFilterProxyModel):
         :type parent: QObject
         """
         super(ItemFilterProxy, self).__init__(parent)
-        # todo: how will these be set correctly at the initialization of the program?
         self.__show_hosts = True
         self.__show_nodes = True
         self.__show_connections = True
@@ -61,14 +59,6 @@ class ItemFilterProxy(QSortFilterProxyModel):
         :rtype: bool
         """
         entries = []
-
-
-        # return True
-
-        # print(source_parent.isValid())
-        # print(source_parent.data(0))
-        # print(source_parent.isValid())
-        # item = self.sourceModel().itemFromIndex(source_parent)
         item = source_parent.internalPointer()
         child = None
         if item is not None:
@@ -80,42 +70,18 @@ class ItemFilterProxy(QSortFilterProxyModel):
             entries = [child.get_type(), child.get_seuid(), child.get_state(), child.get_short_data()]
         else:
             child = self.sourceModel().get_root_item().get_child(source_row)
-            # print("root item childs")
-            # print(self.sourceModel().get_root_item().get_childs())
-            # print("host item childs")
-            # print(child.get_childs())
-
-            # print(child.get_parent())
             entries = [child.get_type(), child.get_seuid(), child.get_state(), child.get_short_data()]
 
-            # if source_parent.internalPointer() is not None:
-            # print(source_parent.data())
-            # print(source_parent.internalPointer().get_seuid())
-            # child = source_parent.internalPointer().get_child(source_row)
-            # print(source_parent.internalPointer().get_child(source_row).get_seuid())
         child_childs = child.get_childs( self.sourceModel().parent(
                     source_parent).internalPointer())
 
         for i in range(0, len(child_childs)):
-            # print("self: " + child.get_seuid())
-            # print("gone through " + child_childs[i].get_seuid())
             if self.filterAcceptsRow(i, self.sourceModel().index(source_row, 0, source_parent)):
                 return True
-        # print("filterAcceptsRow2")
-
-        # for i in range(0, 4):
-        #    entries.append(self.sourceModel().index(source_row, i, source_parent))
 
         correct_type = False
-
-        # if entries[0] is None:
-        #    raise UserWarning("None values in filterAcceptsRow")
-
-        # data = self.sourceModel().data(entries[0])
-        # print(entries)
         data = entries[0]
 
-        # print("data: " + data)
         if self.__show_hosts and data == "host":
             correct_type = True
         elif self.__show_nodes and data == "node":
@@ -131,45 +97,19 @@ class ItemFilterProxy(QSortFilterProxyModel):
         elif self.__show_topics is True:
             if data == "topic":
                 correct_type = True
-            # if self.__show_connections is True:
-            #     if data == "connection-sub":
-            #         if self.__show_subscribers is True:
-            #             correct_type = True
-            #             break
-            # if self.__show_topics is True:
-            #     if data == "topic-sub":
-            #         if self.__show_subscribers is True:
-            #             correct_type = True
-            #             break
 
         if "--sub" in child.get_seuid():
             print(child.get_seuid() + " " + str(correct_type))
         if correct_type is False:
             return False
-        # print(entries)
 
         # todo: speed this implementation a lot up by not using the model!!!
         if self.__filter_string is not "":
-            # print("now filter")
-            ##print(self.__filter_string)
-            # for i in range(0, len(entries)):
-            #    print(self.sourceModel().data(entries[i]))
-
-            # tests = [self.__filter_string in self.sourceModel().data(entries[i]) for i in range(0, len(entries))]
-            # print("here")
             tests = [self.__filter_string in entries[i] for i in range(0, len(entries))]
-            # print("here2")
-
-
-            # print("passed here")
             if True in tests:
-                # return True
                 return QSortFilterProxyModel.filterAcceptsRow(self, source_row, source_parent)
             else:
                 return False
-
-        # print("passed here2")
-        # return True
         return QSortFilterProxyModel.filterAcceptsRow(self, source_row, source_parent)
 
     def setFilterRegExp(self, string):

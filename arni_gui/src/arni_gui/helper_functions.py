@@ -69,7 +69,6 @@ class DateAxis(pg.AxisItem):
         strns = []
         if values is None or len(values) is 0:
             pass
-            #raise UserWarning("DateAxis::tickStrings: values is empty!")
         else:
             rng = max(values) - min(values)
             string = '%Y'

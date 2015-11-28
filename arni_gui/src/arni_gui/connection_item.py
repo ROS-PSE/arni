@@ -42,9 +42,6 @@ class ConnectionItem(AbstractItem):
         for item in self._attributes:
             self._add_data_list(item)
 
-        #for element in ["period_mean", "period_stddev", "period_max"]:
-        #    self._attributes.remove(element)
-
         self.__rated_attributes = []
         self.__rated_attributes.append("alive.actual_value")
         self.__rated_attributes.append("alive.expected_value")
@@ -81,9 +78,7 @@ class ConnectionItem(AbstractItem):
             else:
                 self._data[attribute].append(getattr(message, attribute))
 
-        #self.__state.append("unknown")
         self._length_of_data += 1
-        #self._update_current_state()
         self._data_lock.release()
 
 
@@ -152,10 +147,6 @@ class ConnectionItem(AbstractItem):
 
         content += self.get_erroneous_entries()
 
-        if type(data_dict["window_stop"]) != unicode and type(data_dict["window_start"]) != unicode:
-            window_len = data_dict["window_stop"] - data_dict["window_start"]
-        else:
-            window_len = 0
         if "frequency" in self._attributes:
             content += self.tr("frequency") + ": " + prepare_number_for_representation(data_dict["frequency"]) \
                        + " " + self.tr("frequency_unit") + " <br>"
@@ -198,10 +189,8 @@ class ConnectionItem(AbstractItem):
         :rtype: str
         """
         data_dict = self.get_latest_data()
-        #print(data_dict["window_stop"])
-        #print(type(data_dict["window_stop"]))
         if Time.now() - data_dict["window_stop"] > Duration(secs=5):
-          return "No recent data"
+            return "No recent data"
 
         content = ""
         if data_dict["state"] is "error":

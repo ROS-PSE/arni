@@ -44,15 +44,9 @@ class TopicItem(AbstractItem):
         self._attributes.extend(["dropped_msgs", "traffic",
                                  "period_mean", "period_stddev", "period_max", "stamp_age_mean",
                                  "stamp_age_stddev", "stamp_age_max", "bandwidth", "frequency"])
-       #self._attributes.extend(["dropped_msgs", "traffic",
-        #                         "stamp_age_mean", "stamp_age_max", "stamp_age_stddev", "period_max", "node_pub", "node_sub"])
-
 
         for item in self._attributes:
             self._add_data_list(item)
-
-        #self._attributes.remove("traffic")
-        #self._attributes.append("bandwidth")
 
         self.__rated_attributes = []
         self.__rated_attributes.append("alive.actual_value")
@@ -80,41 +74,6 @@ class TopicItem(AbstractItem):
 
         self.tree_item1 = None
         self.tree_item2 = None
-
-    # def is_subscriber(self, item, parent):
-    #     """
-    #     Checks for a ConnectionItem if it is
-    #
-    #     :param item: the item which shall be checked
-    #     :type item: ConnectionItem
-    #     :type parent: NodeItem
-    #     :param parent: the node of the connection in the GUI
-    #     :return:
-    #     """
-    #     if not isinstance(item, ConnectionItem):
-    #         raise UserWarning()
-    #     if not item in self.get_childs():
-    #         raise UserWarning()
-    #     else:
-    #         seuid = parent.get_seuid()
-    #         seuid_helper = SEUID()
-    #         seuid_helper.identifier = seuid
-    #         seuid_helper.set_fields()
-    #         node = seuid_helper.node
-    #
-    #         child_seuid = item.get_seuid()
-    #         seuid_helper.identifier = child_seuid
-    #         seuid_helper.set_fields()
-    #         node_comp = seuid_helper.publisher
-    #         if node == node_comp:
-    #             return False
-    #         node_comp = seuid_helper.subscriber
-    #
-    #         if node == node_comp:
-    #             return True
-    #         else:
-    #             raise UserWarning()
-
 
     def get_child(self, row, parent=None):
         """
@@ -385,7 +344,6 @@ class TopicItem(AbstractItem):
         data_dict = self.get_latest_data()
         for key in self.__calculated_data:
             if self.__calculated_data[key]:
-                #print(self.__calculated_data[key][-1])
                 data_dict[key] = self.__calculated_data[key][-1]
             else:
                 data_dict[key] = self.tr("Currently no value available")

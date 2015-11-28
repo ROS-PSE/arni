@@ -83,7 +83,6 @@ class RootItem(AbstractItem):
 
         content = "<p class=\"detailed_data_overview\">"
 
-        #content += "<span title=\"<tooltip>\">TestTestTest</span> <br>"
         content += self.tr("total_traffic") + ": " + prepare_number_for_representation(data_dict["total_traffic"]) + " " + self.tr("bandwidth_mean_unit") + " <br>"
         content += self.tr("connected_hosts") + ": " + str(data_dict["connected_hosts"]) + "<br>"
         content += self.tr("connected_nodes") + ": " + str(data_dict["connected_nodes"]) + "<br>"
@@ -97,8 +96,7 @@ class RootItem(AbstractItem):
         content += self.tr("cpu_temp_max") + ": " + ("unknown" if prepare_number_for_representation(data_dict["cpu_temp_max"]) is 0
                                        else prepare_number_for_representation(data_dict["cpu_temp_max"])) + " " + self.tr("cpu_temp_max_unit") + " <br>"
         content += self.tr("ram_usage_max") + ": " + prepare_number_for_representation(data_dict["ram_usage_max"]) + " " + self.tr("ram_usage_max_unit") + " <br>"
-        #content += "</p>"
-        
+
         return content
 
 
@@ -112,8 +110,6 @@ class RootItem(AbstractItem):
                 "ram_usage_mean", "ram_usage_max", "total_traffic", "connected_hosts",
                 "connected_nodes", "topic_counter", "connection_counter"]
 
-
-#todo: what do i need this for?
     def units_of_plotable_items(self):
         """
         Returns the units of the items for the plot.
@@ -125,10 +121,8 @@ class RootItem(AbstractItem):
                 "total_traffic": "%"
                 }
 
-
     def get_short_data(self):
         return NotImplementedError()
-
 
     def can_execute_actions(self):
         """
