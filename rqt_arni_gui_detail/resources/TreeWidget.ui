@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>828</width>
-    <height>300</height>
+    <width>942</width>
+    <height>311</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -58,16 +58,6 @@
        <item>
         <layout class="QHBoxLayout" name="horizontal_layout">
          <item>
-          <widget class="QCheckBox" name="show_hosts_check_box">
-           <property name="text">
-            <string>Show Hosts</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QCheckBox" name="show_nodes_check_box">
            <property name="text">
             <string>Show Nodes</string>
@@ -102,6 +92,19 @@
           <widget class="QCheckBox" name="show_erroneous_check_box">
            <property name="text">
             <string>Only erroneous</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="hide_debug_check_box">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="text">
+            <string>Hide Debug</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -158,7 +161,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QPushButton" name="recording_push_button">

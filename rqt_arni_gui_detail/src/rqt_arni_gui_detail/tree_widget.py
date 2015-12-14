@@ -74,7 +74,7 @@ class TreeWidget(QWidget):
         self.__relative_font_size = 0
 
         self.show_nodes_check_box.setText(self.tr("Show Nodes"))
-        self.show_hosts_check_box.setText(self.tr("Show Hosts"))
+        self.hide_debug_check_box.setText(self.tr("Hide Debug"))
         self.show_topics_check_box.setText(self.tr("Show Topics"))
         self.show_connections_check_box.setText(self.tr("Show Connections"))
         self.show_erroneous_check_box.setText(self.tr("Only Erroneous"))
@@ -90,24 +90,15 @@ class TreeWidget(QWidget):
 
     def connect_slots(self):
         """Connects the slots."""
-        # : show_nodes_check_box
         self.show_nodes_check_box.stateChanged.connect(self.__on_show_nodes_check_box_state_changed)
-        # : show_hosts_check_box
-        self.show_hosts_check_box.stateChanged.connect(self.__on_show_hosts_check_box_state_changed)
-        #: show_topics_check_box
+        self.hide_debug_check_box.stateChanged.connect(self.__on_hide_debug_check_box_state_changed)
         self.show_topics_check_box.stateChanged.connect(self.__on_show_topics_check_box_state_changed)
-        #: show_connections_check_box
         self.show_connections_check_box.stateChanged.connect(self.__on_show_connections_check_box_state_changed)
-        #: show_erroneous__marked_items_map_check_box
         self.show_erroneous_check_box.stateChanged.connect(self.__on_show_erroneous_check_box_state_changed)
-        #: also_show_subscribers_check_box
         self.also_show_subscribers_check_box.stateChanged.connect(
             self.__on_also_show_subscribers_check_box_state_changed)
-        #: apply_push_button
         self.apply_push_button.clicked.connect(self.__on_apply_push_button_clicked)
-        #: minus_push_button
         self.minus_push_button.clicked.connect(self.__on_minus_push_button_clicked)
-        #: plus_push_button
         self.plus_push_button.clicked.connect(self.__on_plus_push_button_clicked)
 
         self.filter_line_Edit.returnPressed.connect(self.__on_apply_push_button_clicked)
@@ -232,8 +223,6 @@ class TreeWidget(QWidget):
         """
         if activated is 2:
             self.__filter_proxy.show_nodes(True)
-            if not self.show_hosts_check_box.checkState():
-                self.show_hosts_check_box.click()
         else:
             self.__filter_proxy.show_nodes(False)
             if self.show_topics_check_box.checkState():
@@ -243,7 +232,7 @@ class TreeWidget(QWidget):
             if self.also_show_subscribers_check_box.checkState():
                 self.also_show_subscriber_check_box.click()
 
-    def __on_show_hosts_check_box_state_changed(self, activated):
+    def __on_hide_debug_check_box_state_changed(self, activated):
         """
         Displays or delete the hosts in the box wether the checkBox is set or unset.
 
@@ -251,17 +240,24 @@ class TreeWidget(QWidget):
         :type activated: Integer
         """
         if activated is 2:
-            self.__filter_proxy.show_hosts(True)
+            self.__filter_proxy.hide_debug(True)
         else:
-            self.__filter_proxy.show_hosts(False)
-            if self.show_nodes_check_box.checkState():
-                self.show_nodes_check_box.click()
-            if self.show_topics_check_box.checkState():
-                self.show_topics_check_box.click()
-            if self.show_connections_check_box.checkState():
-                self.show_connections_check_box.click()
-            if self.also_show_subscribers_check_box.checkState():
-                self.also_show_subscribers_check_box.click()
+            self.__filter_proxy.hide_debug(False)
+
+
+        # legacy code from show_hosts_check_box. Check box was deleted and replaced by hide debug check box.
+        # if activated is 2:
+        #     self.__filter_proxy.show_hosts(True)
+        # else:
+        #     self.__filter_proxy.show_hosts(False)
+        #     if self.show_nodes_check_box.checkState():
+        #         self.show_nodes_check_box.click()
+        #     if self.show_topics_check_box.checkState():
+        #         self.show_topics_check_box.click()
+        #     if self.show_connections_check_box.checkState():
+        #         self.show_connections_check_box.click()
+        #     if self.also_show_subscribers_check_box.checkState():
+        #         self.also_show_subscribers_check_box.click()
 
     def __on_show_topics_check_box_state_changed(self, activated):
         """
@@ -272,8 +268,6 @@ class TreeWidget(QWidget):
         """
         if activated is 2:
             self.__filter_proxy.show_topics(True)
-            if not self.show_hosts_check_box.checkState():
-                self.show_hosts_check_box.click()
             if not self.show_nodes_check_box.checkState():
                 self.show_nodes_check_box.click()
         else:
@@ -292,8 +286,6 @@ class TreeWidget(QWidget):
         """
         if activated is 2:
             self.__filter_proxy.show_connections(True)
-            if not self.show_hosts_check_box.checkState():
-                self.show_hosts_check_box.click()
             if not self.show_nodes_check_box.checkState():
                 self.show_nodes_check_box.click()
             if not self.show_topics_check_box.checkState():
@@ -325,8 +317,6 @@ class TreeWidget(QWidget):
         """
         if activated is 2:
             self.__filter_proxy.show_subscribers(True)
-            if not self.show_hosts_check_box.checkState():
-                self.show_hosts_check_box.click()
             if not self.show_nodes_check_box.checkState():
                 self.show_nodes_check_box.click()
             if not self.show_topics_check_box.checkState():
@@ -367,16 +357,9 @@ class TreeWidget(QWidget):
         if self.__is_expanded:
             self.__is_expanded = False
             self.item_tree_view.collapseAll()
-            # set new icon
-            # pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
-            #                                          'expand.png'))
         else:
             self.__is_expanded = True
             self.item_tree_view.expandAll()
-            # set new icon
-            # pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
-            #                                          'collaps.png'))
-            # self.expand_push_button.setPixmap(pixmap)
 
     def get_relative_font_size(self):
         """

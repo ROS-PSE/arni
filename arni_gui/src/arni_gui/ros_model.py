@@ -101,6 +101,8 @@ class ROSModel(QAbstractItemModel):
         self.__identifier_dict = {"root": self.__root_item}
         self.__item_delegate = SizeDelegate()
 
+        # CAUTION: Do not change this mapping if not absolutely necessary. If you change it remember to change
+        # item_filter_proxy (and maybe other classes) as well - sadly not all functions use the access function.
         self.__mapping = {
             0: 'type',
             1: 'name',

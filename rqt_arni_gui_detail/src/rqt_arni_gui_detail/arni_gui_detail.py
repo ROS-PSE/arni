@@ -69,17 +69,14 @@ class ArniGuiDetail(Plugin):
         self.__selection_widget.set_selected_item(index)
 
     def shutdown_plugin(self):
-        # TODO unregister all publishers here
         pass
 
 
     def save_settings(self, plugin_settings, instance_settings):
-        # TODO save intrinsic configuration, usually using:
-        # instance_settings.set_value(k, v)
         instance_settings.set_value("tab_widget", self.__selection_widget.get_current_tab())
         instance_settings.set_value("range_combo_box", self.__selection_widget.get_range_combo_box_index())
         instance_settings.set_value("show_nodes_check_box", self.__tree_widget.show_nodes_check_box.checkState())
-        instance_settings.set_value("show_hosts_check_box", self.__tree_widget.show_hosts_check_box.checkState())
+        instance_settings.set_value("hide_debug_check_box", self.__tree_widget.hide_debug_check_box.checkState())
         instance_settings.set_value("show_topics_check_box", self.__tree_widget.show_topics_check_box.checkState())
         instance_settings.set_value("show_connections_check_box", self.__tree_widget.show_connections_check_box.checkState())
         instance_settings.set_value("also_show_subscribers_check_box", self.__tree_widget.also_show_subscribers_check_box.checkState())
@@ -88,12 +85,10 @@ class ArniGuiDetail(Plugin):
 
 
     def restore_settings(self, plugin_settings, instance_settings):
-        # TODO restore intrinsic configuration, usually using:
-        # v = instance_settings.value(k)
         tab_value = instance_settings.value("tab_widget")
         combo_box_value = instance_settings.value("range_combo_box")
         show_nodes_check_box = instance_settings.value("show_nodes_check_box")
-        show_hosts_check_box = instance_settings.value("show_hosts_check_box")
+        hide_debug_check_box = instance_settings.value("hide_debug_check_box")
         show_topics_check_box = instance_settings.value("show_topics_check_box")
         show_erroneous_check_box = instance_settings.value("show_erroneous_check_box")
         show_connections_check_box = instance_settings.value("show_connections_check_box")
@@ -107,31 +102,25 @@ class ArniGuiDetail(Plugin):
         state = 2 if show_nodes_check_box is None else int(show_nodes_check_box)
         self.__tree_widget.show_nodes_check_box.setCheckState(state)
         self.__tree_widget.show_nodes_check_box.stateChanged.emit(state)
-        #self.__tree_widget.__on_show_nodes_check_box_state_changed(state)
 
-        state = 2 if show_hosts_check_box is None else int(show_hosts_check_box)
-        self.__tree_widget.show_hosts_check_box.setCheckState(state)
-        self.__tree_widget.show_hosts_check_box.stateChanged.emit(state)
-        #self.__tree_widget.__on_show_hosts_check_box_state_changed(state)
+        state = 2 if hide_debug_check_box is None else int(hide_debug_check_box)
+        self.__tree_widget.hide_debug_check_box.setCheckState(state)
+        self.__tree_widget.hide_debug_check_box.stateChanged.emit(state)
 
         state = 2 if show_topics_check_box is None else int(show_topics_check_box)
         self.__tree_widget.show_topics_check_box.setCheckState(state)
         self.__tree_widget.show_topics_check_box.stateChanged.emit(state)
-        #self.__tree_widget.__on_show_topics_check_box_state_changed(state)
 
         state = 2 if show_connections_check_box is None else int(show_connections_check_box)
         self.__tree_widget.show_connections_check_box.setCheckState(state)
         self.__tree_widget.show_connections_check_box.stateChanged.emit(state)
-        #self.__tree_widget.__on_show_connections_check_box_state_changed(state)
-        
+
         state = 2 if also_show_subscribers_check_box is None else int(also_show_subscribers_check_box)
         self.__tree_widget.also_show_subscribers_check_box.setCheckState(state)
         self.__tree_widget.also_show_subscribers_check_box.stateChanged.emit(state)
-        #self.__tree_widget.__on_show_connections_check_box_state_changed(state)
 
         state = 0 if show_erroneous_check_box is None else int(show_erroneous_check_box)
         self.__tree_widget.show_erroneous_check_box.setCheckState(state)
         self.__tree_widget.show_erroneous_check_box.stateChanged.emit(state)
-        #self.__tree_widget.__on_show_erroneous_check_box_state_changed(state)
 
         self.__tree_widget.set_relative_font_size(0 if relative_font_size is None else int(relative_font_size))

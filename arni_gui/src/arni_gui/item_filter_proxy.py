@@ -5,6 +5,8 @@ from arni_gui.topic_item import TopicItem
 from arni_gui.tree_topic_item import TreeTopicItem
 from arni_gui.ros_model import ROSModel
 
+from rqt_graph.dotcode import QUIET_NAMES
+
 import sys
 
 if sys.version_info[0] is 2 or (sys.version_info[0] is 3 and sys.version_info[1] < 2):
@@ -32,8 +34,14 @@ class ItemFilterProxy(QSortFilterProxyModel):
         self.__show_connections = True
         self.__show_topics = True
         self.__show_subscribers = True
+        self.__hide_debug = True
 
         self.__filter_string = ""
+
+        self.__quiet_names = []
+        for entry in QUIET_NAMES:
+            self.__quiet_names.append(entry[1:])
+        # Note: One can add further entries to __quiet_names here - these will be used to pre-filter the gui item
 
     def invalidateFilter(self):
         """
@@ -82,11 +90,11 @@ class ItemFilterProxy(QSortFilterProxyModel):
         correct_type = False
         data = entries[0]
 
-        if self.__show_hosts and data == "host":
+        if data[0] == "h":
             correct_type = True
-        elif self.__show_nodes and data == "node":
+        elif self.__show_nodes and data[0] == "n":
             correct_type = True
-        elif self.__show_connections and data == "connection":
+        elif self.__show_connections and data[0] == "c":
             if self.__show_subscribers:
                 correct_type = True
             else:
@@ -95,21 +103,24 @@ class ItemFilterProxy(QSortFilterProxyModel):
                 else:
                     correct_type = True
         elif self.__show_topics is True:
-            if data == "topic":
+            if data[0] == "t":
                 correct_type = True
 
-        if "--sub" in child.get_seuid():
-            print(child.get_seuid() + " " + str(correct_type))
         if correct_type is False:
             return False
 
+        if self.__hide_debug is True:
+            for entry in self.__quiet_names:
+                if entries[1].find(entry) is not -1:
+                    return False
+
+
         # todo: speed this implementation a lot up by not using the model!!!
         if self.__filter_string is not "":
-            tests = [self.__filter_string in entries[i] for i in range(0, len(entries))]
-            if True in tests:
-                return QSortFilterProxyModel.filterAcceptsRow(self, source_row, source_parent)
-            else:
-                return False
+            for i in range(0, len(entries)):
+                if self.__filter_string in entries[i]:
+                    return QSortFilterProxyModel.filterAcceptsRow(self, source_row, source_parent)
+            return False
         return QSortFilterProxyModel.filterAcceptsRow(self, source_row, source_parent)
 
     def setFilterRegExp(self, string):
@@ -136,8 +147,22 @@ class ItemFilterProxy(QSortFilterProxyModel):
         :param show_hosts: true if hosts should be shown
         :type show_hosts: bool
         """
+        print("function ItemFilterProxy::show_hosts is deprecated and should no longer be used.")
         self.__show_hosts = show_hosts
         self.invalidateFilter()
+
+    def hide_debug(self, hide_debug):
+        """
+        Hides the debug gui entries if hide_debug is True.
+
+        Note: By modifying this entry filters can be created.
+
+        :type hide_debug: bool
+        """
+        if self.__hide_debug is not hide_debug:
+            self.__hide_debug = hide_debug
+            self.invalidateFilter()
+
 
     def show_nodes(self, show_nodes):
         """
