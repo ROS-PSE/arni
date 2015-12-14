@@ -32,7 +32,7 @@ from arni_core.host_lookup import HostLookup
 
 from model_logger import ModelLogger
 
-from arni_core.helper import SEUID, SEUID_DELIMITER
+from arni_core.helper import SEUID, SEUID_DELIMITER, generate_seuids_from_master_api_data
 
 import rosgraph.impl.graph
 import rosgraph.masterapi
@@ -610,6 +610,8 @@ class ROSModel(QAbstractItemModel):
         :param seuid:
         :return:
         """
+        if seuid is None:
+            raise UserWarning("seuid was None!")
         if seuid not in self.__identifier_dict:
             parent = None
             item = None

@@ -84,7 +84,7 @@ class MonitoringNode:
         for seuid in seuids:
             # for now only report that this connection is still alive - even though it might no longer transport
             # any data
-            # TODO does this chage the current behaviour of the program? And how could I prevent it
+            # TODO does this change the current behaviour of the program? And how could I prevent it
             self.__report_alive(seuid)
             # if seuid[0] == "t":
            # if seuid not in self.__alive_timers.keys():

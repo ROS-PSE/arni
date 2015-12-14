@@ -19,6 +19,7 @@ class TreeTopicItem(QObject):
         self.is_subscriber = is_subscriber
 
         self.marked = False
+        self.seuid = self.topic_item.seuid
 
     def append_data(self, message):
         """

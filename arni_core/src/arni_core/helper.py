@@ -288,3 +288,5 @@ def generate_seuids_from_master_api_data(master_api_data):
                         conn.node_pub = real_pub
                         seuid_helper.from_message(conn)
                         seuids.append(seuid_helper.identifier)
+
+    return seuids
