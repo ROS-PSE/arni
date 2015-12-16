@@ -121,6 +121,7 @@ class ROSModel(QAbstractItemModel):
         self.__find_host = HostLookup()
 
         self.__buffer_thread = BufferThread(self)
+        self.__buffer_thread.start()
 
     def get_overview_data_since(self, time=None):
         """

@@ -39,9 +39,6 @@ class BufferThread(Thread):
         self.__running = False
         self.__model = model
         self.__master_api_data = None
-        self.start()
-        self.__timer = Timer(Duration(nsecs=UPDATE_FREQUENCY), self.__update_model)
-
         self.__data_lock = Lock()
 
 
@@ -58,6 +55,7 @@ class BufferThread(Thread):
             self.__get_history()
             self.__register_subscribers()
             self.__running = True
+            self.__timer = Timer(Duration(nsecs=UPDATE_FREQUENCY), self.__update_model)
 
 
     def __get_history(self):
