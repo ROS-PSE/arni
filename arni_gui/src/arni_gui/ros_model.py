@@ -65,7 +65,7 @@ class ROSModel(QAbstractItemModel):
     """
     # This ensures the singleton character of this class via metaclassing.
     __metaclass__ = QAbstractItemModelSingleton
-    update_signal = Signal(list, list, list, list, MasterApi)
+    update_signal = Signal()
 
     def __init__(self, parent=None):
         """
@@ -293,7 +293,7 @@ class ROSModel(QAbstractItemModel):
         else:
             return self.__root_item.column_count()
 
-    def update_model(self, rated_statistics, topic_statistics, host_statistics, node_statistics, master_api_data):
+    def update_model(self):
         """
         Updates the model by using the items of the list. The items will be of the message types.
 
@@ -310,146 +310,149 @@ class ROSModel(QAbstractItemModel):
         """
         self.layoutAboutToBeChanged.emit()
 
-        amount_of_entries = 0
-        for item in self.__identifier_dict.values():
-            if item is not self.__root_item:
-                amount_of_entries += item.get_amount_of_entries()
+        if self.__buffer_thread:
+            rated_statistics, topic_statistics, host_statistics, node_statistics, master_api_data = self.__buffer_thread.get_state()
 
-        # enables "intelligent" updates when there are only few elements in the model so that most of the history is kept
-        # maybe use something loglike for the range
-        for i in range(5, 0, -1):
-            if amount_of_entries > MAXIMUM_AMOUNT_OF_ENTRIES:
-                for item in self.__identifier_dict.values():
-                    if item is not self.__root_item:
-                        item.delete_items_older_than(Time.now() - (Duration(secs=i * MINIMUM_RECORDING_TIME) if int(
-                            Duration(secs=i * MINIMUM_RECORDING_TIME).to_sec()) <= int(Time.now().to_sec()) else Time(
-                            0)))
+            amount_of_entries = 0
+            for item in self.__identifier_dict.values():
+                if item is not self.__root_item:
+                    amount_of_entries += item.get_amount_of_entries()
 
-        if self.__root_item.get_amount_of_entries() > MAXIMUM_AMOUNT_OF_ENTRIES:
-            self.__root_item.delete_items_older_than(Time.now() - (
-                Duration(secs=360) if int(Duration(secs=360).to_sec()) <= int(Time.now().to_sec()) else Time(0)))
+            # enables "intelligent" updates when there are only few elements in the model so that most of the history is kept
+            # maybe use something loglike for the range
+            for i in range(5, 0, -1):
+                if amount_of_entries > MAXIMUM_AMOUNT_OF_ENTRIES:
+                    for item in self.__identifier_dict.values():
+                        if item is not self.__root_item:
+                            item.delete_items_older_than(Time.now() - (Duration(secs=i * MINIMUM_RECORDING_TIME) if int(
+                                Duration(secs=i * MINIMUM_RECORDING_TIME).to_sec()) <= int(Time.now().to_sec()) else Time(
+                                0)))
 
-        # in order of their appearance in the treeview for always having valid parents
-        for item in host_statistics:
-            self.__transform_host_statistics_item(item)
+            if self.__root_item.get_amount_of_entries() > MAXIMUM_AMOUNT_OF_ENTRIES:
+                self.__root_item.delete_items_older_than(Time.now() - (
+                    Duration(secs=360) if int(Duration(secs=360).to_sec()) <= int(Time.now().to_sec()) else Time(0)))
 
-        for item in node_statistics:
-            self.__transform_node_statistics_item(item)
+            # in order of their appearance in the treeview for always having valid parents
+            for item in host_statistics:
+                self.__transform_host_statistics_item(item)
 
-        for item in topic_statistics:
-            self.__transform_topic_statistics_item(item)
+            for item in node_statistics:
+                self.__transform_node_statistics_item(item)
 
-        if master_api_data is not None:
-            self.__transform_master_api_data(master_api_data)
+            for item in topic_statistics:
+                self.__transform_topic_statistics_item(item)
 
-        # rating last because it needs the time of the items before
-        for item in rated_statistics:
-            self.__transform_rated_statistics_item(item)
+            if master_api_data is not None:
+                self.__transform_master_api_data(master_api_data)
 
-        data_dict = {
-            "state": "ok",
-            "total_traffic": 0,
-            "connected_hosts": 0,
-            "connected_nodes": 0,
-            "topic_counter": 0,
-            "connection_counter": 0,
-            "cpu_usage_max": 0,
-            "cpu_temp_mean": 0,
-            "ram_usage_mean": 0,
-            "cpu_usage_mean": 0,
-            "cpu_temp_max": 0,
-            "ram_usage_max": 0,
-        }
+            # rating last because it needs the time of the items before
+            for item in rated_statistics:
+                self.__transform_rated_statistics_item(item)
 
-        connected_hosts = 0
-        connected_nodes = 0
-        topic_counter = 0
-        connection_counter = 0
-        state = "ok"
+            data_dict = {
+                "state": "ok",
+                "total_traffic": 0,
+                "connected_hosts": 0,
+                "connected_nodes": 0,
+                "topic_counter": 0,
+                "connection_counter": 0,
+                "cpu_usage_max": 0,
+                "cpu_temp_mean": 0,
+                "ram_usage_mean": 0,
+                "cpu_usage_mean": 0,
+                "cpu_temp_max": 0,
+                "ram_usage_max": 0,
+            }
 
-        # generate the general information
-        for host_item in self.__root_item.get_childs():
-            # hostinfo
-            connected_hosts += 1
-            if host_item.get_state() is "warning" and state is not "error":
-                state = "warning"
-            elif host_item.get_state() is "error":
-                state = "error"
+            connected_hosts = 0
+            connected_nodes = 0
+            topic_counter = 0
+            connection_counter = 0
+            state = "ok"
 
-            last_entry = {}
-            data = host_item.get_items_younger_than(Time.now() - (
-                Duration(secs=10) if int(Duration(secs=10).to_sec()) <= int(Time.now().to_sec()) else Time(0)),
-                                                    "bandwidth_mean", "cpu_usage_max",
-                                                    "cpu_temp_mean", "cpu_usage_mean", "cpu_temp_max", "ram_usage_max",
-                                                    "ram_usage_mean")
-            if data["window_stop"]:
-                for key in data:
-                    if key is not "window_stop":
-                        last_entry[key] = data[key][-1]
-            else:
-                data = host_item.get_latest_data("bandwidth_mean", "cpu_usage_max", "cpu_temp_mean", "cpu_usage_mean",
-                                                 "cpu_temp_max", "ram_usage_max", "ram_usage_mean")
-                for key in data:
-                    last_entry[key] = data[key]
-
-            for key in last_entry:
-                if last_entry[key]:
-                    if key is "bandwidth_mean":
-                        for entry in last_entry[key]:
-                            if type(entry) is not unicode:
-                                if entry is not 0:
-                                    data_dict["total_traffic"] += entry
-                    elif key is "cpu_temp_max" or key is "ram_usage_max":
-                        # very unprobably the temp might be 0 then the programm is not showing this value!
-                        if type(last_entry[key]) is not unicode:
-                            if last_entry[key] is not 0:
-                                if data_dict[key] < last_entry[key]:
-                                    data_dict[key] = last_entry[key]
-                    else:
-                        if type(last_entry[key]) is not unicode:
-                            if last_entry[key] is not 0:
-                                data_dict[key] += last_entry[key]
-            for node_item in host_item.get_childs():
-                # nodeinfo
-                connected_nodes += 1
-
-                if node_item.get_state() is "warning" and state is not "error":
+            # generate the general information
+            for host_item in self.__root_item.get_childs():
+                # hostinfo
+                connected_hosts += 1
+                if host_item.get_state() is "warning" and state is not "error":
                     state = "warning"
-                elif node_item.get_state() is "error":
+                elif host_item.get_state() is "error":
                     state = "error"
 
-                for topic_item in node_item.get_childs():
-                    # topic info
-                    topic_counter += 1
+                last_entry = {}
+                data = host_item.get_items_younger_than(Time.now() - (
+                    Duration(secs=10) if int(Duration(secs=10).to_sec()) <= int(Time.now().to_sec()) else Time(0)),
+                                                        "bandwidth_mean", "cpu_usage_max",
+                                                        "cpu_temp_mean", "cpu_usage_mean", "cpu_temp_max", "ram_usage_max",
+                                                        "ram_usage_mean")
+                if data["window_stop"]:
+                    for key in data:
+                        if key is not "window_stop":
+                            last_entry[key] = data[key][-1]
+                else:
+                    data = host_item.get_latest_data("bandwidth_mean", "cpu_usage_max", "cpu_temp_mean", "cpu_usage_mean",
+                                                     "cpu_temp_max", "ram_usage_max", "ram_usage_mean")
+                    for key in data:
+                        last_entry[key] = data[key]
 
-                    if topic_item.get_state() is "warning" and state is not "error":
+                for key in last_entry:
+                    if last_entry[key]:
+                        if key is "bandwidth_mean":
+                            for entry in last_entry[key]:
+                                if type(entry) is not unicode:
+                                    if entry is not 0:
+                                        data_dict["total_traffic"] += entry
+                        elif key is "cpu_temp_max" or key is "ram_usage_max":
+                            # very unprobably the temp might be 0 then the programm is not showing this value!
+                            if type(last_entry[key]) is not unicode:
+                                if last_entry[key] is not 0:
+                                    if data_dict[key] < last_entry[key]:
+                                        data_dict[key] = last_entry[key]
+                        else:
+                            if type(last_entry[key]) is not unicode:
+                                if last_entry[key] is not 0:
+                                    data_dict[key] += last_entry[key]
+                for node_item in host_item.get_childs():
+                    # nodeinfo
+                    connected_nodes += 1
+
+                    if node_item.get_state() is "warning" and state is not "error":
                         state = "warning"
-                    elif topic_item.get_state() is "error":
+                    elif node_item.get_state() is "error":
                         state = "error"
 
-                    for connection_item in topic_item.get_childs():
-                        # connection info
-                        connection_counter += 1
+                    for topic_item in node_item.get_childs():
+                        # topic info
+                        topic_counter += 1
 
-                        if connection_item.get_state() is "warning" and state is not "error":
+                        if topic_item.get_state() is "warning" and state is not "error":
                             state = "warning"
-                        elif connection_item.get_state() is "error":
+                        elif topic_item.get_state() is "error":
                             state = "error"
 
-        for key in data_dict:
-            if key != "state" and key != "cpu_temp_max" and key != "total_traffic" and key != "ram_usage_max" \
-                    and self.__root_item.child_count():
-                data_dict[key] /= self.__root_item.child_count()
+                        for connection_item in topic_item.get_childs():
+                            # connection info
+                            connection_counter += 1
 
-        data_dict["connected_hosts"] = connected_hosts
-        data_dict["connected_nodes"] = connected_nodes
-        data_dict["topic_counter"] = topic_counter
-        data_dict["connection_counter"] = connection_counter
-        data_dict["state"] = state
-        data_dict["window_end"] = Time.now()
+                            if connection_item.get_state() is "warning" and state is not "error":
+                                state = "warning"
+                            elif connection_item.get_state() is "error":
+                                state = "error"
 
-        # now give this information to the root :)
-        self.__root_item.append_data_dict(data_dict)
+            for key in data_dict:
+                if key != "state" and key != "cpu_temp_max" and key != "total_traffic" and key != "ram_usage_max" \
+                        and self.__root_item.child_count():
+                    data_dict[key] /= self.__root_item.child_count()
+
+            data_dict["connected_hosts"] = connected_hosts
+            data_dict["connected_nodes"] = connected_nodes
+            data_dict["topic_counter"] = topic_counter
+            data_dict["connection_counter"] = connection_counter
+            data_dict["state"] = state
+            data_dict["window_end"] = Time.now()
+
+            # now give this information to the root :)
+            self.__root_item.append_data_dict(data_dict)
 
         self.layoutChanged.emit()
 

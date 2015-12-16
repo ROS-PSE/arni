@@ -172,8 +172,9 @@ class TreeWidget(QWidget):
                                                          " or start further components. ")
 
             filename = QFileDialog.getSaveFileName(self)
-            with open(filename[0], u"w") as outfile:
-                outfile.write(yaml.dump(storage, default_flow_style=False))
+            if filename[0] is not u"":
+                with open(filename[0], u"w") as outfile:
+                    outfile.write(yaml.dump(storage, default_flow_style=False))
 
         else:  # start now
             print("Started recording")

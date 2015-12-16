@@ -42,6 +42,8 @@ class BufferThread(Thread):
         self.start()
         self.__timer = Timer(Duration(nsecs=UPDATE_FREQUENCY), self.__update_model)
 
+        self.__data_lock = Lock()
+
 
     def __del__(self):
         """
@@ -67,8 +69,11 @@ class BufferThread(Thread):
             response = get_statistic_history(rospy.Time(0))
             rated_statistics_history = response.rated_topic_statistics + response.rated_node_statistics + \
                                        response.rated_host_statistics + response.rated_node_statistics
-            self.__model.update_model(rated_statistics_history, response.topic_statistics,
-                                      response.host_statistics, response.node_statistics, None)
+            self.__rated_statistics_buffer = rated_statistics_history
+            self.__topic_statistics_buffer = response.topic_statistics
+            self.__host_statistics_buffer = response.host_statistics
+            self.__node_statistics_buffer = response.node_statistics
+            self.__update_model(None)
         except ServiceException as msg:
             self.__model.get_logger().log("info", Time.now(), "BufferThread",
                                           "get_statistic_history is not available, probably monitoring_node is not "
@@ -98,7 +103,9 @@ class BufferThread(Thread):
         """
         Topic callback for incoming master api messages.
         """
+        self.__data_lock.acquire()
         self.__master_api_data = data
+        self.__data_lock.release()
 
     def __update_model(self, event):
         """
@@ -106,13 +113,7 @@ class BufferThread(Thread):
         Will be called regulary by the timer, first read the data from the *buffer* and add the according data items to the items of the model,
         afterwards use the *rated_buffer* to add a rating to these entries.
         """
-        self.__model.update_signal.emit(self.__rated_statistics_buffer, self.__topic_statistics_buffer,
-                                  self.__host_statistics_buffer, self.__node_statistics_buffer, self.__master_api_data)
-
-        del self.__rated_statistics_buffer[:]
-        del self.__topic_statistics_buffer[:]
-        del self.__host_statistics_buffer[:]
-        del self.__node_statistics_buffer[:]
+        self.__model.update_signal.emit()
 
 
     def __add_rated_statistics_item(self, item):
@@ -122,7 +123,9 @@ class BufferThread(Thread):
         :param item: the item which will be added to the buffer
         :type item: RatedStatistics
         """
+        self.__data_lock.acquire()
         self.__rated_statistics_buffer.append(item)
+        self.__data_lock.release()
 
 
     def __add_topic_statistics_item(self, item):
@@ -132,7 +135,9 @@ class BufferThread(Thread):
         :param item: the item which will be added to the buffer
         :type item: TopicStatistics
         """
+        self.__data_lock.acquire()
         self.__topic_statistics_buffer.append(item)
+        self.__data_lock.release()
 
 
     def __add_node_statistics_item(self, item):
@@ -142,8 +147,24 @@ class BufferThread(Thread):
         :param item: the item which will be added to the buffer
         :type item: NodeStatistics
         """
+        self.__data_lock.acquire()
         self.__node_statistics_buffer.append(item)
+        self.__data_lock.release()
 
+    def get_state(self):
+        self.__data_lock.acquire()
+        rat = self.__rated_statistics_buffer[:]
+        top = self.__topic_statistics_buffer[:]
+        host = self.__host_statistics_buffer[:]
+        node = self.__node_statistics_buffer[:]
+        master = self.__master_api_data
+
+        del self.__rated_statistics_buffer[:]
+        del self.__topic_statistics_buffer[:]
+        del self.__host_statistics_buffer[:]
+        del self.__node_statistics_buffer[:]
+        self.__data_lock.release()
+        return [rat, top, host, node, master]
 
     def __add_host_statistics_item(self, item):
         """
@@ -152,4 +173,6 @@ class BufferThread(Thread):
         :param item: the item which will be added to the buffer
         :type item: HostStatistics
         """
+        self.__data_lock.acquire()
         self.__host_statistics_buffer.append(item)
+        self.__data_lock.release()
