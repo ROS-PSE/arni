@@ -41,6 +41,10 @@ class HostLookup(object):
             if node_api is not None and node_api.startswith("http://"):
                 ip = re.search("http://(.*):", str(node_api)).group(1)
                 self.__node_dict[node] = ip
+            else:
+                return None
+                # raise UserWarning("Warning: host of node " + node + " was not found!")
+                # self.__node_dict[node] = "127.0.0.1"
 
         return self.__node_dict.get(node)
 

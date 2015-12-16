@@ -224,16 +224,28 @@ class MonitoringNode:
         response = StatisticHistoryResponse()
         for container in data:
             if container.identifier[0] == "h":
-                response.host_statistics.append(container.data_raw)
-                response.rated_host_statistics.append(container.data_rated)
-            if container.identifier[0] == "n":
-                response.node_statistics.append(container.data_raw)
-                response.rated_node_statistics.append(container.data_rated)
-            if container.identifier[0] == "c":
-                response.topic_statistics.append(container.data_raw)
-                response.rated_topic_statistics.append(container.data_rated)
-            if container.identifier[0] == "t":
-                response.rated_topic_statistics.append(container.data_rated)
+                if rospy.Time.now() >= self.__alive_countdown[container.identifier] + self.__alive_timers[container.identifier]:
+                    print("no longer alive - not reporting.")
+                else:
+                    response.host_statistics.append(container.data_raw)
+                    response.rated_host_statistics.append(container.data_rated)
+            elif container.identifier[0] == "n":
+                if rospy.Time.now() >= self.__alive_countdown[container.identifier] + self.__alive_timers[container.identifier]:
+                    print("no longer alive - not reporting.")
+                else:
+                    response.node_statistics.append(container.data_raw)
+                    response.rated_node_statistics.append(container.data_rated)
+            elif container.identifier[0] == "c":
+                if rospy.Time.now() >= self.__alive_countdown[container.identifier] + self.__alive_timers[container.identifier]:
+                    print("no longer alive - not reporting.")
+                else:
+                    response.topic_statistics.append(container.data_raw)
+                    response.rated_topic_statistics.append(container.data_rated)
+            elif container.identifier[0] == "t":
+                if rospy.Time.now() >= self.__alive_countdown[container.identifier] + self.__alive_timers[container.identifier]:
+                    print("no longer alive - not reporting.")
+                else:
+                    response.rated_topic_statistics.append(container.data_rated)
         return response
 
     def listener(self):

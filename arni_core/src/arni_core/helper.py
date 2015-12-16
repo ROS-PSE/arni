@@ -86,6 +86,9 @@ class SEUID:
             raise AttributeError("[SEUID] %s is not a public field" % field)
 
     def from_string(self, type, string, topic="", pub=""):
+        if string is None:
+            raise UserWarning("from_string: string was None")
+
         if type == "h":
             self.identifier = "h" + SEUID_DELIMITER + string
         elif type == "n":

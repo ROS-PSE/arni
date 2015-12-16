@@ -106,7 +106,7 @@ class BufferThread(Thread):
         Will be called regulary by the timer, first read the data from the *buffer* and add the according data items to the items of the model,
         afterwards use the *rated_buffer* to add a rating to these entries.
         """
-        self.__model.update_model(self.__rated_statistics_buffer, self.__topic_statistics_buffer,
+        self.__model.update_signal.emit(self.__rated_statistics_buffer, self.__topic_statistics_buffer,
                                   self.__host_statistics_buffer, self.__node_statistics_buffer, self.__master_api_data)
 
         del self.__rated_statistics_buffer[:]

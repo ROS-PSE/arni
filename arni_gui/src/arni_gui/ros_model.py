@@ -1,5 +1,4 @@
-from python_qt_binding.QtCore import QAbstractItemModel, QModelIndex
-from python_qt_binding.QtCore import QTranslator, Qt
+from python_qt_binding.QtCore import QAbstractItemModel, QModelIndex, QTranslator, Qt, Signal
 from python_qt_binding.QtGui import qApp
 
 from threading import Lock
@@ -28,6 +27,7 @@ from arni_msgs.msg import RatedStatistics
 from arni_msgs.msg import NodeStatistics
 from arni_msgs.msg import HostStatistics
 from arni_core.host_lookup import HostLookup
+from arni_msgs.msg import MasterApi
 
 
 from model_logger import ModelLogger
@@ -65,6 +65,7 @@ class ROSModel(QAbstractItemModel):
     """
     # This ensures the singleton character of this class via metaclassing.
     __metaclass__ = QAbstractItemModelSingleton
+    update_signal = Signal(list, list, list, list, MasterApi)
 
     def __init__(self, parent=None):
         """
@@ -91,6 +92,8 @@ class ROSModel(QAbstractItemModel):
 
         self.__parent = parent
         self.__model_lock = Lock()
+
+        self.update_signal.connect(self.update_model)
 
 
         """
@@ -462,8 +465,10 @@ class ROSModel(QAbstractItemModel):
         # check if avaiable
         if seuid not in self.__identifier_dict:
             # having a problem, item doesn't exist but should not be created here
-            self.__logger.log("Warning", Time.now(), "RosModel", "A rating was received for an item the Gui does "
-                                                                 "not know about. This should never happen. ")
+            self.__logger.log("Warning", Time.now(), "RosModel", "A rating was received for an item the gui does not "
+                                                                 "know about. This typically means a dead node/ host but"
+                                                                 " could also indicate an error. If this happens at "
+                                                                 "startup you can typically ignore it. ")
         else:
             # update it
             current_item = self.__identifier_dict[seuid]
@@ -494,7 +499,8 @@ class ROSModel(QAbstractItemModel):
         connection_seuid = self.__seuid_helper.from_message(item)
 
         connection_item = self.get_or_add_item_by_seuid(connection_seuid)
-        connection_item.append_data(item)
+        if connection_item is not None:
+            connection_item.append_data(item)
 
     def __transform_node_statistics_item(self, item):
         """
@@ -505,8 +511,8 @@ class ROSModel(QAbstractItemModel):
         """
         node_seuid = self.__seuid_helper.from_message(item)
         node_item = self.get_or_add_item_by_seuid(node_seuid)
-
-        node_item.append_data(item)
+        if node_item is not None:
+            node_item.append_data(item)
 
 
     def __transform_host_statistics_item(self, item):
@@ -519,41 +525,6 @@ class ROSModel(QAbstractItemModel):
         host_seuid = self.__seuid_helper.from_message(item)
         host_item = self.get_or_add_item_by_seuid(host_seuid)
         host_item.append_data(item)
-
-
-    def get_item_by_seuid(self, seuid):
-        """
-        Returns an item according to the given seuid.
-
-        :param seuid: the seuid of the wanted item
-        :type seuid: str
-
-        :returns: the item 
-        :rtype: AbstractItem
-        """
-        try:
-            return self.__identifier_dict[seuid]
-        except KeyError:
-            print("There is no item with this seuid")
-            raise
-
-    def __get_item_by_seuid(self, seuid, current_item):
-        """
-        Returns an item according to the given seuid and the currently selected item.
-
-        :param seid: the seuid of the wanted item
-        :type seuid: str
-        :param current_item: the currently selected item
-        :type current_item: Abstractitem
-
-        :retuns: the item
-        :rtype: AbstractItem
-        """
-        if current_item.get_seuid() == seuid:
-            return current_item
-        for item in current_item.get_childs():
-            self.__get_item_by_name(item.seuid, item)
-        return None
 
     def get_log_model(self):
         """
@@ -624,12 +595,19 @@ class ROSModel(QAbstractItemModel):
                 # does host exist
                 # call helper to get the host
                 node = self.__seuid_helper.get_field("n", seuid)
-                host_seuid = self.__seuid_helper.from_string("h", self.__find_host.get_host(node))
-
-                parent = self.get_or_add_item_by_seuid(host_seuid)
-                item = NodeItem(self.__logger, seuid, parent)
-                parent.append_child(item)
-
+                host = self.__find_host.get_host(node)
+                if host is None:
+                    self.__logger.log("Warning", Time.now(), "RosModel", "The node " + node + " does probably no longer"
+                                               " exist (Cannot find its host)."
+                                               " Therefore it was not added to the GUI.")
+                    item = None
+                else:
+                    host_seuid = self.__seuid_helper.from_string("h", host)
+                    parent = self.get_or_add_item_by_seuid(host_seuid)
+                    if parent is None:
+                        return None
+                    item = NodeItem(self.__logger, seuid, parent)
+                    parent.append_child(item)
             elif seuid[0] == "t":
                 if node1 == "":
                     raise UserWarning("node was empty - topic does not know its parent!")
@@ -637,15 +615,17 @@ class ROSModel(QAbstractItemModel):
                     # use node information - first add publisher
                     node_seuid = self.__seuid_helper.from_string("n", node1)
                     parent = self.get_or_add_item_by_seuid(node_seuid)
-
+                    if parent is None:
+                        return None
                     item = TopicItem(self.__logger, seuid, None, parent)
-
                     topic_item1 = TreeTopicItem(parent, item, False)
                     parent.append_child(topic_item1)
 
                     # then subscriber node
                     node_seuid = self.__seuid_helper.from_string("n", node2)
                     parent = self.get_or_add_item_by_seuid(node_seuid)
+                    if parent is None:
+                        return None
                     topic_item2 = TreeTopicItem(parent, item, False)
                     parent.append_child(topic_item2)
                     item.tree_item2 = topic_item2
@@ -655,14 +635,16 @@ class ROSModel(QAbstractItemModel):
 
                 topic_seuid = self.__seuid_helper.from_string("t", self.__seuid_helper.get_field("t", seuid))
                 parent = self.get_or_add_item_by_seuid(topic_seuid, self.__seuid_helper.publisher, self.__seuid_helper.subscriber)
+                if parent is None:
+                        return None
                 item = ConnectionItem(self.__logger, seuid, None, parent)
 
                 item.tree_item1 = TreeConnectionItem(parent.tree_item1, item, False)
                 parent.tree_item1.append_child(item.tree_item1)
                 item.tree_item2 = TreeConnectionItem(parent.tree_item2, item, True)
                 parent.tree_item2.append_child(item.tree_item2)
-
-            self.__identifier_dict[seuid] = item
+            if item is not None:
+                self.__identifier_dict[seuid] = item
             return item
         else:
             return self.__identifier_dict[seuid]
