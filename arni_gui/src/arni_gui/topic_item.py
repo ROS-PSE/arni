@@ -72,8 +72,9 @@ class TopicItem(AbstractItem):
 
         self.__timer = Timer(Duration(nsecs=TOPIC_AGGREGATION_FREQUENCY), self.__aggregate_topic_data)
 
-        self.tree_item1 = None
-        self.tree_item2 = None
+        self.tree_items = []
+        #self.tree_item1 = None
+        #self.tree_item2 = None
 
     def get_child(self, row, parent=None):
         """
@@ -122,16 +123,13 @@ class TopicItem(AbstractItem):
                 if node == node_comp:
                     # match.
                     childs.append(child)
-                    child.show_as_subscriber = False
                     continue
 
-                node_comp = seuid_helper.subscriber
+                #node_comp = seuid_helper.subscriber
 
-                if node == node_comp:
-                    # match.
-                    childs.append(child)
-                    # adds a state to the connection so that it is shown in the gui as a subscriber
-                    child.show_as_subscriber = True
+                #if node == node_comp:
+                 #   # match.
+                #    childs.append(child)
             return childs
         else:
             return self._child_items

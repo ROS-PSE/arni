@@ -21,6 +21,8 @@ class TreeTopicItem(QObject):
         self.marked = False
         self.seuid = self.topic_item.seuid
 
+        self.local_children = []
+
     def append_data(self, message):
         """
         Appends data to the data of the AbstractItem.
@@ -131,7 +133,8 @@ class TreeTopicItem(QObject):
         :param child: the child item
         :type child: AbstractItem
         """
-        self.topic_item.append_child(child)
+        self.local_children.append(child)
+        #self.topic_item.append_child(child)
 
     def update_rated_data(self, data):
         """
@@ -150,7 +153,8 @@ class TreeTopicItem(QObject):
         :returns: number of childs
         :rtype: int
         """
-        return self.topic_item.child_count(parent)
+        return len(self.local_children)
+        #return self.topic_item.child_count(parent)
 
     def column_count(self):
         """
@@ -164,11 +168,61 @@ class TreeTopicItem(QObject):
     def get_childs(self, parent=None):
         """
         Returns a list with all children.
+        WARNING: This is the same method as in AbstractItem (superclass) to warn you using this function in the gui
+        context. Topic item shows only some connections depending on the parent node. This is *not* implemented for
+        this function.
 
         :returns: list of children
         :rtype: list
         """
-        return self.topic_item.get_childs(parent)
+        return self.local_children
+        #if parent is not None:
+        #    return self.__get_local_childs(parent)
+        #return self._child_items
+
+    def __get_local_childs(self, parent=None):
+        """
+        Returns all childs of the topic item at the given position in the gui.
+
+        :param parent: the model parent at the given index (not global / logical parent)
+        :type parent: NodeItem
+        :param sub_activated: Defines if subscriber shall be shown too.
+        :returns: the child at the position row
+        :rtype: AbstractItem
+        """
+        return self.local_children
+        print("### USED ###")
+
+        childs = []
+        if parent is not None:
+            # a specific parent has been chosen - we have to use it to display the correct connection items
+            # use the seuid to determine the node and compare this to the parts in the connections item (child of this
+            # item.
+            seuid = parent.get_seuid()
+
+            seuid_helper = SEUID()
+            seuid_helper.identifier = seuid
+            seuid_helper.set_fields()
+            node = seuid_helper.node
+            for child in self.get_childs():
+                child_seuid = child.get_seuid()
+                seuid_helper.identifier = child_seuid
+                seuid_helper.set_fields()
+                node_comp = seuid_helper.publisher
+                # do the check on the publisher
+                if node == node_comp:
+                    # match.
+                    childs.append(child)
+                    continue
+
+                #node_comp = seuid_helper.subscriber
+
+                #if node == node_comp:
+                 #   # match.
+                #    childs.append(child)
+            return childs
+        else:
+            return self._child_items
 
     def get_child(self, row, parent=None):
         """
@@ -180,7 +234,8 @@ class TreeTopicItem(QObject):
         :returns: the child at the position row
         :rtype: AbstractItem
         """
-        return self.topic_item.get_child(row, parent)
+        return self.local_children[row]
+        #   return self.topic_item.get_child(row, parent)
 
     def row(self, parent=None):
         """

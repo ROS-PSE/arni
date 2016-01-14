@@ -248,6 +248,7 @@ class ROSModel(QAbstractItemModel):
             return QModelIndex()
 
         child_item = index.internalPointer()
+        #print(type(child_item))
         parent_item = child_item.parent()
 
         if parent_item == self.__root_item:
@@ -587,7 +588,7 @@ class ROSModel(QAbstractItemModel):
         """
         if seuid is None:
             raise UserWarning("seuid was None!")
-        if seuid not in self.__identifier_dict:
+        if seuid not in self.__identifier_dict or seuid[0] is 't':
             parent = None
             item = None
             if seuid[0] == "h":
@@ -613,7 +614,7 @@ class ROSModel(QAbstractItemModel):
                     item = NodeItem(self.__logger, seuid, parent)
                     parent.append_child(item)
             elif seuid[0] == "t":
-                if node1 == "":
+                if node1 == "" or node2 == "":
                     raise UserWarning("node was empty - topic does not know its parent!")
                 else:
                     # use node information - first add publisher
@@ -621,32 +622,78 @@ class ROSModel(QAbstractItemModel):
                     parent = self.get_or_add_item_by_seuid(node_seuid)
                     if parent is None:
                         return None
-                    item = TopicItem(self.__logger, seuid, None, parent)
-                    topic_item1 = TreeTopicItem(parent, item, False)
-                    parent.append_child(topic_item1)
+                    if seuid not in self.__identifier_dict:
+                        item = TopicItem(self.__logger, seuid, None, parent)
+                    else:
+                        item = self.__identifier_dict[seuid]
 
-                    # then subscriber node
+                    found = False
+                    for child in parent.get_childs():
+                        # add it
+                        #print(child.seuid)
+                        #print(seuid)
+                        if child.seuid == seuid:
+                            #print("xxx")
+                            found = True
+                    if not found:
+                        topic_item1 = TreeTopicItem(parent, item, False)
+                        parent.append_child(topic_item1)
+                        item.tree_items.append(topic_item1)
+
                     node_seuid = self.__seuid_helper.from_string("n", node2)
                     parent = self.get_or_add_item_by_seuid(node_seuid)
                     if parent is None:
                         return None
-                    topic_item2 = TreeTopicItem(parent, item, False)
-                    parent.append_child(topic_item2)
-                    item.tree_item2 = topic_item2
-                    item.tree_item1 = topic_item1
+
+                    found = False
+                    for child in parent.get_childs():
+                        # add it
+                        if child.seuid == seuid:
+                            found = True
+                    if not found:
+                        topic_item2 = TreeTopicItem(parent, item, False)
+                        parent.append_child(topic_item2)
+                        item.tree_items.append(topic_item2)
 
             elif seuid[0] == "c":
-
                 topic_seuid = self.__seuid_helper.from_string("t", self.__seuid_helper.get_field("t", seuid))
-                parent = self.get_or_add_item_by_seuid(topic_seuid, self.__seuid_helper.publisher, self.__seuid_helper.subscriber)
+                if self.__seuid_helper.publisher is None:
+                    #print(self.__seuid_helper.publisher)
+                    #p#rint(self.__seuid_helper.subscriber)
+                    raise UserWarning()
+                # getting back the logical parent - a TopicItem
+                pub = self.__seuid_helper.publisher
+                sub = self.__seuid_helper.subscriber
+                parent = self.get_or_add_item_by_seuid(topic_seuid, pub, sub)
                 if parent is None:
                         return None
                 item = ConnectionItem(self.__logger, seuid, None, parent)
+                parent.append_child(item)
 
-                item.tree_item1 = TreeConnectionItem(parent.tree_item1, item, False)
-                parent.tree_item1.append_child(item.tree_item1)
-                item.tree_item2 = TreeConnectionItem(parent.tree_item2, item, True)
-                parent.tree_item2.append_child(item.tree_item2)
+
+                found = 0
+    #            print("here")
+   #             print(self.__seuid_helper.publisher)
+  #              print(self.__seuid_helper.subscriber)
+                for tree_item in parent.tree_items:
+                   # print("###")
+                    #print(tree_item.parent().seuid)
+                    #print(self.__seuid_helper.from_string("n", pub))
+                    #print(self.__seuid_helper.from_string("n", sub))
+                    # item is a TreeTopicItem
+                    if tree_item.parent().seuid == self.__seuid_helper.from_string("n", pub):
+                        found += 1
+                        tree_item.tree_item1 = TreeConnectionItem(tree_item, item, False)
+                        tree_item.append_child(tree_item.tree_item1)
+                    elif tree_item.parent().seuid == self.__seuid_helper.from_string("n", sub):
+                        found += 1
+                        tree_item.tree_item2 = TreeConnectionItem(tree_item, item, True)
+                        tree_item.append_child(tree_item.tree_item2)
+                #if found == 2:
+                #    print("YESSSS")
+                if found != 2:
+                #    print(found)
+                    raise UserWarning()
             if item is not None:
                 self.__identifier_dict[seuid] = item
             return item
