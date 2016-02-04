@@ -502,7 +502,6 @@ class ROSModel(QAbstractItemModel):
         """
         topic_seuid = self.__seuid_helper.from_message(item)
         connection_seuid = self.__seuid_helper.from_message(item)
-        print(connection_seuid)
 
         connection_item = self.get_or_add_item_by_seuid(connection_seuid)
         if connection_item is not None:
@@ -657,8 +656,6 @@ class ROSModel(QAbstractItemModel):
                         item.tree_items.append(topic_item2)
 
             elif seuid[0] == "c":
-                if "1984" in seuid:
-                    print("warning: " + seuid)
                 topic_seuid = self.__seuid_helper.from_string("t", self.__seuid_helper.get_field("t", seuid))
                 if self.__seuid_helper.publisher is None:
                     #print(self.__seuid_helper.publisher)
@@ -675,14 +672,7 @@ class ROSModel(QAbstractItemModel):
 
 
                 found = 0
-    #            print("here")
-   #             print(self.__seuid_helper.publisher)
-  #              print(self.__seuid_helper.subscriber)
                 for tree_item in parent.tree_items:
-                   # print("###")
-                    #print(tree_item.parent().seuid)
-                    #print(self.__seuid_helper.from_string("n", pub))
-                    #print(self.__seuid_helper.from_string("n", sub))
                     # item is a TreeTopicItem
                     if tree_item.parent().seuid == self.__seuid_helper.from_string("n", pub):
                         found += 1
