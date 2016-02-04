@@ -28,6 +28,7 @@ class MonitoringNode:
         self.__pub_queue = []
         self.__master_api_queue =[]
         self.__aggregate = []
+        self.__aggregation_window = rospy.get_param("~aggregation_window", 3)
         self.__aggregate_start = rospy.Time.now()
         self.__processing_enabled = rospy.get_param("/enable_statistics", False)
         self.__alive_timers = {}
@@ -180,14 +181,16 @@ class MonitoringNode:
         """
         res = self.__specification_handler.compare_topic(self.__aggregate)
         if self.__aggregate is None or \
-                older_than(self.__aggregate_start, rospy.Duration(rospy.get_param("~aggregation_window", 3))):
-                # rospy.Time.now() - self.__aggregate_start >= \
-                # rospy.Duration(rospy.get_param("/arni/aggregation_window", 3)):
+                older_than(self.__aggregate_start, rospy.Duration(self.__aggregation_window)):
             for r in res:
                 container = StorageContainer(rospy.Time.now(), str(identifier), data, r)
                 self.__metadata_storage.store(container)
                 self.__publish_data(r, False)
-            self.__aggregate = []
+            current_data = []
+            for message in self.__aggregate:
+              if not older_than(message.window_stop, rospy.Duration(self.__aggregation_window)):
+                current_data.append(message)
+            self.__aggregate = current_data
             self.__aggregate_start = rospy.Time.now()
         self.__aggregate.append(data)
 
