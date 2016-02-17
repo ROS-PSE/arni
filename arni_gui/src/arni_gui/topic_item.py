@@ -49,24 +49,19 @@ class TopicItem(AbstractItem):
         for item in self._attributes:
             self._add_data_list(item)
 
-        self.__rated_attributes = []
-        self.__rated_attributes.append("alive.actual_value")
-        self.__rated_attributes.append("alive.expected_value")
-        self.__rated_attributes.append("alive.state")         
-
         self.__calculated_data = {}
         for key in self._attributes:
             self.__calculated_data[key] = []
 
-        self.__calculated_data["window_start"] = []
         self.__calculated_data["window_stop"] = []
+        self.__calculated_data["window_start"] = []
 
         for item in self._attributes:
-            self.__rated_attributes.append(item + ".actual_value")
-            self.__rated_attributes.append(item + ".expected_value")
-            self.__rated_attributes.append(item + ".state")
+            self._rated_attributes.append(item + ".actual_value")
+            self._rated_attributes.append(item + ".expected_value")
+            self._rated_attributes.append(item + ".state")
 
-        for item in self.__rated_attributes:
+        for item in self._rated_attributes:
             self._add_rated_data_list(item)
 
         self._logger.log("info", Time.now(), seuid, "Created a new TopicItem")
@@ -74,23 +69,23 @@ class TopicItem(AbstractItem):
         self.__timer = Timer(Duration(nsecs=TOPIC_AGGREGATION_FREQUENCY), self.__aggregate_topic_data)
 
         self.tree_items = []
-        self.__aggregation_window = rospy.get_param("~aggregation_window", 3)
+        self.__aggregation_window = rospy.get_param("~aggregation_window", 5)
 
-    def _updateTimer(self, event):
-        """
-        Updates the timer to the last changed status. If it
-        :return:
-        """
-        self.alive = False
-        # TODO this can be very expensive - is there a better way?
-        for item in self.tree_items:
-            for child in item.get_childs():
-                if child.alive:
-                    self.alive = True
-                    break
-
-        if not self.alive:
-            self.set_state("offline")
+    # def _updateTimer(self, event):
+    #     """
+    #     Updates the timer to the last changed status. If it
+    #     :return:
+    #     """
+    #     self.alive = False
+    #     # TODO this can be very expensive - is there a better way?
+    #     for item in self.tree_items:
+    #         for child in item.get_childs():
+    #             if child.alive:
+    #                 self.alive = True
+    #                 break
+    #
+    #     if not self.alive:
+    #         self.set_state("offline")
 
 
     def get_child(self, row, parent=None):
@@ -410,23 +405,34 @@ class TopicItem(AbstractItem):
                 data_dict[key] = self.__calculated_data[key][-1]
             else:
                 data_dict[key] = self.tr("Currently no value available")
+                data_dict["window_stop"] = Time(0)
+                data_dict["window_start"] = Time(0)
 
         data_dict["state"] = self.get_state()
 
-        if (Time.now() - data_dict["window_stop"]) > Duration(MAXIMUM_OFFLINE_TIME):
-            # last entry was more than MAXIMUM_OFFLINE_TIME ago, it could be offline!
-            return "No data since " + prepare_number_for_representation(Time.now() - data_dict["window_stop"]) \
-                   + " seconds"
+        try:
+            if data_dict["window_stop"] == Time(0):
+                return "No data yet"
+            elif (Time.now() - data_dict["window_stop"]) > Duration(MAXIMUM_OFFLINE_TIME):
+                # last entry was more than MAXIMUM_OFFLINE_TIME ago, it could be offline!
+                return "No data since " + prepare_number_for_representation(Time.now() - data_dict["window_stop"]) \
+                       + " seconds"
+        except:
+            print(data_dict["window_stop"])
+            raise UserWarning
+
 
         content = ""
         if data_dict["state"] is "error":
             content += self.get_erroneous_entries_for_log()
         else:
-            content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(
-                data_dict["dropped_msgs"]) + " " \
-                       + self.tr("dropped_msgs_unit") + " - "
-            content += self.tr("stamp_age_mean") + ": " + prepare_number_for_representation(data_dict["stamp_age_mean"]) \
-                       + " " + self.tr("stamp_age_mean_unit")
+            content += self.tr("frequency") + ": " + prepare_number_for_representation(
+                data_dict["frequency"]) + " " \
+                       + self.tr("frequency_unit") + " - "
+            content += self.tr("bandwidth") + ": " + prepare_number_for_representation(data_dict["bandwidth"]) \
+                       + " " + self.tr("bandwidth_unit") + " - "
+            content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) \
+                       + " " + self.tr("dropped_msgs_unit")
 
         return content
 

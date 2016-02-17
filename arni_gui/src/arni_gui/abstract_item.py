@@ -60,30 +60,33 @@ class AbstractItem(QObject):
 
         self._data_lock = Lock()
         self._rated_data_lock = Lock()
+        self._rated_attributes = []
+        self._rated_attributes.append("alive.actual_value")
+        self._rated_attributes.append("alive.expected_value")
+        self._rated_attributes.append("alive.state")
 
-        self._alive_timer = rospy.Time.now()
-        self.alive = True
-        rospy.Timer(rospy.Duration(ALIVE_TIMER_CALLBACK), self._updateTimer)
-        self._offline_time = rospy.Duration(MAXIMUM_OFFLINE_TIME)
-
+        #self._alive_timer = rospy.Time.now()
+        #self.alive = True
+        #rospy.Timer(rospy.Duration(ALIVE_TIMER_CALLBACK), self._updateTimer)
+        #self._offline_time = rospy.Duration(MAXIMUM_OFFLINE_TIME)
 
         self.is_subscriber = False
 
 
-    def _updateTimer(self, event):
-        """
-        Updates the timer to the last changed status. If it
-        :return:
-        """
-        #self._alive_timer = self.get_latest_data("window_stop")["window_stop"]
-        if (Time.now() - self._alive_timer) > self._offline_time:
-            print(self.seuid)
-            print(Time.now() - self._alive_timer)
-            print(self._offline_time)
-            self.alive = False
-            self.set_state("no recent data")
-        else:
-            self.alive = True
+    # def _updateTimer(self, event):
+    #     """
+    #     Updates the timer to the last changed status. If it
+    #     :return:
+    #     """
+    #     #self._alive_timer = self.get_latest_data("window_stop")["window_stop"]
+    #     if (Time.now() - self._alive_timer) > self._offline_time:
+    #         print(self.seuid)
+    #         print(Time.now() - self._alive_timer)
+    #         print(self._offline_time)
+    #         self.alive = False
+    #         self.set_state("no recent data")
+    #     else:
+    #         self.alive = True
 
 
     def get_type(self):
@@ -181,7 +184,7 @@ class AbstractItem(QObject):
         :raises KeyError: if an entry is in the rated dictionary but not found in the message
         """
         self._data_lock.acquire()
-        self._alive_timer = rospy.Time.now()
+        #self._alive_timer = rospy.Time.now()
         for attribute in self._data:
             try:
                 if attribute is "frequency":
@@ -661,16 +664,16 @@ class AbstractItem(QObject):
                 for entry in self._attributes:
                     if self._rated_data[entry + ".state"]:
                         if self._rated_data[entry + ".state"][-1] is "high" or self._rated_data[entry + ".state"][
-                            -1] is "low":
+                                -1] is "low":
                             content += self.tr(entry) + \
                                        self.tr(" actual_value:") + \
                                        " <span class=\"erroneous_entry\">" + prepare_number_for_representation(
-                                self._rated_data[entry + ".actual_value"][-1][0]) + "</span>" + \
+                                self._rated_data[entry + ".actual_value"][-1][0]) + "</span> " + \
                                        self.tr(entry + "_unit") + "<br>"
                             content += self.tr(entry) + \
                                        self.tr(" expected_value:") + \
                                        " <span class=\"erroneous_entry\">" + str(
-                                self._rated_data[entry + ".expected_value"][-1][0]) + "</span>" + \
+                                self._rated_data[entry + ".expected_value"][-1][0]) + "</span> " + \
                                        self.tr(entry + "_unit") + "<br>"
                             content += self.tr(entry) + \
                                        self.tr(" state:") + \
@@ -701,12 +704,16 @@ class AbstractItem(QObject):
         """
         self._data_lock.acquire()
         content = ""
-        if self.__state:
+        if len(self._rated_data["window_stop"]) != 0:
             if self.get_state() is not "ok" and self.get_state() is not "unknown":
+                if self._rated_data["alive.state"][-1] == "high" or self._rated_data["alive.state"][-1] == "low":
+                    content += self.tr("alive") + ": " + str(self._rated_data["alive.actual_value"][-1][-1]) + ", "
+
                 for entry in self._attributes:
                     if self._rated_data[entry + ".state"]:
-                        if self._rated_data[entry + ".state"][-1]:
-                            content += self.tr(entry) + ": " + str(self._rated_data[entry + ".state"][-1])
-
+                        if self._rated_data[entry + ".state"][-1] == "high" or self._rated_data[entry + ".state"][-1] is "low":
+                            content += self.tr(entry) + ": " + str(self._rated_data[entry + ".state"][-1]) + ", "
+        else:
+            return "Not sufficient rated data yet"
         self._data_lock.release()
         return content

@@ -134,7 +134,6 @@ class MonitoringNode:
         Iterates over all registered specifications and sends an error if no package is received but was expected.
         """
         for seuid in self.__specification_handler.loaded_specifications():
-            print(seuid)
             if seuid not in self.__alive_timers.keys():
                 spec = self.__specification_handler.get(seuid)
                 alive_timer = spec.get("alive_timer")

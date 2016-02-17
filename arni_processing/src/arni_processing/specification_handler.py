@@ -4,6 +4,7 @@ from rated_statistics import RatedStatisticsContainer
 from arni_core.helper import *
 import arni_msgs
 from arni_msgs.msg import RatedStatistics, RatedStatisticsEntity
+#from arni_gui.helper_functions import prepare_number_for_representation
 
 
 class SpecificationHandler:
@@ -89,15 +90,7 @@ class SpecificationHandler:
         if identifier[0] == "n":
             result.host = data.host
         if specification is None:
-            # if identifier in self.__specifications.keys():
-            #     specification = self.__specifications[identifier]
-            # else:
-            #     if identifier[0] == "c":
-            #         if SEUID(identifier).topic in self.__specifications.keys():
-            #             specification = self.__specifications[SEUID(identifier).topic]
             specification = self.get(identifier)
-        # if specification is None:
-        # rospy.logdebug("[SpecificationHandler][compare] No Specification available for %s" % identifier)
         window_len = data.window_stop - data.window_start
         if window_len.to_sec() == 0:
             window_len = rospy.Duration(1)

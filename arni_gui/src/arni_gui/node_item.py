@@ -51,16 +51,12 @@ class NodeItem(AbstractItem):
         for item in self._attributes:
             self._add_data_list(item)
 
-        self.__rated_attributes = []
-        self.__rated_attributes.append("alive.actual_value")
-        self.__rated_attributes.append("alive.expected_value")
-        self.__rated_attributes.append("alive.state")         
         for item in self._attributes:
-            self.__rated_attributes.append(item + ".actual_value")
-            self.__rated_attributes.append(item + ".expected_value")
-            self.__rated_attributes.append(item + ".state")
+            self._rated_attributes.append(item + ".actual_value")
+            self._rated_attributes.append(item + ".expected_value")
+            self._rated_attributes.append(item + ".state")
 
-        for item in self.__rated_attributes:
+        for item in self._rated_attributes:
             self._add_rated_data_list(item)
 
         self._logger.log("info", Time.now(), seuid, "Created a new NodeItem")
@@ -201,7 +197,9 @@ class NodeItem(AbstractItem):
         """
         data_dict = self.get_latest_data()
 
-        if (Time.now() - data_dict["window_stop"]) > Duration(MAXIMUM_OFFLINE_TIME):
+        if data_dict["window_stop"] == Time(0):
+            return "No data yet"
+        elif (Time.now() - data_dict["window_stop"]) > Duration(MAXIMUM_OFFLINE_TIME):
             # last entry was more than MAXIMUM_OFFLINE_TIME ago, it could be offline!
             return "No data since " + str(round((Time.now() - data_dict["window_stop"]).to_sec(), ROUND_DIGITS)) \
                    + " seconds"

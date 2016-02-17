@@ -42,17 +42,13 @@ class ConnectionItem(AbstractItem):
         for item in self._attributes:
             self._add_data_list(item)
 
-        self.__rated_attributes = []
-        self.__rated_attributes.append("alive.actual_value")
-        self.__rated_attributes.append("alive.expected_value")
-        self.__rated_attributes.append("alive.state")
         for item in self._attributes:
-            self.__rated_attributes.append(item + ".actual_value")
-            self.__rated_attributes.append(item + ".expected_value")
-            self.__rated_attributes.append(item + ".state")
+            self._rated_attributes.append(item + ".actual_value")
+            self._rated_attributes.append(item + ".expected_value")
+            self._rated_attributes.append(item + ".state")
 
 
-        for item in self.__rated_attributes:
+        for item in self._rated_attributes:
             self._add_rated_data_list(item)
 
         self._logger.log("info", Time.now(), seuid, "Created a new ConnectionItem")
@@ -169,7 +165,9 @@ class ConnectionItem(AbstractItem):
         :rtype: str
         """
         data_dict = self.get_latest_data()
-        if (Time.now() - data_dict["window_stop"]) > Duration(MAXIMUM_OFFLINE_TIME):
+        if data_dict["window_stop"] == Time(0):
+            return "No data yet"
+        elif (Time.now() - data_dict["window_stop"]) > Duration(MAXIMUM_OFFLINE_TIME):
             # last entry was more than MAXIMUM_OFFLINE_TIME ago, it could be offline!
             return "No data since " + prepare_number_for_representation(Time.now() - data_dict["window_stop"]) \
                    + " seconds"
@@ -178,11 +176,11 @@ class ConnectionItem(AbstractItem):
         if data_dict["state"] is "error":
             content += self.get_erroneous_entries_for_log()
         else:
+            content += self.tr("frequency") + ": " + prepare_number_for_representation(data_dict["frequency"]) \
+                       + " " + self.tr("frequency_unit") + "  - "
             content += self.tr("bandwidth") + ": " + prepare_number_for_representation(
                 data_dict["bandwidth"]) + " " \
                        + self.tr("bandwidth_unit") + " - "
-            content += self.tr("frequency") + ": " + prepare_number_for_representation(data_dict["frequency"]) \
-                       + " " + self.tr("frequency_unit") + "  - "
             content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) \
                        + " " + self.tr("dropped_msgs_unit")
 

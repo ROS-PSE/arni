@@ -124,23 +124,31 @@ def choose_brush(index):
 
     return None
 
-
 def prepare_number_for_representation(number):
     """
     Prepares the incoming statistics for the GUI.
     Rounds the number to two decimals.
 
     :param number: the number to be rounded
-    
+
     :return: the rounded number
     :rtype: str
     """
     if number is None:
         return "unknown"
+    if type(number) is int or type(number) is float:
+        return str(round(number, ROUND_DIGITS))
     if type(number) is genpy.rostime.Duration or type(number) is genpy.rostime.Time:
         return str(round(number.to_sec(), ROUND_DIGITS))
     if type(number) is str or type(number) is unicode:
         return number
+    if isinstance(number, (list, tuple)):
+        ret = "["
+        for item in number:
+            ret += prepare_number_for_representation(item) + ","
+        ret = ret[:-1]
+        ret += "]"
+        return ret
     return str(round(number, ROUND_DIGITS))
 
 

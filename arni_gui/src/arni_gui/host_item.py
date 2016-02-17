@@ -42,17 +42,13 @@ class HostItem(AbstractItem):
 
         for item in self._attributes:
             self._add_data_list(item)
-
-        self.__rated_attributes = []
-        self.__rated_attributes.append("alive.actual_value")
-        self.__rated_attributes.append("alive.expected_value")
-        self.__rated_attributes.append("alive.state")
+       
         for item in self._attributes:
-            self.__rated_attributes.append(item + ".actual_value")
-            self.__rated_attributes.append(item + ".expected_value")
-            self.__rated_attributes.append(item + ".state")
+            self._rated_attributes.append(item + ".actual_value")
+            self._rated_attributes.append(item + ".expected_value")
+            self._rated_attributes.append(item + ".state")
 
-        for item in self.__rated_attributes:
+        for item in self._rated_attributes:
             self._add_rated_data_list(item)
 
         self._logger.log("info", Time.now(), seuid, "Created a new HostItem")
@@ -197,7 +193,9 @@ class HostItem(AbstractItem):
         """
         data_dict = self.get_latest_data()
 
-        if (Time.now() - data_dict["window_stop"]) > Duration(MAXIMUM_OFFLINE_TIME):
+        if data_dict["window_stop"] == Time(0):
+            return "No data yet"
+        elif (Time.now() - data_dict["window_stop"]) > Duration(MAXIMUM_OFFLINE_TIME):
             # last entry was more than MAXIMUM_OFFLINE_TIME ago, it could be offline!
             return "No data since " + prepare_number_for_representation(Time.now() - data_dict["window_stop"]) \
                    + " seconds"
@@ -209,9 +207,9 @@ class HostItem(AbstractItem):
             content += self.tr("cpu_usage_mean") + ": " + prepare_number_for_representation(data_dict["cpu_usage_mean"]) \
                        + " " + self.tr("cpu_usage_mean_unit") + " - "
             content += self.tr("ram_usage_mean") + ": " + prepare_number_for_representation(data_dict["ram_usage_mean"]) \
-                       + " " + self.tr("ram_usage_mean_unit")
+                       + " " + self.tr("ram_usage_mean_unit") + " - "
             content += self.tr("cpu_temp_mean") + ": " + prepare_number_for_representation(data_dict["cpu_temp_mean"]) \
-                       + " " + self.tr("cpu_temp_mean_unit") + " - "
+                       + " " + self.tr("cpu_temp_mean_unit")
 
         return content
 

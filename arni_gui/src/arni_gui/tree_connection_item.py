@@ -20,7 +20,7 @@ class TreeConnectionItem(QObject):
         
         self.marked = False
         self.seuid = self.connection_item.seuid
-        self.alive = True
+        #self.alive = True
 
     def append_data(self, message):
         """

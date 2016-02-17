@@ -1,5 +1,5 @@
 from arni_msgs.msg import RatedStatistics, RatedStatisticsEntity
-
+from arni_gui.helper_functions import prepare_number_for_representation
 
 class RatedStatisticsContainer:
     """
@@ -87,20 +87,20 @@ class RatedStatisticsContainer:
             values = self.get_value(k)
             if isinstance(values["actual"], (list, tuple)):
                 for i, v in enumerate(values["actual"]):
-                    re.actual_value.append(str(v))
+                    re.actual_value.append(prepare_number_for_representation(v))
                     try:
                         re.state.append(values["state"][i])
-                        re.expected_value.append(str(values["expected"][i]))
+                        re.expected_value.append(prepare_number_for_representation(values["expected"][i]))
                     except TypeError:
                         re.state.append(values["state"])
                         re.expected_value.append("?")
             else:
-                re.actual_value.append(str(values["actual"]))
+                re.actual_value.append(prepare_number_for_representation(values["actual"]))
                 re.state.append(values["state"])
                 if values["expected"] is None:
                     re.expected_value.append("?")
                 else:
-                    re.expected_value.append(str(values["expected"]))
+                    re.expected_value.append(prepare_number_for_representation(values["expected"]))
             r.rated_statistics_entity.append(re)
         return r
 
