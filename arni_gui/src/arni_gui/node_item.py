@@ -1,4 +1,4 @@
-from rospy.rostime import Time
+from rospy.rostime import Time, Duration
 from rospy import ServiceException
 import rospy
 
@@ -10,7 +10,7 @@ from arni_core.host_lookup import HostLookup
 from arni_core.helper import SEUID
 import arni_core.helper as helper
 from arni_msgs.srv import NodeReaction
-from helper_functions import prepare_number_for_representation
+from helper_functions import prepare_number_for_representation, MAXIMUM_OFFLINE_TIME, ROUND_DIGITS
 
 
 class NodeItem(AbstractItem):
@@ -201,10 +201,14 @@ class NodeItem(AbstractItem):
         """
         data_dict = self.get_latest_data()
 
+        if (Time.now() - data_dict["window_stop"]) > Duration(MAXIMUM_OFFLINE_TIME):
+            # last entry was more than MAXIMUM_OFFLINE_TIME ago, it could be offline!
+            return "No data since " + str(round((Time.now() - data_dict["window_stop"]).to_sec(), ROUND_DIGITS)) \
+                   + " seconds"
+
         content = ""
         if data_dict["state"] is "error":
             content += self.get_erroneous_entries_for_log()
-            pass
         else:
             content += self.tr("node_cpu_usage_mean") + ": " + prepare_number_for_representation(
             data_dict["node_cpu_usage_mean"]) + " " + self.tr("node_cpu_usage_mean_unit") + " - "

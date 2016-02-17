@@ -277,6 +277,7 @@ class SelectionWidget(QWidget):
         :type selected_item: QModelIndex
         """
         if index is not None:
+            self.__update_graphs_lock.acquire()
             src_index = index.model().mapToSource(index)
             self.__selected_item = src_index.internalPointer()
             self.__log_filter_proxy.filter_by_item(self.__selected_item)
@@ -291,6 +292,7 @@ class SelectionWidget(QWidget):
                     self.stop_push_button.setEnabled(False)
                     self.restart_push_button.setEnabled(False)
                 self.__selected_item_changed = True
+            self.__update_graphs_lock.release()
             self.update()
             self.__on_graph_window_size_changed()
 
@@ -398,12 +400,12 @@ class SelectionWidget(QWidget):
                 if self.__previous_state is not self.__state:
                     self.__previous_state = self.__state
                     if self.__state == "ok":
-                        self.current_status_label.setText(self.tr("online"))
+                        self.current_status_label.setText(self.tr("ok"))
                         #self.host_node_label.setText(self.tr("Current Status: Ok"))
                         pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
                                                       'block_green.png'))
                     elif self.__state == "warning":
-                        self.current_status_label.setText(self.tr("online"))
+                        self.current_status_label.setText(self.tr("warning"))
                         #self.host_node_label.setText(self.tr("Current Status: Warning"))
                         pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
                                                       'block_orange.png'))
@@ -412,8 +414,8 @@ class SelectionWidget(QWidget):
                         #self.host_node_label.setText(self.tr("Current Status: Unkown"))
                         pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
                                                       'block_grey.png'))
-                    else:
-                        #self.host_node_label.setText(self.tr("Current Status: Error"))
+                    else: # error or offline
+                        self.current_status_label.setText(self.tr(self.__state))
                         pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
                                                       'block_red.png'))
                     self.status_light_label.setPixmap(pixmap)

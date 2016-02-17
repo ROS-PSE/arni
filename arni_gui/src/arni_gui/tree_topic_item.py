@@ -1,6 +1,7 @@
 from connection_item import ConnectionItem
 
 from python_qt_binding.QtCore import QObject
+from rospy import Time
 
 class TreeTopicItem(QObject):
     def __init__(self, parent, topic_item, is_subscriber):
@@ -23,9 +24,27 @@ class TreeTopicItem(QObject):
 
         self.local_children = []
 
+
+    def _updateTimer(self, event):
+        """
+        Updates the timer to the last changed status. If it
+        :return:
+        """
+        print("here")
+        self.alive = False
+        for child in self.get_childs(self):
+            print(child.get_seuid + " is " + str(child.alive))
+            if child.alive:
+                self.alive = True
+                break
+
+        if not self.alive:
+            self.set_state("offline")
+
+
     def append_data(self, message):
         """
-        Appends data to the data of the AbstractItem.
+        Appends data to the data of the TreeTopicItem.
 
         :param message: the message to append
         :type message: one of the different message types TopicStatistics, HostStatistics or NodeStatistics
@@ -35,6 +54,7 @@ class TreeTopicItem(QObject):
         IMPORTANT: If connection item is subscriber the data will not be actualized since it is assumed that there
         is also an publisher. When the publisher receives data it will be pushed into the connection_item.
         """
+        self.alive = True
         if not self.is_subscriber:
             self.topic_item.append_data(message)
 

@@ -43,7 +43,9 @@ class RootItem(AbstractItem):
 
         for item in self.__rated_attributes:
             self._add_rated_data_list(item)
-            
+
+    def _updateTimer(self, event):
+        self.alive = True
 
     def append_data_dict(self, data):
         """
@@ -54,6 +56,7 @@ class RootItem(AbstractItem):
         :raises KeyError: if an entry is in the global data dictionary but not found in the given dictionary
         """
         self._data_lock.acquire()
+        self.alive = True
         if "window_stop" not in data:
             data["window_stop"] = Time.now()
 

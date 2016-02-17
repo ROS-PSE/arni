@@ -87,19 +87,6 @@ class MonitoringNode:
             # any data
             # TODO does this change the current behaviour of the program? And how could I prevent it
             self.__report_alive(seuid)
-            # if seuid[0] == "t":
-           # if seuid not in self.__alive_timers.keys():
-           #      spec = self.__specification_handler.get(seuid)
-           #      alive_timer = spec.get("alive_timer")
-           #      if not alive_timer:
-           #          alive_timer = rospy.get_param("~alive_timer", 10)
-           #      else:
-           #          alive_timer = alive_timer[1]
-           #      self.__alive_timers[seuid] = rospy.Duration(alive_timer)
-           #  if seuid not in self.__alive_countdown.keys():
-           #      self.__alive_countdown[seuid] = rospy.Time.now()
-           #  if rospy.Time.now() >= self.__alive_countdown[seuid] + self.__alive_timers[seuid]:
-           #      self.__process_data(TopicStatistics(), seuid)
 
     def receive_data(self, data):
         """
@@ -147,6 +134,7 @@ class MonitoringNode:
         Iterates over all registered specifications and sends an error if no package is received but was expected.
         """
         for seuid in self.__specification_handler.loaded_specifications():
+            print(seuid)
             if seuid not in self.__alive_timers.keys():
                 spec = self.__specification_handler.get(seuid)
                 alive_timer = spec.get("alive_timer")

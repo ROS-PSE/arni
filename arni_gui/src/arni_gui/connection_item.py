@@ -1,11 +1,11 @@
 from python_qt_binding.QtCore import QTranslator
 
-from rospy import Time, Duration
+from rospy.rostime import Time, Duration
 
 import genpy
 
 from abstract_item import AbstractItem
-from helper_functions import prepare_number_for_representation
+from helper_functions import prepare_number_for_representation, MAXIMUM_OFFLINE_TIME, ROUND_DIGITS
 
 
 class ConnectionItem(AbstractItem):
@@ -60,26 +60,6 @@ class ConnectionItem(AbstractItem):
         self.show_as_subscriber = False
         self.tree_item1 = None
         self.tree_item2 = None
-
-    def append_data(self, message):
-        """
-        Appends data to the data of the AbstractItem.
-
-        :param message: the message to append
-        :type message: one of the different message types TopicStatistics, HostStatistics or NodeStatistics
-        :raises KeyError: if an entry is in the rated dictionary but not found in the message
-        """
-        self._data_lock.acquire()
-        for attribute in self._data:
-            if attribute is "frequency":
-                self._data[attribute].append(message.delivered_msgs / (message.window_stop - message.window_start).to_sec())
-            elif attribute is "bandwidth":
-                self._data[attribute].append(message.traffic / (message.window_stop - message.window_start).to_sec())
-            else:
-                self._data[attribute].append(getattr(message, attribute))
-
-        self._length_of_data += 1
-        self._data_lock.release()
 
 
     def aggregate_data(self, period):
@@ -189,21 +169,22 @@ class ConnectionItem(AbstractItem):
         :rtype: str
         """
         data_dict = self.get_latest_data()
-        if Time.now() - data_dict["window_stop"] > Duration(secs=5):
-            return "No recent data"
+        if (Time.now() - data_dict["window_stop"]) > Duration(MAXIMUM_OFFLINE_TIME):
+            # last entry was more than MAXIMUM_OFFLINE_TIME ago, it could be offline!
+            return "No data since " + prepare_number_for_representation(Time.now() - data_dict["window_stop"]) \
+                   + " seconds"
 
         content = ""
         if data_dict["state"] is "error":
             content += self.get_erroneous_entries_for_log()
-            pass
         else:
-            content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(
-                data_dict["dropped_msgs"]) + " " \
-                       + self.tr("dropped_msgs_unit") + " - "
-            content += self.tr("period_mean") + ": " + prepare_number_for_representation(data_dict["period_mean"]) \
-                       + " " + self.tr("period_mean_unit") + "  - "
-            content += self.tr("stamp_age_mean") + ": " + prepare_number_for_representation(data_dict["stamp_age_mean"]) \
-                       + " " + self.tr("stamp_age_mean_unit")
+            content += self.tr("bandwidth") + ": " + prepare_number_for_representation(
+                data_dict["bandwidth"]) + " " \
+                       + self.tr("bandwidth_unit") + " - "
+            content += self.tr("frequency") + ": " + prepare_number_for_representation(data_dict["frequency"]) \
+                       + " " + self.tr("frequency_unit") + "  - "
+            content += self.tr("dropped_msgs") + ": " + prepare_number_for_representation(data_dict["dropped_msgs"]) \
+                       + " " + self.tr("dropped_msgs_unit")
 
         return content
 

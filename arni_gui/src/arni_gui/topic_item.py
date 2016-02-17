@@ -4,7 +4,8 @@ import rospy
 from python_qt_binding.QtCore import QTranslator
 
 from abstract_item import AbstractItem
-from helper_functions import prepare_number_for_representation, UPDATE_FREQUENCY, TOPIC_AGGREGATION_FREQUENCY
+from helper_functions import prepare_number_for_representation, UPDATE_FREQUENCY, TOPIC_AGGREGATION_FREQUENCY, \
+    ROUND_DIGITS, MAXIMUM_OFFLINE_TIME
 from arni_core.helper import SEUID, SEUID_DELIMITER
 from node_item import NodeItem
 
@@ -74,6 +75,23 @@ class TopicItem(AbstractItem):
 
         self.tree_items = []
         self.__aggregation_window = rospy.get_param("~aggregation_window", 3)
+
+    def _updateTimer(self, event):
+        """
+        Updates the timer to the last changed status. If it
+        :return:
+        """
+        self.alive = False
+        # TODO this can be very expensive - is there a better way?
+        for item in self.tree_items:
+            for child in item.get_childs():
+                if child.alive:
+                    self.alive = True
+                    break
+
+        if not self.alive:
+            self.set_state("offline")
+
 
     def get_child(self, row, parent=None):
         """
@@ -394,6 +412,11 @@ class TopicItem(AbstractItem):
                 data_dict[key] = self.tr("Currently no value available")
 
         data_dict["state"] = self.get_state()
+
+        if (Time.now() - data_dict["window_stop"]) > Duration(MAXIMUM_OFFLINE_TIME):
+            # last entry was more than MAXIMUM_OFFLINE_TIME ago, it could be offline!
+            return "No data since " + prepare_number_for_representation(Time.now() - data_dict["window_stop"]) \
+                   + " seconds"
 
         content = ""
         if data_dict["state"] is "error":

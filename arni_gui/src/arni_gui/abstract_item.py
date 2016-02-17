@@ -2,10 +2,12 @@ from threading import Lock
 import time as tm
 
 from rospy.rostime import Duration, Time
+import rospy
 
 from python_qt_binding.QtCore import QTranslator, QObject
 
-from helper_functions import prepare_number_for_representation, topic_statistics_state_to_string
+from helper_functions import prepare_number_for_representation, topic_statistics_state_to_string, \
+    ALIVE_TIMER_CALLBACK, MAXIMUM_OFFLINE_TIME, WARNING_TIMEOUT
 
 
 class AbstractItem(QObject):
@@ -59,7 +61,30 @@ class AbstractItem(QObject):
         self._data_lock = Lock()
         self._rated_data_lock = Lock()
 
+        self._alive_timer = rospy.Time.now()
+        self.alive = True
+        rospy.Timer(rospy.Duration(ALIVE_TIMER_CALLBACK), self._updateTimer)
+        self._offline_time = rospy.Duration(MAXIMUM_OFFLINE_TIME)
+
+
         self.is_subscriber = False
+
+
+    def _updateTimer(self, event):
+        """
+        Updates the timer to the last changed status. If it
+        :return:
+        """
+        #self._alive_timer = self.get_latest_data("window_stop")["window_stop"]
+        if (Time.now() - self._alive_timer) > self._offline_time:
+            print(self.seuid)
+            print(Time.now() - self._alive_timer)
+            print(self._offline_time)
+            self.alive = False
+            self.set_state("no recent data")
+        else:
+            self.alive = True
+
 
     def get_type(self):
         """
@@ -85,7 +110,10 @@ class AbstractItem(QObject):
         self.__state.append(state)
 
     def set_state(self, state):
-        self.__state[-1] = state
+        if len(self.__state) is not 0:
+            self.__state[-1] = state
+        else:
+            self.__state.append(state)
 
     def get_state(self):
         """
@@ -134,9 +162,8 @@ class AbstractItem(QObject):
         if self.get_state():
             if self.get_state() is not "error":
                 last_states = self.get_rated_items_younger_than(Time.now() - (
-                    Duration(secs=5) if int(Duration(secs=5).to_sec()) <= int(Time.now().to_sec()) else Time(0)),
+                    Duration(secs=WARNING_TIMEOUT) if int(Duration(secs=5).to_sec()) <= int(Time.now().to_sec()) else Time(0)),
                                                                 "state")
-
                 try:
                     for i in range(0, len(last_states["state"])):
                         if last_states["state"][i] is "error":
@@ -154,9 +181,15 @@ class AbstractItem(QObject):
         :raises KeyError: if an entry is in the rated dictionary but not found in the message
         """
         self._data_lock.acquire()
+        self._alive_timer = rospy.Time.now()
         for attribute in self._data:
             try:
-                self._data[attribute].append(getattr(message, attribute))
+                if attribute is "frequency":
+                    self._data[attribute].append(message.delivered_msgs / (message.window_stop - message.window_start).to_sec())
+                elif attribute is "bandwidth":
+                    self._data[attribute].append(message.traffic / (message.window_stop - message.window_start).to_sec())
+                else:
+                    self._data[attribute].append(getattr(message, attribute))
             except KeyError:
                 print("KeyError occurred when trying to access %s", attribute)
                 raise
@@ -280,7 +313,7 @@ class AbstractItem(QObject):
                     # elif key is 'data':
                     # return_dict['data'] = self.get_short_data()
                 elif key is 'state':
-                    if self.__state:
+                    if len(self.__state) is not 0:
                         return_dict['state'] = self.get_state()
                     else:
                         return_dict["state"] = "unknown"
@@ -322,7 +355,7 @@ class AbstractItem(QObject):
                     return_dict[entry] = self._rated_data[entry][-1]
                 else:
                     return_dict[entry] = self.tr("Currently no value available")
-            if self.__state:
+            if len(self.__state) is not 0:
                 return_dict['state'] = self.get_state()
             else:
                 return_dict['state'] = "unknown"
@@ -648,6 +681,17 @@ class AbstractItem(QObject):
         self._data_lock.release()
         return content
 
+    def can_execute_actions(self):
+        """
+        This item cannot execute actions
+
+        :return: False
+        """
+        return False
+
+    def get_short_data(self):
+        return self.get_erroneous_entries_for_log()
+
     def get_erroneous_entries_for_log(self):
         """
         Returns the erroneous entries for the log as a string
@@ -661,20 +705,8 @@ class AbstractItem(QObject):
             if self.get_state() is not "ok" and self.get_state() is not "unknown":
                 for entry in self._attributes:
                     if self._rated_data[entry + ".state"]:
-                        if self._rated_data[entry + ".state"][-1] is "high" or self._rated_data[entry + ".state"][
-                            -1] is "low":
-                            content += self.tr(entry) + ": " + str(self._rated_data[entry + ".state"][-1]) + "  "
+                        if self._rated_data[entry + ".state"][-1]:
+                            content += self.tr(entry) + ": " + str(self._rated_data[entry + ".state"][-1])
 
         self._data_lock.release()
         return content
-
-    def can_execute_actions(self):
-        """
-        This item cannot execute actions
-
-        :return: False
-        """
-        return False
-
-    def get_short_data(self):
-        raise NotImplementedError()

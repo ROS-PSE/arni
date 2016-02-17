@@ -248,7 +248,6 @@ class ROSModel(QAbstractItemModel):
             return QModelIndex()
 
         child_item = index.internalPointer()
-        #print(type(child_item))
         parent_item = child_item.parent()
 
         if parent_item == self.__root_item:
@@ -310,6 +309,7 @@ class ROSModel(QAbstractItemModel):
         :param master_api_data: data from the master api
         :type master_api_data: MasterApi
         """
+        self.__model_lock.acquire()
         self.layoutAboutToBeChanged.emit()
 
         if self.__buffer_thread:
@@ -455,8 +455,23 @@ class ROSModel(QAbstractItemModel):
 
             # now give this information to the root :)
             self.__root_item.append_data_dict(data_dict)
+        self.__model_lock.release()
+       # self.__checkIfAlive()
 
         self.layoutChanged.emit()
+
+    # def __checkIfAlive(self):
+    #     """
+    #     Checks for any gui element if it is still alive. If not the state "unknown" is changed to "offline".
+    #     """
+    #     self.__model_lock.acquire()
+    #     for item in self.__identifier_dict.values():
+    #         if item is not self.__root_item:
+    #             # get the timer
+    #
+    #
+    #     self.__model_lock.release()
+
 
     def __transform_rated_statistics_item(self, item):
         """
@@ -638,10 +653,7 @@ class ROSModel(QAbstractItemModel):
                     found = False
                     for child in parent.get_childs():
                         # add it
-                        #print(child.seuid)
-                        #print(seuid)
                         if child.seuid == seuid:
-                            #print("xxx")
                             found = True
                     if not found:
                         topic_item1 = TreeTopicItem(parent, item, False)
@@ -666,8 +678,6 @@ class ROSModel(QAbstractItemModel):
             elif seuid[0] == "c":
                 topic_seuid = self.__seuid_helper.from_string("t", self.__seuid_helper.get_field("t", seuid))
                 if self.__seuid_helper.publisher is None:
-                    #print(self.__seuid_helper.publisher)
-                    #p#rint(self.__seuid_helper.subscriber)
                     raise UserWarning()
                 # getting back the logical parent - a TopicItem
                 pub = self.__seuid_helper.publisher
@@ -690,10 +700,7 @@ class ROSModel(QAbstractItemModel):
                         found += 1
                         tree_item.tree_item2 = TreeConnectionItem(tree_item, item, True)
                         tree_item.append_child(tree_item.tree_item2)
-                #if found == 2:
-                #    print("YESSSS")
                 if found != 2:
-                #    print(found)
                     raise UserWarning()
             if item is not None:
                 self.__identifier_dict[seuid] = item

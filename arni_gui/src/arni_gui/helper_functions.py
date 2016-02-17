@@ -38,6 +38,26 @@ The time intervall after which the topics should be aggregated in nsecs.
 """
 TOPIC_AGGREGATION_FREQUENCY = 1000000000
 
+"""
+Specifies in seconds the rate at which the alive timer of the items will be called.
+"""
+ALIVE_TIMER_CALLBACK = 3
+
+"""
+Defines how long an item is allowed to be offline before the GUI shows "offline" as the state.
+"""
+MAXIMUM_OFFLINE_TIME = 20
+
+"""
+Defines how long warning will be displayed after an error occured.
+"""
+WARNING_TIMEOUT = 5
+
+"""
+The amount of digits to which the GUI typically rounds. Might not be used everywhere yet.
+"""
+ROUND_DIGITS = 2
+
 try:
     import pyqtgraph as pg
 except ImportError as e:
@@ -118,10 +138,10 @@ def prepare_number_for_representation(number):
     if number is None:
         return "unknown"
     if type(number) is genpy.rostime.Duration or type(number) is genpy.rostime.Time:
-        return str(number.to_sec())
+        return str(round(number.to_sec(), ROUND_DIGITS))
     if type(number) is str or type(number) is unicode:
         return number
-    return str(round(number, 2))
+    return str(round(number, ROUND_DIGITS))
 
 
 def find_qm_files(translation_directory):

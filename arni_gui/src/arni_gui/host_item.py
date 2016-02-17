@@ -4,7 +4,8 @@ from python_qt_binding.QtCore import QObject
 from python_qt_binding.QtCore import QTranslator
 
 from abstract_item import AbstractItem
-from helper_functions import prepare_number_for_representation
+from helper_functions import prepare_number_for_representation, MAXIMUM_OFFLINE_TIME, ROUND_DIGITS
+from rospy import Duration
 
 
 class HostItem(AbstractItem):
@@ -196,17 +197,21 @@ class HostItem(AbstractItem):
         """
         data_dict = self.get_latest_data()
 
+        if (Time.now() - data_dict["window_stop"]) > Duration(MAXIMUM_OFFLINE_TIME):
+            # last entry was more than MAXIMUM_OFFLINE_TIME ago, it could be offline!
+            return "No data since " + prepare_number_for_representation(Time.now() - data_dict["window_stop"]) \
+                   + " seconds"
+
         content = ""
         if data_dict["state"] is "error":
             content += self.get_erroneous_entries_for_log()
-            pass
         else:
             content += self.tr("cpu_usage_mean") + ": " + prepare_number_for_representation(data_dict["cpu_usage_mean"]) \
                        + " " + self.tr("cpu_usage_mean_unit") + " - "
-            content += self.tr("cpu_temp_mean") + ": " + prepare_number_for_representation(data_dict["cpu_temp_mean"]) \
-                       + " " + self.tr("cpu_temp_mean_unit") + " - "
             content += self.tr("ram_usage_mean") + ": " + prepare_number_for_representation(data_dict["ram_usage_mean"]) \
                        + " " + self.tr("ram_usage_mean_unit")
+            content += self.tr("cpu_temp_mean") + ": " + prepare_number_for_representation(data_dict["cpu_temp_mean"]) \
+                       + " " + self.tr("cpu_temp_mean_unit") + " - "
 
         return content
 

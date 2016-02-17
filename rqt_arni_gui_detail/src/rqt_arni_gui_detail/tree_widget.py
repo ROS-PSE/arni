@@ -127,6 +127,7 @@ class TreeWidget(QWidget):
             self.recording_push_button.setText("Start recording")
             print("Stopping the recording and saving the data")
             self.__recording_running = False
+            abort = False
 
             for seuid, item in self.__marked_items_map.iteritems():
                 storage.append({})
@@ -169,13 +170,16 @@ class TreeWidget(QWidget):
                             storage[-1][seuid][key] = [min, max]
 
                     filename = QFileDialog.getSaveFileName(self)
-                    if filename[0] is not u"":
-                        with open(filename[0], u"w") as outfile:
-                            outfile.write(yaml.dump(storage, default_flow_style=False))
+
                 else:
+                    abort = True
                     QMessageBox.warning(self, "Warning", "Not enough data for elements provided. "
                                                          "Please try recording for a longer period of time"
-                                                         " or start further components. ")
+                                                     " or start further components. ")
+
+            if not abort and filename[0] is not u"":
+                with open(filename[0], u"w") as outfile:
+                    outfile.write(yaml.dump(storage, default_flow_style=False))
 
 
 
