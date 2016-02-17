@@ -43,8 +43,6 @@ class HostLookup(object):
                 self.__node_dict[node] = ip
             else:
                 return None
-                # raise UserWarning("Warning: host of node " + node + " was not found!")
-                # self.__node_dict[node] = "127.0.0.1"
 
         return self.__node_dict.get(node)
 

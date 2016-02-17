@@ -113,12 +113,15 @@ class TreeWidget(QWidget):
     def __on_load_config_push_button_clicked(self):
         filename = QFileDialog.getOpenFileName(self)
 
-        os.system("rosparam load " + filename[0] + " /arni/specifications/rqt_arni_loaded" + str(self.loaded_specs))
+        output = os.system("rosparam load " + filename[0] + " /arni/specifications/rqt_arni_loaded" + str(self.loaded_specs))
         os.system("rosservice call /monitoring_node/reload_specifications")
+        print("If there just popped up an error message, please make sure the processing node is running / "
+              "running correctly.")
         self.loaded_specs += 1
 
     def __on_recording_push_button_clicked(self):
         storage = []
+
 
         if self.__recording_running:  # stop now
             self.recording_push_button.setText("Start recording")
@@ -165,23 +168,27 @@ class TreeWidget(QWidget):
                             # add new min/max pair to the storage
                             storage[-1][seuid][key] = [min, max]
 
-
+                    filename = QFileDialog.getSaveFileName(self)
+                    if filename[0] is not u"":
+                        with open(filename[0], u"w") as outfile:
+                            outfile.write(yaml.dump(storage, default_flow_style=False))
                 else:
                     QMessageBox.warning(self, "Warning", "Not enough data for elements provided. "
                                                          "Please try recording for a longer period of time"
                                                          " or start further components. ")
 
-            filename = QFileDialog.getSaveFileName(self)
-            if filename[0] is not u"":
-                with open(filename[0], u"w") as outfile:
-                    outfile.write(yaml.dump(storage, default_flow_style=False))
+
 
         else:  # start now
-            print("Started recording")
-            self.recording_push_button.setText("Stop recording")
-            self.start_time = Time.now()
+            if len(self.__marked_items_map) == 0:
+                QMessageBox.warning(self, "Warning", "You did not mark any items for recording. Please do so "
+                                                     "before pushing the button. Aborting the recording.")
+            else:
+                print("Started recording")
+                self.recording_push_button.setText("Stop recording")
+                self.start_time = Time.now()
 
-            self.__recording_running = True
+                self.__recording_running = True
 
     def __contextual_menu(self, point):
         index = self.item_tree_view.indexAt(point)

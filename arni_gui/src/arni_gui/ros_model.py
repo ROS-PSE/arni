@@ -467,6 +467,14 @@ class ROSModel(QAbstractItemModel):
         """
         # get identifier
         seuid = item.seuid
+        if item.seuid == "t!/image_raw":
+            tmp = self.__identifier_dict[seuid]
+            for i in range(0, len(item.rated_statistics_entity)):
+                if item.rated_statistics_entity[i].statistic_type == "frequency":
+                    print(item.rated_statistics_entity[i].actual_value)
+                    print(tmp.get_latest_data()["frequency"])
+
+
         # check if avaiable
         if seuid not in self.__identifier_dict:
             # having a problem, item doesn't exist but should not be created here

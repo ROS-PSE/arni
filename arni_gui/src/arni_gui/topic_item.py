@@ -73,8 +73,7 @@ class TopicItem(AbstractItem):
         self.__timer = Timer(Duration(nsecs=TOPIC_AGGREGATION_FREQUENCY), self.__aggregate_topic_data)
 
         self.tree_items = []
-        #self.tree_item1 = None
-        #self.tree_item2 = None
+        self.__aggregation_window = rospy.get_param("~aggregation_window", 3)
 
     def get_child(self, row, parent=None):
         """
@@ -125,11 +124,6 @@ class TopicItem(AbstractItem):
                     childs.append(child)
                     continue
 
-                #node_comp = seuid_helper.subscriber
-
-                #if node == node_comp:
-                 #   # match.
-                #    childs.append(child)
             return childs
         else:
             return self._child_items
@@ -291,7 +285,7 @@ class TopicItem(AbstractItem):
 
         child_count = 0
         for connection in self.get_childs():  # !assuming all childs are connection items!
-            values = connection.aggregate_data(5)  # average over N seconds
+            values = connection.aggregate_data(self.__aggregation_window)  # average over N seconds
 
             if values:
                 for key in self.add_keys:

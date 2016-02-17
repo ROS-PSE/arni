@@ -45,5 +45,4 @@ class TestHostLookup(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    # todo: rosunit.unitrun...
     unittest.main()

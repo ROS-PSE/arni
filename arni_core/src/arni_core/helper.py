@@ -6,6 +6,7 @@ import rosgraph_msgs
 from rosgraph_msgs.msg import TopicStatistics
 from rospy.exceptions import ROSInitException
 
+
 """
 This helper module contains useful functions and variables that
 are needed throughout the whole arni package.
@@ -262,31 +263,19 @@ def generate_seuids_from_master_api_data(master_api_data):
     """
     pubs, subs, srvs = master_api_data.pubs, master_api_data.subs, master_api_data.srvs
 
-
     conn = TopicStatistics()
     seuid_helper = SEUID()
 
-
     seuids = []
     found = False
-    # for sub in subs:
-    #     # add topic
-    #     conn.topic = sub.name
-    #     seuid_helper.from_message(conn, True)
-    #     seuids.append(seuid_helper.identifier)
 
     for pub in pubs:
-        # # add topic
-        # conn.topic = pub.name
-        # seuid_helper.from_message(conn, True)
-        # seuids.append(seuid_helper.identifier)
+        # add topic
         for sub in subs:
             if pub is sub:
                 # found the subscribers and publishers of the same topic, now create n*m connections
                 for real_pub in pub.content:
                     for real_sub in sub.content:
-                        # create seuid
-                        # add it
                         conn.node_sub = real_sub
                         conn.node_pub = real_pub
                         seuid_helper.from_message(conn)
