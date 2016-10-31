@@ -1,5 +1,8 @@
 from python_qt_binding.QtCore import QAbstractItemModel, QModelIndex, QTranslator, Qt, Signal
-from python_qt_binding.QtGui import qApp
+try:  # Qt4 vs Qt5
+  from python_qt_binding.QtGui import qApp
+except ImportError:
+  from python_qt_binding.QtWidgets import qApp
 
 from threading import Lock
 from size_delegate import SizeDelegate

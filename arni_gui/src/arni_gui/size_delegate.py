@@ -1,4 +1,8 @@
-from python_qt_binding.QtGui import QStyledItemDelegate, QFont, QBrush, QColor
+try:  # Qt4 vs Qt5
+  from python_qt_binding.QtGui import QStyledItemDelegate
+except ImportError:
+  from python_qt_binding.QtWidgets import QStyledItemDelegate
+from python_qt_binding.QtGui import QFont, QBrush, QColor
 from helper_functions import choose_brush
 from python_qt_binding.QtCore import QObject, QSize
 

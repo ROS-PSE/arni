@@ -1,4 +1,7 @@
-from python_qt_binding.QtGui import QSortFilterProxyModel
+try:  # Qt4 vs Qt5
+  from python_qt_binding.QtGui import QSortFilterProxyModel
+except ImportError:
+  from python_qt_binding.QtCore import QSortFilterProxyModel
 from python_qt_binding.QtCore import QObject, QModelIndex
 
 from arni_gui.topic_item import TopicItem

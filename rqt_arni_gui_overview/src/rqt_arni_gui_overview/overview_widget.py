@@ -9,11 +9,14 @@ from rospy.rostime import Time, Duration
 from rospy.timer import Timer
 
 from python_qt_binding import loadUi
-from python_qt_binding.QtGui import QTabWidget, QWidget
+try:  # Qt4 vs Qt5
+  from python_qt_binding.QtGui import QTabWidget, QWidget, QLabel, QVBoxLayout, QSizePolicy
+except ImportError:
+  from python_qt_binding.QtWidgets import QTabWidget, QWidget, QLabel, QVBoxLayout, QSizePolicy
 from python_qt_binding.QtCore import QObject, Qt
 from python_qt_binding import QtCore
 from python_qt_binding.QtCore import QRegExp
-from python_qt_binding.QtGui import QPixmap, QLabel, QVBoxLayout, QSizePolicy
+from python_qt_binding.QtGui import QPixmap
 
 from arni_gui.ros_model import ROSModel
 from arni_gui.log_filter_proxy import LogFilterProxy
