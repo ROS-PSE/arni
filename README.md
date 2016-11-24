@@ -9,6 +9,14 @@ Further information can be found at: http://wiki.ros.org/arni
 Also there are a few to tutorials which cover most basics: http://wiki.ros.org/arni/Tutorials
 
 
+## Note for ROS kinetic:
+pyqtgraph has to be installed manually for this package to work correctly (don't ask me why):
+```bash
+git clone git@github.com:pyqtgraph/pyqtgraph.git
+cd pyqtgraph; sudo python setup.py install
+```
+
+
 ===
 
 Guidelines for developers:
