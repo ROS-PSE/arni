@@ -7,13 +7,18 @@ from rospy.rostime import Time, Duration
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import QObject, Qt, QRegExp
-from python_qt_binding.QtGui import *
 
 from arni_gui.ros_model import ROSModel
 from arni_gui.size_delegate import SizeDelegate
 from arni_gui.item_filter_proxy import ItemFilterProxy
 
-from python_qt_binding.QtGui import QSortFilterProxyModel, QAction
+try:  # Qt4 vs Qt5
+  from python_qt_binding.QtGui import QSortFilterProxyModel
+  from python_qt_binding.QtGui import *
+except ImportError:
+  from python_qt_binding.QtCore import QSortFilterProxyModel
+  from python_qt_binding.QtWidgets import QWidget
+from python_qt_binding.QtGui import QAction
 from python_qt_binding.QtCore import QPoint
 
 import yaml

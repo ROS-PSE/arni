@@ -5,7 +5,10 @@ import rospkg
 from overview_widget import OverviewWidget
 
 from python_qt_binding import loadUi
-from python_qt_binding.QtGui import QWidget, qApp
+try:  # Qt4 vs Qt5
+  from python_qt_binding.QtGui import QWidget, qApp
+except ImportError:
+  from python_qt_binding.QtWidgets import QWidget, qApp
 
 from rqt_gui_py.plugin import Plugin
 

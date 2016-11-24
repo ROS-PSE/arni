@@ -1,7 +1,10 @@
 import sys
 
 from abstract_item import AbstractItem
-from python_qt_binding.QtGui import QSortFilterProxyModel
+try:  # Qt4 vs Qt5
+  from python_qt_binding.QtGui import QSortFilterProxyModel
+except ImportError:
+  from python_qt_binding.QtCore import QSortFilterProxyModel
 from python_qt_binding.QtCore import QObject, QRegExp, Qt
 
 if sys.version_info[0] is 2 or (sys.version_info[0] is 3 and sys.version_info[1] < 2):

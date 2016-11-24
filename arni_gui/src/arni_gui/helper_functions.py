@@ -122,7 +122,8 @@ def choose_brush(index):
     elif index.data() == "error":
         return QColor(255, 0, 0)
 
-    return None
+    return QColor(255, 255, 255)
+
 
 def prepare_number_for_representation(number):
     """
