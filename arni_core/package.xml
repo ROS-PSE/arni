@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>arni_core</name>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
   <description>
     This package contains common ARNI functionality.
     Furthermore, generic launch files and integration tests.
