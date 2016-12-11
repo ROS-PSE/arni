@@ -135,6 +135,12 @@ catkin_package(
 #   PATTERN ".svn" EXCLUDE
 # )
 
+#catkin_install_python(PROGRAMS scripts/   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
+install(DIRECTORY launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+)
+
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES
 #   # myfile1

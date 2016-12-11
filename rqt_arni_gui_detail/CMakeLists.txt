@@ -27,6 +27,8 @@ install(PROGRAMS scripts/rqt_arni_gui_detail
  # DEPENDS system_lib
 #)
 
+catkin_install_python(PROGRAMS scripts/rqt_arni_gui_detail DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
 
 #include_directories(
  # ${catkin_INCLUDE_DIRS}
