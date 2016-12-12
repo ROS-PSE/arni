@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rqt_arni_gui_detail)
+project(arni_rqt_detail_plugin)
 
 
 find_package(catkin REQUIRED COMPONENTS qt_gui)
