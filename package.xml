@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package>
+   <name>arni</name>
+   <version>1.1.3</version>
+   <description>
+     Metapackage for Advanced Ros Network Introspection.
+   </description>
+ 
+   <maintainer email="matthiashadlich@yahoo.de">Matthias Hadlich</maintainer>
+   <maintainer email="andreas.bihlmaier@gmx.de">Andreas Bihlmaier</maintainer>
+ 
+   <license>BSD</license>
+   <url type="website">http://wiki.ros.org/arni</url>
+  
+   <buildtool_depend>catkin</buildtool_depend>
+   <run_depend>arni_msgs</run_depend>
+   <run_depend>arni_core</run_depend>
+   <run_depend>arni_countermeasure</run_depend>
+   <run_depend>arni_processing</run_depend>
+   <run_depend>arni_nodeinterface</run_depend>
+   <run_depend>arni_gui</run_depend>
+   <run_depend>arni_rqt_detail_plugin</run_depend>
+   <run_depend>arni_rqt_overview_plugin</run_depend>
+
+	 <export>
+   		<metapackage />
+	 </export>
+</package>
