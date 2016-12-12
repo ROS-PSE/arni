@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <library path="src">
-	<class name ="arni_gui_detail" type="rqt_arni_gui_detail.arni_gui_detail.ArniGuiDetail" base_class_type="rqt_gui_py::Plugin">
+	<class name ="arni_gui_detail" type="arni_rqt_detail_plugin.arni_gui_detail.ArniGuiDetail" base_class_type="rqt_gui_py::Plugin">
 		<description>
 			The ArniGuiDetail-Plugin gives detailed information about actual connected hosts/nodes/topics/connections.
 		</description>

@@ -16,4 +16,4 @@
 
 * if the 2 plugins don't appear in the *Introspection* section, close rqt and delete the rqt-config-file, now restart rqt: `rm ~/.config/ros.org/rqt_gui.ini`
 
-* **IT'S NOW POSSIBLE TO START OUR PLUGINS VIA :**`rosrun rqt_arni_gui_overview rqt_arni_gui_overview` **AND** `rosrun rqt_arni_gui_detail rqt_arni_gui_detail`
+* **IT'S NOW POSSIBLE TO START OUR PLUGINS VIA :**`rosrun arni_rqt_overview_plugin arni_rqt_overview_plugin` **AND** `rosrun arni_rqt_detail_plugin arni_rqt_detail_plugin`

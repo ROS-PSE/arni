@@ -47,7 +47,7 @@ class OverviewWidget(QWidget):
 
         # Get path to UI file which is a sibling of this file
         self.rp = rospkg.RosPack()
-        ui_file = os.path.join(self.rp.get_path('rqt_arni_gui_overview'), 'resources', 'OverviewWidget.ui')
+        ui_file = os.path.join(self.rp.get_path('arni_rqt_overview_plugin'), 'resources', 'OverviewWidget.ui')
         # Extend the widget with all attributes and children from UI file
         loadUi(ui_file, self)
 
@@ -285,15 +285,15 @@ class OverviewWidget(QWidget):
             self.__previous_state = self.__state
             if self.__state == "ok":
                 self.status_text_line_edit.setText(self.tr("Current status: Ok"))
-                pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_overview'), 'resources/graphics',
+                pixmap = QPixmap(os.path.join(self.rp.get_path('arni_rqt_overview_plugin'), 'resources/graphics',
                                               'light_green.png'))
             elif self.__state == "warning":
                 self.status_text_line_edit.setText(self.tr("Current status: Warning"))
-                pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_overview'), 'resources/graphics',
+                pixmap = QPixmap(os.path.join(self.rp.get_path('arni_rqt_overview_plugin'), 'resources/graphics',
                                               'light_orange.png'))
             else:
                 self.status_text_line_edit.setText(self.tr("Current status: Error"))
-                pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_overview'), 'resources/graphics',
+                pixmap = QPixmap(os.path.join(self.rp.get_path('arni_rqt_overview_plugin'), 'resources/graphics',
                                               'light_red.png'))
             self.status_light_label.setPixmap(pixmap)
 

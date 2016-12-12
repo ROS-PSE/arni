@@ -16,7 +16,7 @@ install(FILES plugin.xml
 	DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 install(DIRECTORY resources
 	DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
-install(PROGRAMS scripts/rqt_arni_gui_detail
+install(PROGRAMS scripts/arni_rqt_detail_plugin
 	DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 
@@ -27,7 +27,7 @@ install(PROGRAMS scripts/rqt_arni_gui_detail
  # DEPENDS system_lib
 #)
 
-catkin_install_python(PROGRAMS scripts/rqt_arni_gui_detail DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+catkin_install_python(PROGRAMS scripts/arni_rqt_detail_plugin DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 
 #include_directories(

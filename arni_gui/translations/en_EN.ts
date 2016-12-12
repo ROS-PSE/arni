@@ -711,57 +711,57 @@
 <context>
     <name>OverviewWidget</name>
     <message>
-        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="74"/>
+        <location filename="../arni_rqt_overview_plugin/src/arni_rqt_overview_plugin/overview_widget.py" line="74"/>
         <source>Seconds</source>
         <translation>Seconds</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="77"/>
+        <location filename="../arni_rqt_overview_plugin/src/arni_rqt_overview_plugin/overview_widget.py" line="77"/>
         <source>Information</source>
         <translation>Information</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="78"/>
+        <location filename="../arni_rqt_overview_plugin/src/arni_rqt_overview_plugin/overview_widget.py" line="78"/>
         <source>Graphs</source>
         <translation>Graphs</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="79"/>
+        <location filename="../arni_rqt_overview_plugin/src/arni_rqt_overview_plugin/overview_widget.py" line="79"/>
         <source>Log</source>
         <translation>Log</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="81"/>
+        <location filename="../arni_rqt_overview_plugin/src/arni_rqt_overview_plugin/overview_widget.py" line="81"/>
         <source>Selected</source>
         <translation>Selected</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="82"/>
+        <location filename="../arni_rqt_overview_plugin/src/arni_rqt_overview_plugin/overview_widget.py" line="82"/>
         <source>Range</source>
         <translation>Range</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="241"/>
+        <location filename="../arni_rqt_overview_plugin/src/arni_rqt_overview_plugin/overview_widget.py" line="241"/>
         <source>Continue</source>
         <translation>Continue</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="244"/>
+        <location filename="../arni_rqt_overview_plugin/src/arni_rqt_overview_plugin/overview_widget.py" line="244"/>
         <source>Pause</source>
         <translation>Pause</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="284"/>
+        <location filename="../arni_rqt_overview_plugin/src/arni_rqt_overview_plugin/overview_widget.py" line="284"/>
         <source>Current status: Ok</source>
         <translation>Current Status: Ok</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="288"/>
+        <location filename="../arni_rqt_overview_plugin/src/arni_rqt_overview_plugin/overview_widget.py" line="288"/>
         <source>Current status: Warning</source>
         <translation>Current Status: Warning</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_overview/src/rqt_arni_gui_overview/overview_widget.py" line="292"/>
+        <location filename="../arni_rqt_overview_plugin/src/arni_rqt_overview_plugin/overview_widget.py" line="292"/>
         <source>Current status: Error</source>
         <translation>Current Status: Error</translation>
     </message>
@@ -885,102 +885,102 @@
 <context>
     <name>SelectionWidget</name>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="91"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/selection_widget.py" line="91"/>
         <source>Seconds</source>
         <translation>Seconds</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="94"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/selection_widget.py" line="94"/>
         <source>Information</source>
         <translation>Information</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="95"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/selection_widget.py" line="95"/>
         <source>Graphs</source>
         <translation>Graphs</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="96"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/selection_widget.py" line="96"/>
         <source>Log</source>
         <translation>Log</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="97"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/selection_widget.py" line="97"/>
         <source>Actions</source>
         <translation>Actions</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="99"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/selection_widget.py" line="99"/>
         <source>Stop Node</source>
         <translation>Stop Node</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="100"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/selection_widget.py" line="100"/>
         <source>Restart Node</source>
         <translation>Restart Node</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="104"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/selection_widget.py" line="104"/>
         <source>Selected</source>
         <translation>Selected</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="105"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/selection_widget.py" line="105"/>
         <source>Range</source>
         <translation>Range</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="410"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/selection_widget.py" line="410"/>
         <source>online</source>
         <translation>Online</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="406"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/selection_widget.py" line="406"/>
         <source>Current Status: Ok</source>
         <translation>Current Status: Ok</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="411"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/selection_widget.py" line="411"/>
         <source>Current Status: Warning</source>
         <translation>Current Status: Warning</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="415"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/selection_widget.py" line="415"/>
         <source>unkown</source>
         <translation>Unknown</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="416"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/selection_widget.py" line="416"/>
         <source>Current Status: Unkown</source>
         <translation>Current Status: Unkown</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="420"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/selection_widget.py" line="420"/>
         <source>Current Status: Error</source>
         <translation>Current Status: Error</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="430"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/selection_widget.py" line="430"/>
         <source>No item selected</source>
         <translation>No item selected</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="431"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/selection_widget.py" line="431"/>
         <source>Offline</source>
         <translation>Offline</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="433"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/selection_widget.py" line="433"/>
         <source>Please select an item in the TreeView to get more information about it</source>
         <translation>Please select an item in the TreeView to get more information about it</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="260"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/selection_widget.py" line="260"/>
         <source>Continue</source>
         <translation>Continue</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/selection_widget.py" line="263"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/selection_widget.py" line="263"/>
         <source>Pause</source>
         <translation>Pause</translation>
     </message>
@@ -1086,37 +1086,37 @@
 <context>
     <name>TreeWidget</name>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/tree_widget.py" line="66"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/tree_widget.py" line="66"/>
         <source>Show Nodes</source>
         <translation>Show Nodes</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/tree_widget.py" line="67"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/tree_widget.py" line="67"/>
         <source>Show Hosts</source>
         <translation>Show Hosts</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/tree_widget.py" line="68"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/tree_widget.py" line="68"/>
         <source>Show Topics</source>
         <translation>Show Topics</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/tree_widget.py" line="69"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/tree_widget.py" line="69"/>
         <source>Show Connections</source>
         <translation>Show Connections</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/tree_widget.py" line="70"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/tree_widget.py" line="70"/>
         <source>Only Erroneous</source>
         <translation>Erroneous Only</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/tree_widget.py" line="71"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/tree_widget.py" line="71"/>
         <source>Apply</source>
         <translation>Apply</translation>
     </message>
     <message>
-        <location filename="../rqt_arni_gui_detail/src/rqt_arni_gui_detail/tree_widget.py" line="72"/>
+        <location filename="../arni_rqt_detail_plugin/src/arni_rqt_detail_plugin/tree_widget.py" line="72"/>
         <source>Also show Subscribers</source>
         <translation>Also show Subscribers</translation>
     </message>

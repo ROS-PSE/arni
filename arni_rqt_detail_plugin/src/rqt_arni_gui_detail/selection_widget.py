@@ -44,7 +44,7 @@ class SelectionWidget(QWidget):
 
         # Get path to UI file which is a sibling of this file
         self.rp = rospkg.RosPack()
-        ui_file = os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources', 'SelectionWidget.ui')
+        ui_file = os.path.join(self.rp.get_path('arni_rqt_detail_plugin'), 'resources', 'SelectionWidget.ui')
         # Extend the widget with all attributes and children from UI file
         loadUi(ui_file, self)
         self.setObjectName('SelectionWidgetUi')
@@ -402,21 +402,21 @@ class SelectionWidget(QWidget):
                     if self.__state == "ok":
                         self.current_status_label.setText(self.tr("ok"))
                         #self.host_node_label.setText(self.tr("Current Status: Ok"))
-                        pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
+                        pixmap = QPixmap(os.path.join(self.rp.get_path('arni_rqt_detail_plugin'), 'resources/graphics',
                                                       'block_green.png'))
                     elif self.__state == "warning":
                         self.current_status_label.setText(self.tr("warning"))
                         #self.host_node_label.setText(self.tr("Current Status: Warning"))
-                        pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
+                        pixmap = QPixmap(os.path.join(self.rp.get_path('arni_rqt_detail_plugin'), 'resources/graphics',
                                                       'block_orange.png'))
                     elif self.__state == "unknown":
                         self.current_status_label.setText(self.tr("unkown"))
                         #self.host_node_label.setText(self.tr("Current Status: Unkown"))
-                        pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
+                        pixmap = QPixmap(os.path.join(self.rp.get_path('arni_rqt_detail_plugin'), 'resources/graphics',
                                                       'block_grey.png'))
                     else: # error or offline
                         self.current_status_label.setText(self.tr(self.__state))
-                        pixmap = QPixmap(os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources/graphics',
+                        pixmap = QPixmap(os.path.join(self.rp.get_path('arni_rqt_detail_plugin'), 'resources/graphics',
                                                       'block_red.png'))
                     self.status_light_label.setPixmap(pixmap)
                 content = self.__selected_item.get_detailed_data()

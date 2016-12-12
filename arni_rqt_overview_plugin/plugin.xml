@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <library path="src">
-	<class name ="overview_plugin" type="rqt_arni_gui_overview.arni_gui_overview.ArniGuiOverview" base_class_type="rqt_gui_py::Plugin">
+	<class name ="overview_plugin" type="arni_rqt_overview_plugin.arni_gui_overview.ArniGuiOverview" base_class_type="rqt_gui_py::Plugin">
 		<description>
 			The ArniGuiOverview-Plugin provides general information about the network.
 		</description>

@@ -48,7 +48,7 @@ class TreeWidget(QWidget):
 
         # Get path to UI file which is a sibling of this file
         self.rp = rospkg.RosPack()
-        ui_file = os.path.join(self.rp.get_path('rqt_arni_gui_detail'), 'resources', 'TreeWidget.ui')
+        ui_file = os.path.join(self.rp.get_path('arni_rqt_detail_plugin'), 'resources', 'TreeWidget.ui')
         # Extend the widget with all attributes and children from UI file
         loadUi(ui_file, self)
         self.setObjectName('TreeWidgetUi')
