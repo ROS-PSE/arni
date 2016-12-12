@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>arni_nodeinterface</name>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
   <description>
     The ARNI host manager, which collects host/node statistics and enables the ARNI countermeasure node to run remote commands.
   </description>
