@@ -1,7 +1,0 @@
-rostest arni_core test_node_shutdown.test
-rostest arni_core  test_4_specification.yaml
-rostest arni_nodeinterface test_service.test
-rostest arni_countermeasure test_reaction.test
-rostest arni_countermeasure test_scenario.test
-rostest arni_countermeasure test_storage.test
-rostest arni_processing test_rating_data.test
