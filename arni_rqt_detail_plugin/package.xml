@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>arni_rqt_detail_plugin</name>
-  <version>1.1.4</version>
+  <version>1.1.5</version>
   <description>
     The ARNI rqt_gui detail plugin.
   </description>
