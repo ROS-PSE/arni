@@ -16,8 +16,6 @@ find_package(catkin REQUIRED)
 catkin_python_setup()
 
 
-install(DIRECTORY translations/
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/translations)
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -146,6 +144,8 @@ catkin_package(
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
 
+install(DIRECTORY translations/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/translations)
  
 
 
