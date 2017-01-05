@@ -1,3 +1,4 @@
+from rospy import Duration
 from rospy.rostime import Time
 
 from python_qt_binding.QtCore import QObject
@@ -5,7 +6,6 @@ from python_qt_binding.QtCore import QTranslator
 
 from abstract_item import AbstractItem
 from helper_functions import prepare_number_for_representation, MAXIMUM_OFFLINE_TIME, ROUND_DIGITS
-from rospy import Duration
 
 
 class HostItem(AbstractItem):

@@ -1,14 +1,16 @@
+from rqt_graph.dotcode import QUIET_NAMES
+
 try:  # Qt4 vs Qt5
   from python_qt_binding.QtGui import QSortFilterProxyModel
 except ImportError:
   from python_qt_binding.QtCore import QSortFilterProxyModel
+
 from python_qt_binding.QtCore import QObject, QModelIndex
 
 from arni_gui.topic_item import TopicItem
 from arni_gui.tree_topic_item import TreeTopicItem
 from arni_gui.ros_model import ROSModel
 
-from rqt_graph.dotcode import QUIET_NAMES
 
 import sys
 
@@ -20,7 +22,8 @@ else:
 
 class ItemFilterProxy(QSortFilterProxyModel):
     """
-    The ItemFilterProxy which is a QSortFilterProxyModel helps to filter the data going to the view so the user only sees what he wants to see (which he can modified by telling the view).
+    The ItemFilterProxy which is a QSortFilterProxyModel helps to filter the data going to the view so the user only
+    sees what he wants to see (which he can modified by telling the view).
      """
 
 

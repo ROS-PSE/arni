@@ -1,12 +1,12 @@
+import time
+import genpy
+
+import pyqtgraph as pg
+
 from python_qt_binding.QtGui import QBrush, QColor
 from python_qt_binding import QtCore
 
 from arni_msgs.msg import RatedStatistics
-
-import pyqtgraph as pg
-
-import genpy
-import time
 
 # define constants
 

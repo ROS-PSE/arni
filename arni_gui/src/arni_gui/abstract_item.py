@@ -1,9 +1,8 @@
-from threading import Lock
 import time as tm
+from threading import Lock
 
-from rospy.rostime import Duration, Time
 import rospy
-
+from rospy.rostime import Duration, Time
 from python_qt_binding.QtCore import QTranslator, QObject
 
 from helper_functions import prepare_number_for_representation, topic_statistics_state_to_string, \
@@ -64,29 +63,7 @@ class AbstractItem(QObject):
         self._rated_attributes.append("alive.actual_value")
         self._rated_attributes.append("alive.expected_value")
         self._rated_attributes.append("alive.state")
-
-        #self._alive_timer = rospy.Time.now()
-        #self.alive = True
-        #rospy.Timer(rospy.Duration(ALIVE_TIMER_CALLBACK), self._updateTimer)
-        #self._offline_time = rospy.Duration(MAXIMUM_OFFLINE_TIME)
-
         self.is_subscriber = False
-
-
-    # def _updateTimer(self, event):
-    #     """
-    #     Updates the timer to the last changed status. If it
-    #     :return:
-    #     """
-    #     #self._alive_timer = self.get_latest_data("window_stop")["window_stop"]
-    #     if (Time.now() - self._alive_timer) > self._offline_time:
-    #         print(self.seuid)
-    #         print(Time.now() - self._alive_timer)
-    #         print(self._offline_time)
-    #         self.alive = False
-    #         self.set_state("no recent data")
-    #     else:
-    #         self.alive = True
 
 
     def get_type(self):

@@ -1,6 +1,6 @@
-from rospy.rostime import Time, Duration
-from rospy import ServiceException
 import rospy
+from rospy import ServiceException
+from rospy.rostime import Time, Duration
 
 from python_qt_binding.QtCore import QObject
 from python_qt_binding.QtCore import QTranslator

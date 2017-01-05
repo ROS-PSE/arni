@@ -12,7 +12,6 @@ from node_item import NodeItem
 from rospy.timer import Timer
 from rospy.impl.tcpros_service import ServiceProxy
 from rospy.rostime import Duration
-from rospy.rostime import Time
 from connection_item import ConnectionItem
 
 
@@ -70,23 +69,6 @@ class TopicItem(AbstractItem):
 
         self.tree_items = []
         self.__aggregation_window = rospy.get_param("~aggregation_window", 5)
-
-    # def _updateTimer(self, event):
-    #     """
-    #     Updates the timer to the last changed status. If it
-    #     :return:
-    #     """
-    #     self.alive = False
-    #     # TODO this can be very expensive - is there a better way?
-    #     for item in self.tree_items:
-    #         for child in item.get_childs():
-    #             if child.alive:
-    #                 self.alive = True
-    #                 break
-    #
-    #     if not self.alive:
-    #         self.set_state("offline")
-
 
     def get_child(self, row, parent=None):
         """

@@ -1,16 +1,18 @@
 import sys
 
-from abstract_item import AbstractItem
 try:  # Qt4 vs Qt5
-  from python_qt_binding.QtGui import QSortFilterProxyModel
+    from python_qt_binding.QtGui import QSortFilterProxyModel
 except ImportError:
-  from python_qt_binding.QtCore import QSortFilterProxyModel
-from python_qt_binding.QtCore import QObject, QRegExp, Qt
+    from python_qt_binding.QtCore import QSortFilterProxyModel
+from python_qt_binding.QtCore import QRegExp
 
 if sys.version_info[0] is 2 or (sys.version_info[0] is 3 and sys.version_info[1] < 2):
     from lru_cache import lru_cache
 else:
     from functools import lru_cache
+
+from abstract_item import AbstractItem
+
 
 class LogFilterProxy(QSortFilterProxyModel):
     """
@@ -34,7 +36,7 @@ class LogFilterProxy(QSortFilterProxyModel):
         Invalidates the filter
         """
         QSortFilterProxyModel.invalidateFilter(self)
-        #invalidate cache
+        # invalidate cache
         self.filterAcceptsRow.cache_clear()
 
     @lru_cache(None)
@@ -52,7 +54,6 @@ class LogFilterProxy(QSortFilterProxyModel):
         """
         return QSortFilterProxyModel.filterAcceptsRow(self, source_row, source_parent)
 
-
     def lessThan(self, left, right):
         """
         Defines the sorting of behaviour when comparing two entries of model item by telling how to compare these.
@@ -65,7 +66,6 @@ class LogFilterProxy(QSortFilterProxyModel):
         :returns: bool
         """
         return left < right
-
 
     def filter_by_item(self, item):
         """

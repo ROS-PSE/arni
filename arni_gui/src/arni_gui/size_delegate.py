@@ -3,8 +3,9 @@ try:  # Qt4 vs Qt5
 except ImportError:
   from python_qt_binding.QtWidgets import QStyledItemDelegate
 from python_qt_binding.QtGui import QFont, QBrush, QColor
-from helper_functions import choose_brush
 from python_qt_binding.QtCore import QObject, QSize
+
+from helper_functions import choose_brush
 
 class SizeDelegate(QStyledItemDelegate):
     """

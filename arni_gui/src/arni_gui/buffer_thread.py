@@ -1,13 +1,13 @@
 from threading import Lock, Thread
 
+import rospy
 from rospy.timer import Timer
-from rospy.impl.tcpros_service import ServiceProxy
 from rospy.rostime import Duration
 from rospy.rostime import Time
-import rospy
+from rospy.impl.tcpros_service import ServiceProxy
 from rospy.service import ServiceException
-
 from rosgraph_msgs.msg import TopicStatistics
+
 from arni_msgs.msg import RatedStatistics
 from arni_msgs.msg import NodeStatistics
 from arni_msgs.msg import HostStatistics

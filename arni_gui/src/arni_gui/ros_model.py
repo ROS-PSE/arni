@@ -1,58 +1,51 @@
-from python_qt_binding.QtCore import QAbstractItemModel, QModelIndex, QTranslator, Qt, Signal
-try:  # Qt4 vs Qt5
-  from python_qt_binding.QtGui import qApp
-except ImportError:
-  from python_qt_binding.QtWidgets import qApp
-
 from threading import Lock
-from size_delegate import SizeDelegate
-from abstract_item import AbstractItem
-
-from tree_connection_item import TreeConnectionItem
-from connection_item import ConnectionItem
-# from connection_item_sub import ConnectionItemSub
-from topic_item import TopicItem
-from host_item import HostItem
-from node_item import NodeItem
-from root_item import RootItem
-from tree_topic_item import TreeTopicItem
-
+import time
+import os
 
 import rospy
+import rospkg
 from rospy.rostime import Duration, Time
 from rospy.timer import Timer
 import std_msgs.msg
 
-from arni_core.singleton import Singleton
-import arni_msgs
+from python_qt_binding.QtCore import QAbstractItemModel, QModelIndex, QTranslator, Qt, Signal
 
-from arni_msgs.msg import RatedStatistics
-from arni_msgs.msg import NodeStatistics
-from arni_msgs.msg import HostStatistics
-from arni_core.host_lookup import HostLookup
-from arni_msgs.msg import MasterApi
-
-
-from model_logger import ModelLogger
-
-from arni_core.helper import SEUID, SEUID_DELIMITER, generate_seuids_from_master_api_data
+try:  # Qt4 vs Qt5
+    from python_qt_binding.QtGui import qApp
+except ImportError:
+    from python_qt_binding.QtWidgets import qApp
 
 import rosgraph.impl.graph
 import rosgraph.masterapi
 from rosgraph_msgs.msg import TopicStatistics
 
-_ROS_NAME = ''
+from arni_core.host_lookup import HostLookup
+from arni_core.helper import SEUID, SEUID_DELIMITER, generate_seuids_from_master_api_data
+from arni_core.singleton import Singleton
 
-import time
+import arni_msgs
+from arni_msgs.msg import RatedStatistics
+from arni_msgs.msg import NodeStatistics
+from arni_msgs.msg import HostStatistics
+from arni_msgs.msg import MasterApi
 
+from size_delegate import SizeDelegate
+
+from abstract_item import AbstractItem
+from root_item import RootItem
+from host_item import HostItem
+from node_item import NodeItem
+from topic_item import TopicItem
+from tree_topic_item import TreeTopicItem
+from connection_item import ConnectionItem
+from tree_connection_item import TreeConnectionItem
+from buffer_thread import *
+
+from model_logger import ModelLogger
 from helper_functions import UPDATE_FREQUENCY, MAXIMUM_AMOUNT_OF_ENTRIES, MINIMUM_RECORDING_TIME, \
     topic_statistics_state_to_string, find_qm_files
 
-import rospkg
-import os
-
-from buffer_thread import *
-
+_ROS_NAME = ''
 
 
 class QAbstractItemModelSingleton(Singleton, type(QAbstractItemModel)):
@@ -72,7 +65,9 @@ class ROSModel(QAbstractItemModel):
 
     def __init__(self, parent=None):
         """
-        Defines the class attributes especially the root_item which later contains the list of headers e.g. for a TreeView representation.
+        Defines the class attributes especially the root_item which later contains the list of headers e.g. for a
+        TreeView representation.
+
         :param parent: the parent of the model
         :type parent: QObject
         """
@@ -97,7 +92,6 @@ class ROSModel(QAbstractItemModel):
         self.__model_lock = Lock()
 
         self.update_signal.connect(self.update_model)
-
 
         """
         IMPORTANT: Does not contain the models nodes but the logical nodes. E.g. a ConnectionItem splits up to two
@@ -316,21 +310,23 @@ class ROSModel(QAbstractItemModel):
         self.layoutAboutToBeChanged.emit()
 
         if self.__buffer_thread:
-            rated_statistics, topic_statistics, host_statistics, node_statistics, master_api_data = self.__buffer_thread.get_state()
+            rated_statistics, topic_statistics, host_statistics, node_statistics, master_api_data = \
+                self.__buffer_thread.get_state()
 
             amount_of_entries = 0
             for item in self.__identifier_dict.values():
                 if item is not self.__root_item:
                     amount_of_entries += item.get_amount_of_entries()
 
-            # enables "intelligent" updates when there are only few elements in the model so that most of the history is kept
-            # maybe use something loglike for the range
+            # enables "intelligent" updates when there are only few elements in the model so that most of the
+            # history is kept
             for i in range(5, 0, -1):
                 if amount_of_entries > MAXIMUM_AMOUNT_OF_ENTRIES:
                     for item in self.__identifier_dict.values():
                         if item is not self.__root_item:
                             item.delete_items_older_than(Time.now() - (Duration(secs=i * MINIMUM_RECORDING_TIME) if int(
-                                Duration(secs=i * MINIMUM_RECORDING_TIME).to_sec()) <= int(Time.now().to_sec()) else Time(
+                                Duration(secs=i * MINIMUM_RECORDING_TIME).to_sec()) <= int(
+                                Time.now().to_sec()) else Time(
                                 0)))
 
             if self.__root_item.get_amount_of_entries() > MAXIMUM_AMOUNT_OF_ENTRIES:
@@ -388,14 +384,16 @@ class ROSModel(QAbstractItemModel):
                 data = host_item.get_items_younger_than(Time.now() - (
                     Duration(secs=10) if int(Duration(secs=10).to_sec()) <= int(Time.now().to_sec()) else Time(0)),
                                                         "bandwidth_mean", "cpu_usage_max",
-                                                        "cpu_temp_mean", "cpu_usage_mean", "cpu_temp_max", "ram_usage_max",
+                                                        "cpu_temp_mean", "cpu_usage_mean", "cpu_temp_max",
+                                                        "ram_usage_max",
                                                         "ram_usage_mean")
                 if data["window_stop"]:
                     for key in data:
                         if key is not "window_stop":
                             last_entry[key] = data[key][-1]
                 else:
-                    data = host_item.get_latest_data("bandwidth_mean", "cpu_usage_max", "cpu_temp_mean", "cpu_usage_mean",
+                    data = host_item.get_latest_data("bandwidth_mean", "cpu_usage_max", "cpu_temp_mean",
+                                                     "cpu_usage_mean",
                                                      "cpu_temp_max", "ram_usage_max", "ram_usage_mean")
                     for key in data:
                         last_entry[key] = data[key]
@@ -459,21 +457,7 @@ class ROSModel(QAbstractItemModel):
             # now give this information to the root :)
             self.__root_item.append_data_dict(data_dict)
         self.__model_lock.release()
-       # self.__checkIfAlive()
-
         self.layoutChanged.emit()
-
-    # def __checkIfAlive(self):
-    #     """
-    #     Checks for any gui element if it is still alive. If not the state "unknown" is changed to "offline".
-    #     """
-    #     self.__model_lock.acquire()
-    #     for item in self.__identifier_dict.values():
-    #         if item is not self.__root_item:
-    #             # get the timer
-    #
-    #
-    #     self.__model_lock.release()
 
 
     def __transform_rated_statistics_item(self, item):
@@ -492,13 +476,12 @@ class ROSModel(QAbstractItemModel):
                     print(item.rated_statistics_entity[i].actual_value)
                     print(tmp.get_latest_data()["frequency"])
 
-
         # check if avaiable
         if seuid not in self.__identifier_dict:
             # having a problem, item doesn't exist but should not be created here
             self.__logger.log("Warning", Time.now(), "RosModel", "A rating was received for an item the gui does not "
-                                                                 "know about. This typically means a dead node/ host but"
-                                                                 " could also indicate an error. If this happens at "
+                                                                 "know about. This typically means a dead node/ host "
+                                                                 "but could also indicate an error. If this happens at "
                                                                  "startup you can typically ignore it. ")
         else:
             # update it
@@ -544,7 +527,6 @@ class ROSModel(QAbstractItemModel):
         node_item = self.get_or_add_item_by_seuid(node_seuid)
         if node_item is not None:
             node_item.append_data(item)
-
 
     def __transform_host_statistics_item(self, item):
         """
@@ -629,8 +611,7 @@ class ROSModel(QAbstractItemModel):
                 host = self.__find_host.get_host(node)
                 if host is None:
                     self.__logger.log("Warning", Time.now(), "RosModel", "The node " + node + " does probably no longer"
-                                               " exist (Cannot find its host)."
-                                               " Therefore it was not added to the GUI.")
+                                      " exist (Cannot find its host). Therefore it was not added to the GUI.")
                     item = None
                 else:
                     host_seuid = self.__seuid_helper.from_string("h", host)
@@ -687,10 +668,9 @@ class ROSModel(QAbstractItemModel):
                 sub = self.__seuid_helper.subscriber
                 parent = self.get_or_add_item_by_seuid(topic_seuid, pub, sub)
                 if parent is None:
-                        return None
+                    return None
                 item = ConnectionItem(self.__logger, seuid, None, parent)
                 parent.append_child(item)
-
 
                 found = 0
                 for tree_item in parent.tree_items:

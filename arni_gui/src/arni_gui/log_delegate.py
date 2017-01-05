@@ -1,5 +1,3 @@
-__author__ = 'Matthias Hadlich'
-
 from python_qt_binding.QtGui import QStyledItemDelegate, QFont, QBrush, QColor
 from helper_functions import choose_brush
 

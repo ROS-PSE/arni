@@ -1,12 +1,12 @@
-from connection_item import ConnectionItem
-
-from python_qt_binding.QtCore import QObject
 from rospy import Time
+from python_qt_binding.QtCore import QObject
+
+from connection_item import ConnectionItem
 
 class TreeTopicItem(QObject):
     def __init__(self, parent, topic_item, is_subscriber):
         """
-        has to match the constructor of abstract_item for simplicity
+        Has to match the constructor of abstract_item for simplicity
 
         :param logger:
         :param seuid:
@@ -235,11 +235,6 @@ class TreeTopicItem(QObject):
                     childs.append(child)
                     continue
 
-                #node_comp = seuid_helper.subscriber
-
-                #if node == node_comp:
-                 #   # match.
-                #    childs.append(child)
             return childs
         else:
             return self._child_items
