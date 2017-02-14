@@ -11,6 +11,8 @@
  
    <license>BSD</license>
    <url type="website">http://wiki.ros.org/arni</url>
+   <url type="bugtracker">https://github.com/ROS-PSE/arni/issues</url>url>
+   <url type="repository">https://github.com/ROS-PSE/arni</url>url>
   
    <buildtool_depend>catkin</buildtool_depend>
    <run_depend>arni_msgs</run_depend>
