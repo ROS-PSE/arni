@@ -17,7 +17,9 @@ try:  # Qt4 vs Qt5
   from python_qt_binding.QtGui import *
 except ImportError:
   from python_qt_binding.QtCore import QSortFilterProxyModel
-  from python_qt_binding.QtWidgets import QWidget
+  from python_qt_binding.QtWidgets import *
+
+
 from python_qt_binding.QtGui import QAction
 from python_qt_binding.QtCore import QPoint
 
