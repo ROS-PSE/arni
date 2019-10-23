@@ -2,6 +2,9 @@ ARNI
 =========
 This is the codebase of the Advanced ROS Network Introspection.
 
+
+**Hey guys, sorry for the long neglect of the project. I'd like to know if there is still interest in this project. If you are using it and want it to continue write me: arni-github@posteo.de. I'm also open to different contributors if someone has the time to do so :) Thanks a lot!**
+
 *Please note that this is still a development version. If you find any bugs please report or open pull requests. We will be fixing them as soon as our time permits it.*
 
 ##What is arni?
