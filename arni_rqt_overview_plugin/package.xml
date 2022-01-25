@@ -11,8 +11,8 @@
 
   <license>BSD</license>
   <url type="website">http://wiki.ros.org/arni</url>
-  <url type="bugtracker">https://github.com/ROS-PSE/arni/issues</url>url>
-  <url type="repository">https://github.com/ROS-PSE/arni</url>url>
+  <url type="bugtracker">https://github.com/ROS-PSE/arni/issues</url>url&gt;
+  <url type="repository">https://github.com/ROS-PSE/arni</url>url&gt;
 
   <author email="micha.wetzel@student.kit.edu">Micha Wetzel</author>
   <author email="alex.weber3@gmx.net">Alex Weber</author>
@@ -20,18 +20,21 @@
   <author email="sebastian.kneipp@gmx.net">Sebastian Kneipp</author>
   <author email="matthiashadlich@yahoo.de">Matthias Hadlich</author>
 
-
   <buildtool_depend>catkin</buildtool_depend>
- 
-  <run_depend>rospy</run_depend>
-  <run_depend>rqt_gui</run_depend>
-  <run_depend>rqt_gui_py</run_depend>
-  <run_depend>arni_gui</run_depend>
+  <build_depend>arni_gui</build_depend>
+  <build_depend>python_qt_binding</build_depend>
 
   <build_depend>rospy</build_depend>
   <build_depend>rqt_gui</build_depend>
   <build_depend>rqt_gui_py</build_depend>
-  <build_depend>arni_gui</build_depend>
+  <run_depend>arni_gui</run_depend>
+  <run_depend>python-argparse</run_depend>
+  <run_depend>python-rospkg</run_depend>
+  <run_depend>python_qt_binding</run_depend>
+ 
+  <run_depend>rospy</run_depend>
+  <run_depend>rqt_gui</run_depend>
+  <run_depend>rqt_gui_py</run_depend>
 
   <export>    	
     <rqt_gui plugin="${prefix}/plugin.xml"/>

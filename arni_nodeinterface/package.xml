@@ -11,8 +11,8 @@
 
   <license>BSD</license>
   <url type="website">http://wiki.ros.org/arni</url>
-  <url type="bugtracker">https://github.com/ROS-PSE/arni/issues</url>url>
-  <url type="repository">https://github.com/ROS-PSE/arni</url>url>
+  <url type="bugtracker">https://github.com/ROS-PSE/arni/issues</url>url&gt;
+  <url type="repository">https://github.com/ROS-PSE/arni</url>url&gt;
 
   <author email="micha.wetzel@student.kit.edu">Micha Wetzel</author>
   <author email="alex.weber3@gmx.net">Alex Weber</author>
@@ -21,17 +21,19 @@
   <author email="matthiashadlich@yahoo.de">Matthias Hadlich</author>
 
   <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>arni_msgs</build_depend>
+  <build_depend>rosgraph_msgs</build_depend>
+  <build_depend>roslaunch</build_depend>
+  <build_depend>rosnode</build_depend>
 
   <build_depend>rospy</build_depend>
   <build_depend>rostest</build_depend>
-  <build_depend>arni_msgs</build_depend>
-  <build_depend>rosgraph_msgs</build_depend>
+  <run_depend>arni_msgs</run_depend>
+  <run_depend>python-psutil</run_depend>
+  <run_depend>rosgraph_msgs</run_depend>
+  <run_depend>roslaunch</run_depend>
+  <run_depend>rosnode</run_depend>
 
   <run_depend>rospy</run_depend>
-  <run_depend>arni_msgs</run_depend>
-  <run_depend>rosgraph_msgs</run_depend>
-
-
-  <export>
-  </export>
+  <test_depend>rosunit</test_depend>
 </package>

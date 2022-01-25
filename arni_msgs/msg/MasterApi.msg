@@ -1,6 +1,6 @@
 # publisher
-MasterApiEntity[] pubs
+arni_msgs/MasterApiEntity[] pubs
 # subscriber
-MasterApiEntity[] subs
+arni_msgs/MasterApiEntity[] subs
 # services
-MasterApiEntity[] srvs
+arni_msgs/MasterApiEntity[] srvs
