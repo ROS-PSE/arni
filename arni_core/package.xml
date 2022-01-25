@@ -28,7 +28,8 @@
   <build_depend>rosnode</build_depend>
   <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
-  <run_depend>arni_countermeasure</run_depend>
+  <!--  <run_depend>arni_countermeasure</run_depend>
+        This pkg is indeed referenced, but it causes cyclic dependency (Catkin terminates with failure) so for now commented out so that Catkin doesn't fail.  -->
   <run_depend>arni_msgs</run_depend>
   <run_depend>arni_nodeinterface</run_depend>
   <run_depend>arni_processing</run_depend>

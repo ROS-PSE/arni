@@ -21,6 +21,7 @@
   <author email="matthiashadlich@yahoo.de">Matthias Hadlich</author>
 
   <buildtool_depend>catkin</buildtool_depend>
+<!--  <build_depend>arni_countermeasure</build_depend> This is right, but causes circular depepdency -->
   <build_depend>arni_msgs</build_depend>
   <build_depend>rosgraph_msgs</build_depend>
   <build_depend>roslaunch</build_depend>
