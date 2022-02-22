@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        ros_distro: [ melodic, noetic ]
+        ros_distro: [ melodic ]
         ros_repo: [ main, testing ]
 
     env:
