@@ -23,7 +23,7 @@ install(PROGRAMS scripts/arni_rqt_detail_plugin
 install(FILES resources/SelectionWidget.ui resources/TreeWidget.ui
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/resources
 )
-install(FILES resources/graphics/Ampel Zeichen.png resources/graphics/block_green.png resources/graphics/block_green_old.png resources/graphics/block_grey.png resources/graphics/block_orange.png resources/graphics/block_red.png resources/graphics/block_red_old.png resources/graphics/collaps.png resources/graphics/expand.png resources/graphics/light_green.png resources/graphics/light_grey.png resources/graphics/light_orange.png resources/graphics/light_red.png resources/graphics/minus.png resources/graphics/plus.png
+install(FILES "resources/graphics/Ampel Zeichen.png" resources/graphics/block_green.png resources/graphics/block_green_old.png resources/graphics/block_grey.png resources/graphics/block_orange.png resources/graphics/block_red.png resources/graphics/block_red_old.png resources/graphics/collaps.png resources/graphics/expand.png resources/graphics/light_green.png resources/graphics/light_grey.png resources/graphics/light_orange.png resources/graphics/light_red.png resources/graphics/minus.png resources/graphics/plus.png
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/resources/graphics
 )
 
