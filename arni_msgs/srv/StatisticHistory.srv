@@ -4,11 +4,11 @@ time timestamp
 # each statistic has its own rated statistic. 
 # timestamps can be found at the time windows of each statistic
 
-HostStatistics[] host_statistics
-RatedStatistics[] rated_host_statistics
+arni_msgs/HostStatistics[] host_statistics
+arni_msgs/RatedStatistics[] rated_host_statistics
 
-NodeStatistics[] node_statistics
-RatedStatistics[] rated_node_statistics
+arni_msgs/NodeStatistics[] node_statistics
+arni_msgs/RatedStatistics[] rated_node_statistics
 
 rosgraph_msgs/TopicStatistics[] topic_statistics
-RatedStatistics[] rated_topic_statistics
+arni_msgs/RatedStatistics[] rated_topic_statistics
